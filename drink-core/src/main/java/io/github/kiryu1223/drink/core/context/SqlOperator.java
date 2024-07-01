@@ -1,0 +1,75 @@
+package io.github.kiryu1223.drink.core.context;
+
+import io.github.kiryu1223.expressionTree.expressions.OperatorType;
+
+public enum SqlOperator
+{
+    POS("+",true),                             // +
+    NEG("-",true),                             // -
+    NOT("!",true),                             // !
+    COMPL("~",true),                           // ~
+    PREINC("++",true),                         // ++ _
+    PREDEC("--",true),                         // -- _
+    POSTINC("++"),                        // _ ++
+    POSTDEC("--"),                        // _ --
+
+
+    OR("||"),                             // ||
+    AND("&&"),                            // &&
+    BITOR("|"),                           // |
+    BITXOR("^"),                          // ^
+    BITAND("&"),                          // &
+    EQ("=="),                             // ==
+    NE("!="),                             // !=
+    LT("<"),                              // <
+    GT(">"),                              // >
+    LE("<="),                             // <=
+    GE(">="),                             // >=
+    SL("<<"),                             // <<
+    SR(">>"),                             // >>
+    USR(">>>"),                           // >>>
+    PLUS("+"),                            // +
+    MINUS("-"),                           // -
+    MUL("*"),                             // *
+    DIV("/"),                             // /
+    MOD("%"),                             // %
+
+
+    BITOR_ASG("|="),                      // |=
+    BITXOR_ASG("^="),                     // ^=
+    BITAND_ASG("&="),                     // &=
+
+    SL_ASG("<<="),                        // <<=
+    SR_ASG(">>="),                        // >>=
+    USR_ASG(">>>="),                      // >>>=
+    PLUS_ASG("+="),                       // +=
+    MINUS_ASG("-="),                      // -=
+    MUL_ASG("*="),                        // *=
+    DIV_ASG("/="),                        // /=
+    MOD_ASG("%="),                        // %=
+    ;
+
+    private final String operator;
+    private final boolean isLeft;
+
+    SqlOperator(String operator)
+    {
+        this.operator = operator;
+        this.isLeft = false;
+    }
+    SqlOperator(String operator, boolean isLeft)
+    {
+        this.operator = operator;
+        this.isLeft = isLeft;
+    }
+
+    public String getOperator()
+    {
+        return operator;
+    }
+
+    public boolean isLeft()
+    {
+        return isLeft;
+    }
+}
