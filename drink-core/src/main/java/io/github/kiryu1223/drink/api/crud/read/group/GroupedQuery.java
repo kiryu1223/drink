@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.api.crud.read.group;
 
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.context.SqlContext;
@@ -12,6 +13,10 @@ import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class GroupedQuery<Key, T> extends QueryBase
 {
+    public GroupedQuery(QuerySqlBuilder sqlBuilder)
+    {
+        super(sqlBuilder);
+    }
 
     // region [HAVING]
 
@@ -24,7 +29,7 @@ public class GroupedQuery<Key, T> extends QueryBase
     {
         HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
         SqlContext context = havingVisitor.visit(expr.getTree());
-        getSqlBuilder().getHavings().add(context);
+        getSqlBuilder().addHaving(context);
         return this;
     }
 
@@ -41,7 +46,7 @@ public class GroupedQuery<Key, T> extends QueryBase
     {
         HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
         SqlContext context = havingVisitor.visit(expr.getTree());
-        getSqlBuilder().getOrderBys().add(new SqlOrderContext(asc, context));
+        getSqlBuilder().addOrderBy(new SqlOrderContext(asc, context));
         return this;
     }
 
@@ -69,8 +74,8 @@ public class GroupedQuery<Key, T> extends QueryBase
     {
         SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy());
         SqlContext context = selectVisitor.visit(expr.getTree());
-        getSqlBuilder().setSelects(context);
-        return new LQuery<>();
+        getSqlBuilder().setSelect(context);
+        return new LQuery<>(this);
     }
 
     // endregion

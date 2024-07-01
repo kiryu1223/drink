@@ -5,10 +5,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-class SqlSession
+public class SqlSession
 {
     public interface Function<T, R>
     {
@@ -19,7 +20,7 @@ class SqlSession
 
     public SqlSession()
     {
-        this.dataSource = DataSourcesManager.getDataSource();
+        this.dataSource = DataSourcesManager.getDefluteDataSource();
     }
 
     public SqlSession(String key)
@@ -27,7 +28,7 @@ class SqlSession
         this.dataSource = DataSourcesManager.getDataSource(key);
     }
 
-    public <R> R executeQuery(Function<ResultSet, R> func, String sql, List<Objects> values)
+    public <R> R executeQuery(Function<ResultSet, R> func, String sql, List<Object> values)
     {
         try (Connection connection = dataSource.getConnection())
         {
@@ -46,11 +47,16 @@ class SqlSession
         }
     }
 
-    private void setObjects(PreparedStatement preparedStatement, List<Objects> values) throws SQLException
+    public <R> R executeQuery(Function<ResultSet, R> func, String sql)
+    {
+        return executeQuery(func, sql, Collections.emptyList());
+    }
+
+    private void setObjects(PreparedStatement preparedStatement, List<Object> values) throws SQLException
     {
         for (int i = 1; i <= values.size(); i++)
         {
-            Objects value = values.get(i);
+            Object value = values.get(i);
             preparedStatement.setObject(i, value);
         }
     }

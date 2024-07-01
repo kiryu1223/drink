@@ -6,8 +6,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DataSourcesManager
 {
-    private DataSourcesManager(){}
+    private DataSourcesManager()
+    {
+    }
+
     private static final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
+
+    private static DataSource defluteDataSource;
 
     public static Map<String, DataSource> getDataSourceMap()
     {
@@ -19,8 +24,13 @@ public class DataSourcesManager
         return dataSourceMap.get(key);
     }
 
-    public static DataSource getDataSource()
+    public static DataSource getDefluteDataSource()
     {
-        return dataSourceMap.get("");
+        return defluteDataSource;
+    }
+
+    public static void setDeflateDataSource(DataSource defluteDataSource)
+    {
+        DataSourcesManager.defluteDataSource = defluteDataSource;
     }
 }

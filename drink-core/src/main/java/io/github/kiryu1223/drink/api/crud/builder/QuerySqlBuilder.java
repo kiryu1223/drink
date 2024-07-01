@@ -1,85 +1,140 @@
 package io.github.kiryu1223.drink.api.crud.builder;
 
+import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.context.SqlAsNameContext;
 import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.context.SqlFromQueryContext;
+import io.github.kiryu1223.drink.core.context.SqlFromTableContext;
+import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class QuerySqlBuilder implements ISqlBuilder
 {
-    private SqlContext selects;
+    private final Config config;
+    private SqlContext select;
+    private boolean distinct = false;
+    private final List<SqlContext> from = new ArrayList<>();
     private final List<SqlContext> joins = new ArrayList<>();
-    private final List<SqlContext> where = new ArrayList<>();
+    private final List<SqlContext> wheres = new ArrayList<>();
     private SqlContext groupBy;
     private final List<SqlContext> havings = new ArrayList<>();
     private final List<SqlContext> orderBys = new ArrayList<>();
-    private long offset = 0, rows = 0;
-    private final Class<?> queryClass;
-    private final List<Class<?>> joinClass=new ArrayList<>();
+    private SqlContext limit;
 
-    public QuerySqlBuilder(Class<?> queryClass)
+    private final List<Class<?>> orderedClass = new ArrayList<>();
+    private Class<?> targetClass;
+
+    private boolean queried = false;
+
+    public QuerySqlBuilder(Config config)
     {
-        this.queryClass = queryClass;
+        this.config = config;
     }
 
-    public SqlContext getSelects()
+    private void subQueried()
     {
-        return selects;
+        queried = true;
     }
 
-    public void setSelects(SqlContext selects)
+    public void setTargetClass(Class<?> targetClass)
     {
-        this.selects = selects;
+        this.targetClass = targetClass;
     }
 
-    public List<SqlContext> getJoins()
+    public Class<?> getTargetClass()
     {
-        return joins;
+        return targetClass;
     }
 
-    public List<SqlContext> getWhere()
+    public void joinBy(QuerySqlBuilder querySqlBuilder)
     {
-        return where;
+        from.addAll(querySqlBuilder.from);
+        joins.addAll(querySqlBuilder.joins);
+        targetClass = querySqlBuilder.targetClass;
+        queried = querySqlBuilder.queried;
     }
 
-    public SqlContext getGroupBy()
+    public void setSelect(SqlContext select)
     {
-        return groupBy;
+        this.select = select;
+        subQueried();
+    }
+
+    public void addFrom(Class<?> queryClass)
+    {
+        SqlFromTableContext sqlFromTableContext = new SqlFromTableContext(ExpressionUtil.getTableName(queryClass));
+        from.add(new SqlAsNameContext("t" + from.size(), sqlFromTableContext));
+        orderedClass.add(queryClass);
+        if (targetClass == null)
+        {
+            targetClass = queryClass;
+        }
+    }
+
+    public void addFrom(Class<?>... queryClasses)
+    {
+        for (Class<?> queryClass : queryClasses)
+        {
+            addFrom(queryClass);
+        }
+    }
+
+    public void addFrom(QuerySqlBuilder sqlBuilder)
+    {
+        from.add(new SqlAsNameContext("t" + from.size(), new SqlFromQueryContext(sqlBuilder)));
+        orderedClass.addAll(sqlBuilder.orderedClass);
+        if (targetClass == null)
+        {
+            targetClass = sqlBuilder.targetClass;
+        }
+    }
+
+    public void addFrom(QuerySqlBuilder... sqlBuilders)
+    {
+        for (QuerySqlBuilder sqlBuilder : sqlBuilders)
+        {
+            addFrom(sqlBuilder);
+        }
+    }
+
+    public void addJoin(Class<?> target, SqlContext join)
+    {
+        SqlAsNameContext sqlAsNameContext = new SqlAsNameContext("t" + from.size() + joins.size(), join);
+        joins.add(sqlAsNameContext);
+        orderedClass.add(target);
+        subQueried();
+    }
+
+    public void addWhere(SqlContext where)
+    {
+        wheres.add(where);
+        subQueried();
     }
 
     public void setGroupBy(SqlContext groupBy)
     {
         this.groupBy = groupBy;
+        subQueried();
     }
 
-    public List<SqlContext> getHavings()
+    public void addHaving(SqlContext having)
     {
-        return havings;
+        havings.add(having);
+        subQueried();
     }
 
-    public List<SqlContext> getOrderBys()
+    public void addOrderBy(SqlContext orderBy)
     {
-        return orderBys;
+        orderBys.add(orderBy);
+        subQueried();
     }
 
-    public long getOffset()
+    public void setLimit(SqlContext limit)
     {
-        return offset;
-    }
-
-    public void setOffset(long offset)
-    {
-        this.offset = offset;
-    }
-
-    public long getRows()
-    {
-        return rows;
-    }
-
-    public void setRows(long rows)
-    {
-        this.rows = rows;
+        this.limit = limit;
+        subQueried();
     }
 
     @Override
@@ -88,13 +143,24 @@ public class QuerySqlBuilder implements ISqlBuilder
         return null;
     }
 
-    public Class<?> getQueryClass()
+    @Override
+    public String getSqlAndValue(List<Object> values)
     {
-        return queryClass;
+        return null;
     }
 
-    public List<Class<?>> getJoinClass()
+    public SqlContext getGroupBy()
     {
-        return joinClass;
+        return groupBy;
+    }
+
+    public void setDistinct(boolean distinct)
+    {
+        this.distinct = distinct;
+    }
+
+    public Config getConfig()
+    {
+        return config;
     }
 }

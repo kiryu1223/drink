@@ -1,24 +1,22 @@
 package io.github.kiryu1223.drink.api.crud.read.group;
 
-import com.easy.query.api.lambda.crud.read.LQuery;
-import com.easy.query.api.lambda.crud.read.QueryBase;
-import com.easy.query.api.lambda.crud.read.QueryData;
-import com.easy.query.core.basic.api.select.ClientQueryable9;
-import com.easy.query.core.lambda.condition.having.Having;
-import com.easy.query.core.lambda.condition.orderby.OrderBy;
-import com.easy.query.core.lambda.condition.select.Select;
+
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.api.crud.read.LQuery;
+import io.github.kiryu1223.drink.api.crud.read.QueryBase;
+import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.context.SqlOrderContext;
+import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
+import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase
 {
-    protected final ClientQueryable9<T1, T2, T3, T4, T5, T6, T7, T8, T9> clientQueryable;
-
-    public GroupedQuery9(ClientQueryable9<T1, T2, T3, T4, T5, T6, T7, T8, T9> clientQueryable, QueryData queryData)
+    public GroupedQuery9(QuerySqlBuilder sqlBuilder)
     {
-        super(queryData);
-        this.clientQueryable = clientQueryable;
+        super(sqlBuilder);
     }
 
     // region [HAVING]
@@ -29,8 +27,9 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
 
     public GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> having(ExprTree<Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, Boolean>> expr)
     {
-        Having having = new Having(expr.getTree());
-        having.analysis(clientQueryable, queryData);
+        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
+        SqlContext context = havingVisitor.visit(expr.getTree());
+        getSqlBuilder().addHaving(context);
         return this;
     }
 
@@ -44,8 +43,9 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
 
     public <R> GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> orderBy(ExprTree<Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R>> expr, boolean asc)
     {
-        OrderBy orderBy = new OrderBy(expr.getTree(), asc);
-        orderBy.analysis(clientQueryable, queryData);
+        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
+        SqlContext context = havingVisitor.visit(expr.getTree());
+        getSqlBuilder().addOrderBy(new SqlOrderContext(asc, context));
         return this;
     }
 
@@ -56,8 +56,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
 
     public <R> GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> orderBy(ExprTree<Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R>> expr)
     {
-        OrderBy orderBy = new OrderBy(expr.getTree(), true);
-        orderBy.analysis(clientQueryable, queryData);
+        orderBy(expr, true);
         return this;
     }
     // endregion
@@ -70,8 +69,10 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
 
     public <R> LQuery<R> select(ExprTree<Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R>> expr)
     {
-        Select select = new Select(expr.getTree());
-        return new LQuery<>(select.analysis(clientQueryable, queryData), queryData.getDbType());
+        SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy());
+        SqlContext context = selectVisitor.visit(expr.getTree());
+        getSqlBuilder().setSelect(context);
+        return new LQuery<>(this);
     }
     // endregion
 }

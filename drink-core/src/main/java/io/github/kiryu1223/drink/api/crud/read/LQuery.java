@@ -1,33 +1,40 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlOrderContext;
-import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
-import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
-import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
-import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 
 public class LQuery<T> extends QueryBase
 {
-    protected LQuery(Class<?> c)
+    // region [INIT]
+
+    public LQuery(Config config, Class<?> c)
     {
-        super(c);
+        super(config);
+        getSqlBuilder().addFrom(c);
     }
 
+    public LQuery(QueryBase queryBase)
+    {
+        super(queryBase.getConfig());
+        getSqlBuilder().addFrom(queryBase.getSqlBuilder());
+    }
+
+    // endregion
+
     //region [JOIN]
+
+    protected <Tn> LQuery2<T, Tn> joinNewQuery()
+    {
+        LQuery2<T, Tn> query = new LQuery2<>(getConfig());
+        query.getSqlBuilder().joinBy(getSqlBuilder());
+        return query;
+    }
 
     public <Tn> LQuery2<T, Tn> innerJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
     {
@@ -36,9 +43,8 @@ public class LQuery<T> extends QueryBase
 
     public <Tn> LQuery2<T, Tn> innerJoin(Class<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
     {
-        Join join = new Join(expr.getTree());
-        ClientQueryable2<T, Tn> joinQuery = join.innerJoin(target, clientQueryable, queryData);
-        return new LQuery2<>(joinQuery, queryData.getDbType());
+        join(JoinType.INNER, target, expr);
+        return joinNewQuery();
     }
 
     public <Tn> LQuery2<T, Tn> innerJoin(LQuery<Tn> target, @Expr Func2<T, Tn, Boolean> func)
@@ -48,9 +54,8 @@ public class LQuery<T> extends QueryBase
 
     public <Tn> LQuery2<T, Tn> innerJoin(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
     {
-        Join join = new Join(expr.getTree());
-        ClientQueryable2<T, Tn> joinQuery = join.innerJoin(target.getClientQueryable(), clientQueryable, queryData);
-        return new LQuery2<>(joinQuery, queryData.getDbType());
+        join(JoinType.INNER, target, expr);
+        return joinNewQuery();
     }
 
     public <Tn> LQuery2<T, Tn> leftJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
@@ -60,9 +65,8 @@ public class LQuery<T> extends QueryBase
 
     public <Tn> LQuery2<T, Tn> leftJoin(Class<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
     {
-        Join join = new Join(expr.getTree());
-        ClientQueryable2<T, Tn> joinQuery = join.leftJoin(target, clientQueryable, queryData);
-        return new LQuery2<>(joinQuery, queryData.getDbType());
+        join(JoinType.LEFT, target, expr);
+        return joinNewQuery();
     }
 
     public <Tn> LQuery2<T, Tn> leftJoin(LQuery<Tn> target, @Expr Func2<T, Tn, Boolean> func)
@@ -72,9 +76,8 @@ public class LQuery<T> extends QueryBase
 
     public <Tn> LQuery2<T, Tn> leftJoin(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
     {
-        Join join = new Join(expr.getTree());
-        ClientQueryable2<T, Tn> joinQuery = join.leftJoin(target.getClientQueryable(), clientQueryable, queryData);
-        return new LQuery2<>(joinQuery, queryData.getDbType());
+        join(JoinType.LEFT, target, expr);
+        return joinNewQuery();
     }
 
     public <Tn> LQuery2<T, Tn> rightJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
@@ -84,9 +87,8 @@ public class LQuery<T> extends QueryBase
 
     public <Tn> LQuery2<T, Tn> rightJoin(Class<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
     {
-        Join join = new Join(expr.getTree());
-        ClientQueryable2<T, Tn> joinQuery = join.rightJoin(target, clientQueryable, queryData);
-        return new LQuery2<>(joinQuery, queryData.getDbType());
+        join(JoinType.RIGHT, target, expr);
+        return joinNewQuery();
     }
 
     public <Tn> LQuery2<T, Tn> rightJoin(LQuery<Tn> target, @Expr Func2<T, Tn, Boolean> func)
@@ -96,9 +98,8 @@ public class LQuery<T> extends QueryBase
 
     public <Tn> LQuery2<T, Tn> rightJoin(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
     {
-        Join join = new Join(expr.getTree());
-        ClientQueryable2<T, Tn> joinQuery = join.rightJoin(target.getClientQueryable(), clientQueryable, queryData);
-        return new LQuery2<>(joinQuery, queryData.getDbType());
+        join(JoinType.RIGHT, target, expr);
+        return joinNewQuery();
     }
 
     //endregion
@@ -112,9 +113,7 @@ public class LQuery<T> extends QueryBase
 
     public LQuery<T> where(ExprTree<Func1<T, Boolean>> expr)
     {
-        WhereVisitor whereVisitor = new WhereVisitor();
-        SqlContext where = whereVisitor.visit(expr.getTree());
-        getSqlBuilder().getWhere().add(where);
+        where(expr.getTree());
         return this;
     }
 
@@ -129,9 +128,7 @@ public class LQuery<T> extends QueryBase
 
     public <R> LQuery<T> orderBy(ExprTree<Func1<T, R>> expr, boolean asc)
     {
-        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = havingVisitor.visit(expr.getTree());
-        getSqlBuilder().getOrderBys().add(new SqlOrderContext(asc, context));
+        orderBy(expr.getTree(), asc);
         return this;
     }
 
@@ -152,14 +149,13 @@ public class LQuery<T> extends QueryBase
 
     public LQuery<T> limit(long rows)
     {
-        getSqlBuilder().setRows(rows);
+        limit0(rows);
         return this;
     }
 
     public LQuery<T> limit(long offset, long rows)
     {
-        getSqlBuilder().setOffset(offset);
-        getSqlBuilder().setRows(rows);
+        limit0(offset, rows);
         return this;
     }
 
@@ -174,9 +170,8 @@ public class LQuery<T> extends QueryBase
 
     public <Key> GroupedQuery<Key, T> groupBy(ExprTree<Func1<T, Key>> expr)
     {
-        GroupByVisitor groupByVisitor = new GroupByVisitor();
-        SqlContext context = groupByVisitor.visit(expr.getTree());
-        return new GroupedQuery<>();
+        groupBy(expr.getTree());
+        return new GroupedQuery<>(getSqlBuilder());
     }
 
     // endregion
@@ -184,12 +179,13 @@ public class LQuery<T> extends QueryBase
     // region [SELECT]
     public LQuery<T> select()
     {
-        return new LQuery<>();
+        return new LQuery<>(this);
     }
 
-    public <R> LQuery<R> select(Class<R> r)
+    public <R> LQuery<T> select(Class<R> r)
     {
-        return new LQuery<>();
+        getSqlBuilder().setTargetClass(r);
+        return new LQuery<>(this);
     }
 
     public <R> LQuery<R> select(@Expr Func1<T, R> expr)
@@ -199,10 +195,8 @@ public class LQuery<T> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func1<T, R>> expr)
     {
-        SelectVisitor selectVisitor=new SelectVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = selectVisitor.visit(expr.getTree());
-        getSqlBuilder().setSelects(context);
-        return new LQuery<>();
+        select(expr.getTree());
+        return new LQuery<>(this);
     }
 
     // endregion
@@ -299,59 +293,55 @@ public class LQuery<T> extends QueryBase
 
     public LQuery<T> distinct()
     {
-        clientQueryable.distinct();
+        getSqlBuilder().setDistinct(true);
         return this;
     }
 
     public LQuery<T> distinct(boolean condition)
     {
-        clientQueryable.distinct(condition);
+        getSqlBuilder().setDistinct(condition);
         return this;
     }
 
-    public boolean any()
-    {
-        return clientQueryable.any();
-    }
 
-    public T firstOrNull()
-    {
-        return clientQueryable.firstOrNull();
-    }
-
-    //endregion
-
-    // region [toAny]
-
-    public ToSQLResult toSQLResult()
-    {
-        return clientQueryable.toSQLResult();
-    }
-
-    public List<T> toList()
-    {
-        return clientQueryable.toList();
-    }
-
-    public <R> List<R> toList(Func1<T, R> func)
-    {
-        List<R> rList = new ArrayList<>();
-        for (T t : toList())
-        {
-            rList.add(func.invoke(t));
-        }
-        return rList;
-    }
-
-    public Map<String, Object> toMap()
-    {
-        return clientQueryable.toMap();
-    }
-
-    public List<Map<String, Object>> toMaps()
-    {
-        return clientQueryable.toMaps();
-    }
+//    public T firstOrNull()
+//    {
+//        return clientQueryable.firstOrNull();
+//    }
+//
+//    //endregion
+//
+//    // region [toAny]
+//
+//    public ToSQLResult toSQLResult()
+//    {
+//        return clientQueryable.toSQLResult();
+//    }
+//
+//    public List<T> toList()
+//    {
+//        return clientQueryable.toList();
+//    }
+//
+//    public <R> List<R> toList(Func1<T, R> func)
+//    {
+//        List<R> rList = new ArrayList<>();
+//        for (T t : toList())
+//        {
+//            rList.add(func.invoke(t));
+//        }
+//        return rList;
+//    }
+//
+//    public Map<String, Object> toMap()
+//    {
+//        return clientQueryable.toMap();
+//    }
+//
+//    public List<Map<String, Object>> toMaps()
+//    {
+//        return clientQueryable.toMaps();
+//    }
 
 //    public EasyPageResult<T> toPageResult(long pageIndex, long pageSize)
 //    {
