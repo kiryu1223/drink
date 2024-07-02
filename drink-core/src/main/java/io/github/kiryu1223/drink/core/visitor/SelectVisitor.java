@@ -1,7 +1,10 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.builder.ColumnMetaData;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.expressionTree.expressions.*;
+import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -9,16 +12,36 @@ import java.util.List;
 import java.util.Map;
 
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isGroupKey;
 
 public class SelectVisitor extends SqlVisitor
 {
     private ParameterExpression cur;
     private final SqlContext group;
+    private final List<ColumnMetaData> columnMetaData = new ArrayList<>();
 
-    public SelectVisitor(SqlContext group)
+    public List<ColumnMetaData> getColumnMetaData()
     {
+        return columnMetaData;
+    }
+
+    public SelectVisitor(SqlContext group,Config config)
+    {
+        super(config);
         this.group = group;
+    }
+
+    private void addColumnMetaData(Class<?> type, String name, Class<?>[] classes)
+    {
+        columnMetaData.add(new ColumnMetaData(
+                name,
+                ReflectUtil.getMethod(type, "set" + firstUpperCase(name), classes),
+                config
+        ));
+    }
+
+    private void addColumnMetaData(Method setter, String name)
+    {
+        columnMetaData.add(new ColumnMetaData(name, setter, config));
     }
 
     @Override
@@ -31,9 +54,10 @@ public class SelectVisitor extends SqlVisitor
         {
             if (expression.getKind() == Kind.Variable)
             {
-                VariableExpression variableExpression = (VariableExpression) expression;
-                String name = variableExpression.getName();
-                SqlContext context = visit(variableExpression.getInit());
+                VariableExpression variable = (VariableExpression) expression;
+                String name = variable.getName();
+                addColumnMetaData(newExpression.getType(), name, new Class[]{variable.getType()});
+                SqlContext context = visit(variable.getInit());
                 setAs(contexts, context, name);
             }
         }
@@ -60,12 +84,13 @@ public class SelectVisitor extends SqlVisitor
             }
             else if (expression instanceof MethodCallExpression)
             {
-                MethodCallExpression methodCallExpression = (MethodCallExpression) expression;
-                Method method = methodCallExpression.getMethod();
-                if (isSetter(method) && methodCallExpression.getExpr() == cur)
+                MethodCallExpression methodCall = (MethodCallExpression) expression;
+                Method method = methodCall.getMethod();
+                if (isSetter(method) && methodCall.getExpr() == cur)
                 {
                     String name = propertyName(method);
-                    SqlContext context = visit(methodCallExpression.getArgs().get(0));
+                    addColumnMetaData(method, name);
+                    SqlContext context = visit(methodCall.getArgs().get(0));
                     setAs(contexts, context, name);
                 }
             }
@@ -84,7 +109,7 @@ public class SelectVisitor extends SqlVisitor
         {
             SqlGroupContext groupContext = (SqlGroupContext) group;
             Map<String, SqlContext> contextMap = groupContext.getContextMap();
-            return groupContext.getContextMap().get(fieldSelect.getField().getName());
+            return contextMap.get(fieldSelect.getField().getName());
         }
         else
         {
@@ -95,7 +120,7 @@ public class SelectVisitor extends SqlVisitor
     @Override
     protected SqlVisitor getSelf()
     {
-        return new SelectVisitor(group);
+        return new SelectVisitor(group, config);
     }
 
     private void setAs(List<SqlContext> contexts, SqlContext context, String name)

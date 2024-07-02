@@ -1,8 +1,8 @@
-package io.github.kiryu1223.drink.core;
+package io.github.kiryu1223.drink.core.builder;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DataSourcesManager
 {
@@ -10,13 +10,13 @@ public class DataSourcesManager
     {
     }
 
-    private static final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
+    private static final Map<String, DataSource> dataSourceMap = new HashMap<>();
 
     private static DataSource defluteDataSource;
 
-    public static Map<String, DataSource> getDataSourceMap()
+    public static void addDataSource(String key, DataSource dataSource)
     {
-        return dataSourceMap;
+        dataSourceMap.put(key, dataSource);
     }
 
     public static DataSource getDataSource(String key)

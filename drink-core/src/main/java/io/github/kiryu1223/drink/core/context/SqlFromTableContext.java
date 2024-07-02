@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.core.context;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
 import java.util.List;
 

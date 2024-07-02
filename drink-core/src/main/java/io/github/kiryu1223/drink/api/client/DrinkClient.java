@@ -1,10 +1,22 @@
 package io.github.kiryu1223.drink.api.client;
 
 
-import java.lang.invoke.MethodHandles;
+import io.github.kiryu1223.drink.api.crud.read.LQuery;
+import io.github.kiryu1223.drink.config.Config;
 
 public class DrinkClient
 {
+    private final Config config;
+
+    public DrinkClient(Config config)
+    {
+        this.config = config;
+    }
+
+    public <T> LQuery<T> query(Class<T> c)
+    {
+        return new LQuery<>(config, c);
+    }
 
 //    private final DbType dbType;
 //

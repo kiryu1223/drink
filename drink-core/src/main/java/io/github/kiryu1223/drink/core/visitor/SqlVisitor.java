@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
@@ -11,7 +12,12 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
 public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
 {
     protected List<ParameterExpression> parameters;
+    protected final Config config;
 
+    protected SqlVisitor(Config config)
+    {
+        this.config = config;
+    }
 
     @Override
     public SqlContext visit(LambdaExpression<?> lambda)

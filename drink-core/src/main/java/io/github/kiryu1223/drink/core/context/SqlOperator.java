@@ -6,7 +6,7 @@ public enum SqlOperator
 {
     POS("+",true),                             // +
     NEG("-",true),                             // -
-    NOT("!",true),                             // !
+    NOT("NOT",true),                             // !
     COMPL("~",true),                           // ~
     PREINC("++",true),                         // ++ _
     PREDEC("--",true),                         // -- _
@@ -14,13 +14,13 @@ public enum SqlOperator
     POSTDEC("--"),                        // _ --
 
 
-    OR("||"),                             // ||
-    AND("&&"),                            // &&
+    OR("OR"),                             // ||
+    AND("AND"),                            // &&
     BITOR("|"),                           // |
     BITXOR("^"),                          // ^
     BITAND("&"),                          // &
-    EQ("=="),                             // ==
-    NE("!="),                             // !=
+    EQ("="),                             // ==
+    NE("<>"),                             // !=
     LT("<"),                              // <
     GT(">"),                              // >
     LE("<="),                             // <=

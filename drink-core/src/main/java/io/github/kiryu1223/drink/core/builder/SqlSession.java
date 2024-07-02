@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.core;
+package io.github.kiryu1223.drink.core.builder;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class SqlSession
 {

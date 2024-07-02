@@ -27,9 +27,7 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
 
     public GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> having(ExprTree<Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, Boolean>> expr)
     {
-        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = havingVisitor.visit(expr.getTree());
-        getSqlBuilder().addHaving(context);
+        having(expr.getTree());
         return this;
     }
 
@@ -43,9 +41,7 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
 
     public <R> GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> orderBy(ExprTree<Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R>> expr, boolean asc)
     {
-        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = havingVisitor.visit(expr.getTree());
-        getSqlBuilder().addOrderBy(new SqlOrderContext(asc, context));
+        orderBy(expr.getTree(),asc);
         return this;
     }
 
@@ -69,9 +65,7 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R>> expr)
     {
-        SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = selectVisitor.visit(expr.getTree());
-        getSqlBuilder().setSelect(context);
+        select(expr.getTree());
         return new LQuery<>(this);
     }
     // endregion

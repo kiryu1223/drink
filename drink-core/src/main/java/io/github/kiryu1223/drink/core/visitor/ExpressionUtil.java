@@ -114,4 +114,16 @@ public class ExpressionUtil
             return table.value();
         }
     }
+
+    public static String firstUpperCase(String original) {
+        if (!original.isEmpty()) {
+            return Character.toUpperCase(original.charAt(0)) + original.substring(1);
+        }
+        return original;
+    }
+
+    public static String fieldToSetterName(Field field)
+    {
+        return "set" + firstUpperCase(field.getName());
+    }
 }

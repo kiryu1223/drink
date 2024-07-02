@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.context.SqlFuncContext;
 import io.github.kiryu1223.drink.core.context.SqlGroupContext;
@@ -18,8 +19,9 @@ public class HavingVisitor extends SqlVisitor
 {
     private final SqlContext group;
 
-    public HavingVisitor(SqlContext group)
+    public HavingVisitor( SqlContext group,Config config)
     {
+        super(config);
         this.group = group;
     }
 
@@ -64,6 +66,6 @@ public class HavingVisitor extends SqlVisitor
     @Override
     protected SqlVisitor getSelf()
     {
-        return new HavingVisitor(group);
+        return new HavingVisitor(group, config);
     }
 }

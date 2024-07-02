@@ -2,18 +2,21 @@ package io.github.kiryu1223.drink.api.crud.read;
 
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
+import java.util.List;
+
 
 public class LQuery<T> extends QueryBase
 {
     // region [INIT]
 
-    public LQuery(Config config, Class<?> c)
+    public LQuery(Config config, Class<T> c)
     {
         super(config);
         getSqlBuilder().addFrom(c);
@@ -179,12 +182,13 @@ public class LQuery<T> extends QueryBase
     // region [SELECT]
     public LQuery<T> select()
     {
+        select0();
         return new LQuery<>(this);
     }
 
     public <R> LQuery<T> select(Class<R> r)
     {
-        getSqlBuilder().setTargetClass(r);
+        select0(r);
         return new LQuery<>(this);
     }
 
@@ -311,18 +315,13 @@ public class LQuery<T> extends QueryBase
 //
 //    //endregion
 //
-//    // region [toAny]
-//
-//    public ToSQLResult toSQLResult()
-//    {
-//        return clientQueryable.toSQLResult();
-//    }
-//
-//    public List<T> toList()
-//    {
-//        return clientQueryable.toList();
-//    }
-//
+    // region [toAny]
+
+    public List<T> toList()
+    {
+        return super.toList();
+    }
+
 //    public <R> List<R> toList(Func1<T, R> func)
 //    {
 //        List<R> rList = new ArrayList<>();

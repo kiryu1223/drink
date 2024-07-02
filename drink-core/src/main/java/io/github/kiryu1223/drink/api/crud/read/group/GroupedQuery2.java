@@ -26,9 +26,7 @@ public class GroupedQuery2<Key, T1, T2> extends QueryBase
 
     public GroupedQuery2<Key, T1, T2> having(ExprTree<Func1<Group2<Key, T1, T2>, Boolean>> expr)
     {
-        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = havingVisitor.visit(expr.getTree());
-        getSqlBuilder().addHaving(context);
+        having(expr.getTree());
         return this;
     }
     // endregion
@@ -41,9 +39,7 @@ public class GroupedQuery2<Key, T1, T2> extends QueryBase
 
     public <R> GroupedQuery2<Key, T1, T2> orderBy(ExprTree<Func1<Group2<Key, T1, T2>, R>> expr, boolean asc)
     {
-        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = havingVisitor.visit(expr.getTree());
-        getSqlBuilder().addOrderBy(new SqlOrderContext(asc, context));
+        orderBy(expr.getTree(),asc);
         return this;
     }
 
@@ -67,9 +63,7 @@ public class GroupedQuery2<Key, T1, T2> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func1<Group2<Key, T1, T2>, R>> expr)
     {
-        SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy());
-        SqlContext context = selectVisitor.visit(expr.getTree());
-        getSqlBuilder().setSelect(context);
+        select(expr.getTree());
         return new LQuery<>(this);
     }
     // endregion

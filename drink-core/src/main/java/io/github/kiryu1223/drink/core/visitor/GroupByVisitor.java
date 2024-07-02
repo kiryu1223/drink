@@ -1,20 +1,22 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.context.SqlGroupContext;
-import io.github.kiryu1223.drink.core.context.SqlPropertyContext;
-import io.github.kiryu1223.drink.core.context.SqlValueContext;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isProperty;
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.propertyName;
 
 public class GroupByVisitor extends SqlVisitor
 {
+    public GroupByVisitor(Config config)
+    {
+        super(config);
+    }
+
     @Override
     public SqlContext visit(NewExpression newExpression)
     {
@@ -37,6 +39,6 @@ public class GroupByVisitor extends SqlVisitor
     @Override
     protected GroupByVisitor getSelf()
     {
-        return new GroupByVisitor();
+        return new GroupByVisitor(config);
     }
 }

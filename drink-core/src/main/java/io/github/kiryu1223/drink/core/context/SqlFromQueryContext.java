@@ -22,12 +22,12 @@ public class SqlFromQueryContext extends SqlContext
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return "(" + sqlBuilder.getSqlAndValue(values) + ")";
+        return  sqlBuilder.getSqlAndValue(values);
     }
 
     @Override
     public String getSql(Config config)
     {
-        return "(" + sqlBuilder.getSql() + ")";
+        return sqlBuilder.getSql();
     }
 }
