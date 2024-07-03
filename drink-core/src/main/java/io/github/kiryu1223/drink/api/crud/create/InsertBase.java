@@ -8,7 +8,6 @@ public abstract class InsertBase implements CRUD
 {
     private final InsertSqlBuilder sqlBuilder = new InsertSqlBuilder();
 
-    @Override
     public InsertSqlBuilder getSqlBuilder()
     {
         return sqlBuilder;

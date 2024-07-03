@@ -11,21 +11,18 @@ import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
-import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.fieldToSetterName;
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getTableName;
 
 public abstract class QueryBase implements CRUD
 {
     private final QuerySqlBuilder sqlBuilder;
-
-    private List<ColumnMetaData> columnMetaData;
+    private List<PropertyMetaData> propertyMetaData;
+    private boolean isSingle;
 
     public QueryBase(Config config)
     {
@@ -37,8 +34,7 @@ public abstract class QueryBase implements CRUD
         this.sqlBuilder = sqlBuilder;
     }
 
-    @Override
-    public QuerySqlBuilder getSqlBuilder()
+    protected QuerySqlBuilder getSqlBuilder()
     {
         return sqlBuilder;
     }
@@ -58,68 +54,69 @@ public abstract class QueryBase implements CRUD
 
     public <T> List<T> toList()
     {
-        setDefaultColumnMetaData();
+        setDefaultMetaData();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         SqlSession session = SqlSessionBuilder.getSession();
         return session.executeQuery(r ->
-                        new ObjectBuilder<>(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), columnMetaData).createList(),
+                        new ObjectBuilder<>(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), propertyMetaData, isSingle).createList(),
                 sql,
                 values
         );
     }
 
     // region [123]
-    protected void select(LambdaExpression<?> lambda)
+    protected boolean select(LambdaExpression<?> lambda)
     {
-        SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy(),getConfig());
+        SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy(), getConfig());
         SqlContext context = selectVisitor.visit(lambda);
         getSqlBuilder().setSelect(context);
         getSqlBuilder().setTargetClass(lambda.getReturnType());
-        columnMetaData = selectVisitor.getColumnMetaData();
+        propertyMetaData = selectVisitor.getPropertyMetaData();
+        return !(context instanceof SqlSelectorContext);
     }
 
     protected void select0()
     {
-        setDefaultData();
+        setDefaultSelectAndMetaData();
     }
 
     protected <R> void select0(Class<R> c)
     {
         getSqlBuilder().setTargetClass(c);
-        setDefaultData();
+        setDefaultSelectAndMetaData();
     }
 
-    private void setDefaultData()
+    private void setDefaultSelectAndMetaData()
     {
-        List<ColumnMetaData> columnMetaData = new ArrayList<>();
+        propertyMetaData = new ArrayList<>();
         List<SqlContext> sqlContextList = new ArrayList<>();
         Class<?> targetClass = getSqlBuilder().getTargetClass();
         if (getSqlBuilder().getOrderedClass().contains(targetClass))
         {
             int index = getSqlBuilder().getOrderedClass().indexOf(targetClass);
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, Field> name : metaData.getColumns().entrySet())
+            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
             {
-                sqlContextList.add(new SqlPropertyContext(name.getKey(), index));
-                columnMetaData.add(new ColumnMetaData(name.getKey(), ReflectUtil.getMethod(targetClass, fieldToSetterName(name.getValue()), new Class[]{name.getValue().getType()}),getConfig()));
+                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
+                propertyMetaData.add(entry.getValue());
             }
         }
         else
         {
             List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, Field> column : metaData.getColumns().entrySet())
+            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
             {
                 label:
                 for (int i = 0; i < metaDataList.size(); i++)
                 {
-                    for (Map.Entry<String, Field> temp : metaDataList.get(i).getColumns().entrySet())
+                    for (Map.Entry<String, PropertyMetaData> temp : metaDataList.get(i).getColumns().entrySet())
                     {
-                        if (temp.getKey().equals(column.getKey()) && temp.getValue().getType().equals(column.getValue().getType()))
+                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
                         {
                             sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
-                            columnMetaData.add(new ColumnMetaData(column.getKey(), ReflectUtil.getMethod(targetClass, fieldToSetterName(column.getValue()), new Class[]{column.getValue().getType()}),getConfig()));
+                            propertyMetaData.add(column.getValue());
                             break label;
                         }
                     }
@@ -127,43 +124,38 @@ public abstract class QueryBase implements CRUD
             }
         }
         getSqlBuilder().setSelect(new SqlSelectorContext(sqlContextList));
-        this.columnMetaData = columnMetaData;
     }
 
-    private void setDefaultColumnMetaData()
+    private void setDefaultMetaData()
     {
-        if (columnMetaData != null) return;
-        List<ColumnMetaData> columnMetaData = new ArrayList<>();
+        if (propertyMetaData != null) return;
+        propertyMetaData = new ArrayList<>();
         Class<?> targetClass = getSqlBuilder().getTargetClass();
         if (getSqlBuilder().getOrderedClass().contains(targetClass))
         {
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, Field> name : metaData.getColumns().entrySet())
-            {
-                columnMetaData.add(new ColumnMetaData(name.getKey(), ReflectUtil.getMethod(targetClass, fieldToSetterName(name.getValue()), new Class[]{name.getValue().getType()}),getConfig()));
-            }
+            propertyMetaData.addAll(metaData.getColumns().values());
         }
         else
         {
             List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, Field> column : metaData.getColumns().entrySet())
+            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
             {
                 label:
                 for (int i = 0; i < metaDataList.size(); i++)
                 {
-                    for (Map.Entry<String, Field> temp : metaDataList.get(i).getColumns().entrySet())
+                    for (Map.Entry<String, PropertyMetaData> temp : metaDataList.get(i).getColumns().entrySet())
                     {
-                        if (temp.getKey().equals(column.getKey()) && temp.getValue().getType().equals(column.getValue().getType()))
+                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
                         {
-                            columnMetaData.add(new ColumnMetaData(column.getKey(), ReflectUtil.getMethod(targetClass, fieldToSetterName(column.getValue()), new Class[]{column.getValue().getType()}),getConfig()));
+                            propertyMetaData.add(column.getValue());
                             break label;
                         }
                     }
                 }
             }
         }
-        this.columnMetaData = columnMetaData;
     }
 
     protected <Tn> QueryBase joinNewQuery()
@@ -203,14 +195,14 @@ public abstract class QueryBase implements CRUD
 
     protected void having(LambdaExpression<?> lambda)
     {
-        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy(),getConfig());
+        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy(), getConfig());
         SqlContext context = havingVisitor.visit(lambda);
         getSqlBuilder().addHaving(context);
     }
 
     protected void orderBy(LambdaExpression<?> lambda, boolean asc)
     {
-        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy(),getConfig());
+        HavingVisitor havingVisitor = new HavingVisitor(getSqlBuilder().getGroupBy(), getConfig());
         SqlContext context = havingVisitor.visit(lambda);
         getSqlBuilder().addOrderBy(new SqlOrderContext(asc, context));
     }
@@ -225,5 +217,23 @@ public abstract class QueryBase implements CRUD
         getSqlBuilder().setLimit(new SqlLimitContext(offset, rows));
     }
 
+    protected void setSingle(boolean single)
+    {
+        isSingle = single;
+    }
+
     // endregion
+
+    public String toSql()
+    {
+        return getSqlBuilder().getSql();
+    }
+
+    protected void singleCheck(boolean single)
+    {
+        if (single)
+        {
+            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素");
+        }
+    }
 }

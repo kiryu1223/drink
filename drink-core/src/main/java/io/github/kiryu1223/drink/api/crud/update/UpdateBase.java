@@ -8,7 +8,6 @@ public class UpdateBase implements CRUD
 {
     private final UpdateSqlBuilder sqlBuilder=new UpdateSqlBuilder();
 
-    @Override
     public UpdateSqlBuilder getSqlBuilder()
     {
         return sqlBuilder;

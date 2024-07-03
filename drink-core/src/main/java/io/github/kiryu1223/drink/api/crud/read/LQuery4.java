@@ -192,7 +192,8 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func4<T1, T2, T3, T4, R>> expr)
     {
-        select(expr.getTree());
+        boolean single = select(expr.getTree());
+        singleCheck(single);
         return new LQuery<>(this);
     }
 

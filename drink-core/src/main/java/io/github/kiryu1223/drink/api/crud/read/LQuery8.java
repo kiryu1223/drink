@@ -200,7 +200,8 @@ public class LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, R>> expr)
     {
-        select(expr.getTree());
+        boolean single = select(expr.getTree());
+        singleCheck(single);
         return new LQuery<>(this);
     }
 

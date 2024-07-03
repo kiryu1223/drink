@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.api.crud.builder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.MetaData;
 import io.github.kiryu1223.drink.core.builder.MetaDataCache;
+import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
@@ -152,6 +153,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     public void setDistinct(boolean distinct)
     {
         this.distinct = distinct;
+        subQueried();
     }
 
     public Config getConfig()
@@ -241,9 +243,9 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
             List<String> stringList = new ArrayList<>();
-            for (String string : metaData.getColumns().keySet())
+            for (PropertyMetaData data : metaData.getColumns().values())
             {
-                stringList.add("t0." + config.getDbConfig().propertyDisambiguation(string));
+                stringList.add("t0." + config.getDbConfig().propertyDisambiguation(data.getColumn()));
             }
             return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
         }

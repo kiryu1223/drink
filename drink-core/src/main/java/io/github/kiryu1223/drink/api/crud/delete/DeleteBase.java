@@ -8,7 +8,6 @@ public abstract class DeleteBase implements CRUD
 {
     private final DeleteSqlBuilder sqlBuilder = new DeleteSqlBuilder();
 
-    @Override
     public DeleteSqlBuilder getSqlBuilder()
     {
         return sqlBuilder;

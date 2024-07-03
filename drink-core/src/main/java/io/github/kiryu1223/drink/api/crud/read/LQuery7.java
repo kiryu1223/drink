@@ -199,7 +199,8 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr)
     {
-        select(expr.getTree());
+        boolean single = select(expr.getTree());
+        singleCheck(single);
         return new LQuery<>(this);
     }
 

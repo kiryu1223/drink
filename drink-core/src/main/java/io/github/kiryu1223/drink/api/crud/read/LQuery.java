@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.api.crud.read;
 
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
@@ -199,8 +198,20 @@ public class LQuery<T> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func1<T, R>> expr)
     {
-        select(expr.getTree());
+        boolean single = select(expr.getTree());
+        singleCheck(single);
         return new LQuery<>(this);
+    }
+
+    public EndQuery<Integer> selectInt(@Expr Func1<T, Integer> expr)
+    {
+        throw new RuntimeException();
+    }
+
+    public EndQuery<Integer> selectInt(ExprTree<Func1<T, Integer>> expr)
+    {
+        select(expr.getTree());
+        return new EndQuery<>(this);
     }
 
     // endregion

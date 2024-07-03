@@ -6,8 +6,5 @@ public interface IToSql
 {
     ISqlBuilder getSqlBuilder();
 
-    default String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
+
 }

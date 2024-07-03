@@ -1,7 +1,9 @@
 package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.ColumnMetaData;
+import io.github.kiryu1223.drink.core.builder.MetaData;
+import io.github.kiryu1223.drink.core.builder.MetaDataCache;
+import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.expressionTree.expressions.*;
 import io.github.kiryu1223.expressionTree.util.ReflectUtil;
@@ -17,31 +19,17 @@ public class SelectVisitor extends SqlVisitor
 {
     private ParameterExpression cur;
     private final SqlContext group;
-    private final List<ColumnMetaData> columnMetaData = new ArrayList<>();
+    private final List<PropertyMetaData> propertyMetaData = new ArrayList<>();
 
-    public List<ColumnMetaData> getColumnMetaData()
+    public List<PropertyMetaData> getPropertyMetaData()
     {
-        return columnMetaData;
+        return propertyMetaData;
     }
 
-    public SelectVisitor(SqlContext group,Config config)
+    public SelectVisitor(SqlContext group, Config config)
     {
         super(config);
         this.group = group;
-    }
-
-    private void addColumnMetaData(Class<?> type, String name, Class<?>[] classes)
-    {
-        columnMetaData.add(new ColumnMetaData(
-                name,
-                ReflectUtil.getMethod(type, "set" + firstUpperCase(name), classes),
-                config
-        ));
-    }
-
-    private void addColumnMetaData(Method setter, String name)
-    {
-        columnMetaData.add(new ColumnMetaData(name, setter, config));
     }
 
     @Override
@@ -56,7 +44,8 @@ public class SelectVisitor extends SqlVisitor
             {
                 VariableExpression variable = (VariableExpression) expression;
                 String name = variable.getName();
-                addColumnMetaData(newExpression.getType(), name, new Class[]{variable.getType()});
+                MetaData metaData = MetaDataCache.getMetaData(newExpression.getType());
+                propertyMetaData.add(metaData.getPropertyMetaData(name));
                 SqlContext context = visit(variable.getInit());
                 setAs(contexts, context, name);
             }
@@ -89,7 +78,8 @@ public class SelectVisitor extends SqlVisitor
                 if (isSetter(method) && methodCall.getExpr() == cur)
                 {
                     String name = propertyName(method);
-                    addColumnMetaData(method, name);
+                    MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
+                    propertyMetaData.add(metaData.getPropertyMetaData(name));
                     SqlContext context = visit(methodCall.getArgs().get(0));
                     setAs(contexts, context, name);
                 }

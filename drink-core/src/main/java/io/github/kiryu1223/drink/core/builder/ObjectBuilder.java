@@ -15,21 +15,23 @@ public class ObjectBuilder<T>
     private final ResultSet resultSet;
     private final Config config;
     private final Class<T> target;
-    private final List<ColumnMetaData> columnMetaDataList;
+    private final List<PropertyMetaData> propertyMetaDataList;
+    private final boolean isSingle;
 
-    public ObjectBuilder(ResultSet resultSet, Config config, Class<T> target, List<ColumnMetaData> columnMetaDataList)
+    public ObjectBuilder(ResultSet resultSet, Config config, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
     {
         this.resultSet = resultSet;
         this.config = config;
         this.target = target;
-        this.columnMetaDataList = columnMetaDataList;
+        this.propertyMetaDataList = propertyMetaDataList;
+        this.isSingle = isSingle;
     }
 
     public List<T> createList() throws SQLException
     {
-        if (target.isPrimitive())
+        if (isSingle)
         {
-            return getSignlList();
+            return getSingleList();
         }
         else
         {
@@ -37,7 +39,7 @@ public class ObjectBuilder<T>
         }
     }
 
-    private List<T> getSignlList() throws SQLException
+    private List<T> getSingleList() throws SQLException
     {
         List<T> list = new ArrayList<>();
         while (resultSet.next())
@@ -52,19 +54,19 @@ public class ObjectBuilder<T>
     {
         FastCreator<T> fastCreator = new FastCreator<>(target);
         Supplier<T> creator = fastCreator.getCreator();
-        Map<String, FastCreator.Setter<Object>> setterMap = new HashMap<>(columnMetaDataList.size());
-        for (ColumnMetaData column : columnMetaDataList)
+        Map<String, FastCreator.Setter<Object>> setterMap = new HashMap<>(propertyMetaDataList.size());
+        for (PropertyMetaData metaData : propertyMetaDataList)
         {
-            setterMap.put(column.getColumnName(), fastCreator.getSetter(column.getColumnSetter()));
+            setterMap.put(metaData.getColumn(), fastCreator.getSetter(metaData.getSetter()));
         }
         List<T> list = new ArrayList<>();
         while (resultSet.next())
         {
             T t = creator.get();
-            for (ColumnMetaData column : columnMetaDataList)
+            for (PropertyMetaData metaData : propertyMetaDataList)
             {
-                Object value = resultSet.getObject(column.getColumnName());
-                setterMap.get(column.getColumnName()).set(t,value);
+                Object value = resultSet.getObject(metaData.getColumn());
+                setterMap.get(metaData.getColumn()).set(t,value);
             }
             list.add(t);
         }
