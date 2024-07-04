@@ -1,8 +1,9 @@
 package io.github.kiryu1223.drink.api.crud.base;
 
 import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.api.crud.builder.ISqlBuilder;
 
-public interface CRUD
+public abstract class CRUD
 {
 
 }

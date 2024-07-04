@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery2;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
@@ -178,10 +179,9 @@ public class LQuery2<T1, T2> extends QueryBase
         return new LQuery<>(this);
     }
 
-    public <R> LQuery<R> select(Class<R> r)
+    public <R> EndQuery<R> select(Class<R> r)
     {
-        getSqlBuilder().setTargetClass(r);
-        return new LQuery<>(this);
+        return super.select(r);
     }
 
     public <R> LQuery<R> select(@Expr Func2<T1, T2, R> expr)
@@ -196,6 +196,16 @@ public class LQuery2<T1, T2> extends QueryBase
         return new LQuery<>(this);
     }
 
+    public <R> EndQuery<R> selectSingle(@Expr Func2<T1,T2, R> expr)
+    {
+        throw new RuntimeException();
+    }
+
+    public <R> EndQuery<R> selectSingle(ExprTree<Func2<T1,T2, R>> expr)
+    {
+        select(expr.getTree());
+        return new EndQuery<>(this);
+    }
     // endregion
 
 //    // region [INCLUDE]
@@ -364,6 +374,11 @@ public class LQuery2<T1, T2> extends QueryBase
     //endregion
 
     // region [toAny]
+
+    public String toSql()
+    {
+        return getSqlBuilder().getSql();
+    }
 
 //    public String toSQL()
 //    {

@@ -16,9 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getTableName;
 
-public abstract class QueryBase implements CRUD
+public abstract class QueryBase extends CRUD
 {
     private final QuerySqlBuilder sqlBuilder;
     private List<PropertyMetaData> propertyMetaData;
@@ -44,22 +43,28 @@ public abstract class QueryBase implements CRUD
         return sqlBuilder.getConfig();
     }
 
-    public boolean any()
+    protected boolean any()
     {
         SqlSession session = SqlSessionBuilder.getSession();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
-        return session.executeQuery(f -> f.next(), "SELECT 1 FROM (" + sql + ")", values);
+        return session.executeQuery(f -> f.next(), "SELECT 1 FROM (" + sql + ") LIMIT 1", values);
     }
 
-    public <T> List<T> toList()
+    protected <R> EndQuery<R> select(Class<R> r)
+    {
+        select0(r);
+        return new EndQuery<>(this);
+    }
+
+    protected <T> List<T> toList()
     {
         setDefaultMetaData();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         SqlSession session = SqlSessionBuilder.getSession();
-        return session.executeQuery(r ->
-                        new ObjectBuilder<>(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), propertyMetaData, isSingle).createList(),
+        return session.executeQuery(
+                r -> ObjectBuilder.start(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), propertyMetaData, isSingle).createList(),
                 sql,
                 values
         );
@@ -81,7 +86,7 @@ public abstract class QueryBase implements CRUD
         setDefaultSelectAndMetaData();
     }
 
-    protected <R> void select0(Class<R> c)
+    protected void select0(Class<?> c)
     {
         getSqlBuilder().setTargetClass(c);
         setDefaultSelectAndMetaData();
@@ -166,17 +171,17 @@ public abstract class QueryBase implements CRUD
     protected void join(JoinType joinType, Class<?> target, ExprTree<?> expr)
     {
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext context = whereVisitor.visit(expr.getTree());
-        SqlJoinTableContext sqlJoin = new SqlJoinTableContext(joinType, context, getTableName(target));
-        getSqlBuilder().addJoin(target, sqlJoin);
+        SqlContext onContext = whereVisitor.visit(expr.getTree());
+        SqlTableContext tableContext = new SqlRealTableContext(target);
+        getSqlBuilder().addJoin(target, joinType, tableContext, onContext);
     }
 
     protected void join(JoinType joinType, QueryBase target, ExprTree<?> expr)
     {
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext context = whereVisitor.visit(expr.getTree());
-        SqlJoinQueryContext sqlJoin = new SqlJoinQueryContext(joinType, context, target.getSqlBuilder());
-        getSqlBuilder().addJoin(target.getSqlBuilder().getTargetClass(), sqlJoin);
+        SqlContext onContext = whereVisitor.visit(expr.getTree());
+        SqlTableContext tableContext = new SqlVirtualTableContext(target.getSqlBuilder());
+        getSqlBuilder().addJoin(target.getSqlBuilder().getTargetClass(), joinType, tableContext, onContext);
     }
 
     protected void where(LambdaExpression<?> lambda)
@@ -224,11 +229,6 @@ public abstract class QueryBase implements CRUD
 
     // endregion
 
-    public String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
-
     protected void singleCheck(boolean single)
     {
         if (single)
@@ -236,4 +236,5 @@ public abstract class QueryBase implements CRUD
             throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素");
         }
     }
+
 }

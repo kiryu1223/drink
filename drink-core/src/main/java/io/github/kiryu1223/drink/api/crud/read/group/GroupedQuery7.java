@@ -65,7 +65,7 @@ public class GroupedQuery7<Key, T1, T2, T3, T4, T5, T6, T7> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func1<Group7<Key, T1, T2, T3, T4, T5, T6, T7>, R>> expr)
     {
-        select(expr.getTree());
+        singleCheck(select(expr.getTree()));
         return new LQuery<>(this);
     }
     // endregion

@@ -8,6 +8,7 @@ import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -179,16 +180,16 @@ public class LQuery<T> extends QueryBase
     // endregion
 
     // region [SELECT]
+
     public LQuery<T> select()
     {
         select0();
         return new LQuery<>(this);
     }
 
-    public <R> LQuery<T> select(Class<R> r)
+    public <R> EndQuery<R> select(Class<R> r)
     {
-        select0(r);
-        return new LQuery<>(this);
+        return super.select(r);
     }
 
     public <R> LQuery<R> select(@Expr Func1<T, R> expr)
@@ -203,12 +204,12 @@ public class LQuery<T> extends QueryBase
         return new LQuery<>(this);
     }
 
-    public EndQuery<Integer> selectInt(@Expr Func1<T, Integer> expr)
+    public <R> EndQuery<R> selectSingle(@Expr Func1<T, R> expr)
     {
         throw new RuntimeException();
     }
 
-    public EndQuery<Integer> selectInt(ExprTree<Func1<T, Integer>> expr)
+    public <R> EndQuery<R> selectSingle(ExprTree<Func1<T, R>> expr)
     {
         select(expr.getTree());
         return new EndQuery<>(this);
@@ -319,7 +320,7 @@ public class LQuery<T> extends QueryBase
     }
 
 
-//    public T firstOrNull()
+    //    public T firstOrNull()
 //    {
 //        return clientQueryable.firstOrNull();
 //    }
@@ -328,9 +329,30 @@ public class LQuery<T> extends QueryBase
 //
     // region [toAny]
 
+    @Override
+    public boolean any()
+    {
+        return super.any();
+    }
+
     public List<T> toList()
     {
         return super.toList();
+    }
+
+    public <R> List<R> toList(Func1<T, R> func)
+    {
+        List<R> rList = new ArrayList<>();
+        for (T t : toList())
+        {
+            rList.add(func.invoke(t));
+        }
+        return rList;
+    }
+
+    public String toSql()
+    {
+        return getSqlBuilder().getSql();
     }
 
 //    public <R> List<R> toList(Func1<T, R> func)

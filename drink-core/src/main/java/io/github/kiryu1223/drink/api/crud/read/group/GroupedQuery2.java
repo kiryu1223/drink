@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.read.group;
 
 import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.context.SqlContext;
@@ -63,8 +64,19 @@ public class GroupedQuery2<Key, T1, T2> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func1<Group2<Key, T1, T2>, R>> expr)
     {
-        select(expr.getTree());
+        singleCheck(select(expr.getTree()));
         return new LQuery<>(this);
+    }
+
+    public <R> EndQuery<R> selectSingle(@Expr Func1<Group2<Key, T1, T2>, R> expr)
+    {
+        throw new RuntimeException();
+    }
+
+    public <R> EndQuery<R> selectSingle(ExprTree<Func1<Group2<Key, T1, T2>, R>> expr)
+    {
+        select(expr.getTree());
+        return new EndQuery<>(this);
     }
     // endregion
 }

@@ -64,7 +64,7 @@ public class GroupedQuery4<Key, T1, T2, T3, T4> extends QueryBase
 
     public <R> LQuery<R> select(ExprTree<Func1<Group4<Key, T1, T2, T3, T4>, R>> expr)
     {
-        select(expr.getTree());
+        singleCheck(select(expr.getTree()));
         return new LQuery<>(this);
     }
     // endregion

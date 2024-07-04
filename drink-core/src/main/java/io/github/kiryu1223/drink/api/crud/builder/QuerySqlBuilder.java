@@ -5,7 +5,6 @@ import io.github.kiryu1223.drink.core.builder.MetaData;
 import io.github.kiryu1223.drink.core.builder.MetaDataCache;
 import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
 import io.github.kiryu1223.drink.core.context.*;
-import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +69,8 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public void addFrom(Class<?> queryClass)
     {
-        SqlFromTableContext sqlFromTableContext = new SqlFromTableContext(ExpressionUtil.getTableName(queryClass));
-        from.add(new SqlAsNameContext("t" + from.size(), sqlFromTableContext));
+        SqlTableContext sqlTableContext = new SqlRealTableContext(queryClass);
+        from.add(new SqlAsNameContext("t" + from.size(), sqlTableContext));
         orderedClass.add(queryClass);
         if (targetClass == null)
         {
@@ -89,8 +88,8 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public void addFrom(QuerySqlBuilder sqlBuilder)
     {
-        SqlFromQueryContext sqlFromQueryContext = new SqlFromQueryContext(sqlBuilder);
-        SqlParensContext sqlParensContext = new SqlParensContext(sqlFromQueryContext);
+        SqlTableContext sqlTableContext = new SqlVirtualTableContext(sqlBuilder);
+        SqlParensContext sqlParensContext = new SqlParensContext(sqlTableContext);
         from.add(new SqlAsNameContext("t" + from.size(), sqlParensContext));
         orderedClass.addAll(sqlBuilder.orderedClass);
         if (targetClass == null)
@@ -107,10 +106,17 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
     }
 
-    public void addJoin(Class<?> target, SqlContext join)
+    public void addJoin(Class<?> target, JoinType joinType, SqlTableContext tableContext, SqlContext onContext)
     {
-        SqlAsNameContext sqlAsNameContext = new SqlAsNameContext("t" + from.size() + joins.size(), join);
-        joins.add(sqlAsNameContext);
+        SqlJoinContext joinContext = new SqlJoinContext(
+                joinType,
+                new SqlAsNameContext("t" + (from.size() + joins.size()),
+                        tableContext instanceof SqlRealTableContext
+                                ? tableContext :
+                                new SqlParensContext(tableContext)),
+                onContext
+        );
+        joins.add(joinContext);
         orderedClass.add(target);
         subQueried();
     }
@@ -178,7 +184,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         else
         {
             SqlContext context = unBox(from.get(0));
-            if (context instanceof SqlFromTableContext)
+            if (context instanceof SqlRealTableContext)
             {
                 return makeSelect() + context.getSql(config);
             }
@@ -194,12 +200,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         if (context instanceof SqlAsNameContext)
         {
             SqlAsNameContext sqlAsNameContext = (SqlAsNameContext) context;
-            SqlContext as = sqlAsNameContext.getContext();
-            if (as instanceof SqlParensContext)
-            {
-                SqlParensContext sqlParensContext = (SqlParensContext) as;
-                return sqlParensContext.getContext();
-            }
+            return unBox(sqlAsNameContext.getContext());
+        }
+        else if (context instanceof SqlParensContext)
+        {
+            SqlParensContext sqlParensContext = (SqlParensContext) context;
+            return sqlParensContext.getContext();
         }
         return context;
     }
@@ -221,13 +227,13 @@ public class QuerySqlBuilder implements ISqlBuilder
         else
         {
             SqlContext context = unBox(from.get(0));
-            if (context instanceof SqlFromTableContext)
+            if (context instanceof SqlRealTableContext)
             {
-                return makeSelect() + context.getSqlAndValue(config,values);
+                return makeSelect() + context.getSqlAndValue(config, values);
             }
             else
             {
-                return context.getSqlAndValue(config,values);
+                return context.getSqlAndValue(config, values);
             }
         }
     }
@@ -263,7 +269,7 @@ public class QuerySqlBuilder implements ISqlBuilder
             String sqlAndValue = context.getSqlAndValue(config, values);
             froms.add(sqlAndValue);
         }
-        return " "+String.join(",", froms);
+        return " " + String.join(",", froms);
     }
 
     private String makeFrom()
@@ -284,7 +290,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             joinStr.add(context.getSqlAndValue(config, values));
         }
-        return  " "+String.join(",", joinStr);
+        return " " + String.join(",", joinStr);
     }
 
     private String makeJoin()
@@ -295,7 +301,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             joinStr.add(context.getSql(config));
         }
-        return  " "+String.join(",", joinStr);
+        return " " + String.join(",", joinStr);
     }
 
     private String makeWhere(List<Object> values)

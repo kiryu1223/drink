@@ -7,8 +7,6 @@ import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.util.LinkedHashMap;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isProperty;
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.propertyName;
 
 public class GroupByVisitor extends SqlVisitor
 {

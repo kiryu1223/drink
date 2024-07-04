@@ -18,7 +18,12 @@ public class ObjectBuilder<T>
     private final List<PropertyMetaData> propertyMetaDataList;
     private final boolean isSingle;
 
-    public ObjectBuilder(ResultSet resultSet, Config config, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
+    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Config config, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
+    {
+        return new ObjectBuilder<>(resultSet,config,target,propertyMetaDataList,isSingle);
+    }
+
+    private ObjectBuilder(ResultSet resultSet, Config config, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
     {
         this.resultSet = resultSet;
         this.config = config;

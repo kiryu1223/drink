@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.core.context;
 
+import io.github.kiryu1223.drink.annotation.SqlFuncExt;
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.ArrayList;
@@ -7,24 +8,14 @@ import java.util.List;
 
 public class SqlFuncContext extends SqlContext
 {
-    private final String name;
+    private final String function;
 
     private final List<SqlContext> args;
 
-    public SqlFuncContext(String name, List<SqlContext> args)
+    public SqlFuncContext(String function, List<SqlContext> args)
     {
-        this.name = name;
+        this.function = function;
         this.args = args;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public List<SqlContext> getArgs()
-    {
-        return args;
     }
 
     @Override
@@ -35,7 +26,7 @@ public class SqlFuncContext extends SqlContext
         {
             strings.add(arg.getSqlAndValue(config, values));
         }
-        return name + "(" + String.join(",", strings) + ")";
+        return function + "(" + String.join(",", strings) + ")";
     }
 
     @Override
@@ -46,6 +37,6 @@ public class SqlFuncContext extends SqlContext
         {
             strings.add(arg.getSql(config));
         }
-        return name + "(" + String.join(",", strings) + ")";
+        return function + "(" + String.join(",", strings) + ")";
     }
 }

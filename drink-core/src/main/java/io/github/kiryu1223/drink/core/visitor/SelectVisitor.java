@@ -1,19 +1,20 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.MetaData;
 import io.github.kiryu1223.drink.core.builder.MetaDataCache;
 import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.expressionTree.expressions.*;
-import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isGroupKey;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isSetter;
 
 public class SelectVisitor extends SqlVisitor
 {
@@ -77,8 +78,8 @@ public class SelectVisitor extends SqlVisitor
                 Method method = methodCall.getMethod();
                 if (isSetter(method) && methodCall.getExpr() == cur)
                 {
-                    String name = propertyName(method);
                     MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
+                    String name = metaData.getColumnNameBySetter(method);
                     propertyMetaData.add(metaData.getPropertyMetaData(name));
                     SqlContext context = visit(methodCall.getArgs().get(0));
                     setAs(contexts, context, name);
@@ -111,6 +112,32 @@ public class SelectVisitor extends SqlVisitor
     protected SqlVisitor getSelf()
     {
         return new SelectVisitor(group, config);
+    }
+
+    @Override
+    public SqlContext visit(ParameterExpression parameter)
+    {
+        if (parameters.contains(parameter))
+        {
+            Class<?> type = parameter.getType();
+            if (IGroup.class.isAssignableFrom(type))
+            {
+                throw new RuntimeException("select中暂时不支持直接返回Group对象");
+            }
+            int index = parameters.indexOf(parameter);
+            MetaData metaData = MetaDataCache.getMetaData(type);
+            propertyMetaData.addAll(metaData.getColumns().values());
+            List<SqlContext> contextList = new ArrayList<>();
+            for (PropertyMetaData pm : metaData.getColumns().values())
+            {
+                contextList.add(new SqlPropertyContext(pm.getColumn(), index));
+            }
+            return new SqlSelectorContext(contextList);
+        }
+        else
+        {
+            return super.visit(parameter);
+        }
     }
 
     private void setAs(List<SqlContext> contexts, SqlContext context, String name)

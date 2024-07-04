@@ -186,13 +186,10 @@ public class LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> extends QueryBase
     {
         return new LQuery<>(this);
     }
-
-    public <R> LQuery<R> select(Class<R> r)
+    public <R> EndQuery<R> select(Class<R> r)
     {
-        getSqlBuilder().setTargetClass(r);
-        return new LQuery<>(this);
+        return super.select(r);
     }
-
     public <R> LQuery<R> select(@Expr Func8<T1, T2, T3, T4, T5, T6, T7, T8, R> expr)
     {
         throw new RuntimeException();
@@ -222,5 +219,8 @@ public class LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> extends QueryBase
     }
 
     //endregion
-
+    public String toSql()
+    {
+        return getSqlBuilder().getSql();
+    }
 }

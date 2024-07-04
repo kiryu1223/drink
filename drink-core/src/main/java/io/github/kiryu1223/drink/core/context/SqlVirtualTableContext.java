@@ -5,24 +5,19 @@ import io.github.kiryu1223.drink.config.Config;
 
 import java.util.List;
 
-public class SqlFromQueryContext extends SqlContext
+public class SqlVirtualTableContext extends SqlTableContext
 {
     private final QuerySqlBuilder sqlBuilder;
 
-    public SqlFromQueryContext(QuerySqlBuilder sqlBuilder)
+    public SqlVirtualTableContext(QuerySqlBuilder sqlBuilder)
     {
         this.sqlBuilder = sqlBuilder;
-    }
-
-    public QuerySqlBuilder getSqlBuilder()
-    {
-        return sqlBuilder;
     }
 
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return  sqlBuilder.getSqlAndValue(values);
+        return sqlBuilder.getSqlAndValue(values);
     }
 
     @Override

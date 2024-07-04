@@ -3,6 +3,8 @@ package io.github.kiryu1223.drink;
 import io.github.kiryu1223.drink.api.Drink;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
+import io.github.kiryu1223.drink.api.crud.read.group.Group2;
+import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.MySQLConfig;
 import io.github.kiryu1223.drink.pojos.Topic;
@@ -15,6 +17,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.List;
 
 @SuppressWarnings("all")
 public class MainTest
@@ -24,7 +27,6 @@ public class MainTest
 
     public MainTest()
     {
-        log.info("123321");
         Config config = new Config();
         config.setDbConfig(new MySQLConfig());
         client = Drink.boot(new DataSource()
@@ -101,8 +103,11 @@ public class MainTest
                     int id0000 = s.getStars();
                     String stars0000 = s.getId();
                 })
+                .distinct()
+                .selectSingle(r -> r.id0000)
                 .toSql();
         System.out.println(sql);
+//        log.info(sql);
     }
 
     @Test
@@ -114,8 +119,91 @@ public class MainTest
                 .orderBy(f -> f.getId())
                 .orderBy(f -> f.getCreateTime(), false)
                 .distinct()
-                .selectInt(s -> s.getStars())
+                .selectSingle(s -> s.getStars())
                 .toSql();
         System.out.println(sql);
+
+//        log.info(sql);
+    }
+
+    @Test
+    public void m3()
+    {
+        String sql = client.query(Topic.class)
+                .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
+                .where((a, b) -> a.getStars() >= 1000 || b.getTitle() != "123")
+                .orderBy((a, b) -> a.getId(), false)
+                .orderBy((a, b) -> b.getCreateTime(), true)
+                .distinct()
+                .select((a, b) -> new Result()
+                {
+                    int id0000 = b.getStars();
+                    String stars0000 = a.getId();
+                })
+                .selectSingle(s -> s.id0000)
+                .toSql();
+        System.out.println(sql);
+
+//        log.info(sql);
+    }
+
+    @Test
+    public void m4()
+    {
+        String sql = client.query(Topic.class)
+                .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
+                .where((a, b) -> a.getStars() >= 1000 || b.getTitle() != "123")
+                .groupBy((a, b) -> new Grouper()
+                {
+                    int k1 = a.getStars();
+                    String k2 = a.getId();
+                })
+                .orderBy((a) -> a.key.k2, false)
+                .orderBy((a) -> a.key.k1, true)
+                .having(a -> a.key.k1 > 500)
+                .select((a) -> new Result()
+                {
+                    int id0000 = a.key.k1;
+                    String stars0000 = a.key.k2;
+                })
+                .toSql();
+        System.out.println(sql);
+
+//        log.info(sql);
+    }
+
+    @Test
+    public void m5()
+    {
+        String sql = client.query(Topic.class)
+                .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
+                .where((a, b) -> a.getStars() >= 1000 || b.getTitle() != "123")
+                .groupBy((a, b) -> a.getStars())
+                .orderBy((a) -> a.key, false)
+                .having(a -> a.key > 500 && a.count(0) != 50)
+                .selectSingle(a -> a.key)
+                .toSql();
+        System.out.println(sql);
+
+//        log.info(sql);
+    }
+
+    @Test
+    public void m6()
+    {
+        String sql = client.query(Topic.class)
+                .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
+                .where((a, b) -> a.getStars() >= 1000 || b.getTitle() != "123")
+                .select((a, b) -> b)
+                .toSql();
+        System.out.println(sql);
+
+//        log.info(sql);
+    }
+
+    //@Test
+    public void m7()
+    {
+        boolean any = client.query(Topic.class).any();
     }
 }

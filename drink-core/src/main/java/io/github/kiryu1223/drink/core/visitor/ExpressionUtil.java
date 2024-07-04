@@ -58,40 +58,40 @@ public class ExpressionUtil
         return c == Void.class || c == void.class;
     }
 
-    public static String propertyName(Method method)
-    {
-        try
-        {
-            String fieldName = method.getName();
-            if (fieldName.startsWith("get") || fieldName.startsWith("set"))
-            {
-                fieldName = fieldName.substring(3);
-            }
-            else // is
-            {
-                fieldName = fieldName.substring(2);
-            }
-            Field field = method.getDeclaringClass().getDeclaredField(toLowerCaseFirstOne(fieldName));
-            return propertyName(field);
-        }
-        catch (NoSuchFieldException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String propertyName(Field field)
-    {
-        Column column = field.getAnnotation(Column.class);
-        if (column == null || column.value().isEmpty())
-        {
-            return field.getName();
-        }
-        else
-        {
-            return column.value();
-        }
-    }
+//    public static String propertyName(Method method)
+//    {
+//        try
+//        {
+//            String fieldName = method.getName();
+//            if (fieldName.startsWith("get") || fieldName.startsWith("set"))
+//            {
+//                fieldName = fieldName.substring(3);
+//            }
+//            else // is
+//            {
+//                fieldName = fieldName.substring(2);
+//            }
+//            Field field = method.getDeclaringClass().getDeclaredField(toLowerCaseFirstOne(fieldName));
+//            return propertyName(field);
+//        }
+//        catch (NoSuchFieldException e)
+//        {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public static String propertyName(Field field)
+//    {
+//        Column column = field.getAnnotation(Column.class);
+//        if (column == null || column.value().isEmpty())
+//        {
+//            return field.getName();
+//        }
+//        else
+//        {
+//            return column.value();
+//        }
+//    }
 
     public static String toLowerCaseFirstOne(String s)
     {
@@ -102,18 +102,6 @@ public class ExpressionUtil
         return Character.toLowerCase(s.charAt(0)) + s.substring(1);
     }
 
-    public static String getTableName(Class<?> target)
-    {
-        Table table = target.getAnnotation(Table.class);
-        if (table == null || table.value().isEmpty())
-        {
-            return target.getSimpleName();
-        }
-        else
-        {
-            return table.value();
-        }
-    }
 
     public static String firstUpperCase(String original) {
         if (!original.isEmpty()) {
@@ -122,8 +110,4 @@ public class ExpressionUtil
         return original;
     }
 
-    public static String fieldToSetterName(Field field)
-    {
-        return "set" + firstUpperCase(field.getName());
-    }
 }

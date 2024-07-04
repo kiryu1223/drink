@@ -15,6 +15,11 @@ public class SqlSession
         R invoke(T t) throws SQLException;
     }
 
+    public interface Action<R>
+    {
+        R invoke() throws SQLException;
+    }
+
     private final DataSource dataSource;
 
     public SqlSession()
@@ -49,6 +54,22 @@ public class SqlSession
     public <R> R executeQuery(Function<ResultSet, R> func, String sql)
     {
         return executeQuery(func, sql, Collections.emptyList());
+    }
+
+    public int executeUpdate(String sql, List<Object> values)
+    {
+        try (Connection connection = dataSource.getConnection())
+        {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
+            {
+                setObjects(preparedStatement, values);
+                return preparedStatement.executeUpdate();
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setObjects(PreparedStatement preparedStatement, List<Object> values) throws SQLException
