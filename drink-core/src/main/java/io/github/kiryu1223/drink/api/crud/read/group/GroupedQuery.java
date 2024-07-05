@@ -8,6 +8,8 @@ import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
+import java.util.List;
+
 public class GroupedQuery<Key, T> extends QueryBase
 {
     public GroupedQuery(QuerySqlBuilder sqlBuilder)
@@ -81,4 +83,10 @@ public class GroupedQuery<Key, T> extends QueryBase
     }
 
     // endregion
+
+    @Override
+    public List<Key> toList()
+    {
+        return super.toList();
+    }
 }

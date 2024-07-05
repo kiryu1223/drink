@@ -16,11 +16,6 @@ public class EndQuery<T> extends QueryBase
         return super.any();
     }
 
-    public String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
-
     @Override
     public List<T> toList()
     {

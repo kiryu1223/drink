@@ -94,11 +94,6 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
     // endregion
 
     // region [SELECT]
-    public LQuery<T1> select()
-    {
-        return new LQuery<>(this);
-    }
-
     public <R> EndQuery<R> select(Class<R> r)
     {
         return super.select(r);
@@ -114,6 +109,17 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         boolean single = select(expr.getTree());
         singleCheck(single);
         return new LQuery<>(this);
+    }
+
+    public <R> EndQuery<R> selectSingle(@Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr)
+    {
+        throw new RuntimeException();
+    }
+
+    public <R> EndQuery<R> selectSingle(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> expr)
+    {
+        select(expr.getTree());
+        return new EndQuery<>(this);
     }
 
     // endregion
@@ -133,8 +139,4 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
     }
     //endregion
 
-    public String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
 }

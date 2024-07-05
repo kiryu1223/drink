@@ -12,6 +12,8 @@ import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
+import java.util.List;
+
 public class GroupedQuery2<Key, T1, T2> extends QueryBase
 {
     public GroupedQuery2(QuerySqlBuilder sqlBuilder)
@@ -79,4 +81,10 @@ public class GroupedQuery2<Key, T1, T2> extends QueryBase
         return new EndQuery<>(this);
     }
     // endregion
+
+    @Override
+    public List<Key> toList()
+    {
+        return super.toList();
+    }
 }

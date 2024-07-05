@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.api.crud.read.group;
 
 
 import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.context.SqlContext;
@@ -11,6 +12,8 @@ import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+
+import java.util.List;
 
 
 public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase
@@ -69,5 +72,21 @@ public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase
 
         return new LQuery<>(this);
     }
+    public <R> EndQuery<R> selectSingle(@Expr Func1<Group3<Key, T1, T2, T3>, R> expr)
+    {
+        throw new RuntimeException();
+    }
+
+    public <R> EndQuery<R> selectSingle(ExprTree<Func1<Group3<Key, T1, T2, T3>, R>> expr)
+    {
+        select(expr.getTree());
+        return new EndQuery<>(this);
+    }
     // endregion
+
+    @Override
+    public List<Key> toList()
+    {
+        return super.toList();
+    }
 }

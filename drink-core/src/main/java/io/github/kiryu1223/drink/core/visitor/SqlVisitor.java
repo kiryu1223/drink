@@ -68,22 +68,19 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             switch (name)
             {
                 case "count":
-                    break;
                 case "sum":
-                    break;
                 case "avg":
-                    break;
                 case "max":
-                    break;
                 case "min":
-                    break;
+                    List<SqlContext> args = new ArrayList<>(methodCall.getArgs().size());
+                    for (Expression arg : methodCall.getArgs())
+                    {
+                        args.add(visit(arg));
+                    }
+                    return new SqlFuncContext(name.toUpperCase() + "({})", args);
+                default:
+                    throw new RuntimeException();
             }
-            List<SqlContext> args = new ArrayList<>(methodCall.getArgs().size());
-            for (Expression arg : methodCall.getArgs())
-            {
-                args.add(visit(arg));
-            }
-            return new SqlFuncContext(name.toUpperCase(), args);
         }
         else if (isProperty(parameters, methodCall) && isGetter(methodCall.getMethod()))
         {

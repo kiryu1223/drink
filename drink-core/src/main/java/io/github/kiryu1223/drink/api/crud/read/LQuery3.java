@@ -182,10 +182,6 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     // endregion
 
     // region [SELECT]
-    public LQuery<T1> select()
-    {
-        return new LQuery<>(this);
-    }
     public <R> EndQuery<R> select(Class<R> r)
     {
         return super.select(r);
@@ -380,11 +376,6 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
 //    // region [toAny]
 
-
-    public String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
 //
 //    public String toSQL()
 //    {

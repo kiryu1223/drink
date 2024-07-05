@@ -83,6 +83,17 @@ public class LQuery<T> extends QueryBase
         return joinNewQuery();
     }
 
+    public <Tn> LQuery2<T, Tn> leftJoin(EndQuery<Tn> target, @Expr Func2<T, Tn, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <Tn> LQuery2<T, Tn> leftJoin(EndQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
+    {
+        join(JoinType.LEFT, target, expr);
+        return joinNewQuery();
+    }
+
     public <Tn> LQuery2<T, Tn> rightJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
     {
         throw new RuntimeException();
@@ -350,10 +361,6 @@ public class LQuery<T> extends QueryBase
         return rList;
     }
 
-    public String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
 
 //    public <R> List<R> toList(Func1<T, R> func)
 //    {

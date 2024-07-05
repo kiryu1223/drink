@@ -9,6 +9,8 @@ import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
+import java.util.List;
+
 
 public class LQuery2<T1, T2> extends QueryBase
 {
@@ -174,10 +176,6 @@ public class LQuery2<T1, T2> extends QueryBase
     // endregion
 
     // region [SELECT]
-    public LQuery<T1> select()
-    {
-        return new LQuery<>(this);
-    }
 
     public <R> EndQuery<R> select(Class<R> r)
     {
@@ -375,10 +373,6 @@ public class LQuery2<T1, T2> extends QueryBase
 
     // region [toAny]
 
-    public String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
 
 //    public String toSQL()
 //    {

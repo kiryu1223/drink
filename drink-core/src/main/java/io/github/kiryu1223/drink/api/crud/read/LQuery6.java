@@ -3,17 +3,10 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery6;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func6;
 import io.github.kiryu1223.expressionTree.delegate.Func7;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public class LQuery6<T1, T2, T3, T4, T5, T6> extends QueryBase
 {
@@ -181,14 +174,11 @@ public class LQuery6<T1, T2, T3, T4, T5, T6> extends QueryBase
     // endregion
 
     // region [SELECT]
-    public LQuery<T1> select()
-    {
-        return new LQuery<>(this);
-    }
     public <R> EndQuery<R> select(Class<R> r)
     {
         return super.select(r);
     }
+
     public <R> LQuery<R> select(@Expr Func6<T1, T2, T3, T4, T5, T6, R> expr)
     {
         throw new RuntimeException();
@@ -201,6 +191,16 @@ public class LQuery6<T1, T2, T3, T4, T5, T6> extends QueryBase
         return new LQuery<>(this);
     }
 
+    public <R> EndQuery<R> selectSingle(@Expr Func6<T1, T2, T3, T4, T5, T6, R> expr)
+    {
+        throw new RuntimeException();
+    }
+
+    public <R> EndQuery<R> selectSingle(ExprTree<Func6<T1, T2, T3, T4, T5, T6, R>> expr)
+    {
+        select(expr.getTree());
+        return new EndQuery<>(this);
+    }
     // endregion
 
     //region [OTHER]
@@ -220,9 +220,6 @@ public class LQuery6<T1, T2, T3, T4, T5, T6> extends QueryBase
     //endregion
 
     // region [toAny]
-    public String toSql()
-    {
-        return getSqlBuilder().getSql();
-    }
+
     // endregion
 }

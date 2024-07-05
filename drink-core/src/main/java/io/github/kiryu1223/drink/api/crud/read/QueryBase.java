@@ -97,7 +97,27 @@ public abstract class QueryBase extends CRUD
         propertyMetaData = new ArrayList<>();
         List<SqlContext> sqlContextList = new ArrayList<>();
         Class<?> targetClass = getSqlBuilder().getTargetClass();
-        if (getSqlBuilder().getOrderedClass().contains(targetClass))
+        if (getSqlBuilder().getGroupBy() != null)
+        {
+
+            SqlContext groupBy = getSqlBuilder().getGroupBy();
+            MetaData metaData = MetaDataCache.getMetaData(getSqlBuilder().getTargetClass());
+            if (groupBy instanceof SqlGroupContext)
+            {
+                SqlGroupContext group = (SqlGroupContext) groupBy;
+                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+                {
+                    sqlContextList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
+                    propertyMetaData.add(metaData.getPropertyMetaData(entry.getKey()));
+                }
+            }
+            else
+            {
+                sqlContextList.add(groupBy);
+                setSingle(true);
+            }
+        }
+        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
         {
             int index = getSqlBuilder().getOrderedClass().indexOf(targetClass);
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
@@ -133,13 +153,83 @@ public abstract class QueryBase extends CRUD
 
     private void setDefaultMetaData()
     {
-        if (propertyMetaData != null) return;
+        if (propertyMetaData != null && !propertyMetaData.isEmpty()) return;
         propertyMetaData = new ArrayList<>();
         Class<?> targetClass = getSqlBuilder().getTargetClass();
-        if (getSqlBuilder().getOrderedClass().contains(targetClass))
+        if (getSqlBuilder().getGroupBy() != null)
+        {
+            SqlContext groupBy = getSqlBuilder().getGroupBy();
+            MetaData metaData = MetaDataCache.getMetaData(getSqlBuilder().getTargetClass());
+            if (groupBy instanceof SqlGroupContext)
+            {
+                SqlGroupContext group = (SqlGroupContext) groupBy;
+                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+                {
+                    propertyMetaData.add(metaData.getPropertyMetaData(entry.getKey()));
+                }
+            }
+            else
+            {
+                setSingle(true);
+            }
+        }
+        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
         {
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
             propertyMetaData.addAll(metaData.getColumns().values());
+        }
+        else
+        {
+            List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
+            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
+            {
+                label:
+                for (MetaData data : metaDataList)
+                {
+                    for (Map.Entry<String, PropertyMetaData> temp : data.getColumns().entrySet())
+                    {
+                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
+                        {
+                            propertyMetaData.add(column.getValue());
+                            break label;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void setDefaultSelect()
+    {
+        if (getSqlBuilder().getSelect() != null) return;
+        List<SqlContext> sqlContextList = new ArrayList<>();
+        Class<?> targetClass = getSqlBuilder().getTargetClass();
+        if (getSqlBuilder().getGroupBy() != null)
+        {
+            SqlContext groupBy = getSqlBuilder().getGroupBy();
+            if (groupBy instanceof SqlGroupContext)
+            {
+                SqlGroupContext group = (SqlGroupContext) groupBy;
+                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+                {
+                    sqlContextList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
+                }
+            }
+            else
+            {
+                sqlContextList.add(groupBy);
+                setSingle(true);
+            }
+        }
+        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
+        {
+            int index = getSqlBuilder().getOrderedClass().indexOf(targetClass);
+            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
+            {
+                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
+            }
         }
         else
         {
@@ -154,13 +244,14 @@ public abstract class QueryBase extends CRUD
                     {
                         if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
                         {
-                            propertyMetaData.add(column.getValue());
+                            sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
                             break label;
                         }
                     }
                 }
             }
         }
+        getSqlBuilder().setSelect(new SqlSelectorContext(sqlContextList));
     }
 
     protected <Tn> QueryBase joinNewQuery()
@@ -196,6 +287,7 @@ public abstract class QueryBase extends CRUD
         GroupByVisitor groupByVisitor = new GroupByVisitor(getConfig());
         SqlContext context = groupByVisitor.visit(lambda);
         getSqlBuilder().setGroupBy(context);
+        getSqlBuilder().setTargetClass(lambda.getReturnType());
     }
 
     protected void having(LambdaExpression<?> lambda)
@@ -237,4 +329,9 @@ public abstract class QueryBase extends CRUD
         }
     }
 
+    public String toSql()
+    {
+        setDefaultSelect();
+        return sqlBuilder.getSql();
+    }
 }
