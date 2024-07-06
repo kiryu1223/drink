@@ -36,7 +36,7 @@ public class SqlValueContext extends SqlContext
                 strings.add("?");
                 values.add(obj);
             }
-            return String.join(",", strings);
+            return "(" + String.join(",", strings) + ")";
         }
         else
         {
@@ -60,7 +60,7 @@ public class SqlValueContext extends SqlContext
             {
                 strings.add("?");
             }
-            return String.join(",", strings);
+            return "(" + String.join(",", strings) + ")";
         }
         else
         {

@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.core.context;
 
-import io.github.kiryu1223.drink.annotation.SqlFuncExt;
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class SqlFuncContext extends SqlContext
         {
             strings.add(arg.getSqlAndValue(config, values));
         }
-        return function + "(" + String.join(",", strings) + ")";
+        return function + (strings.isEmpty() ? "(" + String.join(",", strings) + ")" : "");
     }
 
     @Override

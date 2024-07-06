@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.api;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.DataSourcesManager;
+import io.github.kiryu1223.drink.ext.DbType;
 
 import javax.sql.DataSource;
 
@@ -12,7 +13,7 @@ public class Drink
     {
     }
 
-    private Config config = new Config();
+    private Config config = new Config(DbType.Other);
 
     public Drink setConfig(Config config)
     {
@@ -31,7 +32,7 @@ public class Drink
         return this;
     }
 
-    public static Drink boot(DataSource dataSource)
+    public static Drink bootStrap(DataSource dataSource)
     {
         DataSourcesManager.setDeflateDataSource(dataSource);
         return new Drink();

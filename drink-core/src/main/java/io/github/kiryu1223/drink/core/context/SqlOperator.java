@@ -1,15 +1,13 @@
 package io.github.kiryu1223.drink.core.context;
 
-import io.github.kiryu1223.expressionTree.expressions.OperatorType;
-
 public enum SqlOperator
 {
-    POS("+",true),                             // +
-    NEG("-",true),                             // -
-    NOT("NOT",true),                             // !
-    COMPL("~",true),                           // ~
-    PREINC("++",true),                         // ++ _
-    PREDEC("--",true),                         // -- _
+    POS("+", true),                             // +
+    NEG("-", true),                             // -
+    NOT("NOT", true),                             // !
+    COMPL("~", true),                           // ~
+    PREINC("++", true),                         // ++ _
+    PREDEC("--", true),                         // -- _
     POSTINC("++"),                        // _ ++
     POSTDEC("--"),                        // _ --
 
@@ -47,6 +45,11 @@ public enum SqlOperator
     MUL_ASG("*="),                        // *=
     DIV_ASG("/="),                        // /=
     MOD_ASG("%="),                        // %=
+
+    LIKE("LIKE"),
+//    L_LIKE("LIKE"),
+//    R_LIKE("LIKE"),
+    IN("IN"),
     ;
 
     private final String operator;
@@ -57,6 +60,7 @@ public enum SqlOperator
         this.operator = operator;
         this.isLeft = false;
     }
+
     SqlOperator(String operator, boolean isLeft)
     {
         this.operator = operator;

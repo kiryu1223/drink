@@ -53,4 +53,15 @@ public class PropertyMetaData
     {
         return Objects.hash(property, column, getter, setter);
     }
+
+    @Override
+    public String toString()
+    {
+        return "PropertyMetaData{" +
+                "property='" + property + '\'' +
+                ", column='" + column + '\'' +
+                ", getter=" + getter +
+                ", setter=" + setter +
+                '}';
+    }
 }

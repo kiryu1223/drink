@@ -1,7 +1,5 @@
 package io.github.kiryu1223.drink.core.visitor;
 
-import io.github.kiryu1223.drink.annotation.Column;
-import io.github.kiryu1223.drink.annotation.Table;
 import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
 import io.github.kiryu1223.expressionTree.expressions.*;
 

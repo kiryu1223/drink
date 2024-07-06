@@ -6,6 +6,8 @@ import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.MySQLConfig;
+import io.github.kiryu1223.drink.ext.DbType;
+import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.pojos.Topic;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,7 +19,11 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
 
 @SuppressWarnings("all")
 public class MainTest
@@ -27,9 +33,9 @@ public class MainTest
 
     public MainTest()
     {
-        Config config = new Config();
+        Config config = new Config(DbType.MySQL);
         config.setDbConfig(new MySQLConfig());
-        client = Drink.boot(new DataSource()
+        client = Drink.bootStrap(new DataSource()
                 {
                     @Override
                     public Connection getConnection() throws SQLException
@@ -180,7 +186,7 @@ public class MainTest
                 .where((a, b) -> a.getStars() >= 1000 || b.getTitle() != "123")
                 .groupBy((a, b) -> a.getStars())
                 .orderBy((a) -> a.key, false)
-                .having(a -> a.key > 500 && a.count(0) != 50)
+                .having(a -> a.key > 500 && a.count((c1, c2) -> c2.getCreateTime()) != 50)
                 .select(a -> new Result()
                 {
                     int a00 = a.key;
@@ -239,9 +245,50 @@ public class MainTest
     @Test
     public void m9()
     {
-        String sql = client.query(Topic.class).toSql();
+        String sql = client.query(Topic.class)
+                .where(a -> SqlFunctions.convert(a.getId(), int.class) > 50)
+                .selectSingle(s -> SqlFunctions.count(s.getId()))
+                .toSql();
 
         System.out.println(sql);
     }
 
+    @Test
+    public void m10()
+    {
+        String sql = client.query(Topic.class)
+                .where(a -> SqlFunctions.convert(a.getId(), int.class) > 50)
+                .selectSingle(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .toSql();
+
+        System.out.println(sql);
+    }
+
+    @Test
+    public void m11()
+    {
+        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
+        String sql1 = client.query(Topic.class)
+                .where(a -> list.contains(a.getStars()))
+                .selectSingle(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .toSql();
+
+        System.out.println(sql1);
+
+        String sql2 = client.query(Topic.class)
+                .where(a -> "aabb".contains(a.getTitle()) || "aabb".startsWith(a.getTitle()) || "aabb".endsWith(a.getTitle()))
+                .selectSingle(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .toSql();
+        System.out.println(sql2);
+    }
+
+    @Test
+    public void m12()
+    {
+        String sql1 = client.query(Topic.class)
+                .selectSingle(s ->addDate(s.getCreateTime(), interval(TimeUnit.DAYS,500)))
+                .toSql();
+
+        System.out.println(sql1);
+    }
 }

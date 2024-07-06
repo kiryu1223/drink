@@ -248,80 +248,80 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     private String makeSelect(List<Object> values)
     {
-        return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config,values);
-//        if (select == null)
-//        {
-//            if(groupBy==null)
-//            {
-//                MetaData metaData = MetaDataCache.getMetaData(targetClass);
-//                List<String> stringList = new ArrayList<>();
-//                for (PropertyMetaData data : metaData.getColumns().values())
-//                {
-//                    stringList.add("t0." + config.getDbConfig().propertyDisambiguation(data.getColumn()));
-//                }
-//                return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
-//            }
-//            else
-//            {
-//                if (groupBy instanceof SqlGroupContext)
-//                {
-//                    SqlGroupContext group = (SqlGroupContext) groupBy;
-//                    List<String> stringList = new ArrayList<>();
-//                    for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
-//                    {
-//                        stringList.add(new SqlAsNameContext(entry.getKey(),entry.getValue()).getSqlAndValue(config,values));
-//                    }
-//                    return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
-//                }
-//                else
-//                {
-//                    return "SELECT " + (distinct ? "DISTINCT " : "") + groupBy.getSqlAndValue(config,values);
-//                }
-//            }
-//        }
-//        else
-//        {
-//            return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config,values);
-//        }
+        //return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config,values);
+        if (select == null)
+        {
+            if(groupBy==null)
+            {
+                MetaData metaData = MetaDataCache.getMetaData(targetClass);
+                List<String> stringList = new ArrayList<>();
+                for (PropertyMetaData data : metaData.getColumns().values())
+                {
+                    stringList.add("t0." + config.getDbConfig().propertyDisambiguation(data.getColumn()));
+                }
+                return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
+            }
+            else
+            {
+                if (groupBy instanceof SqlGroupContext)
+                {
+                    SqlGroupContext group = (SqlGroupContext) groupBy;
+                    List<String> stringList = new ArrayList<>();
+                    for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+                    {
+                        stringList.add(new SqlAsNameContext(entry.getKey(),entry.getValue()).getSqlAndValue(config,values));
+                    }
+                    return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
+                }
+                else
+                {
+                    return "SELECT " + (distinct ? "DISTINCT " : "") + groupBy.getSqlAndValue(config,values);
+                }
+            }
+        }
+        else
+        {
+            return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config,values);
+        }
     }
 
     private String makeSelect()
     {
-        return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSql(config);
-//        if (select == null)
-//        {
-//            if(groupBy==null)
-//            {
-//                MetaData metaData = MetaDataCache.getMetaData(targetClass);
-//                List<String> stringList = new ArrayList<>();
-//                for (PropertyMetaData data : metaData.getColumns().values())
-//                {
-//                    stringList.add("t0." + config.getDbConfig().propertyDisambiguation(data.getColumn()));
-//                }
-//                return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
-//            }
-//            else
-//            {
-//                if (groupBy instanceof SqlGroupContext)
-//                {
-//                    SqlGroupContext group = (SqlGroupContext) groupBy;
-//                    List<String> stringList = new ArrayList<>();
-//                    for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
-//                    {
-//                        stringList.add(new SqlAsNameContext(entry.getKey(),entry.getValue()).getSql(config));
-//                    }
-//                    return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
-//                }
-//                else
-//                {
-//                    return "SELECT " + (distinct ? "DISTINCT " : "") + groupBy.getSql(config);
-//                }
-//            }
-//        }
-//        else
-//        {
-//            return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSql(config);
-//        }
+       // return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSql(config);
+        if (select == null)
+        {
+            if(groupBy==null)
+            {
+                MetaData metaData = MetaDataCache.getMetaData(targetClass);
+                List<String> stringList = new ArrayList<>();
+                for (PropertyMetaData data : metaData.getColumns().values())
+                {
+                    stringList.add("t0." + config.getDbConfig().propertyDisambiguation(data.getColumn()));
+                }
+                return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
+            }
+            else
+            {
+                if (groupBy instanceof SqlGroupContext)
+                {
+                    SqlGroupContext group = (SqlGroupContext) groupBy;
+                    List<String> stringList = new ArrayList<>();
+                    for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+                    {
+                        stringList.add(new SqlAsNameContext(entry.getKey(),entry.getValue()).getSql(config));
+                    }
+                    return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
+                }
+                else
+                {
+                    return "SELECT " + (distinct ? "DISTINCT " : "") + groupBy.getSql(config);
+                }
+            }
+        }
+        else
+        {
+            return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSql(config);
+        }
     }
 
     private String makeFrom(List<Object> values)

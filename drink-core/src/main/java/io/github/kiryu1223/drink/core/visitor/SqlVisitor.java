@@ -1,20 +1,29 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.annotation.SqlFuncExt;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.MetaData;
 import io.github.kiryu1223.drink.core.builder.MetaDataCache;
 import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.ext.DbType;
+import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Parameter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAmount;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isGetter;
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isProperty;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
 
 public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
 {
@@ -54,8 +63,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
         }
         else
         {
-            if (hasParameter(fieldSelect)) throw new RuntimeException();
-            return new SqlValueContext(fieldSelect.getValue());
+            return checkAndReturnValue(fieldSelect);
         }
     }
 
@@ -68,6 +76,10 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             switch (name)
             {
                 case "count":
+                    if (methodCall.getMethod().getParameterCount() == 0)
+                    {
+                        return new SqlFuncContext("COUNT(*)", Collections.emptyList());
+                    }
                 case "sum":
                 case "avg":
                 case "max":
@@ -77,9 +89,183 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                     {
                         args.add(visit(arg));
                     }
-                    return new SqlFuncContext(name.toUpperCase() + "({})", args);
+                    return new SqlFuncContext(name.toUpperCase(), args);
                 default:
                     throw new RuntimeException();
+            }
+        }
+        else if (SqlFunctions.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        {
+            Method method = methodCall.getMethod();
+            List<Expression> args = methodCall.getArgs();
+            List<SqlContext> contexts = new ArrayList<>(args.size());
+            SqlFuncExt[] sqlFuncExts = method.getAnnotationsByType(SqlFuncExt.class);
+            if (sqlFuncExts.length == 0)
+            {
+                List<String> strings = new ArrayList<>();
+                strings.add(method.getName() + "(");
+                for (int i = 0; i < args.size(); i++)
+                {
+                    Expression arg = args.get(i);
+                    contexts.add(visit(arg));
+                    if (i < args.size() - 1) strings.add(",");
+                }
+                strings.add(")");
+                return new SqlFunctionsContext(strings, contexts);
+            }
+            else
+            {
+                String function = getSqlFuncExt(sqlFuncExts).function();
+                if (method.getParameterCount() == 0)
+                {
+                    return new SqlFunctionsContext(Collections.singletonList(function), Collections.emptyList());
+                }
+                else if (function.contains("{}"))
+                {
+                    List<String> strings = new ArrayList<>();
+                    String[] splitFunc = function.split("\\{}");
+                    for (int i = 0; i < splitFunc.length; i++)
+                    {
+                        strings.add(splitFunc[i]);
+                        // 可变参数情况
+                        if (i == splitFunc.length - 2
+                                && args.size() >= splitFunc.length)
+                        {
+                            while (i < args.size())
+                            {
+                                contexts.add(visit(args.get(i)));
+                                if (i < args.size() - 1) strings.add(",");
+                                i++;
+                            }
+                            strings.add(splitFunc[splitFunc.length - 1]);
+                        }
+                        // 正常情况
+                        else if (i < args.size()) contexts.add(visit(args.get(i)));
+                    }
+                    return new SqlFunctionsContext(strings, contexts);
+                }
+                else if (function.contains("{") && function.contains("}"))
+                {
+                    List<String> strings = new ArrayList<>();
+                    List<Parameter> methodParameters = Arrays.stream(methodCall.getMethod().getParameters()).collect(Collectors.toList());
+                    ParamMatcher match = match(function);
+                    List<String> functions = match.remainder;
+                    List<String> params = match.bracesContent;
+                    for (int i = 0; i < functions.size(); i++)
+                    {
+                        strings.add(functions.get(i));
+                        if (i < params.size())
+                        {
+                            String param = params.get(i);
+                            Parameter targetParam;
+                            int index;
+                            if (param.chars().allMatch(s -> Character.isDigit(s)))
+                            {
+                                //index形式
+                                index = Integer.parseInt(param);
+                                targetParam = methodParameters.get(index);
+                            }
+                            else
+                            {
+                                //arg名称形式
+                                targetParam = methodParameters.stream().filter(f -> f.getName().equals(param)).findFirst().get();
+                                index = methodParameters.indexOf(targetParam);
+                            }
+
+                            // 如果是可变参数
+                            if (targetParam.isVarArgs())
+                            {
+                                while (index < args.size())
+                                {
+                                    contexts.add(visit(args.get(index)));
+                                    if (index < args.size() - 1) strings.add(",");
+                                    index++;
+                                }
+                            }
+                            // 正常情况
+                            else
+                            {
+                                contexts.add(visit(args.get(index)));
+                            }
+                        }
+                    }
+                    return new SqlFunctionsContext(strings, contexts);
+                }
+                else
+                {
+                    throw new RuntimeException();
+                }
+            }
+        }
+        else if (Collection.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        {
+            Method method = methodCall.getMethod();
+            if (method.getName().equals("contains"))
+            {
+                SqlContext left = visit(methodCall.getArgs().get(0));
+                SqlContext right = visit(methodCall.getExpr());
+                return new SqlBinaryContext(SqlOperator.IN, left, right);
+            }
+            else
+            {
+                return checkAndReturnValue(methodCall);
+            }
+        }
+        else if (String.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        {
+            Method method = methodCall.getMethod();
+            switch (method.getName())
+            {
+                case "contains":
+                {
+                    SqlContext left = visit(methodCall.getExpr());
+                    SqlContext right = visit(methodCall.getArgs().get(0));
+                    SqlFunctionsContext functionsContext = new SqlFunctionsContext(Arrays.asList("CONCAT('%',", ",'%')"), Collections.singletonList(right));
+                    return new SqlBinaryContext(SqlOperator.LIKE, left, functionsContext);
+                }
+                case "startsWith":
+                {
+                    SqlContext left = visit(methodCall.getExpr());
+                    SqlContext right = visit(methodCall.getArgs().get(0));
+                    SqlFunctionsContext functionsContext = new SqlFunctionsContext(Arrays.asList("CONCAT(", ",'%')"), Collections.singletonList(right));
+                    return new SqlBinaryContext(SqlOperator.LIKE, left, functionsContext);
+                }
+                case "endsWith":
+                {
+                    SqlContext left = visit(methodCall.getExpr());
+                    SqlContext right = visit(methodCall.getArgs().get(0));
+                    SqlFunctionsContext functionsContext = new SqlFunctionsContext(Arrays.asList("CONCAT('%',", ")"), Collections.singletonList(right));
+                    return new SqlBinaryContext(SqlOperator.LIKE, left, functionsContext);
+                }
+                default:
+                    return checkAndReturnValue(methodCall);
+            }
+        }
+        else if (Temporal.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        {
+            Method method = methodCall.getMethod();
+            switch (method.getName())
+            {
+                case "isAfter":
+                {
+                    SqlContext left = visit(methodCall.getExpr());
+                    SqlContext right = visit(methodCall.getArgs().get(0));
+                    return new SqlBinaryContext(SqlOperator.GT, left, right);
+                }
+                case "isBefore":
+                {
+                    SqlContext left = visit(methodCall.getExpr());
+                    SqlContext right = visit(methodCall.getArgs().get(0));
+                    return new SqlBinaryContext(SqlOperator.LT, left, right);
+                }
+                case "isEqual":
+                {
+                    SqlContext left = visit(methodCall.getExpr());
+                    SqlContext right = visit(methodCall.getArgs().get(0));
+                    return new SqlBinaryContext(SqlOperator.EQ, left, right);
+                }
+                default:
+                    return checkAndReturnValue(methodCall);
             }
         }
         else if (isProperty(parameters, methodCall) && isGetter(methodCall.getMethod()))
@@ -90,11 +276,9 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
             return new SqlPropertyContext(metaData.getColumnNameByGetter(method), index);
         }
-
         else
         {
-            if (hasParameter(methodCall)) throw new RuntimeException();
-            return new SqlValueContext(methodCall.getValue());
+            return checkAndReturnValue(methodCall);
         }
     }
 
@@ -128,7 +312,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     @Override
     public SqlContext visit(StaticClassExpression staticClass)
     {
-        return new SqlValueContext(staticClass.getType());
+        return new SqlTypeContext(staticClass.getType());
     }
 
     @Override
@@ -145,6 +329,19 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
 
     protected abstract SqlVisitor getSelf();
 
+    protected SqlValueContext checkAndReturnValue(MethodCallExpression expression)
+    {
+        Method method = expression.getMethod();
+        if (isVoid(method.getReturnType()) || hasParameter(expression)) throw new RuntimeException();
+        return new SqlValueContext(expression.getValue());
+    }
+
+    protected SqlValueContext checkAndReturnValue(FieldSelectExpression expression)
+    {
+        if (hasParameter(expression)) throw new RuntimeException();
+        return new SqlValueContext(expression.getValue());
+    }
+
     protected boolean hasParameter(Expression expression)
     {
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
@@ -157,5 +354,54 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             }
         });
         return atomicBoolean.get();
+    }
+
+    protected SqlFuncExt getSqlFuncExt(SqlFuncExt[] sqlFuncExts)
+    {
+        DbType dbType = config.getDbType();
+        List<SqlFuncExt> collect = Arrays.stream(sqlFuncExts).filter(a -> a.dbType() == dbType).collect(Collectors.toList());
+        if (collect.isEmpty())
+        {
+            throw new RuntimeException("未找到对应的数据库类型:" + dbType + " 的SqlFuncExt注解");
+        }
+        else
+        {
+            return collect.get(0);
+        }
+    }
+
+    protected ParamMatcher match(String input)
+    {
+        ParamMatcher paramMatcher = new ParamMatcher();
+
+        List<String> bracesContent = paramMatcher.bracesContent;
+        List<String> remainder = paramMatcher.remainder;
+        // 正则表达式匹配"{}"内的内容
+        Pattern pattern = Pattern.compile("\\{([^}]+)}");
+        Matcher matcher = pattern.matcher(input);
+
+        int lastIndex = 0; // 上一个匹配项结束的位置
+        while (matcher.find())
+        {
+            // 添加上一个匹配项到剩余字符串（如果有的话）
+            if (lastIndex < matcher.start())
+            {
+                remainder.add(input.substring(lastIndex, matcher.start()));
+            }
+
+            // 提取并添加"{}"内的内容
+            bracesContent.add(matcher.group(1));
+
+            // 更新上一个匹配项结束的位置
+            lastIndex = matcher.end();
+        }
+
+        // 添加最后一个匹配项之后的剩余字符串（如果有的话）
+        if (lastIndex < input.length())
+        {
+            remainder.add(input.substring(lastIndex));
+        }
+
+        return paramMatcher;
     }
 }

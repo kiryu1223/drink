@@ -200,59 +200,59 @@ public abstract class QueryBase extends CRUD
         }
     }
 
-    private void setDefaultSelect()
-    {
-        if (getSqlBuilder().getSelect() != null) return;
-        List<SqlContext> sqlContextList = new ArrayList<>();
-        Class<?> targetClass = getSqlBuilder().getTargetClass();
-        if (getSqlBuilder().getGroupBy() != null)
-        {
-            SqlContext groupBy = getSqlBuilder().getGroupBy();
-            if (groupBy instanceof SqlGroupContext)
-            {
-                SqlGroupContext group = (SqlGroupContext) groupBy;
-                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
-                {
-                    sqlContextList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
-                }
-            }
-            else
-            {
-                sqlContextList.add(groupBy);
-                setSingle(true);
-            }
-        }
-        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
-        {
-            int index = getSqlBuilder().getOrderedClass().indexOf(targetClass);
-            MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
-            {
-                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
-            }
-        }
-        else
-        {
-            List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
-            MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
-            {
-                label:
-                for (int i = 0; i < metaDataList.size(); i++)
-                {
-                    for (Map.Entry<String, PropertyMetaData> temp : metaDataList.get(i).getColumns().entrySet())
-                    {
-                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
-                        {
-                            sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
-                            break label;
-                        }
-                    }
-                }
-            }
-        }
-        getSqlBuilder().setSelect(new SqlSelectorContext(sqlContextList));
-    }
+//    private void setDefaultSelect()
+//    {
+//        if (getSqlBuilder().getSelect() != null) return;
+//        List<SqlContext> sqlContextList = new ArrayList<>();
+//        Class<?> targetClass = getSqlBuilder().getTargetClass();
+//        if (getSqlBuilder().getGroupBy() != null)
+//        {
+//            SqlContext groupBy = getSqlBuilder().getGroupBy();
+//            if (groupBy instanceof SqlGroupContext)
+//            {
+//                SqlGroupContext group = (SqlGroupContext) groupBy;
+//                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+//                {
+//                    sqlContextList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
+//                }
+//            }
+//            else
+//            {
+//                sqlContextList.add(groupBy);
+//                setSingle(true);
+//            }
+//        }
+//        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
+//        {
+//            int index = getSqlBuilder().getOrderedClass().indexOf(targetClass);
+//            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+//            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
+//            {
+//                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
+//            }
+//        }
+//        else
+//        {
+//            List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
+//            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+//            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
+//            {
+//                label:
+//                for (int i = 0; i < metaDataList.size(); i++)
+//                {
+//                    for (Map.Entry<String, PropertyMetaData> temp : metaDataList.get(i).getColumns().entrySet())
+//                    {
+//                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
+//                        {
+//                            sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
+//                            break label;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        getSqlBuilder().setSelect(new SqlSelectorContext(sqlContextList));
+//    }
 
     protected <Tn> QueryBase joinNewQuery()
     {
@@ -325,13 +325,13 @@ public abstract class QueryBase extends CRUD
     {
         if (single)
         {
-            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素");
+            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素, 单元素请使用selectSingle");
         }
     }
 
     public String toSql()
     {
-        setDefaultSelect();
+        //setDefaultSelect();
         return sqlBuilder.getSql();
     }
 }
