@@ -7,7 +7,9 @@ import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.MySQLConfig;
 import io.github.kiryu1223.drink.ext.DbType;
+import io.github.kiryu1223.drink.ext.SqlCalculates;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import io.github.kiryu1223.drink.pojos.Topic;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static io.github.kiryu1223.drink.ext.SqlCalculates.*;
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
 
 @SuppressWarnings("all")
@@ -286,7 +289,7 @@ public class MainTest
     public void m12()
     {
         String sql1 = client.query(Topic.class)
-                .selectSingle(s ->addDate(s.getCreateTime(), interval(TimeUnit.DAYS,500)))
+                .selectSingle(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
                 .toSql();
 
         System.out.println(sql1);

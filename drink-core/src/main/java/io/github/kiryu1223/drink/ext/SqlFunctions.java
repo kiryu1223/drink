@@ -2,17 +2,17 @@ package io.github.kiryu1223.drink.ext;
 
 
 import io.github.kiryu1223.drink.annotation.SqlFuncExt;
+import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
+import io.github.kiryu1223.drink.core.context.SqlOperator;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
-import java.util.concurrent.TimeUnit;
 
 public class SqlFunctions
 {
-    // endregion
 
     // region [聚合函数]
 
@@ -240,25 +240,17 @@ public class SqlFunctions
 //        return LocalDateTime.now();
 //    }
 
-    @SqlFuncExt(dbType = DbType.H2, function = "INTERVAL {num} {unit}")
-    @SqlFuncExt(dbType = DbType.MySQL, function = "INTERVAL {num} {unit}")
-    public static SqlTimeLong interval(TimeUnit unit,int num)
-    {
-        boom();
-        return new SqlTimeLong();
-    }
-
-    @SqlFuncExt(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @SqlFuncExt(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static LocalDateTime addDate(LocalDateTime time, SqlTimeLong timeLong)
+    @SqlFuncExt(dbType = DbType.H2, function = "ADDDATE({time},INTERVAL {num} {unit})")
+    @SqlFuncExt(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
+    public static LocalDateTime addDate(LocalDateTime time, SqlTimeUnit unit, int num)
     {
         boom();
         return LocalDateTime.now();
     }
 
-    @SqlFuncExt(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @SqlFuncExt(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static LocalDate addDate(LocalDate time, SqlTimeLong timeLong)
+    @SqlFuncExt(dbType = DbType.H2, function = "ADDDATE({time},INTERVAL {num} {unit})")
+    @SqlFuncExt(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
+    public static LocalDate addDate(LocalDate time, SqlTimeUnit unit, int num)
     {
         boom();
         return LocalDate.now();
@@ -1877,6 +1869,20 @@ public class SqlFunctions
         return (T) new Object();
     }
 
+    @SqlFuncExt(function = "{} IS NULL")
+    public static <T> boolean isNull(T t)
+    {
+        boom();
+        return false;
+    }
+
+    @SqlFuncExt(function = "{} IS NOT NULL")
+    public static <T> boolean isNotNull(T t)
+    {
+        boom();
+        return false;
+    }
+
     // endregion
 
     private static void boom()
@@ -1919,10 +1925,5 @@ public class SqlFunctions
         {
             return 0;
         }
-    }
-
-    public static class SqlTimeLong
-    {
-        private SqlTimeLong() {}
     }
 }

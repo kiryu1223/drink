@@ -46,14 +46,20 @@ public enum SqlOperator
     DIV_ASG("/="),                        // /=
     MOD_ASG("%="),                        // %=
 
-    LIKE("LIKE"),
-//    L_LIKE("LIKE"),
-//    R_LIKE("LIKE"),
-    IN("IN"),
+    LIKE,
+    IN,
+    IS,
+
     ;
 
     private final String operator;
     private final boolean isLeft;
+
+    SqlOperator()
+    {
+        this.operator = name();
+        this.isLeft = false;
+    }
 
     SqlOperator(String operator)
     {

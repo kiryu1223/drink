@@ -1,10 +1,15 @@
 package io.github.kiryu1223.drink.core.context;
 
+import com.sun.tools.corba.se.idl.constExpr.UnaryExpr;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
+import io.github.kiryu1223.drink.ext.SqlTimeUnit;
+import sun.jvmstat.monitor.Units;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class SqlValueContext extends SqlContext
 {
@@ -26,6 +31,11 @@ public class SqlValueContext extends SqlContext
         if (value == null)
         {
             return "NULL";
+        }
+        else if (value instanceof SqlTimeUnit)
+        {
+            SqlTimeUnit timeUnit = (SqlTimeUnit) value;
+            return timeUnit.name();
         }
         else if (value instanceof Collection)
         {
@@ -51,6 +61,11 @@ public class SqlValueContext extends SqlContext
         if (value == null)
         {
             return "NULL";
+        }
+        else if (value instanceof SqlTimeUnit)
+        {
+            SqlTimeUnit timeUnit = (SqlTimeUnit) value;
+            return timeUnit.name();
         }
         else if (value instanceof Collection)
         {
