@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.annotation.SqlFuncExt;
+import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.MetaData;
@@ -15,7 +16,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.temporal.Temporal;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -264,6 +264,33 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 }
                 default:
                     return checkAndReturnValue(methodCall);
+            }
+        }
+        else if (isSqlOperatorMethod(methodCall.getMethod()))
+        {
+            Method method = methodCall.getMethod();
+            List<Expression> args = methodCall.getArgs();
+            SqlOperatorMethod operatorMethod = method.getAnnotation(SqlOperatorMethod.class);
+            SqlOperator operator = operatorMethod.value();
+            if (operator == SqlOperator.BETWEEN)
+            {
+                SqlContext min = visit(args.get(1));
+                SqlContext max = visit(args.get(2));
+                SqlBinaryContext and = new SqlBinaryContext(SqlOperator.AND, min, max);
+                return new SqlBinaryContext(SqlOperator.BETWEEN, visit(args.get(0)), and);
+            }
+            else
+            {
+                if (operator.isLeft() || operator == SqlOperator.POSTINC || operator == SqlOperator.POSTDEC)
+                {
+                    return new SqlUnaryContext(operator, visit(methodCall.getArgs().get(0)));
+                }
+                else
+                {
+                    SqlContext left = visit(methodCall.getArgs().get(0));
+                    SqlContext right = visit(methodCall.getArgs().get(1));
+                    return new SqlBinaryContext(operator, left, right);
+                }
             }
         }
         else if (isProperty(parameters, methodCall) && isGetter(methodCall.getMethod()))

@@ -2,8 +2,6 @@ package io.github.kiryu1223.drink.ext;
 
 
 import io.github.kiryu1223.drink.annotation.SqlFuncExt;
-import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
-import io.github.kiryu1223.drink.core.context.SqlOperator;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
 
 import java.time.LocalDate;

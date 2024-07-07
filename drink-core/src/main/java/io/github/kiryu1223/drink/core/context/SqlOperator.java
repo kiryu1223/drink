@@ -49,7 +49,7 @@ public enum SqlOperator
     LIKE,
     IN,
     IS,
-
+    BETWEEN,
     ;
 
     private final String operator;
@@ -82,4 +82,6 @@ public enum SqlOperator
     {
         return isLeft;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
@@ -56,6 +57,10 @@ public class ExpressionUtil
         return c == Void.class || c == void.class;
     }
 
+    public static boolean isSqlOperatorMethod(Method method)
+    {
+        return method.isAnnotationPresent(SqlOperatorMethod.class);
+    }
 //    public static String propertyName(Method method)
 //    {
 //        try

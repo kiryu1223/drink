@@ -7,7 +7,6 @@ import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.MySQLConfig;
 import io.github.kiryu1223.drink.ext.DbType;
-import io.github.kiryu1223.drink.ext.SqlCalculates;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import io.github.kiryu1223.drink.pojos.Topic;
@@ -23,10 +22,9 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static io.github.kiryu1223.drink.ext.SqlCalculates.*;
-import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
+import static io.github.kiryu1223.drink.ext.SqlCalculates.between;
+import static io.github.kiryu1223.drink.ext.SqlFunctions.addDate;
 
 @SuppressWarnings("all")
 public class MainTest
@@ -290,6 +288,17 @@ public class MainTest
     {
         String sql1 = client.query(Topic.class)
                 .selectSingle(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
+                .toSql();
+
+        System.out.println(sql1);
+    }
+
+    @Test
+    public void m13()
+    {
+        String sql1 = client.query(Topic.class)
+                .where(w -> between(w.getStars(), 0, 500))
+                .selectSingle(s -> s)
                 .toSql();
 
         System.out.println(sql1);

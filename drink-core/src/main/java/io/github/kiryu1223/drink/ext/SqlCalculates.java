@@ -99,6 +99,13 @@ public class SqlCalculates
         return false;
     }
 
+    @SqlOperatorMethod(SqlOperator.BETWEEN)
+    public static <T> boolean between(T t, T min, T max)
+    {
+        boom();
+        return false;
+    }
+
     private static void boom()
     {
         if (win)
