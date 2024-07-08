@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.core.context;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.expressionTree.expressions.OperatorType;
 
 import java.util.List;
 
@@ -30,6 +29,7 @@ public class SqlUnaryContext extends SqlContext
     public String getSqlAndValue(Config config, List<Object> values)
     {
         String temp = context.getSqlAndValue(config, values);
+        //if (operator == SqlOperator.NOT && !(context instanceof SqlParensContext)) temp = "(" + temp + ")";
         return operator.isLeft() ? operator.getOperator() + " " + temp : temp + " " + operator.getOperator();
     }
 
@@ -37,7 +37,7 @@ public class SqlUnaryContext extends SqlContext
     public String getSql(Config config)
     {
         String temp = context.getSql(config);
+        //if (operator == SqlOperator.NOT && !(context instanceof SqlParensContext)) temp = "(" + temp + ")";
         return operator.isLeft() ? operator.getOperator() + " " + temp : temp + " " + operator.getOperator();
-
     }
 }

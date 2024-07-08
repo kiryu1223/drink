@@ -50,6 +50,7 @@ public enum SqlOperator
     IN,
     IS,
     BETWEEN,
+    EXISTS,
     ;
 
     private final String operator;
@@ -80,7 +81,7 @@ public enum SqlOperator
 
     public boolean isLeft()
     {
-        return isLeft;
+        return isLeft || this == EXISTS;
     }
 
 

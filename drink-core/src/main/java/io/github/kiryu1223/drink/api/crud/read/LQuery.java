@@ -131,6 +131,39 @@ public class LQuery<T> extends QueryBase
         return this;
     }
 
+    public LQuery<T> orWhere(@Expr Func1<T, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public LQuery<T> orWhere(ExprTree<Func1<T, Boolean>> expr)
+    {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery<T> exists(Class<E> table, @Expr Func2<T, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery<T> exists(Class<E> table, ExprTree<Func2<T, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery<T> exists(LQuery<E> query, @Expr Func2<T, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery<T> exists(LQuery<E> query, ExprTree<Func2<T, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree());
+        return this;
+    }
+
     // endregion
 
     // region [ORDER BY]

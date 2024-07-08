@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.annotation.SqlFuncExt;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
+import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.MetaData;
@@ -202,7 +203,8 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             {
                 SqlContext left = visit(methodCall.getArgs().get(0));
                 SqlContext right = visit(methodCall.getExpr());
-                return new SqlBinaryContext(SqlOperator.IN, left, right);
+
+                return new SqlBinaryContext(SqlOperator.IN, left, new SqlParensContext(right));
             }
             else
             {
@@ -277,8 +279,13 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 SqlContext min = visit(args.get(1));
                 SqlContext max = visit(args.get(2));
                 SqlBinaryContext and = new SqlBinaryContext(SqlOperator.AND, min, max);
-                return new SqlBinaryContext(SqlOperator.BETWEEN, visit(args.get(0)), and);
+                return new SqlBinaryContext(operator, visit(args.get(0)), and);
             }
+//            else if (operator == SqlOperator.EXISTS)
+//            {
+//                QueryBase query = (QueryBase)args.get(0).getValue();
+//                return new SqlUnaryContext(operator,new SqlParensContext(new SqlVirtualTableContext(query.getSqlBuilder())));
+//            }
             else
             {
                 if (operator.isLeft() || operator == SqlOperator.POSTINC || operator == SqlOperator.POSTDEC)
@@ -324,7 +331,9 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     {
         return new SqlUnaryContext(
                 SqlOperator.valueOf(unary.getOperatorType().name()),
-                visit(unary.getOperand())
+                isNotAndHasntParens(unary)
+                        ? new SqlParensContext(visit(unary.getOperand()))
+                        : visit(unary.getOperand())
         );
     }
 
@@ -428,5 +437,10 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
         }
 
         return paramMatcher;
+    }
+
+    private boolean isNotAndHasntParens(UnaryExpression unary)
+    {
+        return unary.getOperatorType() == OperatorType.NOT && unary.getOperand().getKind() != Kind.Parens;
     }
 }

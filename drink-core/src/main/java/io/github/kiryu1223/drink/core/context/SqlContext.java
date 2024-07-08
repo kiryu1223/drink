@@ -10,26 +10,8 @@ public abstract class SqlContext
 
     public abstract String getSql(Config config);
 
-    protected String getTableAsName(int index)
-    {
-        return "t" + index;
-    }
-
-    protected SqlContext unbox(SqlContext context)
-    {
-        if (context instanceof SqlParensContext)
-        {
-            SqlParensContext sqlParensContext = (SqlParensContext) context;
-            return unbox(sqlParensContext.getContext());
-        }
-        else if (context instanceof SqlAsNameContext)
-        {
-            SqlAsNameContext sqlAsNameContext = (SqlAsNameContext) context;
-            return unbox(sqlAsNameContext.getContext());
-        }
-        else
-        {
-            return context;
-        }
-    }
+//    protected String getTableAsName(int index)
+//    {
+//        return "t" + index;
+//    }
 }

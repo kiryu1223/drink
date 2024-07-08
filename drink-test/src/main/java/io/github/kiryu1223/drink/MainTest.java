@@ -8,7 +8,7 @@ import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.MySQLConfig;
 import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.ext.SqlTimeUnit;
+import io.github.kiryu1223.drink.pojos.Top;
 import io.github.kiryu1223.drink.pojos.Topic;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.github.kiryu1223.drink.ext.SqlCalculates.between;
-import static io.github.kiryu1223.drink.ext.SqlFunctions.addDate;
 
 @SuppressWarnings("all")
 public class MainTest
@@ -283,15 +282,15 @@ public class MainTest
         System.out.println(sql2);
     }
 
-    @Test
-    public void m12()
-    {
-        String sql1 = client.query(Topic.class)
-                .selectSingle(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
-                .toSql();
-
-        System.out.println(sql1);
-    }
+//    @Test
+//    public void m12()
+//    {
+//        String sql1 = client.query(Topic.class)
+//                .selectSingle(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
+//                .toSql();
+//
+//        System.out.println(sql1);
+//    }
 
     @Test
     public void m13()
@@ -299,6 +298,43 @@ public class MainTest
         String sql1 = client.query(Topic.class)
                 .where(w -> between(w.getStars(), 0, 500))
                 .selectSingle(s -> s)
+                .toSql();
+
+        System.out.println(sql1);
+    }
+
+    @Test
+    public void m14()
+    {
+        //exists(client.query(Top.class).where(t1 -> t1.getTitle() == t0.getTitle()).selectSingle(s -> 1))
+        String sql1 = client.query(Topic.class)
+                .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
+                .exists(Top.class, (a, b, c) -> a.getTitle() == SqlFunctions.toStr(c.getStars()))
+                .exists(Top.class, (a, b, c) -> b.getTitle() == SqlFunctions.toStr(c.getStars()))
+                .selectSingle((s1, s2) -> 1)
+                .toSql();
+
+        System.out.println(sql1);
+    }
+
+    @Test
+    public void m15()
+    {
+        String sql1 = client.query(Topic.class)
+                .exists(Top.class, (a, b) -> a.getId() == b.getTitle())
+                .selectSingle((s1) -> 1)
+                .toSql();
+
+        System.out.println(sql1);
+    }
+
+    @Test
+    public void m16()
+    {
+        String sql1 = client.query(Topic.class)
+                .where(w -> w.getId() == "0")
+                .where(w -> w.getId() == "5")
+                .orWhere(w -> w.getId() == "9")
                 .toSql();
 
         System.out.println(sql1);

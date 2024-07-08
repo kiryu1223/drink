@@ -128,6 +128,27 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         where(expr.getTree());
         return this;
     }
+    public <E> LQuery3<T1,T2,T3> exists(Class<E> table, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery3<T1,T2,T3> exists(Class<E> table, ExprTree<Func4<T1, T2, T3, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery3<T1,T2,T3> exists(LQuery<E> query, @Expr Func4<T1,T2,T3, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery3<T1,T2,T3> exists(LQuery<E> query, ExprTree<Func4<T1,T2,T3, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree());
+        return this;
+    }
     // endregion
 
     // region [ORDER BY]

@@ -14,6 +14,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 {
     private final Config config;
     private SqlContext select;
+    private int existsCount;
     private boolean distinct = false;
     private final List<SqlContext> from = new ArrayList<>();
     private final List<SqlContext> joins = new ArrayList<>();
@@ -22,9 +23,18 @@ public class QuerySqlBuilder implements ISqlBuilder
     private final List<SqlContext> havings = new ArrayList<>();
     private final List<SqlContext> orderBys = new ArrayList<>();
     private SqlContext limit;
-
     private final List<Class<?>> orderedClass = new ArrayList<>();
     private Class<?> targetClass;
+
+    public List<SqlContext> getWheres()
+    {
+        return wheres;
+    }
+
+    public void addExistsCount(int count)
+    {
+        existsCount += count;
+    }
 
     public SqlContext getSelect()
     {
@@ -76,7 +86,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     public void addFrom(Class<?> queryClass)
     {
         SqlTableContext sqlTableContext = new SqlRealTableContext(queryClass);
-        from.add(new SqlAsNameContext("t" + from.size(), sqlTableContext));
+        from.add(new SqlAsTableNameContext(from.size() + existsCount, sqlTableContext));
         orderedClass.add(queryClass);
         if (targetClass == null)
         {
@@ -96,7 +106,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     {
         SqlTableContext sqlTableContext = new SqlVirtualTableContext(sqlBuilder);
         SqlParensContext sqlParensContext = new SqlParensContext(sqlTableContext);
-        from.add(new SqlAsNameContext("t" + from.size(), sqlParensContext));
+        from.add(new SqlAsTableNameContext(from.size() + existsCount, sqlParensContext));
         orderedClass.addAll(sqlBuilder.orderedClass);
         if (targetClass == null)
         {
@@ -116,7 +126,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     {
         SqlJoinContext joinContext = new SqlJoinContext(
                 joinType,
-                new SqlAsNameContext("t" + (from.size() + joins.size()),
+                new SqlAsTableNameContext(from.size() + joins.size(),
                         tableContext instanceof SqlRealTableContext
                                 ? tableContext :
                                 new SqlParensContext(tableContext)),
@@ -131,6 +141,39 @@ public class QuerySqlBuilder implements ISqlBuilder
     {
         wheres.add(where);
         subQueried();
+    }
+
+    public void addOrWhere(SqlContext where)
+    {
+        removeAndBoxOr(wheres, where);
+        subQueried();
+    }
+
+//    public void addExists(SqlContext exists)
+//    {
+//        addWhere(exists);
+//        if (hasExists) return;
+//        move(from);
+//        move(joins);
+//        move(joins);
+//        hasExists = true;
+//    }
+
+    private void move(List<SqlContext> contexts)
+    {
+        for (SqlContext context : contexts)
+        {
+            if (context instanceof SqlAsTableNameContext)
+            {
+                SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
+                sqlAsTableNameContext.setIndex(sqlAsTableNameContext.getIndex() + 1);
+            }
+            else if (context instanceof SqlPropertyContext)
+            {
+                SqlPropertyContext sqlPropertyContext = (SqlPropertyContext) context;
+                sqlPropertyContext.setTableIndex(sqlPropertyContext.getTableIndex() + 1);
+            }
+        }
     }
 
     public void setGroupBy(SqlContext groupBy)
@@ -210,11 +253,17 @@ public class QuerySqlBuilder implements ISqlBuilder
             SqlAsNameContext sqlAsNameContext = (SqlAsNameContext) context;
             return unBox(sqlAsNameContext.getContext());
         }
+        else if (context instanceof SqlAsTableNameContext)
+        {
+            SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
+            return sqlAsTableNameContext.getContext();
+        }
         else if (context instanceof SqlParensContext)
         {
             SqlParensContext sqlParensContext = (SqlParensContext) context;
             return sqlParensContext.getContext();
         }
+
         return context;
     }
 
@@ -251,7 +300,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         //return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config,values);
         if (select == null)
         {
-            if(groupBy==null)
+            if (groupBy == null)
             {
                 MetaData metaData = MetaDataCache.getMetaData(targetClass);
                 List<String> stringList = new ArrayList<>();
@@ -269,28 +318,28 @@ public class QuerySqlBuilder implements ISqlBuilder
                     List<String> stringList = new ArrayList<>();
                     for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
                     {
-                        stringList.add(new SqlAsNameContext(entry.getKey(),entry.getValue()).getSqlAndValue(config,values));
+                        stringList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()).getSqlAndValue(config, values));
                     }
                     return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
                 }
                 else
                 {
-                    return "SELECT " + (distinct ? "DISTINCT " : "") + groupBy.getSqlAndValue(config,values);
+                    return "SELECT " + (distinct ? "DISTINCT " : "") + groupBy.getSqlAndValue(config, values);
                 }
             }
         }
         else
         {
-            return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config,values);
+            return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config, values);
         }
     }
 
     private String makeSelect()
     {
-       // return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSql(config);
+        // return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSql(config);
         if (select == null)
         {
-            if(groupBy==null)
+            if (groupBy == null)
             {
                 MetaData metaData = MetaDataCache.getMetaData(targetClass);
                 List<String> stringList = new ArrayList<>();
@@ -308,7 +357,7 @@ public class QuerySqlBuilder implements ISqlBuilder
                     List<String> stringList = new ArrayList<>();
                     for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
                     {
-                        stringList.add(new SqlAsNameContext(entry.getKey(),entry.getValue()).getSql(config));
+                        stringList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()).getSql(config));
                     }
                     return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
                 }
@@ -455,5 +504,18 @@ public class QuerySqlBuilder implements ISqlBuilder
     {
         if (limit == null) return "";
         return limit.getSql(config);
+    }
+
+    private void removeAndBoxOr(List<SqlContext> contexts, SqlContext right)
+    {
+        if (contexts.isEmpty())
+        {
+            contexts.add(right);
+        }
+        else
+        {
+            SqlContext left = contexts.remove(contexts.size() - 1);
+            contexts.add(new SqlBinaryContext(SqlOperator.OR, left, right));
+        }
     }
 }

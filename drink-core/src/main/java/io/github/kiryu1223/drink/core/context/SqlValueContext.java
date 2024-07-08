@@ -1,10 +1,8 @@
 package io.github.kiryu1223.drink.core.context;
 
-import com.sun.tools.corba.se.idl.constExpr.UnaryExpr;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
-import sun.jvmstat.monitor.Units;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +44,7 @@ public class SqlValueContext extends SqlContext
                 strings.add("?");
                 values.add(obj);
             }
-            return "(" + String.join(",", strings) + ")";
+            return String.join(",", strings);
         }
         else
         {

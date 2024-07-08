@@ -282,6 +282,37 @@ public abstract class QueryBase extends CRUD
         getSqlBuilder().addWhere(where);
     }
 
+    protected void orWhere(LambdaExpression<?> lambda)
+    {
+        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
+        SqlContext right = whereVisitor.visit(lambda);
+        getSqlBuilder().addOrWhere(right);
+    }
+
+    protected void exists(Class<?> table, LambdaExpression<?> lambda)
+    {
+        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
+        SqlContext where = whereVisitor.visit(lambda);
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
+        querySqlBuilder.addExistsCount(getSqlBuilder().getOrderedClass().size());
+        querySqlBuilder.setSelect(new SqlConstString("1"));
+        querySqlBuilder.addFrom(table);
+        querySqlBuilder.addWhere(where);
+        getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder))));
+    }
+
+    protected void exists(QueryBase queryBase, LambdaExpression<?> lambda)
+    {
+        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
+        SqlContext where = whereVisitor.visit(lambda);
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
+        querySqlBuilder.addExistsCount(getSqlBuilder().getOrderedClass().size());
+        querySqlBuilder.setSelect(new SqlConstString("1"));
+        querySqlBuilder.addFrom(queryBase.sqlBuilder);
+        querySqlBuilder.addWhere(where);
+        getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder))));
+    }
+
     protected void groupBy(LambdaExpression<?> lambda)
     {
         GroupByVisitor groupByVisitor = new GroupByVisitor(getConfig());

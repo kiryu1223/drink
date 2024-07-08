@@ -3,13 +3,10 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery2;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
-
-import java.util.List;
 
 
 public class LQuery2<T1, T2> extends QueryBase
@@ -122,6 +119,28 @@ public class LQuery2<T1, T2> extends QueryBase
         where(expr.getTree());
         return this;
     }
+
+    public <E> LQuery2<T1, T2> exists(Class<E> table, @Expr Func3<T1, T2, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery2<T1, T2> exists(Class<E> table, ExprTree<Func3<T1, T2, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery2<T1, T2> exists(LQuery<E> query, @Expr Func3<T1, T2, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery2<T1, T2> exists(LQuery<E> query, ExprTree<Func3<T1, T2, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree());
+        return this;
+    }
     // endregion
 
     // region [ORDER BY]
@@ -194,12 +213,12 @@ public class LQuery2<T1, T2> extends QueryBase
         return new LQuery<>(this);
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr Func2<T1,T2, R> expr)
+    public <R> EndQuery<R> selectSingle(@Expr Func2<T1, T2, R> expr)
     {
         throw new RuntimeException();
     }
 
-    public <R> EndQuery<R> selectSingle(ExprTree<Func2<T1,T2, R>> expr)
+    public <R> EndQuery<R> selectSingle(ExprTree<Func2<T1, T2, R>> expr)
     {
         select(expr.getTree());
         return new EndQuery<>(this);

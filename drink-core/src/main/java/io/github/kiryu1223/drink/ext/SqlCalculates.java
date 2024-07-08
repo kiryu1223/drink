@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.ext;
 
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
+import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.context.SqlOperator;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
 
@@ -105,6 +106,13 @@ public class SqlCalculates
         boom();
         return false;
     }
+
+//    @SqlOperatorMethod(SqlOperator.EXISTS)
+//    public static boolean exists(QueryBase queryBase)
+//    {
+//        boom();
+//        return false;
+//    }
 
     private static void boom()
     {

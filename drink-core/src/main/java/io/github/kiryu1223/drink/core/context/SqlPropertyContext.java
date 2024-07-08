@@ -8,7 +8,7 @@ import java.util.List;
 public class SqlPropertyContext extends SqlContext
 {
     private final String property;
-    private final int tableIndex;
+    private int tableIndex;
 
     public SqlPropertyContext(String property, int tableIndex)
     {
@@ -26,6 +26,11 @@ public class SqlPropertyContext extends SqlContext
         return tableIndex;
     }
 
+    public void setTableIndex(int tableIndex)
+    {
+        this.tableIndex = tableIndex;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
@@ -36,6 +41,6 @@ public class SqlPropertyContext extends SqlContext
     public String getSql(Config config)
     {
         IDBConfig dbConfig = config.getDbConfig();
-        return getTableAsName(tableIndex) + "." + dbConfig.propertyDisambiguation(property);
+        return "t" + tableIndex + "." + dbConfig.propertyDisambiguation(property);
     }
 }
