@@ -3,18 +3,10 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery3;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.expressionTree.delegate.Func1;
-import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public class LQuery3<T1, T2, T3> extends QueryBase
 {
@@ -42,9 +34,9 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     //region [JOIN]
 
     @Override
-    protected <Tn> LQuery4<T1, T2,T3, Tn> joinNewQuery()
+    protected <Tn> LQuery4<T1, T2, T3, Tn> joinNewQuery()
     {
-        LQuery4<T1, T2,T3, Tn> query = new LQuery4<>(getConfig());
+        LQuery4<T1, T2, T3, Tn> query = new LQuery4<>(getConfig());
         query.getSqlBuilder().joinBy(getSqlBuilder());
         return query;
     }
@@ -56,7 +48,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(Class<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr)
     {
-        join(JoinType.INNER,target,expr);
+        join(JoinType.INNER, target, expr);
         return joinNewQuery();
     }
 
@@ -67,7 +59,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(LQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr)
     {
-        join(JoinType.INNER,target,expr);
+        join(JoinType.INNER, target, expr);
         return joinNewQuery();
     }
 
@@ -78,7 +70,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(Class<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr)
     {
-        join(JoinType.LEFT,target,expr);
+        join(JoinType.LEFT, target, expr);
         return joinNewQuery();
     }
 
@@ -89,7 +81,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(LQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr)
     {
-        join(JoinType.LEFT,target,expr);
+        join(JoinType.LEFT, target, expr);
         return joinNewQuery();
     }
 
@@ -100,7 +92,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(Class<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr)
     {
-        join(JoinType.RIGHT,target,expr);
+        join(JoinType.RIGHT, target, expr);
         return joinNewQuery();
     }
 
@@ -111,7 +103,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(LQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr)
     {
-        join(JoinType.RIGHT,target,expr);
+        join(JoinType.RIGHT, target, expr);
         return joinNewQuery();
     }
 
@@ -128,25 +120,59 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         where(expr.getTree());
         return this;
     }
-    public <E> LQuery3<T1,T2,T3> exists(Class<E> table, @Expr Func4<T1, T2, T3, E, Boolean> func)
+
+    public LQuery3<T1, T2, T3> orWhere(@Expr Func3<T1, T2, T3, Boolean> func)
     {
         throw new RuntimeException();
     }
 
-    public <E> LQuery3<T1,T2,T3> exists(Class<E> table, ExprTree<Func4<T1, T2, T3, E, Boolean>> expr)
+    public LQuery3<T1, T2, T3> orWhere(ExprTree<Func3<T1, T2, T3, Boolean>> expr)
     {
-        exists(table, expr.getTree());
+        orWhere(expr.getTree());
         return this;
     }
 
-    public <E> LQuery3<T1,T2,T3> exists(LQuery<E> query, @Expr Func4<T1,T2,T3, E, Boolean> func)
+    public <E> LQuery3<T1, T2, T3> exists(Class<E> table, @Expr Func4<T1, T2, T3, E, Boolean> func)
     {
         throw new RuntimeException();
     }
 
-    public <E> LQuery3<T1,T2,T3> exists(LQuery<E> query, ExprTree<Func4<T1,T2,T3, E, Boolean>> expr)
+    public <E> LQuery3<T1, T2, T3> exists(Class<E> table, ExprTree<Func4<T1, T2, T3, E, Boolean>> expr)
     {
-        exists(query, expr.getTree());
+        exists(table, expr.getTree(), false);
+        return this;
+    }
+
+    public <E> LQuery3<T1, T2, T3> exists(LQuery<E> query, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery3<T1, T2, T3> exists(LQuery<E> query, ExprTree<Func4<T1, T2, T3, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(), false);
+        return this;
+    }
+
+    public <E> LQuery3<T1, T2, T3> notExists(Class<E> table, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery3<T1, T2, T3> notExists(Class<E> table, ExprTree<Func4<T1, T2, T3, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(), true);
+        return this;
+    }
+
+    public <E> LQuery3<T1, T2, T3> notExists(LQuery<E> query, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery3<T1, T2, T3> notExists(LQuery<E> query, ExprTree<Func4<T1, T2, T3, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(), true);
         return this;
     }
     // endregion
@@ -159,7 +185,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <R> LQuery3<T1, T2, T3> orderBy(ExprTree<Func3<T1, T2, T3, R>> expr, boolean asc)
     {
-        orderBy(expr.getTree(),asc);
+        orderBy(expr.getTree(), asc);
         return this;
     }
 
@@ -170,7 +196,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public <R> LQuery3<T1, T2, T3> orderBy(ExprTree<Func3<T1, T2, T3, R>> expr)
     {
-        orderBy(expr,true);
+        orderBy(expr, true);
         return this;
     }
     // endregion
@@ -184,7 +210,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public LQuery3<T1, T2, T3> limit(long offset, long rows)
     {
-        limit0(offset,rows);
+        limit0(offset, rows);
         return this;
     }
     // endregion
@@ -207,6 +233,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     {
         return super.select(r);
     }
+
     public <R> LQuery<R> select(@Expr Func3<T1, T2, T3, R> expr)
     {
         throw new RuntimeException();
@@ -218,6 +245,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         singleCheck(single);
         return new LQuery<>(this);
     }
+
     public <R> EndQuery<R> selectSingle(@Expr Func3<T1, T2, T3, R> expr)
     {
         throw new RuntimeException();

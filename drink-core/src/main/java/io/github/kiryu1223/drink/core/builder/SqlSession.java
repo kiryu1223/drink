@@ -12,12 +12,12 @@ public class SqlSession
 {
     public interface Function<T, R>
     {
-        R invoke(T t) throws SQLException;
+        R invoke(T t) throws Throwable;
     }
 
     public interface Action<R>
     {
-        R invoke() throws SQLException;
+        R invoke() throws Throwable;
     }
 
     private final DataSource dataSource;
@@ -45,7 +45,7 @@ public class SqlSession
                 }
             }
         }
-        catch (SQLException e)
+        catch (Throwable e)
         {
             throw new RuntimeException(e);
         }

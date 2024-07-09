@@ -20,12 +20,12 @@ public class SelectVisitor extends SqlVisitor
 {
     private ParameterExpression cur;
     private final SqlContext group;
-    private final List<PropertyMetaData> propertyMetaData = new ArrayList<>();
+    //private final List<PropertyMetaData> propertyMetaData = new ArrayList<>();
 
-    public List<PropertyMetaData> getPropertyMetaData()
-    {
-        return propertyMetaData;
-    }
+//    public List<PropertyMetaData> getPropertyMetaData()
+//    {
+//        return propertyMetaData;
+//    }
 
     public SelectVisitor(SqlContext group, Config config)
     {
@@ -46,7 +46,7 @@ public class SelectVisitor extends SqlVisitor
                 VariableExpression variable = (VariableExpression) expression;
                 String name = variable.getName();
                 MetaData metaData = MetaDataCache.getMetaData(newExpression.getType());
-                propertyMetaData.add(metaData.getPropertyMetaData(name));
+                //propertyMetaData.add(metaData.getPropertyMetaData(name));
                 SqlContext context = visit(variable.getInit());
                 setAs(contexts, context, name);
             }
@@ -80,7 +80,7 @@ public class SelectVisitor extends SqlVisitor
                 {
                     MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
                     String name = metaData.getColumnNameBySetter(method);
-                    propertyMetaData.add(metaData.getPropertyMetaData(name));
+                    //propertyMetaData.add(metaData.getPropertyMetaData(name));
                     SqlContext context = visit(methodCall.getArgs().get(0));
                     setAs(contexts, context, name);
                 }
@@ -126,7 +126,7 @@ public class SelectVisitor extends SqlVisitor
             }
             int index = parameters.indexOf(parameter);
             MetaData metaData = MetaDataCache.getMetaData(type);
-            propertyMetaData.addAll(metaData.getColumns().values());
+            //propertyMetaData.addAll(metaData.getColumns().values());
             List<SqlContext> contextList = new ArrayList<>();
             for (PropertyMetaData pm : metaData.getColumns().values())
             {

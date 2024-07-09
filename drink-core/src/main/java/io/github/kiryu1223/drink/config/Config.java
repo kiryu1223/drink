@@ -4,13 +4,17 @@ import io.github.kiryu1223.drink.config.def.DefaultDBConfig;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
 import io.github.kiryu1223.drink.ext.DbType;
 
+import java.lang.invoke.MethodHandles;
+
 public class Config
 {
     private DbType dbType;
     private IDBConfig dbConfig;
+    private  MethodHandles.Lookup lookup;
 
-    public Config(DbType dbType)
+    public Config(DbType dbType, MethodHandles.Lookup lookup)
     {
+        this.lookup = lookup;
         switch (dbType)
         {
             case MySQL:
@@ -49,5 +53,15 @@ public class Config
     public DbType getDbType()
     {
         return dbType;
+    }
+
+    public MethodHandles.Lookup getLookup()
+    {
+        return lookup;
+    }
+
+    public void setLookup(MethodHandles.Lookup lookup)
+    {
+        this.lookup = lookup;
     }
 }

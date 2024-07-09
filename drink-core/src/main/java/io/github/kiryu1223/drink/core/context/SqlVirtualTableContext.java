@@ -15,6 +15,11 @@ public class SqlVirtualTableContext extends SqlTableContext
         this.sqlBuilder = sqlBuilder;
     }
 
+    public QuerySqlBuilder getSqlBuilder()
+    {
+        return sqlBuilder;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {

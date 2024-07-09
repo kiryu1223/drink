@@ -2,6 +2,8 @@ package io.github.kiryu1223.drink.core.builder;
 
 import io.github.kiryu1223.drink.annotation.Column;
 import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.ext.IConverter;
+import io.github.kiryu1223.drink.ext.NoConverter;
 import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 
 import java.beans.BeanInfo;
@@ -29,7 +31,8 @@ public class MetaData
             Field field = ReflectUtil.getField(type, property);
             Column column = field.getAnnotation(Column.class);
             String columnStr = (column == null || column.value().isEmpty()) ? property : column.value();
-            Columns.put(property, new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod()));
+            IConverter<?, ?> converter = column == null ? ConverterCache.get(NoConverter.class) : ConverterCache.get(column.converter());
+            Columns.put(property, new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field.getType(), converter));
         }
 
 //        for (Field field : getAllFields(type))
@@ -95,6 +98,11 @@ public class MetaData
     public String getColumnNameByPropertyName(String property)
     {
         return Columns.get(property).getColumn();
+    }
+
+    public PropertyMetaData getPropertyMetaDataByColumnName(String asName)
+    {
+        return Columns.values().stream().filter(f->f.getColumn().equals(asName)).findFirst().get();
     }
 
     public String getColumnNameByGetter(Method getter)

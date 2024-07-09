@@ -6,6 +6,7 @@ import io.github.kiryu1223.drink.core.builder.DataSourcesManager;
 import io.github.kiryu1223.drink.ext.DbType;
 
 import javax.sql.DataSource;
+import java.lang.invoke.MethodHandles;
 
 public class Drink
 {
@@ -13,7 +14,7 @@ public class Drink
     {
     }
 
-    private Config config = new Config(DbType.Other);
+    private Config config = new Config(DbType.Other, MethodHandles.lookup());
 
     public Drink setConfig(Config config)
     {

@@ -4,7 +4,6 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery8;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.expressionTree.delegate.Func7;
 import io.github.kiryu1223.expressionTree.delegate.Func8;
 import io.github.kiryu1223.expressionTree.delegate.Func9;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
@@ -120,6 +119,61 @@ public class LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> extends QueryBase
     public LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> where(ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, Boolean>> expr)
     {
         where(expr.getTree());
+        return this;
+    }
+
+    public LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> orWhere(@Expr Func8<T1, T2, T3, T4, T5, T6, T7, T8, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> orWhere(ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, Boolean>> expr)
+    {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> exists(Class<E> table, @Expr Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> exists(Class<E> table, ExprTree<Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> exists(LQuery<E> query, @Expr Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> exists(LQuery<E> query, ExprTree<Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> notExists(Class<E> table, @Expr Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> notExists(Class<E> table, ExprTree<Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),true);
+        return this;
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> notExists(LQuery<E> query, @Expr Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery8<T1, T2, T3, T4, T5, T6, T7, T8> notExists(LQuery<E> query, ExprTree<Func9<T1, T2, T3, T4, T5, T6, T7, T8, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),true);
         return this;
     }
     // endregion

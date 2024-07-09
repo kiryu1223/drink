@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink;
+package io.github.kiryu1223.drink.test;
 
 import io.github.kiryu1223.drink.api.Drink;
 import io.github.kiryu1223.drink.api.Result;
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
+import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -33,7 +34,7 @@ public class MainTest
 
     public MainTest()
     {
-        Config config = new Config(DbType.MySQL);
+        Config config = new Config(DbType.MySQL, MethodHandles.lookup());
         config.setDbConfig(new MySQLConfig());
         client = Drink.bootStrap(new DataSource()
                 {
@@ -335,6 +336,17 @@ public class MainTest
                 .where(w -> w.getId() == "0")
                 .where(w -> w.getId() == "5")
                 .orWhere(w -> w.getId() == "9")
+                .toSql();
+
+        System.out.println(sql1);
+    }
+
+    @Test
+    public void m17()
+    {
+        String sql1 = client.query(Topic.class)
+                .notExists(Top.class, (a, b) -> a.getId() != b.getTitle())
+                .exists(Top.class, (a, b) -> a.getStars() >= b.getStars())
                 .toSql();
 
         System.out.println(sql1);

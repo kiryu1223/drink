@@ -15,6 +15,11 @@ public class SqlRealTableContext extends SqlTableContext
         this.tableClass = tableClass;
     }
 
+    public Class<?> getTableClass()
+    {
+        return tableClass;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {

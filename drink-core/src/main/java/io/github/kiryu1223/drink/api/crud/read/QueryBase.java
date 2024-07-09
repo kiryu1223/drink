@@ -5,10 +5,7 @@ import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.*;
 import io.github.kiryu1223.drink.core.context.*;
-import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
-import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
-import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
-import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.drink.core.visitor.*;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
@@ -59,9 +56,10 @@ public abstract class QueryBase extends CRUD
 
     protected <T> List<T> toList()
     {
-        setDefaultMetaData();
+        setMetaData();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
+        System.out.println("===> " + sql);
         SqlSession session = SqlSessionBuilder.getSession();
         return session.executeQuery(
                 r -> ObjectBuilder.start(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), propertyMetaData, isSingle).createList(),
@@ -77,7 +75,8 @@ public abstract class QueryBase extends CRUD
         SqlContext context = selectVisitor.visit(lambda);
         getSqlBuilder().setSelect(context);
         getSqlBuilder().setTargetClass(lambda.getReturnType());
-        propertyMetaData = selectVisitor.getPropertyMetaData();
+        //propertyMetaData = selectVisitor.getPropertyMetaData();
+        //System.out.println(propertyMetaData.size());
         return !(context instanceof SqlSelectorContext);
     }
 
@@ -151,51 +150,56 @@ public abstract class QueryBase extends CRUD
         getSqlBuilder().setSelect(new SqlSelectorContext(sqlContextList));
     }
 
-    private void setDefaultMetaData()
+    private void setMetaData()
     {
-        if (propertyMetaData != null && !propertyMetaData.isEmpty()) return;
         propertyMetaData = new ArrayList<>();
-        Class<?> targetClass = getSqlBuilder().getTargetClass();
-        if (getSqlBuilder().getGroupBy() != null)
+        MetaData metaData = MetaDataCache.getMetaData(getSqlBuilder().getTargetClass());
+        if (getSqlBuilder().isQueried())
         {
-            SqlContext groupBy = getSqlBuilder().getGroupBy();
-            MetaData metaData = MetaDataCache.getMetaData(getSqlBuilder().getTargetClass());
-            if (groupBy instanceof SqlGroupContext)
-            {
-                SqlGroupContext group = (SqlGroupContext) groupBy;
-                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
-                {
-                    propertyMetaData.add(metaData.getPropertyMetaData(entry.getKey()));
-                }
-            }
-            else
-            {
-                setSingle(true);
-            }
-        }
-        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
-        {
-            MetaData metaData = MetaDataCache.getMetaData(targetClass);
             propertyMetaData.addAll(metaData.getColumns().values());
         }
         else
         {
-            List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
-            MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
+            SqlContext context = getSqlBuilder().getFrom().get(0);
+            SqlContext unbox = ExpressionUtil.unBox(context);
+            if (unbox instanceof SqlVirtualTableContext)
             {
-                label:
-                for (MetaData data : metaDataList)
+                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) unbox;
+                QuerySqlBuilder sqlBuilder1 = virtualTableContext.getSqlBuilder();
+                SqlContext select = sqlBuilder1.getSelect();
+                if (select instanceof SqlSelectorContext)
                 {
-                    for (Map.Entry<String, PropertyMetaData> temp : data.getColumns().entrySet())
+                    SqlSelectorContext sqlSelectorContext = (SqlSelectorContext) select;
+                    for (SqlContext sqlContext : sqlSelectorContext.getSqlContexts())
                     {
-                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
+                        if (sqlContext instanceof SqlAsNameContext)
                         {
-                            propertyMetaData.add(column.getValue());
-                            break label;
+                            SqlAsNameContext asNameContext = (SqlAsNameContext) sqlContext;
+                            propertyMetaData.add(metaData.getPropertyMetaDataByColumnName(asNameContext.getAsName()));
+                        }
+                        else if (sqlContext instanceof SqlPropertyContext)
+                        {
+                            SqlPropertyContext propertyContext = (SqlPropertyContext) sqlContext;
+                            propertyMetaData.add(metaData.getPropertyMetaDataByColumnName(propertyContext.getProperty()));
+                        }
+                        else
+                        {
+                            throw new RuntimeException();
                         }
                     }
                 }
+                else
+                {
+                    setSingle(true);
+                }
+            }
+            else if(unbox instanceof SqlRealTableContext)
+            {
+                propertyMetaData.addAll(metaData.getColumns().values());
+            }
+            else
+            {
+                throw new RuntimeException();
             }
         }
     }
@@ -289,7 +293,7 @@ public abstract class QueryBase extends CRUD
         getSqlBuilder().addOrWhere(right);
     }
 
-    protected void exists(Class<?> table, LambdaExpression<?> lambda)
+    protected void exists(Class<?> table, LambdaExpression<?> lambda, boolean not)
     {
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
         SqlContext where = whereVisitor.visit(lambda);
@@ -298,10 +302,18 @@ public abstract class QueryBase extends CRUD
         querySqlBuilder.setSelect(new SqlConstString("1"));
         querySqlBuilder.addFrom(table);
         querySqlBuilder.addWhere(where);
-        getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder))));
+        SqlUnaryContext exists = new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder)));
+        if (not)
+        {
+            getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.NOT, exists));
+        }
+        else
+        {
+            getSqlBuilder().addWhere(exists);
+        }
     }
 
-    protected void exists(QueryBase queryBase, LambdaExpression<?> lambda)
+    protected void exists(QueryBase queryBase, LambdaExpression<?> lambda, boolean not)
     {
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
         SqlContext where = whereVisitor.visit(lambda);
@@ -310,7 +322,15 @@ public abstract class QueryBase extends CRUD
         querySqlBuilder.setSelect(new SqlConstString("1"));
         querySqlBuilder.addFrom(queryBase.sqlBuilder);
         querySqlBuilder.addWhere(where);
-        getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder))));
+        SqlUnaryContext exists = new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder)));
+        if (not)
+        {
+            getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.NOT, exists));
+        }
+        else
+        {
+            getSqlBuilder().addWhere(exists);
+        }
     }
 
     protected void groupBy(LambdaExpression<?> lambda)

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.unBox;
+
 public class QuerySqlBuilder implements ISqlBuilder
 {
     private final Config config;
@@ -25,6 +27,11 @@ public class QuerySqlBuilder implements ISqlBuilder
     private SqlContext limit;
     private final List<Class<?>> orderedClass = new ArrayList<>();
     private Class<?> targetClass;
+
+    public List<SqlContext> getFrom()
+    {
+        return from;
+    }
 
     public List<SqlContext> getWheres()
     {
@@ -47,6 +54,11 @@ public class QuerySqlBuilder implements ISqlBuilder
     }
 
     private boolean queried = false;
+
+    public boolean isQueried()
+    {
+        return queried;
+    }
 
     public QuerySqlBuilder(Config config)
     {
@@ -237,7 +249,7 @@ public class QuerySqlBuilder implements ISqlBuilder
             SqlContext context = unBox(from.get(0));
             if (context instanceof SqlRealTableContext)
             {
-                return makeSelect() + context.getSql(config);
+                return makeSelect() + " FROM " + new SqlAsTableNameContext(0, context).getSql(config);
             }
             else
             {
@@ -246,26 +258,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
     }
 
-    private SqlContext unBox(SqlContext context)
-    {
-        if (context instanceof SqlAsNameContext)
-        {
-            SqlAsNameContext sqlAsNameContext = (SqlAsNameContext) context;
-            return unBox(sqlAsNameContext.getContext());
-        }
-        else if (context instanceof SqlAsTableNameContext)
-        {
-            SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
-            return sqlAsTableNameContext.getContext();
-        }
-        else if (context instanceof SqlParensContext)
-        {
-            SqlParensContext sqlParensContext = (SqlParensContext) context;
-            return sqlParensContext.getContext();
-        }
 
-        return context;
-    }
 
     @Override
     public String getSqlAndValue(List<Object> values)
@@ -286,7 +279,7 @@ public class QuerySqlBuilder implements ISqlBuilder
             SqlContext context = unBox(from.get(0));
             if (context instanceof SqlRealTableContext)
             {
-                return makeSelect() + context.getSqlAndValue(config, values);
+                return makeSelect() + " FROM " + new SqlAsTableNameContext(0, context).getSqlAndValue(config, values);
             }
             else
             {
@@ -381,7 +374,7 @@ public class QuerySqlBuilder implements ISqlBuilder
             String sqlAndValue = context.getSqlAndValue(config, values);
             froms.add(sqlAndValue);
         }
-        return " " + String.join(",", froms);
+        return " FROM " + String.join(",", froms);
     }
 
     private String makeFrom()
@@ -497,13 +490,13 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeLimit(List<Object> values)
     {
         if (limit == null) return "";
-        return limit.getSqlAndValue(config, values);
+        return " " + limit.getSqlAndValue(config, values);
     }
 
     private String makeLimit()
     {
         if (limit == null) return "";
-        return limit.getSql(config);
+        return " " + limit.getSql(config);
     }
 
     private void removeAndBoxOr(List<SqlContext> contexts, SqlContext right)

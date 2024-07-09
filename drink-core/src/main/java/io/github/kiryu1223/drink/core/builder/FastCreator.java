@@ -28,13 +28,13 @@ public class FastCreator<T>
 
     private final Class<T> target;
     private final boolean isAnonymousClass;
-    //private final MethodHandles.Lookup lookup;
+    private final MethodHandles.Lookup lookup;
 
-    public FastCreator(Class<T> target)
+    public FastCreator(Class<T> target, MethodHandles.Lookup lookup)
     {
         this.target = target;
-        //this.lookup = lookup;
         this.isAnonymousClass = target.isAnonymousClass();
+        this.lookup = lookup;
     }
 
     public Supplier<T> getCreator()
@@ -76,55 +76,49 @@ public class FastCreator<T>
         }
     }
 
-    public Getter<Object, ?> getGetter(Class<?> propertyType, Method readMethod)
-    {
-        String getFunName = readMethod.getName();
-        final MethodHandles.Lookup caller = MethodHandles.lookup();
-        MethodType methodType = MethodType.methodType(propertyType, target);
-        final CallSite site;
+//    public Getter<Object, ?> getGetter(Class<?> propertyType, Method readMethod)
+//    {
+//        String getFunName = readMethod.getName();
+//        //final MethodHandles.Lookup caller = MethodHandles.lookup();
+//        MethodType methodType = MethodType.methodType(propertyType, target);
+//        final CallSite site;
+//
+//        try
+//        {
+//            site = LambdaMetafactory.altMetafactory(lookup,
+//                    "get",
+//                    MethodType.methodType(Getter.class),
+//                    methodType.erase().generic(),
+//                    lookup.findVirtual(target, getFunName, MethodType.methodType(propertyType)),
+//                    methodType, 1);
+//            return (Getter<Object, ?>) site.getTarget().invokeExact();
+//        }
+//        catch (Throwable e)
+//        {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-        try
-        {
-            site = LambdaMetafactory.altMetafactory(caller,
-                    "get",
-                    MethodType.methodType(Getter.class),
-                    methodType.erase().generic(),
-                    caller.findVirtual(target, getFunName, MethodType.methodType(propertyType)),
-                    methodType, 1);
-            return (Getter<Object, ?>) site.getTarget().invokeExact();
-        }
-        catch (Throwable e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
+//    public Setter<Object> getSetter(Method writeMethod)
+//    {
+//        return getSetter(writeMethod.getParameterTypes()[0], writeMethod);
+//    }
 
-    public Setter<Object> getSetter(Method writeMethod)
+    public Setter<T> getSetter(Class<?> propertyType, Method writeMethod, String fieldName)
     {
-        return getSetter(writeMethod.getParameterTypes()[0],writeMethod);
-    }
-
-    public Setter<Object> getSetter(Class<?> propertyType, Method writeMethod)
-    {
-        MethodHandles.Lookup caller = MethodHandles.lookup();
-        MethodType setter = MethodType.methodType(writeMethod.getReturnType(), propertyType);
-        String getFunName = writeMethod.getName();
         try
         {
             MethodType instantiatedMethodType = MethodType.methodType(void.class, target, propertyType);
-            MethodHandle targetHandle = caller.findVirtual(target, getFunName, setter);
-            MethodType samMethodType = MethodType.methodType(void.class, Object.class, Object.class);
-            CallSite site = LambdaMetafactory.metafactory(
-                    caller,
+            MethodHandle setter = lookup.findVirtual(target, writeMethod.getName(), MethodType.methodType(void.class, propertyType));
+            CallSite set = LambdaMetafactory.metafactory(
+                    lookup,
                     "set",
                     MethodType.methodType(Setter.class),
-                    samMethodType,
-                    targetHandle,
+                    MethodType.methodType(void.class, MethodType.genericMethodType(2)),
+                    setter,
                     instantiatedMethodType
             );
-
-            VoidSetter<Object, Object> voidSetter = (VoidSetter<Object, Object>) site.getTarget().invokeExact();
-            return voidSetter::set;
+            return (Setter<T>) set.getTarget().invokeExact();
         }
         catch (Throwable e)
         {

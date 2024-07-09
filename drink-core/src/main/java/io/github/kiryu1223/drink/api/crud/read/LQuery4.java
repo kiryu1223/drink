@@ -121,6 +121,17 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase
         return this;
     }
 
+    public LQuery4<T1, T2, T3, T4> orWhere(@Expr Func4<T1, T2, T3, T4, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public LQuery4<T1, T2, T3, T4> orWhere(ExprTree<Func4<T1, T2, T3, T4, Boolean>> expr)
+    {
+        orWhere(expr.getTree());
+        return this;
+    }
+
     public <E> LQuery4<T1, T2, T3, T4> exists(Class<E> table, @Expr Func5<T1, T2, T3, T4, E, Boolean> func)
     {
         throw new RuntimeException();
@@ -128,7 +139,7 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase
 
     public <E> LQuery4<T1, T2, T3, T4> exists(Class<E> table, ExprTree<Func5<T1, T2, T3, T4, E, Boolean>> expr)
     {
-        exists(table, expr.getTree());
+        exists(table, expr.getTree(),false);
         return this;
     }
 
@@ -139,7 +150,29 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase
 
     public <E> LQuery4<T1, T2, T3, T4> exists(LQuery<E> query, ExprTree<Func5<T1, T2, T3, T4, E, Boolean>> expr)
     {
-        exists(query, expr.getTree());
+        exists(query, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery4<T1, T2, T3, T4> notExists(Class<E> table, @Expr Func5<T1, T2, T3, T4, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery4<T1, T2, T3, T4> notExists(Class<E> table, ExprTree<Func5<T1, T2, T3, T4, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),true);
+        return this;
+    }
+
+    public <E> LQuery4<T1, T2, T3, T4> notExists(LQuery<E> query, @Expr Func5<T1, T2, T3, T4, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery4<T1, T2, T3, T4> notExists(LQuery<E> query, ExprTree<Func5<T1, T2, T3, T4, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),true);
         return this;
     }
     // endregion

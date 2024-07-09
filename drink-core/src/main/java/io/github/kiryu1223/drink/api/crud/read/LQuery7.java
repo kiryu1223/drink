@@ -120,6 +120,61 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase
         where(expr.getTree());
         return this;
     }
+
+    public LQuery7<T1, T2, T3, T4, T5, T6, T7> orWhere(@Expr Func7<T1, T2, T3, T4, T5, T6, T7, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public LQuery7<T1, T2, T3, T4, T5, T6, T7> orWhere(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, Boolean>> expr)
+    {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> exists(Class<E> table, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> exists(Class<E> table, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> exists(LQuery<E> query, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> exists(LQuery<E> query, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> notExists(Class<E> table, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> notExists(Class<E> table, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),true);
+        return this;
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> notExists(LQuery<E> query, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery7<T1, T2, T3, T4, T5, T6, T7> notExists(LQuery<E> query, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),true);
+        return this;
+    }
     // endregion
 
     // region [ORDER BY]

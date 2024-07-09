@@ -2,6 +2,10 @@ package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
+import io.github.kiryu1223.drink.core.context.SqlAsNameContext;
+import io.github.kiryu1223.drink.core.context.SqlAsTableNameContext;
+import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.context.SqlParensContext;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -106,11 +110,33 @@ public class ExpressionUtil
     }
 
 
-    public static String firstUpperCase(String original) {
-        if (!original.isEmpty()) {
+    public static String firstUpperCase(String original)
+    {
+        if (!original.isEmpty())
+        {
             return Character.toUpperCase(original.charAt(0)) + original.substring(1);
         }
         return original;
+    }
+
+    public static SqlContext unBox(SqlContext context)
+    {
+        if (context instanceof SqlAsNameContext)
+        {
+            SqlAsNameContext sqlAsNameContext = (SqlAsNameContext) context;
+            return unBox(sqlAsNameContext.getContext());
+        }
+        else if (context instanceof SqlAsTableNameContext)
+        {
+            SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
+            return unBox(sqlAsTableNameContext.getContext());
+        }
+        else if (context instanceof SqlParensContext)
+        {
+            SqlParensContext sqlParensContext = (SqlParensContext) context;
+            return unBox(sqlParensContext.getContext());
+        }
+        return context;
     }
 
 }

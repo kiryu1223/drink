@@ -149,7 +149,7 @@ public class LQuery<T> extends QueryBase
 
     public <E> LQuery<T> exists(Class<E> table, ExprTree<Func2<T, E, Boolean>> expr)
     {
-        exists(table, expr.getTree());
+        exists(table, expr.getTree(),false);
         return this;
     }
 
@@ -160,7 +160,29 @@ public class LQuery<T> extends QueryBase
 
     public <E> LQuery<T> exists(LQuery<E> query, ExprTree<Func2<T, E, Boolean>> expr)
     {
-        exists(query, expr.getTree());
+        exists(query, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery<T> notExists(Class<E> table, @Expr Func2<T, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery<T> notExists(Class<E> table, ExprTree<Func2<T, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),true);
+        return this;
+    }
+
+    public <E> LQuery<T> notExists(LQuery<E> query, @Expr Func2<T, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery<T> notExists(LQuery<E> query, ExprTree<Func2<T, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),true);
         return this;
     }
 

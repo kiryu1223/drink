@@ -14,6 +14,11 @@ public class SqlSelectorContext extends SqlContext
         this.sqlContexts = sqlContexts;
     }
 
+    public List<SqlContext> getSqlContexts()
+    {
+        return sqlContexts;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {

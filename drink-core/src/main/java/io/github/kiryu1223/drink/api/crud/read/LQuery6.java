@@ -120,6 +120,61 @@ public class LQuery6<T1, T2, T3, T4, T5, T6> extends QueryBase
         where(expr.getTree());
         return this;
     }
+
+    public LQuery6<T1, T2, T3, T4, T5, T6> orWhere(@Expr Func6<T1, T2, T3, T4, T5, T6, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public LQuery6<T1, T2, T3, T4, T5, T6> orWhere(ExprTree<Func6<T1, T2, T3, T4, T5, T6, Boolean>> expr)
+    {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> exists(Class<E> table, @Expr Func7<T1, T2, T3, T4, T5, T6, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> exists(Class<E> table, ExprTree<Func7<T1, T2, T3, T4, T5, T6, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> exists(LQuery<E> query, @Expr Func7<T1, T2, T3, T4, T5, T6, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> exists(LQuery<E> query, ExprTree<Func7<T1, T2, T3, T4, T5, T6, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> notExists(Class<E> table, @Expr Func7<T1, T2, T3, T4, T5, T6, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> notExists(Class<E> table, ExprTree<Func7<T1, T2, T3, T4, T5, T6, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),true);
+        return this;
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> notExists(LQuery<E> query, @Expr Func7<T1, T2, T3, T4, T5, T6, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery6<T1, T2, T3, T4, T5, T6> notExists(LQuery<E> query, ExprTree<Func7<T1, T2, T3, T4, T5, T6, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),true);
+        return this;
+    }
     // endregion
 
     // region [ORDER BY]

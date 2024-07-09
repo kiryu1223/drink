@@ -3,7 +3,6 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery5;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
 import io.github.kiryu1223.expressionTree.delegate.Func6;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
@@ -121,6 +120,61 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
         where(expr.getTree());
         return this;
     }
+
+    public LQuery5<T1, T2, T3, T4, T5> orWhere(@Expr Func5<T1, T2, T3, T4, T5, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public LQuery5<T1, T2, T3, T4, T5> orWhere(ExprTree<Func5<T1, T2, T3, T4, T5, Boolean>> expr)
+    {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> exists(Class<E> table, @Expr Func6<T1, T2, T3, T4, T5, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> exists(Class<E> table, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> exists(LQuery<E> query, @Expr Func6<T1, T2, T3, T4, T5, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> exists(LQuery<E> query, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),false);
+        return this;
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> notExists(Class<E> table, @Expr Func6<T1, T2, T3, T4, T5, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> notExists(Class<E> table, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
+    {
+        exists(table, expr.getTree(),true);
+        return this;
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> notExists(LQuery<E> query, @Expr Func6<T1, T2, T3, T4, T5, E, Boolean> func)
+    {
+        throw new RuntimeException();
+    }
+
+    public <E> LQuery5<T1, T2, T3, T4, T5> notExists(LQuery<E> query, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
+    {
+        exists(query, expr.getTree(),true);
+        return this;
+    }
     // endregion
 
     // region [ORDER BY]
@@ -179,6 +233,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
     {
         return super.select(r);
     }
+
     public <R> LQuery<R> select(@Expr Func5<T1, T2, T3, T4, T5, R> expr)
     {
         throw new RuntimeException();
@@ -190,6 +245,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
         singleCheck(single);
         return new LQuery<>(this);
     }
+
     public <R> EndQuery<R> selectSingle(@Expr Func5<T1, T2, T3, T4, T5, R> expr)
     {
         throw new RuntimeException();
