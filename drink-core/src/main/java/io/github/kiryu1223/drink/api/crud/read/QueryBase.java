@@ -60,7 +60,9 @@ public abstract class QueryBase extends CRUD
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         System.out.println("===> " + sql);
-        SqlSession session = SqlSessionBuilder.getSession();
+        String key = getConfig().getDsKey();
+        System.out.println("使用数据源: " + (key == null ? "默认" : key));
+        SqlSession session = SqlSessionBuilder.getSession(key);
         return session.executeQuery(
                 r -> ObjectBuilder.start(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), propertyMetaData, isSingle).createList(),
                 sql,
@@ -193,7 +195,7 @@ public abstract class QueryBase extends CRUD
                     setSingle(true);
                 }
             }
-            else if(unbox instanceof SqlRealTableContext)
+            else if (unbox instanceof SqlRealTableContext)
             {
                 propertyMetaData.addAll(metaData.getColumns().values());
             }
@@ -385,4 +387,5 @@ public abstract class QueryBase extends CRUD
         //setDefaultSelect();
         return sqlBuilder.getSql();
     }
+
 }

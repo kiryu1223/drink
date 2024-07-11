@@ -14,7 +14,7 @@ public class Drink
     {
     }
 
-    private Config config = new Config(DbType.Other, MethodHandles.lookup());
+    private Config config = new Config(DbType.Other);
 
     public Drink setConfig(Config config)
     {

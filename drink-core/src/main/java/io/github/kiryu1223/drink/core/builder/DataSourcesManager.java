@@ -21,6 +21,7 @@ public class DataSourcesManager
 
     public static DataSource getDataSource(String key)
     {
+        if (key == null) return defluteDataSource;
         return dataSourceMap.get(key);
     }
 

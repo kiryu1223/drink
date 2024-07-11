@@ -258,8 +258,6 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
     }
 
-
-
     @Override
     public String getSqlAndValue(List<Object> values)
     {

@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 
+
 public class DepartmentTest extends BaseTest
 {
-
 
     @Test
     public void q1()
@@ -52,22 +52,19 @@ public class DepartmentTest extends BaseTest
 
 
         long start = System.currentTimeMillis();
-        List<? extends Result> list = client.query(Employee.class).limit(50)
+        List<? extends Result> list = client.query(Salary.class)
+                .limit(100)
                 .select(s -> new Result()
                 {
-                    int num = s.getNumber();
-                    String firstName = s.getFirstName();
-                    LocalDate on = s.getBirthDay();
-                    LocalDate off = s.getHireDay();
-                    //@Column(converter = GenderConverter.class)
-                    Gender gg = s.getGender();
+                    int num = s.getEmpNumber();
+                    int money = s.getSalary();
+                    LocalDate on = s.getFrom();
+                    LocalDate off = s.getTo();
                 })
                 .toList();
+
         System.out.println("耗时: " + (System.currentTimeMillis() - start));
-        for (Result result : list)
-        {
-            System.out.println(result);
-        }
+        System.out.println(list.size());
     }
 
     @Test
@@ -76,4 +73,6 @@ public class DepartmentTest extends BaseTest
         List<Long> list1 = client.query(Employee.class).selectSingle(s -> SqlFunctions.count()).toList();
         System.out.println(list1.get(0));
     }
+
+
 }

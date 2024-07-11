@@ -34,7 +34,7 @@ public class MainTest
 
     public MainTest()
     {
-        Config config = new Config(DbType.MySQL, MethodHandles.lookup());
+        Config config = new Config(DbType.MySQL);
         config.setDbConfig(new MySQLConfig());
         client = Drink.bootStrap(new DataSource()
                 {

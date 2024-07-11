@@ -149,7 +149,7 @@ public class LQuery<T> extends QueryBase
 
     public <E> LQuery<T> exists(Class<E> table, ExprTree<Func2<T, E, Boolean>> expr)
     {
-        exists(table, expr.getTree(),false);
+        exists(table, expr.getTree(), false);
         return this;
     }
 
@@ -160,7 +160,7 @@ public class LQuery<T> extends QueryBase
 
     public <E> LQuery<T> exists(LQuery<E> query, ExprTree<Func2<T, E, Boolean>> expr)
     {
-        exists(query, expr.getTree(),false);
+        exists(query, expr.getTree(), false);
         return this;
     }
 
@@ -171,7 +171,7 @@ public class LQuery<T> extends QueryBase
 
     public <E> LQuery<T> notExists(Class<E> table, ExprTree<Func2<T, E, Boolean>> expr)
     {
-        exists(table, expr.getTree(),true);
+        exists(table, expr.getTree(), true);
         return this;
     }
 
@@ -182,7 +182,7 @@ public class LQuery<T> extends QueryBase
 
     public <E> LQuery<T> notExists(LQuery<E> query, ExprTree<Func2<T, E, Boolean>> expr)
     {
-        exists(query, expr.getTree(),true);
+        exists(query, expr.getTree(), true);
         return this;
     }
 
@@ -385,8 +385,7 @@ public class LQuery<T> extends QueryBase
         return this;
     }
 
-
-    //    public T firstOrNull()
+//    public T firstOrNull()
 //    {
 //        return clientQueryable.firstOrNull();
 //    }

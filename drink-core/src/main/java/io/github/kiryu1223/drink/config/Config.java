@@ -4,17 +4,16 @@ import io.github.kiryu1223.drink.config.def.DefaultDBConfig;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
 import io.github.kiryu1223.drink.ext.DbType;
 
-import java.lang.invoke.MethodHandles;
-
 public class Config
 {
     private DbType dbType;
     private IDBConfig dbConfig;
-    private  MethodHandles.Lookup lookup;
+    private boolean insertIgnNull = true;
+    public String dsKey;
 
-    public Config(DbType dbType, MethodHandles.Lookup lookup)
+    public Config(DbType dbType)
     {
-        this.lookup = lookup;
+        //this.lookup = lookup;
         switch (dbType)
         {
             case MySQL:
@@ -55,13 +54,28 @@ public class Config
         return dbType;
     }
 
-    public MethodHandles.Lookup getLookup()
+    public void useDs(String key)
     {
-        return lookup;
+        this.dsKey = key;
     }
 
-    public void setLookup(MethodHandles.Lookup lookup)
+    public void useDefDs()
     {
-        this.lookup = lookup;
+        this.dsKey = null;
+    }
+
+    public String getDsKey()
+    {
+        return dsKey;
+    }
+
+    public void setInsertIgnNull(boolean insertIgnNull)
+    {
+        this.insertIgnNull = insertIgnNull;
+    }
+
+    public boolean isInsertIgnNull()
+    {
+        return insertIgnNull;
     }
 }

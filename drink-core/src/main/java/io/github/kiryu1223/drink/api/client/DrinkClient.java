@@ -1,8 +1,14 @@
 package io.github.kiryu1223.drink.api.client;
 
 
+import io.github.kiryu1223.drink.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
+import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.builder.DataSourcesManager;
+
+import javax.sql.DataSource;
+import java.util.Collection;
 
 public class DrinkClient
 {
@@ -13,9 +19,56 @@ public class DrinkClient
         this.config = config;
     }
 
+    public void useDs(String key)
+    {
+        config.useDs(key);
+    }
+
+    public void useDefDs()
+    {
+        config.useDefDs();
+    }
+
+//    public void setInsertIgnoreNull(boolean insertIgnNull)
+//    {
+//        config.setInsertIgnNull(insertIgnNull);
+//    }
+
+    public Transaction beginTransaction(Integer isolationLevel)
+    {
+        DataSource dataSource = DataSourcesManager.getDataSource(config.getDsKey());
+        return new Transaction(isolationLevel, dataSource);
+    }
+
+    public Transaction beginTransaction()
+    {
+        return beginTransaction(null);
+    }
+
     public <T> LQuery<T> query(Class<T> c)
     {
         return new LQuery<>(config, c);
+    }
+
+    public <T> ObjectInsert<T> insert(T t)
+    {
+        ObjectInsert<T> objectInsert = new ObjectInsert<>(config, (Class<T>) t.getClass());
+        return objectInsert.insert(t);
+    }
+
+    public <T> ObjectInsert<T> insert(Collection<T> ts)
+    {
+        ObjectInsert<T> objectInsert = new ObjectInsert<>(config, getType(ts));
+        return objectInsert.insert(ts);
+    }
+
+    private <T> Class<T> getType(Collection<T> ts)
+    {
+        for (T t : ts)
+        {
+            return (Class<T>) t.getClass();
+        }
+        throw new RuntimeException();
     }
 
 //    private final DbType dbType;

@@ -28,13 +28,13 @@ public class FastCreator<T>
 
     private final Class<T> target;
     private final boolean isAnonymousClass;
-    private final MethodHandles.Lookup lookup;
+    //private final MethodHandles.Lookup lookup;
 
-    public FastCreator(Class<T> target, MethodHandles.Lookup lookup)
+    public FastCreator(Class<T> target)
     {
         this.target = target;
         this.isAnonymousClass = target.isAnonymousClass();
-        this.lookup = lookup;
+        //this.lookup = lookup;
     }
 
     public Supplier<T> getCreator()
@@ -104,7 +104,7 @@ public class FastCreator<T>
 //        return getSetter(writeMethod.getParameterTypes()[0], writeMethod);
 //    }
 
-    public Setter<T> getSetter(Class<?> propertyType, Method writeMethod, String fieldName)
+    public Setter<T> getSetter(Class<?> propertyType, Method writeMethod, final MethodHandles.Lookup lookup)
     {
         try
         {
@@ -114,7 +114,7 @@ public class FastCreator<T>
                     lookup,
                     "set",
                     MethodType.methodType(Setter.class),
-                    MethodType.methodType(void.class, MethodType.genericMethodType(2)),
+                    MethodType.methodType(void.class, Object.class, Object.class),
                     setter,
                     instantiatedMethodType
             );
@@ -131,12 +131,7 @@ public class FastCreator<T>
         R get(T t);
     }
 
-    private interface VoidSetter<T1, T2> extends Serializable
-    {
-        void set(T1 t, T2 value);
-    }
-
-    public interface Setter<T>
+    public interface Setter<T> extends Serializable
     {
         void set(T t, Object value);
     }

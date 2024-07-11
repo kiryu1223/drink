@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.core.builder;
 
 import io.github.kiryu1223.drink.config.Config;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class ObjectBuilder<T>
         this.isSingle = isSingle;
     }
 
-    public List<T> createList() throws Throwable
+    public List<T> createList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
         if (isSingle)
         {
@@ -42,25 +43,25 @@ public class ObjectBuilder<T>
         }
     }
 
-    private List<T> getSingleList() throws SQLException
+    private List<T> getSingleList() throws SQLException, NoSuchFieldException, IllegalAccessException
     {
         List<T> list = new ArrayList<>();
         while (resultSet.next())
         {
-            T t = resultSet.getObject(1, target);
+            T t = defConvertValue();
             list.add(t);
         }
         return list;
     }
 
-    private List<T> getClassList() throws Throwable
+    private List<T> getClassList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = new FastCreator<>(target, config.getLookup());
+        FastCreator<T> fastCreator = new FastCreator<>(target);
         Supplier<T> creator = fastCreator.getCreator();
 //        Map<String, FastCreator.Setter<T>> setterMap = new HashMap<>(propertyMetaDataList.size());
 //        for (PropertyMetaData metaData : propertyMetaDataList)
 //        {
-//            setterMap.put(metaData.getColumn(), fastCreator.getSetter(metaData.getType(), metaData.getSetter(),metaData.getProperty()));
+//            setterMap.put(metaData.getColumn(), fastCreator.getSetter(metaData.getType(), metaData.getSetter(), config.getLookup()));
 //        }
         List<T> list = new ArrayList<>();
         while (resultSet.next())
@@ -99,8 +100,34 @@ public class ObjectBuilder<T>
         }
     }
 
+    private T defConvertValue() throws SQLException, NoSuchFieldException, IllegalAccessException
+    {
+        if (target.isEnum())
+        {
+            String Enum = resultSet.getString(1);
+            return (T) target.getField(Enum).get(null);
+        }
+        else
+        {
+            return resultSet.getObject(1, target);
+        }
+    }
+
     private <R> R cast(Object o)
     {
         return (R) o;
     }
+
+//    private MethodHandles.Lookup tryGetLookUp(Object o)
+//    {
+//        if (o instanceof ILookUp)
+//        {
+//            ILookUp iLookUp = (ILookUp) o;
+//            return iLookUp.lookup();
+//        }
+//        else
+//        {
+//            return MethodHandles.lookup();
+//        }
+//    }
 }

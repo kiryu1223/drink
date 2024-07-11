@@ -2,7 +2,9 @@ package io.github.kiryu1223.drink.core.builder;
 
 public class SqlSessionBuilder
 {
-    private SqlSessionBuilder() {}
+    private SqlSessionBuilder()
+    {
+    }
 
     public static SqlSession getSession()
     {
