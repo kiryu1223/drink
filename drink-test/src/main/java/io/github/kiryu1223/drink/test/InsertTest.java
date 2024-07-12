@@ -14,6 +14,7 @@ public class InsertTest extends BaseTest
     public void i1() throws InterruptedException
     {
 
+        client.useDs("2024");
 
         try (Transaction transaction = client.beginTransaction())
         {
@@ -26,14 +27,13 @@ public class InsertTest extends BaseTest
             Department department3 = new Department();
             department3.setNumber("300");
             //department3.setName("SSS");
-
             long execute = client
                     .insert(Arrays.asList(department1, department2, department3))
                     .executeRows();
 
             Thread thread = new Thread(() ->
             {
-                try (Transaction transaction2 = client.beginTransaction(Connection.TRANSACTION_READ_UNCOMMITTED))
+                try (Transaction transaction2 = client.beginTransaction(Connection.TRANSACTION_REPEATABLE_READ))
                 {
                     List<Department> list = client.query(Department.class).toList();
                     for (Department department : list)
@@ -49,9 +49,5 @@ public class InsertTest extends BaseTest
         }
     }
 
-    @Test
-    public void i2() throws Throwable
-    {
 
-    }
 }

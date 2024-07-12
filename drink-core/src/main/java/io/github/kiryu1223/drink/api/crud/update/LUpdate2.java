@@ -1,69 +1,67 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
-
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.api.crud.builder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.visitor.SetVisitor;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
-import io.github.kiryu1223.expressionTree.delegate.Action1;
-import io.github.kiryu1223.expressionTree.delegate.Func1;
+import io.github.kiryu1223.expressionTree.delegate.Action2;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
+import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
-public class LUpdate<T> extends UpdateBase
+public class LUpdate2<T1, T2> extends UpdateBase
 {
     // region [INIT]
-    public LUpdate(Config config, Class<T> t)
+    public LUpdate2(UpdateSqlBuilder sqlBuilder)
     {
-        super(config);
-        getSqlBuilder().setMainTable(t);
+        super(sqlBuilder);
     }
-    // endregion
+    //endregion
 
     //region [JOIN]
-    public <Tn> LUpdate2<T, Tn> innerJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
+    public <Tn> LUpdate3<T1, T2, Tn> innerJoin(Class<Tn> target, @Expr Func3<T1, T2, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
 
-    public <Tn> LUpdate2<T, Tn> innerJoin(Class<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
+    public <Tn> LUpdate3<T1, T2, Tn> innerJoin(Class<Tn> target, ExprTree<Func3<T1, T2, Tn, Boolean>> expr)
     {
         join(JoinType.INNER, target, expr);
-        return new LUpdate2<>(getSqlBuilder());
+        return new LUpdate3<>(getSqlBuilder());
     }
 
-    public <Tn> LUpdate2<T, Tn> leftJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
+    public <Tn> LUpdate3<T1, T2, Tn> leftJoin(Class<Tn> target, @Expr Func3<T1, T2, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
 
-    public <Tn> LUpdate2<T, Tn> leftJoin(Class<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
+    public <Tn> LUpdate3<T1, T2, Tn> leftJoin(Class<Tn> target, ExprTree<Func3<T1, T2, Tn, Boolean>> expr)
     {
         join(JoinType.LEFT, target, expr);
-        return new LUpdate2<>(getSqlBuilder());
+        return new LUpdate3<>(getSqlBuilder());
     }
 
-    public <Tn> LUpdate2<T, Tn> rightJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
+    public <Tn> LUpdate3<T1, T2, Tn> rightJoin(Class<Tn> target, @Expr Func3<T1, T2, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
 
-    public <Tn> LUpdate2<T, Tn> rightJoin(Class<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr)
+    public <Tn> LUpdate3<T1, T2, Tn> rightJoin(Class<Tn> target, ExprTree<Func3<T1, T2, Tn, Boolean>> expr)
     {
         join(JoinType.RIGHT, target, expr);
-        return new LUpdate2<>(getSqlBuilder());
+        return new LUpdate3<>(getSqlBuilder());
     }
     //endregion
 
     //region [SET]
-    public LUpdate<T> set(@Expr Action1<T> action)
+    public LUpdate2<T1, T2> set(@Expr Action2<T1, T2> action)
     {
         throw new RuntimeException();
     }
 
-    public LUpdate<T> set(ExprTree<Action1<T>> expr)
+    public LUpdate2<T1, T2> set(ExprTree<Action2<T1, T2>> expr)
     {
         SetVisitor setVisitor = new SetVisitor(getConfig());
         SqlContext context = setVisitor.visit(expr.getTree());
@@ -73,19 +71,17 @@ public class LUpdate<T> extends UpdateBase
     //endregion
 
     //region [WHERE]
-
-    public LUpdate<T> where(@Expr Func1<T, Boolean> func)
+    public LUpdate2<T1, T2> where(@Expr Func2<T1, T2, Boolean> func)
     {
         throw new RuntimeException();
     }
 
-    public LUpdate<T> where(ExprTree<Func1<T, Boolean>> expr)
+    public LUpdate2<T1, T2> where(ExprTree<Func2<T1, T2, Boolean>> expr)
     {
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
         SqlContext context = whereVisitor.visit(expr.getTree());
         getSqlBuilder().addWhere(context);
         return this;
     }
-
     //endregion
 }

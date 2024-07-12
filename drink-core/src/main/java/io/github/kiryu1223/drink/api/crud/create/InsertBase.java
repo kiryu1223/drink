@@ -2,6 +2,8 @@ package io.github.kiryu1223.drink.api.crud.create;
 
 import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.InsertSqlBuilder;
+import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.config.inter.IDBConfig;
 import io.github.kiryu1223.drink.core.builder.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,9 +20,9 @@ public abstract class InsertBase extends CRUD
         return sqlBuilder;
     }
 
-    public InsertBase(InsertSqlBuilder sqlBuilder)
+    public InsertBase(Config c)
     {
-        this.sqlBuilder = sqlBuilder;
+        this.sqlBuilder = new InsertSqlBuilder(c);
     }
 
     public long executeRows()
@@ -61,6 +63,8 @@ public abstract class InsertBase extends CRUD
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = makeByObjects(objects, sqlValues);
         System.out.println("===> " + sql);
+        String key = sqlBuilder.getConfig().getDsKey();
+        System.out.println("使用数据源: " + (key == null ? "默认" : key));
         SqlSession session = SqlSessionBuilder.getSession(sqlBuilder.getConfig().getDsKey());
         if (objects.size() > 1)
         {
@@ -100,7 +104,8 @@ public abstract class InsertBase extends CRUD
                 sqlValues.add(new SqlValue(pro.getType(), values));
             }
         }
-        return "INSERT INTO " + metaData.getTableName() + "(" + String.join(",", tableFields)
+        IDBConfig dbConfig = getSqlBuilder().getConfig().getDbConfig();
+        return "INSERT INTO " + dbConfig.propertyDisambiguation(metaData.getTableName()) + "(" + String.join(",", tableFields)
                 + ") VALUES(" + String.join(",", tableValues) + ")";
     }
 }

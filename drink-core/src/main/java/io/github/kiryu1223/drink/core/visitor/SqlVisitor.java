@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.annotation.SqlFuncExt;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
-import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.MetaData;
@@ -300,13 +299,30 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 }
             }
         }
-        else if (isProperty(parameters, methodCall) && isGetter(methodCall.getMethod()))
+        else if (isProperty(parameters, methodCall))
         {
-            ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-            int index = parameters.indexOf(parameter);
-            Method method = methodCall.getMethod();
-            MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
-            return new SqlPropertyContext(metaData.getColumnNameByGetter(method), index);
+            if (isGetter(methodCall.getMethod()))
+            {
+                ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
+                int index = parameters.indexOf(parameter);
+                Method method = methodCall.getMethod();
+                MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
+                return new SqlPropertyContext(metaData.getColumnNameByGetter(method), index);
+            }
+            else if (isSetter(methodCall.getMethod()))
+            {
+                ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
+                int index = parameters.indexOf(parameter);
+                Method method = methodCall.getMethod();
+                MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
+                SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getColumnNameBySetter(method), index);
+                SqlContext context = visit(methodCall.getArgs().get(0));
+                return new SqlSetContext(propertyContext, context);
+            }
+            else
+            {
+                return checkAndReturnValue(methodCall);
+            }
         }
         else
         {

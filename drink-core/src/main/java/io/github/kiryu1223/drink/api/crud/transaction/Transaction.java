@@ -6,24 +6,16 @@ import java.sql.SQLException;
 
 public class Transaction implements AutoCloseable
 {
-    private final Connection connection;
+    private Connection connection;
+    private final DataSource dataSource;
     public static ThreadLocal<Transaction> curTransaction = new ThreadLocal<>();
     private final Integer isolationLevel;
 
     public Transaction(Integer isolationLevel, DataSource dataSource)
     {
-        try
-        {
-            this.isolationLevel = isolationLevel;
-            connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
-            if (isolationLevel != null) connection.setTransactionIsolation(isolationLevel);
-            curTransaction.set(this);
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
+        this.isolationLevel = isolationLevel;
+        this.dataSource = dataSource;
+        curTransaction.set(this);
     }
 
     public Integer getIsolationLevel()
@@ -88,8 +80,14 @@ public class Transaction implements AutoCloseable
         curTransaction.remove();
     }
 
-    public Connection getConnection()
+    public Connection getConnection() throws SQLException
     {
+        if (connection == null)
+        {
+            connection = dataSource.getConnection();
+        }
+        connection.setAutoCommit(false);
+        if (isolationLevel != null) connection.setTransactionIsolation(isolationLevel);
         return connection;
     }
 }

@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.core.context;
 
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.config.inter.IDBConfig;
 import io.github.kiryu1223.drink.core.builder.MetaData;
 import io.github.kiryu1223.drink.core.builder.MetaDataCache;
 
@@ -30,6 +31,7 @@ public class SqlRealTableContext extends SqlTableContext
     public String getSql(Config config)
     {
         MetaData metaData = MetaDataCache.getMetaData(tableClass);
-        return metaData.getTableName();
+        IDBConfig dbConfig = config.getDbConfig();
+        return dbConfig.propertyDisambiguation(metaData.getTableName());
     }
 }

@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface ISqlBuilder
 {
+    Config getConfig();
+
     String getSql();
 
     String getSqlAndValue(List<Object> values);

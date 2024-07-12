@@ -14,7 +14,7 @@ public class ObjectInsert<T> extends InsertBase
 
     public ObjectInsert(Config config, Class<T> tableType)
     {
-        super(new InsertSqlBuilder(config));
+        super(config);
         this.tableType = tableType;
     }
 

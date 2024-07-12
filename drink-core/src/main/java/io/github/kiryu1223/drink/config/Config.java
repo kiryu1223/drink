@@ -8,8 +8,9 @@ public class Config
 {
     private DbType dbType;
     private IDBConfig dbConfig;
-    private boolean insertIgnNull = true;
-    public String dsKey;
+    private boolean ignoreUpdateNoWhere = false;
+    private boolean ignoreDeleteNoWhere = false;
+    public final ThreadLocal<String> dsKey = new ThreadLocal<>();
 
     public Config(DbType dbType)
     {
@@ -56,26 +57,18 @@ public class Config
 
     public void useDs(String key)
     {
-        this.dsKey = key;
+       dsKey.set(key);
     }
 
     public void useDefDs()
     {
-        this.dsKey = null;
+        dsKey.remove();
     }
 
     public String getDsKey()
     {
-        return dsKey;
+        return dsKey.get();
     }
 
-    public void setInsertIgnNull(boolean insertIgnNull)
-    {
-        this.insertIgnNull = insertIgnNull;
-    }
 
-    public boolean isInsertIgnNull()
-    {
-        return insertIgnNull;
-    }
 }

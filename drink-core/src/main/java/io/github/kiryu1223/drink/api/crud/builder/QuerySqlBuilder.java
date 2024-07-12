@@ -388,7 +388,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeJoin(List<Object> values)
     {
         if (joins.isEmpty()) return "";
-        List<String> joinStr = new ArrayList<>(from.size());
+        List<String> joinStr = new ArrayList<>(joins.size());
         for (SqlContext context : joins)
         {
             joinStr.add(context.getSqlAndValue(config, values));
@@ -399,7 +399,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeJoin()
     {
         if (joins.isEmpty()) return "";
-        List<String> joinStr = new ArrayList<>(from.size());
+        List<String> joinStr = new ArrayList<>(joins.size());
         for (SqlContext context : joins)
         {
             joinStr.add(context.getSql(config));
@@ -410,7 +410,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeWhere(List<Object> values)
     {
         if (wheres.isEmpty()) return "";
-        List<String> whereStr = new ArrayList<>(from.size());
+        List<String> whereStr = new ArrayList<>(wheres.size());
         for (SqlContext context : wheres)
         {
             whereStr.add(context.getSqlAndValue(config, values));
@@ -421,7 +421,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeWhere()
     {
         if (wheres.isEmpty()) return "";
-        List<String> whereStr = new ArrayList<>(from.size());
+        List<String> whereStr = new ArrayList<>(wheres.size());
         for (SqlContext context : wheres)
         {
             whereStr.add(context.getSql(config));
@@ -444,7 +444,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeHaving(List<Object> values)
     {
         if (havings.isEmpty()) return "";
-        List<String> havingStr = new ArrayList<>(from.size());
+        List<String> havingStr = new ArrayList<>(havings.size());
         for (SqlContext context : havings)
         {
             havingStr.add(context.getSqlAndValue(config, values));
@@ -455,7 +455,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeHaving()
     {
         if (havings.isEmpty()) return "";
-        List<String> havingStr = new ArrayList<>(from.size());
+        List<String> havingStr = new ArrayList<>(havings.size());
         for (SqlContext context : havings)
         {
             havingStr.add(context.getSql(config));
@@ -466,7 +466,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeOrder(List<Object> values)
     {
         if (orderBys.isEmpty()) return "";
-        List<String> orderStr = new ArrayList<>(from.size());
+        List<String> orderStr = new ArrayList<>(orderBys.size());
         for (SqlContext context : orderBys)
         {
             orderStr.add(context.getSqlAndValue(config, values));
@@ -477,7 +477,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private String makeOrder()
     {
         if (orderBys.isEmpty()) return "";
-        List<String> orderStr = new ArrayList<>(from.size());
+        List<String> orderStr = new ArrayList<>(orderBys.size());
         for (SqlContext context : orderBys)
         {
             orderStr.add(context.getSql(config));

@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.ext;
 
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
+import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.context.SqlOperator;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
@@ -95,6 +96,14 @@ public class SqlCalculates
 
     @SqlOperatorMethod(SqlOperator.IN)
     public static <T> boolean in(T t1, Collection<T> ts)
+    {
+        boom();
+        return false;
+    }
+
+
+    @SqlOperatorMethod(SqlOperator.IN)
+    public static <T> boolean in(T t1, LQuery<T> query)
     {
         boom();
         return false;

@@ -13,7 +13,7 @@ public class LInsert<T> extends InsertBase
 
     public LInsert(Config c, Class<T> t)
     {
-        super(new InsertSqlBuilder(c));
+        super(c);
         this.t = t;
     }
 

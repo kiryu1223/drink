@@ -42,7 +42,7 @@ public class SqlSession
         {
             try (Connection connection = dataSource.getConnection())
             {
-                connection.setAutoCommit(true);
+                //connection.setAutoCommit(true);
                 try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
                 {
                     setObjects(preparedStatement, values);
@@ -83,7 +83,7 @@ public class SqlSession
 //        return executeQuery(func, sql, Collections.emptyList());
 //    }
 
-    public int executeUpdate(String sql, List<SqlValue> values)
+    public long executeUpdate(String sql, List<SqlValue> values)
     {
         Transaction transaction = Transaction.curTransaction.get();
         if (transaction == null)
@@ -94,7 +94,36 @@ public class SqlSession
         else
         {
             System.out.println("有事务");
-            return transactionExecuteUpdate(transaction.getConnection(), sql, values);
+            try
+            {
+                return transactionExecuteUpdate(transaction.getConnection(), sql, values);
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public long executeUpdate(String sql, List<Object> values, Object... o)
+    {
+        Transaction transaction = Transaction.curTransaction.get();
+        if (transaction == null)
+        {
+            System.out.println("无事务");
+            return noTransactionExecuteUpdate(sql, values);
+        }
+        else
+        {
+            System.out.println("有事务");
+            try
+            {
+                return transactionExecuteUpdate(transaction.getConnection(), sql, values);
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -107,11 +136,18 @@ public class SqlSession
         }
         else
         {
-            return batchTransactionExecuteUpdate(transaction.getConnection(), sql, limit, values);
+            try
+            {
+                return batchTransactionExecuteUpdate(transaction.getConnection(), sql, limit, values);
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private int noTransactionExecuteUpdate(String sql, List<SqlValue> values)
+    private long noTransactionExecuteUpdate(String sql, List<SqlValue> values)
     {
         try (Connection connection = dataSource.getConnection())
         {
@@ -119,6 +155,23 @@ public class SqlSession
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
             {
                 setObjectsIfNull(preparedStatement, values);
+                return preparedStatement.executeUpdate();
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private long noTransactionExecuteUpdate(String sql, List<Object> values, Object... o)
+    {
+        try (Connection connection = dataSource.getConnection())
+        {
+            connection.setAutoCommit(true);
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
+            {
+                setObjects(preparedStatement, values);
                 return preparedStatement.executeUpdate();
             }
         }
@@ -149,6 +202,19 @@ public class SqlSession
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
         {
             setObjectsIfNull(preparedStatement, values);
+            return preparedStatement.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private int transactionExecuteUpdate(Connection connection, String sql, List<Object> values, Object... o)
+    {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
+        {
+            setObjects(preparedStatement, values);
             return preparedStatement.executeUpdate();
         }
         catch (SQLException e)
