@@ -7,7 +7,6 @@ public class EndQuery<T> extends QueryBase
     public EndQuery(QueryBase queryBase)
     {
         super(queryBase.getSqlBuilder());
-        setSingle(true);
     }
 
     @Override

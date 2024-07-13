@@ -41,7 +41,7 @@ public abstract class DeleteBase extends CRUD
         System.out.println("===> " + sql);
         String key = sqlBuilder.getConfig().getDsKey();
         System.out.println("使用数据源: " + (key == null ? "默认" : key));
-        SqlSession session = SqlSessionBuilder.getSession(getConfig().getDsKey());
+        SqlSession session = SqlSessionBuilder.getSession(getConfig());
         return session.executeUpdate(sql, values);
     }
 

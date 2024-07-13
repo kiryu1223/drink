@@ -1,9 +1,11 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery9;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.expressionTree.delegate.Func10;
+import io.github.kiryu1223.expressionTree.delegate.Func8;
 import io.github.kiryu1223.expressionTree.delegate.Func9;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -12,21 +14,9 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase
 {
     // region [INIT]
 
-    public LQuery9(Config config)
+    public LQuery9(QuerySqlBuilder sqlBuilder)
     {
-        super(config);
-    }
-
-    public LQuery9(Config config, Class<?> c1, Class<?> c2, Class<?> c3, Class<?> c4, Class<?> c5, Class<?> c6, Class<?> c7, Class<?> c8, Class<?> c9)
-    {
-        super(config);
-        getSqlBuilder().addFrom(c1, c2, c3, c4, c5, c6, c7, c8, c9);
-    }
-
-    public LQuery9(QueryBase q1, QueryBase q2, QueryBase q3, QueryBase q4, QueryBase q5, QueryBase q6, QueryBase q7, QueryBase q8, QueryBase q9)
-    {
-        super(q1.getConfig());
-        getSqlBuilder().addFrom(q1.getSqlBuilder(), q2.getSqlBuilder(), q3.getSqlBuilder(), q4.getSqlBuilder(), q5.getSqlBuilder(), q6.getSqlBuilder(), q7.getSqlBuilder(), q8.getSqlBuilder(), q9.getSqlBuilder());
+        super(sqlBuilder);
     }
 
     // endregion
@@ -36,9 +26,7 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase
     @Override
     protected <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> joinNewQuery()
     {
-        LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> query = new LQuery10<>(getConfig());
-        query.getSqlBuilder().joinBy(getSqlBuilder());
-        return query;
+        return new LQuery10<>(getSqlBuilder());
     }
 
     public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> innerJoin(Class<Tn> target, @Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean> func)
@@ -243,7 +231,7 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase
     {
         boolean single = select(expr.getTree());
         singleCheck(single);
-        return new LQuery<>(this);
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
     public <R> EndQuery<R> selectSingle(@Expr Func9<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> expr)
@@ -263,13 +251,13 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase
 
     public LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> distinct()
     {
-        getSqlBuilder().setDistinct(true);
+        distinct0(true);
         return this;
     }
 
     public LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> distinct(boolean condition)
     {
-        getSqlBuilder().setDistinct(condition);
+        distinct0(condition);
         return this;
     }
 

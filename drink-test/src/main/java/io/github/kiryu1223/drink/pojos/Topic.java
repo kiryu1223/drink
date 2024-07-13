@@ -2,10 +2,12 @@ package io.github.kiryu1223.drink.pojos;
 
 import io.github.kiryu1223.drink.annotation.Column;
 import io.github.kiryu1223.drink.annotation.Table;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Table("t_topic")
+@Data
 public class Topic
 {
     @Column
@@ -15,54 +17,4 @@ public class Topic
     private String title;
     private LocalDateTime createTime;
     private String alias;
-
-    public String getId()
-    {
-        return id;
-    }
-
-    public void setId(String id)
-    {
-        this.id = id;
-    }
-
-    public Integer getStars()
-    {
-        return stars;
-    }
-
-    public void setStars(Integer stars)
-    {
-        this.stars = stars;
-    }
-
-    public String getTitle()
-    {
-        return title;
-    }
-
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
-
-    public LocalDateTime getCreateTime()
-    {
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime)
-    {
-        this.createTime = createTime;
-    }
-
-    public String getAlias()
-    {
-        return alias;
-    }
-
-    public void setAlias(String alias)
-    {
-        this.alias = alias;
-    }
 }

@@ -7,7 +7,6 @@ import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
 import io.github.kiryu1223.drink.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.DataSourcesManager;
 
 import javax.sql.DataSource;
 import java.util.Collection;
@@ -38,7 +37,7 @@ public class DrinkClient
         {
             throw new RuntimeException("事务不能嵌套");
         }
-        DataSource dataSource = DataSourcesManager.getDataSource(config.getDsKey());
+        DataSource dataSource = config.getDataSource();
         return new Transaction(isolationLevel, dataSource);
     }
 

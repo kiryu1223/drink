@@ -20,6 +20,11 @@ public abstract class InsertBase extends CRUD
         return sqlBuilder;
     }
 
+    protected Config getConfig()
+    {
+        return sqlBuilder.getConfig();
+    }
+
     public InsertBase(Config c)
     {
         this.sqlBuilder = new InsertSqlBuilder(c);
@@ -65,7 +70,7 @@ public abstract class InsertBase extends CRUD
         System.out.println("===> " + sql);
         String key = sqlBuilder.getConfig().getDsKey();
         System.out.println("使用数据源: " + (key == null ? "默认" : key));
-        SqlSession session = SqlSessionBuilder.getSession(sqlBuilder.getConfig().getDsKey());
+        SqlSession session = SqlSessionBuilder.getSession(getConfig());
         if (objects.size() > 1)
         {
             System.out.println("batchExecute");

@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery2;
-import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
@@ -13,21 +13,9 @@ public class LQuery2<T1, T2> extends QueryBase
 {
     // region [INIT]
 
-    public LQuery2(Config config)
+    public LQuery2(QuerySqlBuilder sqlBuilder)
     {
-        super(config);
-    }
-
-    public LQuery2(Config config, Class<?> c1, Class<?> c2)
-    {
-        super(config);
-        getSqlBuilder().addFrom(c1, c2);
-    }
-
-    public LQuery2(QueryBase q1, QueryBase q2)
-    {
-        super(q1.getConfig());
-        getSqlBuilder().addFrom(q1.getSqlBuilder(), q2.getSqlBuilder());
+        super(sqlBuilder);
     }
 
     // endregion
@@ -36,9 +24,7 @@ public class LQuery2<T1, T2> extends QueryBase
 
     protected <Tn> LQuery3<T1, T2, Tn> joinNewQuery()
     {
-        LQuery3<T1, T2, Tn> query = new LQuery3<>(getConfig());
-        query.getSqlBuilder().joinBy(getSqlBuilder());
-        return query;
+        return new LQuery3<>(getSqlBuilder());
     }
 
     public <Tn> LQuery3<T1, T2, Tn> innerJoin(Class<Tn> target, @Expr Func3<T1, T2, Tn, Boolean> func)
@@ -138,7 +124,7 @@ public class LQuery2<T1, T2> extends QueryBase
 
     public <E> LQuery2<T1, T2> exists(Class<E> table, ExprTree<Func3<T1, T2, E, Boolean>> expr)
     {
-        exists(table, expr.getTree(),false);
+        exists(table, expr.getTree(), false);
         return this;
     }
 
@@ -149,7 +135,7 @@ public class LQuery2<T1, T2> extends QueryBase
 
     public <E> LQuery2<T1, T2> exists(LQuery<E> query, ExprTree<Func3<T1, T2, E, Boolean>> expr)
     {
-        exists(query, expr.getTree(),false);
+        exists(query, expr.getTree(), false);
         return this;
     }
 
@@ -160,7 +146,7 @@ public class LQuery2<T1, T2> extends QueryBase
 
     public <E> LQuery2<T1, T2> notExists(Class<E> table, ExprTree<Func3<T1, T2, E, Boolean>> expr)
     {
-        exists(table, expr.getTree(),true);
+        exists(table, expr.getTree(), true);
         return this;
     }
 
@@ -171,7 +157,7 @@ public class LQuery2<T1, T2> extends QueryBase
 
     public <E> LQuery2<T1, T2> notExists(LQuery<E> query, ExprTree<Func3<T1, T2, E, Boolean>> expr)
     {
-        exists(query, expr.getTree(),true);
+        exists(query, expr.getTree(), true);
         return this;
     }
     // endregion
@@ -243,7 +229,7 @@ public class LQuery2<T1, T2> extends QueryBase
     {
         boolean single = select(expr.getTree());
         singleCheck(single);
-        return new LQuery<>(this);
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
     public <R> EndQuery<R> selectSingle(@Expr Func2<T1, T2, R> expr)
@@ -342,13 +328,13 @@ public class LQuery2<T1, T2> extends QueryBase
 
     public LQuery2<T1, T2> distinct()
     {
-        getSqlBuilder().setDistinct(true);
+        distinct0(true);
         return this;
     }
 
     public LQuery2<T1, T2> distinct(boolean condition)
     {
-        getSqlBuilder().setDistinct(condition);
+        distinct0(condition);
         return this;
     }
 

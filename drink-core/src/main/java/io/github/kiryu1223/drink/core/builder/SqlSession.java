@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.core.builder;
 
 import io.github.kiryu1223.drink.api.crud.create.SqlValue;
 import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
+import io.github.kiryu1223.drink.config.Config;
 
 import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
@@ -25,14 +26,9 @@ public class SqlSession
 
     private final DataSource dataSource;
 
-    public SqlSession()
+    public SqlSession(Config config)
     {
-        this.dataSource = DataSourcesManager.getDefluteDataSource();
-    }
-
-    public SqlSession(String key)
-    {
-        this.dataSource = DataSourcesManager.getDataSource(key);
+        dataSource = config.getDataSource();
     }
 
     public <R> R executeQuery(Function<ResultSet, R> func, String sql, List<Object> values)

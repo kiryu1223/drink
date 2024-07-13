@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
@@ -22,10 +23,9 @@ public class LQuery<T> extends QueryBase
         getSqlBuilder().addFrom(c);
     }
 
-    public LQuery(QueryBase queryBase)
+    public LQuery(QuerySqlBuilder sqlBuilder)
     {
-        super(queryBase.getConfig());
-        getSqlBuilder().addFrom(queryBase.getSqlBuilder());
+        super(sqlBuilder);
     }
 
     // endregion
@@ -34,9 +34,7 @@ public class LQuery<T> extends QueryBase
 
     protected <Tn> LQuery2<T, Tn> joinNewQuery()
     {
-        LQuery2<T, Tn> query = new LQuery2<>(getConfig());
-        query.getSqlBuilder().joinBy(getSqlBuilder());
-        return query;
+        return new LQuery2<>(getSqlBuilder());
     }
 
     public <Tn> LQuery2<T, Tn> innerJoin(Class<Tn> target, @Expr Func2<T, Tn, Boolean> func)
@@ -247,12 +245,6 @@ public class LQuery<T> extends QueryBase
 
     // region [SELECT]
 
-    public LQuery<T> select()
-    {
-        select0();
-        return new LQuery<>(this);
-    }
-
     public <R> EndQuery<R> select(Class<R> r)
     {
         return super.select(r);
@@ -263,11 +255,19 @@ public class LQuery<T> extends QueryBase
         throw new RuntimeException();
     }
 
+    public LQuery<T> select()
+    {
+        select0();
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
+        querySqlBuilder.addFrom(getSqlBuilder());
+        return new LQuery<>(querySqlBuilder);
+    }
+
     public <R> LQuery<R> select(ExprTree<Func1<T, R>> expr)
     {
         boolean single = select(expr.getTree());
         singleCheck(single);
-        return new LQuery<>(this);
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
     public <R> EndQuery<R> selectSingle(@Expr Func1<T, R> expr)
@@ -375,13 +375,13 @@ public class LQuery<T> extends QueryBase
 
     public LQuery<T> distinct()
     {
-        getSqlBuilder().setDistinct(true);
+        distinct0(true);
         return this;
     }
 
     public LQuery<T> distinct(boolean condition)
     {
-        getSqlBuilder().setDistinct(condition);
+        distinct0(condition);
         return this;
     }
 

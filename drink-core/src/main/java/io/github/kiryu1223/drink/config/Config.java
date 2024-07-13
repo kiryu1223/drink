@@ -1,8 +1,13 @@
 package io.github.kiryu1223.drink.config;
 
 import io.github.kiryu1223.drink.config.def.DefaultDBConfig;
+import io.github.kiryu1223.drink.config.def.MySQLConfig;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
 import io.github.kiryu1223.drink.ext.DbType;
+
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Config
 {
@@ -10,11 +15,15 @@ public class Config
     private IDBConfig dbConfig;
     private boolean ignoreUpdateNoWhere = false;
     private boolean ignoreDeleteNoWhere = false;
+    private boolean printSql = true;
     public final ThreadLocal<String> dsKey = new ThreadLocal<>();
 
-    public Config(DbType dbType)
+    private final Map<String, DataSource> dataSourceMap = new HashMap<>();
+
+    private final DataSource defluteDataSource;
+
+    public Config(DbType dbType, DataSource dataSource)
     {
-        //this.lookup = lookup;
         switch (dbType)
         {
             case MySQL:
@@ -26,6 +35,7 @@ public class Config
                 useDefault();
                 break;
         }
+        defluteDataSource = dataSource;
     }
 
     private void useMySQL()
@@ -57,7 +67,7 @@ public class Config
 
     public void useDs(String key)
     {
-       dsKey.set(key);
+        dsKey.set(key);
     }
 
     public void useDefDs()
@@ -70,5 +80,43 @@ public class Config
         return dsKey.get();
     }
 
+    public boolean isIgnoreUpdateNoWhere()
+    {
+        return ignoreUpdateNoWhere;
+    }
 
+    public boolean isIgnoreDeleteNoWhere()
+    {
+        return ignoreDeleteNoWhere;
+    }
+
+    public void addDataSource(String key, DataSource dataSource)
+    {
+        dataSourceMap.put(key, dataSource);
+    }
+
+    public DataSource getDataSource()
+    {
+        String dsKey1 = getDsKey();
+        if (dsKey1 == null)
+        {
+            return getDefluteDataSource();
+        }
+        return dataSourceMap.get(dsKey1);
+    }
+
+    private DataSource getDefluteDataSource()
+    {
+        return defluteDataSource;
+    }
+
+    public boolean isPrintSql()
+    {
+        return printSql;
+    }
+
+    public void setPrintSql(boolean printSql)
+    {
+        this.printSql = printSql;
+    }
 }

@@ -2,11 +2,8 @@ package io.github.kiryu1223.drink.api;
 
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.DataSourcesManager;
-import io.github.kiryu1223.drink.ext.DbType;
 
 import javax.sql.DataSource;
-import java.lang.invoke.MethodHandles;
 
 public class Drink
 {
@@ -14,28 +11,23 @@ public class Drink
     {
     }
 
-    private Config config = new Config(DbType.Other);
-
-    public Drink setConfig(Config config)
-    {
-        this.config = config;
-        return this;
-    }
+    private Config config;
 
     public DrinkClient build()
     {
         return new DrinkClient(config);
     }
 
-    public Drink setDataSource(String key, DataSource dataSource)
+    public Drink addDataSource(String key, DataSource dataSource)
     {
-        DataSourcesManager.addDataSource(key, dataSource);
+        config.addDataSource(key, dataSource);
         return this;
     }
 
-    public static Drink bootStrap(DataSource dataSource)
+    public static Drink bootStrap(Config config)
     {
-        DataSourcesManager.setDeflateDataSource(dataSource);
-        return new Drink();
+        Drink drink = new Drink();
+        drink.config = config;
+        return drink;
     }
 }

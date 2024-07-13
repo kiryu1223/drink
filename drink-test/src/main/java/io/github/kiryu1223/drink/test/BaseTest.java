@@ -17,11 +17,11 @@ public class BaseTest
     {
         HikariDataSource dataSource = new HikariDataSource();
         this.dataSource=dataSource;
-        dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true&transactionIsolation=TRANSACTION_READ_COMMITTED");
+        dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true");
         dataSource.setUsername("root");
         dataSource.setPassword("root");
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        Config config = new Config(DbType.MySQL);
-        client = Drink.bootStrap(dataSource).setDataSource("2024", dataSource).setConfig(config).build();
+        Config config = new Config(DbType.MySQL,dataSource);
+        client = Drink.bootStrap(config).addDataSource("2024", dataSource).build();
     }
 }

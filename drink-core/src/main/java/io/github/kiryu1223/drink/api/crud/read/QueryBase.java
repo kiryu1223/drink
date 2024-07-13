@@ -5,20 +5,22 @@ import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.*;
 import io.github.kiryu1223.drink.core.context.*;
-import io.github.kiryu1223.drink.core.visitor.*;
+import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
+import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
+import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
+import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public abstract class QueryBase extends CRUD
 {
     private final QuerySqlBuilder sqlBuilder;
-    private List<PropertyMetaData> propertyMetaData;
-    private boolean isSingle;
 
     public QueryBase(Config config)
     {
@@ -42,7 +44,7 @@ public abstract class QueryBase extends CRUD
 
     protected boolean any()
     {
-        SqlSession session = SqlSessionBuilder.getSession();
+        SqlSession session = SqlSessionBuilder.getSession(getConfig());
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         return session.executeQuery(f -> f.next(), "SELECT 1 FROM (" + sql + ") LIMIT 1", values);
@@ -56,21 +58,28 @@ public abstract class QueryBase extends CRUD
 
     protected <T> List<T> toList()
     {
-        setMetaData();
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        List<PropertyMetaData> mappingData = sqlBuilder.getMappingData(atomicBoolean);
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         System.out.println("===> " + sql);
         String key = getConfig().getDsKey();
         System.out.println("使用数据源: " + (key == null ? "默认" : key));
-        SqlSession session = SqlSessionBuilder.getSession(key);
+        SqlSession session = SqlSessionBuilder.getSession(getConfig());
         return session.executeQuery(
-                r -> ObjectBuilder.start(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), propertyMetaData, isSingle).createList(),
+                r -> ObjectBuilder.start(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), mappingData, atomicBoolean.get()).createList(),
                 sql,
                 values
         );
     }
 
     // region [123]
+
+    protected void distinct0(boolean condition)
+    {
+        sqlBuilder.setDistinct(condition);
+    }
+
     protected boolean select(LambdaExpression<?> lambda)
     {
         SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy(), getConfig());
@@ -84,181 +93,14 @@ public abstract class QueryBase extends CRUD
 
     protected void select0()
     {
-        setDefaultSelectAndMetaData();
+        sqlBuilder.setTypeSelect();
     }
 
     protected void select0(Class<?> c)
     {
         getSqlBuilder().setTargetClass(c);
-        setDefaultSelectAndMetaData();
+        sqlBuilder.setTypeSelect();
     }
-
-    private void setDefaultSelectAndMetaData()
-    {
-        propertyMetaData = new ArrayList<>();
-        List<SqlContext> sqlContextList = new ArrayList<>();
-        Class<?> targetClass = getSqlBuilder().getTargetClass();
-        if (getSqlBuilder().getGroupBy() != null)
-        {
-
-            SqlContext groupBy = getSqlBuilder().getGroupBy();
-            MetaData metaData = MetaDataCache.getMetaData(getSqlBuilder().getTargetClass());
-            if (groupBy instanceof SqlGroupContext)
-            {
-                SqlGroupContext group = (SqlGroupContext) groupBy;
-                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
-                {
-                    sqlContextList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
-                    propertyMetaData.add(metaData.getPropertyMetaData(entry.getKey()));
-                }
-            }
-            else
-            {
-                sqlContextList.add(groupBy);
-                setSingle(true);
-            }
-        }
-        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
-        {
-            int index = getSqlBuilder().getOrderedClass().indexOf(targetClass);
-            MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
-            {
-                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
-                propertyMetaData.add(entry.getValue());
-            }
-        }
-        else
-        {
-            List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
-            MetaData metaData = MetaDataCache.getMetaData(targetClass);
-            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
-            {
-                label:
-                for (int i = 0; i < metaDataList.size(); i++)
-                {
-                    for (Map.Entry<String, PropertyMetaData> temp : metaDataList.get(i).getColumns().entrySet())
-                    {
-                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
-                        {
-                            sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
-                            propertyMetaData.add(column.getValue());
-                            break label;
-                        }
-                    }
-                }
-            }
-        }
-        getSqlBuilder().setSelect(new SqlSelectorContext(sqlContextList));
-    }
-
-    private void setMetaData()
-    {
-        propertyMetaData = new ArrayList<>();
-        MetaData metaData = MetaDataCache.getMetaData(getSqlBuilder().getTargetClass());
-        if (getSqlBuilder().isQueried())
-        {
-            propertyMetaData.addAll(metaData.getColumns().values());
-        }
-        else
-        {
-            SqlContext context = getSqlBuilder().getFrom().get(0);
-            SqlContext unbox = ExpressionUtil.unBox(context);
-            if (unbox instanceof SqlVirtualTableContext)
-            {
-                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) unbox;
-                QuerySqlBuilder sqlBuilder1 = virtualTableContext.getSqlBuilder();
-                SqlContext select = sqlBuilder1.getSelect();
-                if (select instanceof SqlSelectorContext)
-                {
-                    SqlSelectorContext sqlSelectorContext = (SqlSelectorContext) select;
-                    for (SqlContext sqlContext : sqlSelectorContext.getSqlContexts())
-                    {
-                        if (sqlContext instanceof SqlAsNameContext)
-                        {
-                            SqlAsNameContext asNameContext = (SqlAsNameContext) sqlContext;
-                            propertyMetaData.add(metaData.getPropertyMetaDataByColumnName(asNameContext.getAsName()));
-                        }
-                        else if (sqlContext instanceof SqlPropertyContext)
-                        {
-                            SqlPropertyContext propertyContext = (SqlPropertyContext) sqlContext;
-                            propertyMetaData.add(metaData.getPropertyMetaDataByColumnName(propertyContext.getProperty()));
-                        }
-                        else
-                        {
-                            throw new RuntimeException();
-                        }
-                    }
-                }
-                else
-                {
-                    setSingle(true);
-                }
-            }
-            else if (unbox instanceof SqlRealTableContext)
-            {
-                propertyMetaData.addAll(metaData.getColumns().values());
-            }
-            else
-            {
-                throw new RuntimeException();
-            }
-        }
-    }
-
-//    private void setDefaultSelect()
-//    {
-//        if (getSqlBuilder().getSelect() != null) return;
-//        List<SqlContext> sqlContextList = new ArrayList<>();
-//        Class<?> targetClass = getSqlBuilder().getTargetClass();
-//        if (getSqlBuilder().getGroupBy() != null)
-//        {
-//            SqlContext groupBy = getSqlBuilder().getGroupBy();
-//            if (groupBy instanceof SqlGroupContext)
-//            {
-//                SqlGroupContext group = (SqlGroupContext) groupBy;
-//                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
-//                {
-//                    sqlContextList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
-//                }
-//            }
-//            else
-//            {
-//                sqlContextList.add(groupBy);
-//                setSingle(true);
-//            }
-//        }
-//        else if (getSqlBuilder().getOrderedClass().contains(targetClass))
-//        {
-//            int index = getSqlBuilder().getOrderedClass().indexOf(targetClass);
-//            MetaData metaData = MetaDataCache.getMetaData(targetClass);
-//            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
-//            {
-//                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
-//            }
-//        }
-//        else
-//        {
-//            List<MetaData> metaDataList = MetaDataCache.getMetaData(getSqlBuilder().getOrderedClass());
-//            MetaData metaData = MetaDataCache.getMetaData(targetClass);
-//            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
-//            {
-//                label:
-//                for (int i = 0; i < metaDataList.size(); i++)
-//                {
-//                    for (Map.Entry<String, PropertyMetaData> temp : metaDataList.get(i).getColumns().entrySet())
-//                    {
-//                        if (temp.getKey().equals(column.getKey()) && temp.getValue().equals(column.getValue()))
-//                        {
-//                            sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
-//                            break label;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        getSqlBuilder().setSelect(new SqlSelectorContext(sqlContextList));
-//    }
 
     protected <Tn> QueryBase joinNewQuery()
     {
@@ -300,7 +142,7 @@ public abstract class QueryBase extends CRUD
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
         SqlContext where = whereVisitor.visit(lambda);
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
-        querySqlBuilder.addExistsCount(getSqlBuilder().getOrderedClass().size());
+        querySqlBuilder.addMoveCount(getSqlBuilder().getOrderedClass().size());
         querySqlBuilder.setSelect(new SqlConstString("1"));
         querySqlBuilder.addFrom(table);
         querySqlBuilder.addWhere(where);
@@ -320,7 +162,7 @@ public abstract class QueryBase extends CRUD
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
         SqlContext where = whereVisitor.visit(lambda);
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
-        querySqlBuilder.addExistsCount(getSqlBuilder().getOrderedClass().size());
+        querySqlBuilder.addMoveCount(getSqlBuilder().getOrderedClass().size());
         querySqlBuilder.setSelect(new SqlConstString("1"));
         querySqlBuilder.addFrom(queryBase.sqlBuilder);
         querySqlBuilder.addWhere(where);
@@ -367,11 +209,6 @@ public abstract class QueryBase extends CRUD
         getSqlBuilder().setLimit(new SqlLimitContext(offset, rows));
     }
 
-    protected void setSingle(boolean single)
-    {
-        isSingle = single;
-    }
-
     // endregion
 
     protected void singleCheck(boolean single)
@@ -388,4 +225,10 @@ public abstract class QueryBase extends CRUD
         return sqlBuilder.getSql();
     }
 
+    protected QuerySqlBuilder boxedQuerySqlBuilder()
+    {
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
+        querySqlBuilder.addFrom(getSqlBuilder());
+        return querySqlBuilder;
+    }
 }

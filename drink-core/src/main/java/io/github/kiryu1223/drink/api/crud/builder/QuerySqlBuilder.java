@@ -5,10 +5,12 @@ import io.github.kiryu1223.drink.core.builder.MetaData;
 import io.github.kiryu1223.drink.core.builder.MetaDataCache;
 import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
 import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.unBox;
 
@@ -16,7 +18,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 {
     private final Config config;
     private SqlContext select;
-    private int existsCount;
+    private int moveCount;
     private boolean distinct = false;
     private final List<SqlContext> from = new ArrayList<>();
     private final List<SqlContext> joins = new ArrayList<>();
@@ -38,9 +40,9 @@ public class QuerySqlBuilder implements ISqlBuilder
         return wheres;
     }
 
-    public void addExistsCount(int count)
+    public void addMoveCount(int count)
     {
-        existsCount += count;
+        moveCount += count;
     }
 
     public SqlContext getSelect()
@@ -80,14 +82,14 @@ public class QuerySqlBuilder implements ISqlBuilder
         return targetClass;
     }
 
-    public void joinBy(QuerySqlBuilder querySqlBuilder)
-    {
-        from.addAll(querySqlBuilder.from);
-        joins.addAll(querySqlBuilder.joins);
-        targetClass = querySqlBuilder.targetClass;
-        orderedClass.addAll(querySqlBuilder.orderedClass);
-        queried = querySqlBuilder.queried;
-    }
+//    public void joinBy(QuerySqlBuilder querySqlBuilder)
+//    {
+//        from.addAll(querySqlBuilder.from);
+//        joins.addAll(querySqlBuilder.joins);
+//        targetClass = querySqlBuilder.targetClass;
+//        orderedClass.addAll(querySqlBuilder.orderedClass);
+//        queried = querySqlBuilder.queried;
+//    }
 
     public void setSelect(SqlContext select)
     {
@@ -98,7 +100,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     public void addFrom(Class<?> queryClass)
     {
         SqlTableContext sqlTableContext = new SqlRealTableContext(queryClass);
-        from.add(new SqlAsTableNameContext(from.size() + existsCount, sqlTableContext));
+        from.add(new SqlAsTableNameContext(from.size() + moveCount, sqlTableContext));
         orderedClass.add(queryClass);
         if (targetClass == null)
         {
@@ -118,7 +120,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     {
         SqlTableContext sqlTableContext = new SqlVirtualTableContext(sqlBuilder);
         SqlParensContext sqlParensContext = new SqlParensContext(sqlTableContext);
-        from.add(new SqlAsTableNameContext(from.size() + existsCount, sqlParensContext));
+        from.add(new SqlAsTableNameContext(from.size() + moveCount, sqlParensContext));
         orderedClass.addAll(sqlBuilder.orderedClass);
         if (targetClass == null)
         {
@@ -508,5 +510,114 @@ public class QuerySqlBuilder implements ISqlBuilder
             SqlContext left = contexts.remove(contexts.size() - 1);
             contexts.add(new SqlBinaryContext(SqlOperator.OR, left, right));
         }
+    }
+
+    public List<PropertyMetaData> getMappingData(AtomicBoolean isSingle)
+    {
+        List<PropertyMetaData> propertyMetaData = new ArrayList<>();
+        MetaData metaData = MetaDataCache.getMetaData(getTargetClass());
+        if (isQueried())
+        {
+            propertyMetaData.addAll(metaData.getColumns().values());
+        }
+        else
+        {
+            SqlContext context = getFrom().get(0);
+            SqlContext unbox = ExpressionUtil.unBox(context);
+            if (unbox instanceof SqlVirtualTableContext)
+            {
+                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) unbox;
+                QuerySqlBuilder sqlBuilder1 = virtualTableContext.getSqlBuilder();
+                SqlContext select = sqlBuilder1.getSelect();
+                if (select instanceof SqlSelectorContext)
+                {
+                    SqlSelectorContext sqlSelectorContext = (SqlSelectorContext) select;
+                    for (SqlContext sqlContext : sqlSelectorContext.getSqlContexts())
+                    {
+                        if (sqlContext instanceof SqlAsNameContext)
+                        {
+                            SqlAsNameContext asNameContext = (SqlAsNameContext) sqlContext;
+                            propertyMetaData.add(metaData.getPropertyMetaDataByColumnName(asNameContext.getAsName()));
+                        }
+                        else if (sqlContext instanceof SqlPropertyContext)
+                        {
+                            SqlPropertyContext propertyContext = (SqlPropertyContext) sqlContext;
+                            propertyMetaData.add(metaData.getPropertyMetaDataByColumnName(propertyContext.getProperty()));
+                        }
+                        else
+                        {
+                            throw new RuntimeException();
+                        }
+                    }
+                }
+                else
+                {
+                    isSingle.set(true);
+
+                }
+            }
+            else if (unbox instanceof SqlRealTableContext)
+            {
+                propertyMetaData.addAll(metaData.getColumns().values());
+            }
+            else
+            {
+                throw new RuntimeException();
+            }
+        }
+        return propertyMetaData;
+    }
+
+    public void setTypeSelect()
+    {
+        List<SqlContext> sqlContextList = new ArrayList<>();
+        Class<?> targetClass = getTargetClass();
+        if (getGroupBy() != null)
+        {
+            SqlContext groupBy = getGroupBy();
+            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+            if (groupBy instanceof SqlGroupContext)
+            {
+                SqlGroupContext group = (SqlGroupContext) groupBy;
+                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+                {
+                    sqlContextList.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
+                }
+            }
+            else
+            {
+                sqlContextList.add(groupBy);
+            }
+        }
+        else if (getOrderedClass().contains(targetClass))
+        {
+            int index = getOrderedClass().indexOf(targetClass);
+            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
+            {
+                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
+            }
+        }
+        else
+        {
+            List<MetaData> metaDataList = MetaDataCache.getMetaData(getOrderedClass());
+            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+            for (Map.Entry<String, PropertyMetaData> column : metaData.getColumns().entrySet())
+            {
+                label:
+                for (int i = 0; i < metaDataList.size(); i++)
+                {
+                    for (Map.Entry<String, PropertyMetaData> temp : metaDataList.get(i).getColumns().entrySet())
+                    {
+                        if (temp.getValue().getColumn().equals(column.getValue().getColumn()))
+                        {
+                            sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
+                            break label;
+                        }
+                    }
+                }
+            }
+        }
+        setSelect(new SqlSelectorContext(sqlContextList));
     }
 }

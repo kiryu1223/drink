@@ -11,6 +11,8 @@
     <modules>
         <module>drink-core</module>
         <module>drink-test</module>
+        <module>sample</module>
+        <module>drink-spring-boot-starter</module>
     </modules>
 
     <properties>

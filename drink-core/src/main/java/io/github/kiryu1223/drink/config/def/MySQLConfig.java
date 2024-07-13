@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.config;
+package io.github.kiryu1223.drink.config.def;
 
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
 

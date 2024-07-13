@@ -1,8 +1,10 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery5;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
 import io.github.kiryu1223.expressionTree.delegate.Func6;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
@@ -12,21 +14,9 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 {
     // region [INIT]
 
-    public LQuery5(Config config)
+    public LQuery5(QuerySqlBuilder sqlBuilder)
     {
-        super(config);
-    }
-
-    public LQuery5(Config config, Class<?> c1, Class<?> c2, Class<?> c3, Class<?> c4, Class<?> c5)
-    {
-        super(config);
-        getSqlBuilder().addFrom(c1, c2, c3, c4, c5);
-    }
-
-    public LQuery5(QueryBase q1, QueryBase q2, QueryBase q3, QueryBase q4, QueryBase q5)
-    {
-        super(q1.getConfig());
-        getSqlBuilder().addFrom(q1.getSqlBuilder(), q2.getSqlBuilder(), q3.getSqlBuilder(), q4.getSqlBuilder(), q5.getSqlBuilder());
+        super(sqlBuilder);
     }
 
     // endregion
@@ -36,9 +26,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
     @Override
     protected <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> joinNewQuery()
     {
-        LQuery6<T1, T2, T3, T4, T5, Tn> query = new LQuery6<>(getConfig());
-        query.getSqlBuilder().joinBy(getSqlBuilder());
-        return query;
+        return new LQuery6<>(getSqlBuilder());
     }
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> innerJoin(Class<Tn> target, @Expr Func6<T1, T2, T3, T4, T5, Tn, Boolean> func)
@@ -243,7 +231,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
     {
         boolean single = select(expr.getTree());
         singleCheck(single);
-        return new LQuery<>(this);
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
     public <R> EndQuery<R> selectSingle(@Expr Func5<T1, T2, T3, T4, T5, R> expr)
@@ -262,13 +250,13 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public LQuery5<T1, T2, T3, T4, T5> distinct()
     {
-        getSqlBuilder().setDistinct(true);
+        distinct0(true);
         return this;
     }
 
     public LQuery5<T1, T2, T3, T4, T5> distinct(boolean condition)
     {
-        getSqlBuilder().setDistinct(condition);
+        distinct0(condition);
         return this;
     }
 

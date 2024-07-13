@@ -24,6 +24,8 @@ public class UpdateTest extends BaseTest
             long l = client.insert(department1).executeRows();
             System.out.println("插入条数:" + l);
 
+            List<Department> list = client.query(Department.class).limit(1).toList();
+            System.out.println(list);
 
             long l2 = client.update(Department.class)
                     .set(s -> s.setName("newName"))
@@ -33,8 +35,8 @@ public class UpdateTest extends BaseTest
             System.out.println("更新影响条数:" + l);
 
 
-            List<Department> list = client.query(Department.class).toList();
-            System.out.println(list);
+            List<Department> list2 = client.query(Department.class).limit(1).toList();
+            System.out.println(list2);
 
             long l3 = client.delete(Department.class)
                     .where(w -> w.getNumber() == "100")
@@ -42,8 +44,8 @@ public class UpdateTest extends BaseTest
 
             System.out.println("删除影响条数:" + l);
 
-            List<Department> list2 = client.query(Department.class).toList();
-            System.out.println(list2);
+            List<Department> list3 = client.query(Department.class).toList();
+            System.out.println(list3);
 
             transaction.rollback();
         }

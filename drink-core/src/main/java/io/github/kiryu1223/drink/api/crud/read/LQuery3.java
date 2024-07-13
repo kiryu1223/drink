@@ -1,8 +1,9 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery3;
-import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
@@ -12,21 +13,9 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 {
     // region [INIT]
 
-    public LQuery3(Config config)
+    public LQuery3(QuerySqlBuilder sqlBuilder)
     {
-        super(config);
-    }
-
-    public LQuery3(Config config, Class<?> c1, Class<?> c2, Class<?> c3)
-    {
-        super(config);
-        getSqlBuilder().addFrom(c1, c2, c3);
-    }
-
-    public LQuery3(QueryBase q1, QueryBase q2, QueryBase q3)
-    {
-        super(q1.getConfig());
-        getSqlBuilder().addFrom(q1.getSqlBuilder(), q2.getSqlBuilder(), q3.getSqlBuilder());
+        super(sqlBuilder);
     }
 
     // endregion
@@ -36,9 +25,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     @Override
     protected <Tn> LQuery4<T1, T2, T3, Tn> joinNewQuery()
     {
-        LQuery4<T1, T2, T3, Tn> query = new LQuery4<>(getConfig());
-        query.getSqlBuilder().joinBy(getSqlBuilder());
-        return query;
+        return new LQuery4<>(getSqlBuilder());
     }
 
     public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(Class<Tn> target, @Expr Func4<T1, T2, T3, Tn, Boolean> func)
@@ -243,7 +230,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     {
         boolean single = select(expr.getTree());
         singleCheck(single);
-        return new LQuery<>(this);
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
     public <R> EndQuery<R> selectSingle(@Expr Func3<T1, T2, T3, R> expr)
@@ -342,13 +329,13 @@ public class LQuery3<T1, T2, T3> extends QueryBase
 
     public LQuery3<T1, T2, T3> distinct()
     {
-        getSqlBuilder().setDistinct(true);
+        distinct0(true);
         return this;
     }
 
     public LQuery3<T1, T2, T3> distinct(boolean condition)
     {
-        getSqlBuilder().setDistinct(condition);
+        distinct0(condition);
         return this;
     }
 

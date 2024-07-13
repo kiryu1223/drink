@@ -5,7 +5,6 @@ import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.MySQLConfig;
 import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.pojos.Top;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -27,73 +25,77 @@ import java.util.List;
 import static io.github.kiryu1223.drink.ext.SqlCalculates.between;
 
 @SuppressWarnings("all")
-public class MainTest
+public class SQLTest
 {
-    public Logger log = LoggerFactory.getLogger(MainTest.class);
+    public Logger log = LoggerFactory.getLogger(SQLTest.class);
     public DrinkClient client;
 
-    public MainTest()
+    public SQLTest()
     {
-        Config config = new Config(DbType.MySQL);
-        config.setDbConfig(new MySQLConfig());
-        client = Drink.bootStrap(new DataSource()
-                {
-                    @Override
-                    public Connection getConnection() throws SQLException
-                    {
-                        return null;
-                    }
+        Config config = new Config(DbType.MySQL, new DataSource()
+        {
+            @Override
+            public Connection getConnection() throws SQLException
+            {
+                return null;
+            }
 
-                    @Override
-                    public Connection getConnection(String username, String password) throws SQLException
-                    {
-                        return null;
-                    }
+            @Override
+            public Connection getConnection(String username, String password) throws SQLException
+            {
+                return null;
+            }
 
-                    @Override
-                    public <T> T unwrap(Class<T> iface) throws SQLException
-                    {
-                        return null;
-                    }
+            @Override
+            public <T> T unwrap(Class<T> iface) throws SQLException
+            {
+                return null;
+            }
 
-                    @Override
-                    public boolean isWrapperFor(Class<?> iface) throws SQLException
-                    {
-                        return false;
-                    }
+            @Override
+            public boolean isWrapperFor(Class<?> iface) throws SQLException
+            {
+                return false;
+            }
 
-                    @Override
-                    public PrintWriter getLogWriter() throws SQLException
-                    {
-                        return null;
-                    }
+            @Override
+            public PrintWriter getLogWriter() throws SQLException
+            {
+                return null;
+            }
 
-                    @Override
-                    public void setLogWriter(PrintWriter out) throws SQLException
-                    {
+            @Override
+            public void setLogWriter(PrintWriter out) throws SQLException
+            {
 
-                    }
+            }
 
-                    @Override
-                    public void setLoginTimeout(int seconds) throws SQLException
-                    {
+            @Override
+            public void setLoginTimeout(int seconds) throws SQLException
+            {
 
-                    }
+            }
 
-                    @Override
-                    public int getLoginTimeout() throws SQLException
-                    {
-                        return 0;
-                    }
+            @Override
+            public int getLoginTimeout() throws SQLException
+            {
+                return 0;
+            }
 
-                    @Override
-                    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException
-                    {
-                        return null;
-                    }
-                })
-                .setConfig(config)
-                .build();
+            @Override
+            public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException
+            {
+                return null;
+            }
+        });
+        client = Drink.bootStrap(config).build();
+    }
+
+    @Test
+    public void m0()
+    {
+        String sql = client.query(Topic.class).toSql();
+        System.out.println(sql);
     }
 
     @Test
@@ -205,7 +207,7 @@ public class MainTest
         String sql = client.query(Topic.class)
                 .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
                 .where((a, b) -> a.getStars() >= 1000 || b.getTitle() != "123")
-                .selectSingle((a, b) -> b)
+                .select(Top.class)
                 .toSql();
         System.out.println(sql);
 
@@ -351,4 +353,6 @@ public class MainTest
 
         System.out.println(sql1);
     }
+
+
 }
