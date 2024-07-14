@@ -1,15 +1,9 @@
 package io.github.kiryu1223.app;
 
 
-import io.github.kiryu1223.app.test.MyController;
 import io.github.kiryu1223.drink.starter.DrinkAutoConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication

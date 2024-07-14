@@ -102,7 +102,17 @@ public class MetaData
 
     public PropertyMetaData getPropertyMetaDataByColumnName(String asName)
     {
-        return Columns.values().stream().filter(f->f.getColumn().equals(asName)).findFirst().get();
+        return Columns.values().stream().filter(f -> f.getColumn().equals(asName)).findFirst().get();
+    }
+
+    public PropertyMetaData getPropertyMetaDataByGetter(Method getter)
+    {
+        return getPropertyMetaDataByColumnName(getColumnNameByGetter(getter));
+    }
+
+    public PropertyMetaData getPropertyMetaDataBySetter(Method setter)
+    {
+        return getPropertyMetaDataByColumnName(getColumnNameBySetter(setter));
     }
 
     public String getColumnNameByGetter(Method getter)

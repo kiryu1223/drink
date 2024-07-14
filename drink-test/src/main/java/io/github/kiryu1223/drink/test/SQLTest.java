@@ -1,12 +1,14 @@
 package io.github.kiryu1223.drink.test;
 
-import io.github.kiryu1223.drink.api.Drink;
+import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.ext.SqlTimeUnit;
+import io.github.kiryu1223.drink.pojos.GenderConverter;
 import io.github.kiryu1223.drink.pojos.Top;
 import io.github.kiryu1223.drink.pojos.Topic;
 import org.junit.Test;
@@ -23,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.github.kiryu1223.drink.ext.SqlCalculates.between;
+import static io.github.kiryu1223.drink.ext.SqlFunctions.addDate;
 
 @SuppressWarnings("all")
 public class SQLTest
@@ -285,15 +288,15 @@ public class SQLTest
         System.out.println(sql2);
     }
 
-//    @Test
-//    public void m12()
-//    {
-//        String sql1 = client.query(Topic.class)
-//                .selectSingle(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
-//                .toSql();
-//
-//        System.out.println(sql1);
-//    }
+    @Test
+    public void m12()
+    {
+        String sql1 = client.query(Topic.class)
+                .selectSingle(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
+                .toSql();
+
+        System.out.println(sql1);
+    }
 
     @Test
     public void m13()
@@ -354,5 +357,11 @@ public class SQLTest
         System.out.println(sql1);
     }
 
-
+    @Test
+    public void m18()
+    {
+        GenderConverter genderConverter = new GenderConverter();
+        System.out.println(genderConverter.getDbType());
+        System.out.println(genderConverter.getJavaType());
+    }
 }

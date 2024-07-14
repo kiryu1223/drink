@@ -19,7 +19,7 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
     }
 
     // region [HAVING]
-    public GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> having(@Expr Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, Boolean> func)
+    public GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> having(@Expr(Expr.BodyType.Expr) Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -33,7 +33,7 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
     // endregion
 
     // region [ORDER BY]
-    public <R> GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> orderBy(@Expr Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R> expr, boolean asc)
+    public <R> GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R> expr, boolean asc)
     {
         throw new RuntimeException();
     }
@@ -44,7 +44,7 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
         return this;
     }
 
-    public <R> GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> orderBy(@Expr Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R> expr)
+    public <R> GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R> expr)
     {
         throw new RuntimeException();
     }
@@ -52,6 +52,20 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
     public <R> GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> orderBy(ExprTree<Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R>> expr)
     {
         orderBy(expr, true);
+        return this;
+    }
+    // endregion
+
+    // region [LIMIT]
+    public GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> limit(long rows)
+    {
+        limit0(rows);
+        return this;
+    }
+
+    public GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> limit(long offset, long rows)
+    {
+        limit0(offset, rows);
         return this;
     }
     // endregion
@@ -65,10 +79,10 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
     public <R> LQuery<R> select(ExprTree<Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R>> expr)
     {
         singleCheck(select(expr.getTree()));
-        return new LQuery<>(getSqlBuilder());
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R> expr)
+    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R> expr)
     {
         throw new RuntimeException();
     }
@@ -76,7 +90,7 @@ public class GroupedQuery6<Key, T1, T2, T3, T4, T5, T6> extends QueryBase
     public <R> EndQuery<R> selectSingle(ExprTree<Func1<Group6<Key, T1, T2, T3, T4, T5, T6>, R>> expr)
     {
         select(expr.getTree());
-        return new EndQuery<>(this);
+        return new EndQuery<>(boxedQuerySqlBuilder());
     }
     // endregion
 

@@ -21,7 +21,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
     // endregion
 
     // region [WHERE]
-    public LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> where(@Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean> func)
+    public LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> where(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -32,7 +32,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         return this;
     }
 
-    public LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orWhere(@Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean> func)
+    public LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orWhere(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -43,7 +43,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         return this;
     }
 
-    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> exists(Class<E> table, @Expr Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
+    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> exists(Class<E> table, @Expr(Expr.BodyType.Expr) Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -54,7 +54,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         return this;
     }
 
-    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> exists(LQuery<E> query, @Expr Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
+    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> exists(LQuery<E> query, @Expr(Expr.BodyType.Expr) Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -65,7 +65,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         return this;
     }
 
-    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> notExists(Class<E> table, @Expr Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
+    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> notExists(Class<E> table, @Expr(Expr.BodyType.Expr) Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -76,7 +76,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         return this;
     }
 
-    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> notExists(LQuery<E> query, @Expr Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
+    public <E> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> notExists(LQuery<E> query, @Expr(Expr.BodyType.Expr) Func11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -89,7 +89,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
     // endregion
 
     // region [ORDER BY]
-    public <R> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(@Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr, boolean asc)
+    public <R> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr, boolean asc)
     {
         throw new RuntimeException();
     }
@@ -100,7 +100,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         return this;
     }
 
-    public <R> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(@Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr)
+    public <R> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr)
     {
         throw new RuntimeException();
     }
@@ -157,7 +157,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
         return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr)
+    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr)
     {
         throw new RuntimeException();
     }
@@ -165,7 +165,7 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
     public <R> EndQuery<R> selectSingle(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> expr)
     {
         select(expr.getTree());
-        return new EndQuery<>(this);
+        return new EndQuery<>(boxedQuerySqlBuilder());
     }
 
     // endregion

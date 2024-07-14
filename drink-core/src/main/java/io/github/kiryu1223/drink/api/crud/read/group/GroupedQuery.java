@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.api.crud.read.group;
 import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
+import io.github.kiryu1223.drink.api.crud.read.LQuery3;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
@@ -19,7 +20,7 @@ public class GroupedQuery<Key, T> extends QueryBase
 
     // region [HAVING]
 
-    public GroupedQuery<Key, T> having(@Expr Func1<Group<Key, T>, Boolean> func)
+    public GroupedQuery<Key, T> having(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -34,7 +35,7 @@ public class GroupedQuery<Key, T> extends QueryBase
 
     // region [ORDER BY]
 
-    public <R> GroupedQuery<Key, T> orderBy(@Expr Func1<Group<Key, T>, R> expr, boolean asc)
+    public <R> GroupedQuery<Key, T> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, R> expr, boolean asc)
     {
         throw new RuntimeException();
     }
@@ -46,7 +47,7 @@ public class GroupedQuery<Key, T> extends QueryBase
     }
 
 
-    public <R> GroupedQuery<Key, T> orderBy(@Expr Func1<Group<Key, T>, R> expr)
+    public <R> GroupedQuery<Key, T> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, R> expr)
     {
         throw new RuntimeException();
     }
@@ -54,6 +55,20 @@ public class GroupedQuery<Key, T> extends QueryBase
     public <R> GroupedQuery<Key, T> orderBy(ExprTree<Func1<Group<Key, T>, R>> expr)
     {
         orderBy(expr, true);
+        return this;
+    }
+    // endregion
+
+    // region [LIMIT]
+    public GroupedQuery<Key, T> limit(long rows)
+    {
+        limit0(rows);
+        return this;
+    }
+
+    public GroupedQuery<Key, T> limit(long offset, long rows)
+    {
+        limit0(offset, rows);
         return this;
     }
     // endregion
@@ -68,10 +83,10 @@ public class GroupedQuery<Key, T> extends QueryBase
     public <R> LQuery<R> select(ExprTree<Func1<Group<Key, T>, R>> expr)
     {
         singleCheck(select(expr.getTree()));
-        return new LQuery<>(getSqlBuilder());
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr Func1<Group<Key, T>, R> expr)
+    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, R> expr)
     {
         throw new RuntimeException();
     }
@@ -79,7 +94,7 @@ public class GroupedQuery<Key, T> extends QueryBase
     public <R> EndQuery<R> selectSingle(ExprTree<Func1<Group<Key, T>, R>> expr)
     {
         select(expr.getTree());
-        return new EndQuery<>(this);
+        return new EndQuery<>(boxedQuerySqlBuilder());
     }
 
     // endregion

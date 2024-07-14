@@ -1,8 +1,7 @@
-package io.github.kiryu1223.drink.pojos;
+package io.github.kiryu1223.app.pojos;
 
 import io.github.kiryu1223.drink.annotation.Column;
 import io.github.kiryu1223.drink.annotation.Table;
-import io.github.kiryu1223.drink.converter.IntConverter;
 import lombok.Data;
 
 @Table("departments")

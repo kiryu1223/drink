@@ -139,4 +139,8 @@ public class ExpressionUtil
         return context;
     }
 
+    public static <R> R cast(Object o)
+    {
+        return (R) o;
+    }
 }

@@ -28,37 +28,42 @@ public class SetVisitor extends SqlVisitor
         List<SqlSetContext> setContexts = new ArrayList<>();
         for (Expression expression : blockExpression.getExpressions())
         {
-            if (expression instanceof MethodCallExpression)
+            SqlContext context = visit(expression);
+            if(context instanceof SqlSetContext)
             {
-                MethodCallExpression methodCall = (MethodCallExpression) expression;
-                Expression expr = methodCall.getExpr();
-                if (expr instanceof ParameterExpression && parameters.contains(expr))
-                {
-                    Method method = methodCall.getMethod();
-                    if (isSetter(method))
-                    {
-                        int index = parameters.indexOf(expr);
-                        MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
-                        String name = metaData.getColumnNameBySetter(method);
-                        SqlContext context = visit(methodCall.getArgs().get(0));
-                        SqlPropertyContext sqlPropertyContext = new SqlPropertyContext(name, index);
-                        SqlSetContext sqlSetContext = new SqlSetContext(sqlPropertyContext, context);
-                        setContexts.add(sqlSetContext);
-                    }
-                }
+                setContexts.add((SqlSetContext) context);
             }
-            else if (expression instanceof AssignExpression)
-            {
-                AssignExpression assignExpression = (AssignExpression) expression;
-                SqlContext left = visit(assignExpression.getLeft());
-                if (left instanceof SqlPropertyContext)
-                {
-                    SqlPropertyContext sqlPropertyContext = (SqlPropertyContext) left;
-                    SqlContext right = visit(assignExpression.getRight());
-                    SqlSetContext sqlSetContext = new SqlSetContext(sqlPropertyContext, right);
-                    setContexts.add(sqlSetContext);
-                }
-            }
+//            if (expression instanceof MethodCallExpression)
+//            {
+//                MethodCallExpression methodCall = (MethodCallExpression) expression;
+//                Expression expr = methodCall.getExpr();
+//                if (expr instanceof ParameterExpression && parameters.contains(expr))
+//                {
+//                    Method method = methodCall.getMethod();
+//                    if (isSetter(method))
+//                    {
+//                        int index = parameters.indexOf(expr);
+//                        MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
+//                        String name = metaData.getColumnNameBySetter(method);
+//                        SqlContext context = visit(methodCall.getArgs().get(0));
+//                        SqlPropertyContext sqlPropertyContext = new SqlPropertyContext(name, index);
+//                        SqlSetContext sqlSetContext = new SqlSetContext(sqlPropertyContext, context);
+//                        setContexts.add(sqlSetContext);
+//                    }
+//                }
+//            }
+//            else if (expression instanceof AssignExpression)
+//            {
+//                AssignExpression assignExpression = (AssignExpression) expression;
+//                SqlContext left = visit(assignExpression.getLeft());
+//                if (left instanceof SqlPropertyContext)
+//                {
+//                    SqlPropertyContext sqlPropertyContext = (SqlPropertyContext) left;
+//                    SqlContext right = visit(assignExpression.getRight());
+//                    SqlSetContext sqlSetContext = new SqlSetContext(sqlPropertyContext, right);
+//                    setContexts.add(sqlSetContext);
+//                }
+//            }
         }
         return new SqlSetsContext(setContexts);
     }

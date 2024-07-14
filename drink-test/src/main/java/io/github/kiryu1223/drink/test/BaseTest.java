@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.test;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.kiryu1223.drink.api.Drink;
+import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.ext.DbType;

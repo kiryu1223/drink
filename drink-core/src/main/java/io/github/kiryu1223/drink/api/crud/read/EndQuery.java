@@ -1,12 +1,14 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
+
 import java.util.List;
 
 public class EndQuery<T> extends QueryBase
 {
-    public EndQuery(QueryBase queryBase)
+    public EndQuery(QuerySqlBuilder sqlBuilder)
     {
-        super(queryBase.getSqlBuilder());
+        super(sqlBuilder);
     }
 
     @Override

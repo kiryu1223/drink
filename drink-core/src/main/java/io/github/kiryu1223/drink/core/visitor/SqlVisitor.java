@@ -49,6 +49,19 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     }
 
     @Override
+    public SqlContext visit(AssignExpression assignExpression)
+    {
+        SqlContext left = visit(assignExpression.getLeft());
+        if (left instanceof SqlPropertyContext)
+        {
+            SqlPropertyContext sqlPropertyContext = (SqlPropertyContext) left;
+            SqlContext right = visit(assignExpression.getRight());
+            return new SqlSetContext(sqlPropertyContext, right);
+        }
+        throw new RuntimeException();
+    }
+
+    @Override
     public SqlContext visit(FieldSelectExpression fieldSelect)
     {
         if (isProperty(parameters, fieldSelect))
@@ -57,7 +70,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             int index = parameters.indexOf(parameter);
             Field field = fieldSelect.getField();
             MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
-            return new SqlPropertyContext(metaData.getColumnNameByPropertyName(field.getName()), index);
+            return new SqlPropertyContext(metaData.getPropertyMetaData(field.getName()), index);
         }
         else
         {
@@ -305,17 +318,17 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             {
                 ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
                 int index = parameters.indexOf(parameter);
-                Method method = methodCall.getMethod();
-                MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
-                return new SqlPropertyContext(metaData.getColumnNameByGetter(method), index);
+                Method getter = methodCall.getMethod();
+                MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
+                return new SqlPropertyContext(metaData.getPropertyMetaDataByGetter(getter), index);
             }
             else if (isSetter(methodCall.getMethod()))
             {
                 ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
                 int index = parameters.indexOf(parameter);
-                Method method = methodCall.getMethod();
-                MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
-                SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getColumnNameBySetter(method), index);
+                Method setter = methodCall.getMethod();
+                MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
+                SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getPropertyMetaDataBySetter(setter),index);
                 SqlContext context = visit(methodCall.getArgs().get(0));
                 return new SqlSetContext(propertyContext, context);
             }

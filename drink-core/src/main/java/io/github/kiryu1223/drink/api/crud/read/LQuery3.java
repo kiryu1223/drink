@@ -28,7 +28,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return new LQuery4<>(getSqlBuilder());
     }
 
-    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(Class<Tn> target, @Expr Func4<T1, T2, T3, Tn, Boolean> func)
+    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(Class<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -39,7 +39,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return joinNewQuery();
     }
 
-    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(LQuery<Tn> target, @Expr Func4<T1, T2, T3, Tn, Boolean> func)
+    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -50,7 +50,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return joinNewQuery();
     }
 
-    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(Class<Tn> target, @Expr Func4<T1, T2, T3, Tn, Boolean> func)
+    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(Class<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -61,7 +61,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return joinNewQuery();
     }
 
-    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(LQuery<Tn> target, @Expr Func4<T1, T2, T3, Tn, Boolean> func)
+    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -72,7 +72,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return joinNewQuery();
     }
 
-    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(Class<Tn> target, @Expr Func4<T1, T2, T3, Tn, Boolean> func)
+    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(Class<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -83,7 +83,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return joinNewQuery();
     }
 
-    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(LQuery<Tn> target, @Expr Func4<T1, T2, T3, Tn, Boolean> func)
+    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -97,7 +97,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     // endregion
 
     // region [WHERE]
-    public LQuery3<T1, T2, T3> where(@Expr Func3<T1, T2, T3, Boolean> func)
+    public LQuery3<T1, T2, T3> where(@Expr(Expr.BodyType.Expr) Func3<T1, T2, T3, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -108,7 +108,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return this;
     }
 
-    public LQuery3<T1, T2, T3> orWhere(@Expr Func3<T1, T2, T3, Boolean> func)
+    public LQuery3<T1, T2, T3> orWhere(@Expr(Expr.BodyType.Expr) Func3<T1, T2, T3, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -119,7 +119,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return this;
     }
 
-    public <E> LQuery3<T1, T2, T3> exists(Class<E> table, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    public <E> LQuery3<T1, T2, T3> exists(Class<E> table, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -130,7 +130,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return this;
     }
 
-    public <E> LQuery3<T1, T2, T3> exists(LQuery<E> query, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    public <E> LQuery3<T1, T2, T3> exists(LQuery<E> query, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -141,7 +141,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return this;
     }
 
-    public <E> LQuery3<T1, T2, T3> notExists(Class<E> table, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    public <E> LQuery3<T1, T2, T3> notExists(Class<E> table, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -152,7 +152,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return this;
     }
 
-    public <E> LQuery3<T1, T2, T3> notExists(LQuery<E> query, @Expr Func4<T1, T2, T3, E, Boolean> func)
+    public <E> LQuery3<T1, T2, T3> notExists(LQuery<E> query, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, E, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -165,7 +165,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     // endregion
 
     // region [ORDER BY]
-    public <R> LQuery3<T1, T2, T3> orderBy(@Expr Func3<T1, T2, T3, R> expr, boolean asc)
+    public <R> LQuery3<T1, T2, T3> orderBy(@Expr(Expr.BodyType.Expr) Func3<T1, T2, T3, R> expr, boolean asc)
     {
         throw new RuntimeException();
     }
@@ -176,7 +176,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return this;
     }
 
-    public <R> LQuery3<T1, T2, T3> orderBy(@Expr Func3<T1, T2, T3, R> expr)
+    public <R> LQuery3<T1, T2, T3> orderBy(@Expr(Expr.BodyType.Expr) Func3<T1, T2, T3, R> expr)
     {
         throw new RuntimeException();
     }
@@ -233,7 +233,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
         return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr Func3<T1, T2, T3, R> expr)
+    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func3<T1, T2, T3, R> expr)
     {
         throw new RuntimeException();
     }
@@ -241,7 +241,7 @@ public class LQuery3<T1, T2, T3> extends QueryBase
     public <R> EndQuery<R> selectSingle(ExprTree<Func3<T1, T2, T3, R>> expr)
     {
         select(expr.getTree());
-        return new EndQuery<>(this);
+        return new EndQuery<>(boxedQuerySqlBuilder());
     }
     // endregion
 

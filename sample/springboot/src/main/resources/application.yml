@@ -2,18 +2,11 @@ spring:
   profiles:
     active: dev
   datasource:
+    type: com.zaxxer.hikari.HikariDataSource
     url: "jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true"
     username: "root"
     password: "root"
-    driverClassName: "com.mysql.cj.jdbc.Driver"
-
-
+    driverClassName: com.mysql.cj.jdbc.Driver
 
 server:
   port: 8080
-
-
-
-drink:
-  printSql: true
-  dataBase: mysql

@@ -10,7 +10,7 @@ public class DeleteTest extends BaseTest
     public void d1()
     {
         String sql = client.delete(Department.class)
-                .where(w -> w.getNumber() == "100")
+                .where(w -> w.getNumber().equals("100"))
                 .toSql();
         System.out.println(sql);
     }

@@ -130,7 +130,7 @@ public class SelectVisitor extends SqlVisitor
             List<SqlContext> contextList = new ArrayList<>();
             for (PropertyMetaData pm : metaData.getColumns().values())
             {
-                contextList.add(new SqlPropertyContext(pm.getColumn(), index));
+                contextList.add(new SqlPropertyContext(pm, index));
             }
             return new SqlSelectorContext(contextList);
         }

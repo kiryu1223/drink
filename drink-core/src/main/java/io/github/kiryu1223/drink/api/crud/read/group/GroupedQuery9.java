@@ -19,7 +19,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
     }
 
     // region [HAVING]
-    public GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> having(@Expr Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, Boolean> func)
+    public GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> having(@Expr(Expr.BodyType.Expr) Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, Boolean> func)
     {
         throw new RuntimeException();
     }
@@ -33,7 +33,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
     // endregion
 
     // region [ORDER BY]
-    public <R> GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> orderBy(@Expr Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R> expr, boolean asc)
+    public <R> GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R> expr, boolean asc)
     {
         throw new RuntimeException();
     }
@@ -44,7 +44,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
         return this;
     }
 
-    public <R> GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> orderBy(@Expr Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R> expr)
+    public <R> GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R> expr)
     {
         throw new RuntimeException();
     }
@@ -52,6 +52,20 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
     public <R> GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> orderBy(ExprTree<Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R>> expr)
     {
         orderBy(expr, true);
+        return this;
+    }
+    // endregion
+
+    // region [LIMIT]
+    public GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> limit(long rows)
+    {
+        limit0(rows);
+        return this;
+    }
+
+    public GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> limit(long offset, long rows)
+    {
+        limit0(offset, rows);
         return this;
     }
     // endregion
@@ -65,10 +79,10 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
     public <R> LQuery<R> select(ExprTree<Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R>> expr)
     {
         singleCheck(select(expr.getTree()));
-        return new LQuery<>(getSqlBuilder());
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R> expr)
+    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R> expr)
     {
         throw new RuntimeException();
     }
@@ -76,7 +90,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
     public <R> EndQuery<R> selectSingle(ExprTree<Func1<Group9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9>, R>> expr)
     {
         select(expr.getTree());
-        return new EndQuery<>(this);
+        return new EndQuery<>(boxedQuerySqlBuilder());
     }
     // endregion
 

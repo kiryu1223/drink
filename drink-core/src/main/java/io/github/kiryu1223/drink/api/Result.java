@@ -4,6 +4,7 @@ import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +21,11 @@ public class Result
             for (Field field : getClass().getDeclaredFields())
             {
                 field.setAccessible(true);
+                int modifiers = field.getModifiers();
+                if (Modifier.isFinal(modifiers)
+                        || Modifier.isStatic(modifiers)
+                        || Modifier.isTransient(modifiers)) continue;
                 String name = field.getName();
-                if (name.startsWith("val$") || name.startsWith("this$")) continue;
                 strings.add(name + "=" + field.get(this));
             }
             return "(" + String.join(",", strings) + ")";

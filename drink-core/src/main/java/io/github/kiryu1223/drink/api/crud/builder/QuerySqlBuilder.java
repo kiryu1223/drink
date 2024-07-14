@@ -595,7 +595,7 @@ public class QuerySqlBuilder implements ISqlBuilder
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
             for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
             {
-                sqlContextList.add(new SqlPropertyContext(entry.getKey(), index));
+                sqlContextList.add(new SqlPropertyContext(entry.getValue(), index));
             }
         }
         else
@@ -611,7 +611,7 @@ public class QuerySqlBuilder implements ISqlBuilder
                     {
                         if (temp.getValue().getColumn().equals(column.getValue().getColumn()))
                         {
-                            sqlContextList.add(new SqlPropertyContext(column.getKey(), i));
+                            sqlContextList.add(new SqlPropertyContext(column.getValue(), i));
                             break label;
                         }
                     }

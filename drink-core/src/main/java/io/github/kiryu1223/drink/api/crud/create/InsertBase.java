@@ -5,11 +5,14 @@ import io.github.kiryu1223.drink.api.crud.builder.InsertSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
 import io.github.kiryu1223.drink.core.builder.*;
+import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
 public abstract class InsertBase extends CRUD
 {
@@ -90,11 +93,36 @@ public abstract class InsertBase extends CRUD
         List<String> tableValues = new ArrayList<>();
         for (PropertyMetaData pro : metaData.getColumns().values())
         {
+            IConverter<?, ?> converter = pro.getConverter();
             tableFields.add(pro.getColumn());
             tableValues.add("?");
             if (sqlValues == null) continue;
+            List<Object> values = new ArrayList<>(objects.size());
+            if (pro.isHasConverter())
             {
-                List<Object> values = new ArrayList<>(objects.size());
+                for (Object o : objects)
+                {
+                    try
+                    {
+                        Object obj = pro.getGetter().invoke(o);
+                        if (obj != null)
+                        {
+                            values.add(converter.toDb(cast(obj),pro));
+                        }
+                        else
+                        {
+                            values.add(null);
+                        }
+                    }
+                    catch (IllegalAccessException | InvocationTargetException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                }
+                sqlValues.add(new SqlValue(converter.getDbType(), values));
+            }
+            else
+            {
                 for (Object o : objects)
                 {
                     try
@@ -108,6 +136,7 @@ public abstract class InsertBase extends CRUD
                 }
                 sqlValues.add(new SqlValue(pro.getType(), values));
             }
+
         }
         IDBConfig dbConfig = getSqlBuilder().getConfig().getDbConfig();
         return "INSERT INTO " + dbConfig.propertyDisambiguation(metaData.getTableName()) + "(" + String.join(",", tableFields)

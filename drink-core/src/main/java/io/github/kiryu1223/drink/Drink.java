@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.api;
+package io.github.kiryu1223.drink;
 
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.config.Config;

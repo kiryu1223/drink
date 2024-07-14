@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.core.builder;
 
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
@@ -12,20 +12,18 @@ import java.util.function.Supplier;
 public class ObjectBuilder<T>
 {
     private final ResultSet resultSet;
-    private final Config config;
     private final Class<T> target;
     private final List<PropertyMetaData> propertyMetaDataList;
     private final boolean isSingle;
 
-    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Config config, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
+    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
     {
-        return new ObjectBuilder<>(resultSet, config, target, propertyMetaDataList, isSingle);
+        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle);
     }
 
-    private ObjectBuilder(ResultSet resultSet, Config config, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
+    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
     {
         this.resultSet = resultSet;
-        this.config = config;
         this.target = target;
         this.propertyMetaDataList = propertyMetaDataList;
         this.isSingle = isSingle;
@@ -90,13 +88,14 @@ public class ObjectBuilder<T>
             }
             else
             {
-                return resultSet.getObject(metaData.getColumn(), type);
+                return resultSet.getObject(metaData.getColumn(),type);
             }
         }
         else
         {
-            Object temp = resultSet.getObject(metaData.getColumn());
-            return metaData.getConverter().toJava(cast(temp), metaData);
+            IConverter<?, ?> converter = metaData.getConverter();
+            Object temp = resultSet.getObject(metaData.getColumn(),converter.getDbType());
+            return converter.toJava(cast(temp), metaData);
         }
     }
 

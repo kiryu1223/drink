@@ -2,17 +2,20 @@ package io.github.kiryu1223.drink.core.context;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
+import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
 
 import java.util.List;
 
 public class SqlPropertyContext extends SqlContext
 {
+    private final PropertyMetaData propertyMetaData;
     private final String property;
     private int tableIndex;
 
-    public SqlPropertyContext(String property, int tableIndex)
+    public SqlPropertyContext(PropertyMetaData propertyMetaData, int tableIndex)
     {
-        this.property = property;
+        this.propertyMetaData = propertyMetaData;
+        this.property = propertyMetaData.getColumn();
         this.tableIndex = tableIndex;
     }
 
@@ -29,6 +32,11 @@ public class SqlPropertyContext extends SqlContext
     public void setTableIndex(int tableIndex)
     {
         this.tableIndex = tableIndex;
+    }
+
+    public PropertyMetaData getPropertyMetaData()
+    {
+        return propertyMetaData;
     }
 
     @Override

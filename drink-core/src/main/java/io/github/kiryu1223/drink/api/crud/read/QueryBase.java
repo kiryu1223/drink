@@ -3,7 +3,10 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.*;
+import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
+import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
+import io.github.kiryu1223.drink.core.builder.SqlSession;
+import io.github.kiryu1223.drink.core.builder.SqlSessionBuilder;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
 import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
@@ -14,7 +17,6 @@ import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -53,7 +55,7 @@ public abstract class QueryBase extends CRUD
     protected <R> EndQuery<R> select(Class<R> r)
     {
         select0(r);
-        return new EndQuery<>(this);
+        return new EndQuery<>(boxedQuerySqlBuilder());
     }
 
     protected <T> List<T> toList()
@@ -67,7 +69,7 @@ public abstract class QueryBase extends CRUD
         System.out.println("使用数据源: " + (key == null ? "默认" : key));
         SqlSession session = SqlSessionBuilder.getSession(getConfig());
         return session.executeQuery(
-                r -> ObjectBuilder.start(r, getConfig(), (Class<T>) sqlBuilder.getTargetClass(), mappingData, atomicBoolean.get()).createList(),
+                r -> ObjectBuilder.start(r, (Class<T>) sqlBuilder.getTargetClass(), mappingData, atomicBoolean.get()).createList(),
                 sql,
                 values
         );
