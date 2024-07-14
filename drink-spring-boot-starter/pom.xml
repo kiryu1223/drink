@@ -29,6 +29,11 @@
             <version>${springbootVersion}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+            <version>${springbootVersion}</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.kiryu1223</groupId>
             <artifactId>drink-core</artifactId>
             <version>${project.version}</version>
