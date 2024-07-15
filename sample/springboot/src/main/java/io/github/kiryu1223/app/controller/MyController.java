@@ -27,4 +27,16 @@ public class MyController
     {
         return myService.showList();
     }
+
+    @GetMapping("/test3")
+    public long test3()
+    {
+        return myService.insertTest();
+    }
+
+    @GetMapping("/test4")
+    public long test4()
+    {
+        return myService.dataBaseTest();
+    }
 }

@@ -98,7 +98,7 @@ public class SQLTest
     public void m0()
     {
         String sql = client.query(Topic.class).toSql();
-        System.out.println(sql);
+        log.info(sql);
     }
 
     @Test

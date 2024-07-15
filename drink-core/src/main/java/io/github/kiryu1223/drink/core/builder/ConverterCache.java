@@ -14,7 +14,7 @@ public class ConverterCache
 
     private static final Map<Class<? extends IConverter<?, ?>>, IConverter<?, ?>> metaDataCache = new ConcurrentHashMap<>();
 
-    public static <J, D> IConverter<J, D> get(Class<? extends IConverter<?, ?>> c)
+    public static  IConverter<?, ?> get(Class<? extends IConverter<?, ?>> c)
     {
         if (!metaDataCache.containsKey(c))
         {
@@ -28,6 +28,6 @@ public class ConverterCache
                 throw new RuntimeException(e);
             }
         }
-        return (IConverter<J, D>) metaDataCache.get(c);
+        return metaDataCache.get(c);
     }
 }

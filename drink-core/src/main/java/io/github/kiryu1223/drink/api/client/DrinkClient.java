@@ -8,7 +8,6 @@ import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
 import io.github.kiryu1223.drink.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.config.Config;
 
-import javax.sql.DataSource;
 import java.util.Collection;
 
 public class DrinkClient
@@ -22,22 +21,17 @@ public class DrinkClient
 
     public void useDs(String key)
     {
-        config.useDs(key);
+        config.getDataSourceManager().useDs(key);
     }
 
     public void useDefDs()
     {
-        config.useDefDs();
+        config.getDataSourceManager().useDefDs();
     }
 
     public Transaction beginTransaction(Integer isolationLevel)
     {
-        Transaction transaction = Transaction.curTransaction.get();
-        if (transaction != null)
-        {
-            throw new RuntimeException("事务不能嵌套");
-        }
-        return new Transaction(isolationLevel, config.getDataSource());
+        return config.getTransactionManager().get(isolationLevel);
     }
 
     public Transaction beginTransaction()

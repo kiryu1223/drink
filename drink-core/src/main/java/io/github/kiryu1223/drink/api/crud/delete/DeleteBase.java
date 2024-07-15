@@ -3,8 +3,7 @@ package io.github.kiryu1223.drink.api.crud.delete;
 import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.SqlSession;
-import io.github.kiryu1223.drink.core.builder.SqlSessionBuilder;
+import io.github.kiryu1223.drink.core.session.SqlSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +34,14 @@ public abstract class DeleteBase extends CRUD
 
     public long executeRows()
     {
+        Config config = getConfig();
         checkHasWhere();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         System.out.println("===> " + sql);
-        String key = sqlBuilder.getConfig().getDsKey();
+        String key = getConfig().getDataSourceManager().getDsKey();
         System.out.println("使用数据源: " + (key == null ? "默认" : key));
-        SqlSession session = SqlSessionBuilder.getSession(getConfig());
+        SqlSession session = config.getSqlSessionFactory().getSession();
         return session.executeUpdate(sql, values);
     }
 

@@ -1,93 +1,18 @@
 package io.github.kiryu1223.drink.api.crud.transaction;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class Transaction implements AutoCloseable
+public interface Transaction extends AutoCloseable
 {
-    private Connection connection;
-    private final DataSource dataSource;
-    public static ThreadLocal<Transaction> curTransaction = new ThreadLocal<>();
-    private final Integer isolationLevel;
+    void commit();
 
-    public Transaction(Integer isolationLevel, DataSource dataSource)
-    {
-        this.isolationLevel = isolationLevel;
-        this.dataSource = dataSource;
-        curTransaction.set(this);
-    }
-
-    public Integer getIsolationLevel()
-    {
-        return isolationLevel;
-    }
-
-    public void commit()
-    {
-        try
-        {
-            connection.commit();
-            close();
-        }
-        catch (SQLException e)
-        {
-            rollback();
-            throw new RuntimeException(e);
-        }
-        finally
-        {
-            clear();
-        }
-    }
-
-    public void rollback()
-    {
-        try
-        {
-            connection.rollback();
-            close();
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
-        finally
-        {
-            clear();
-        }
-    }
+    void rollback();
 
     @Override
-    public void close()
-    {
-        try
-        {
-            connection.close();
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
-        finally
-        {
-            clear();
-        }
-    }
+    void close();
 
-    private void clear()
-    {
-        curTransaction.remove();
-    }
+    Connection getConnection() throws SQLException;
 
-    public Connection getConnection() throws SQLException
-    {
-        if (connection == null)
-        {
-            connection = dataSource.getConnection();
-        }
-        connection.setAutoCommit(false);
-        if (isolationLevel != null) connection.setTransactionIsolation(isolationLevel);
-        return connection;
-    }
+    Integer getIsolationLevel();
 }

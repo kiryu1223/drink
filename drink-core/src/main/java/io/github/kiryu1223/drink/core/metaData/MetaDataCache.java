@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.core.builder;
+package io.github.kiryu1223.drink.core.metaData;
 
 import java.util.ArrayList;
 import java.util.List;

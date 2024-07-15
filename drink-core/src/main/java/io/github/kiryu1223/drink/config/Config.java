@@ -1,13 +1,17 @@
 package io.github.kiryu1223.drink.config;
 
+import io.github.kiryu1223.drink.api.crud.transaction.DefaultTransactionManager;
+import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.def.DefaultDBConfig;
 import io.github.kiryu1223.drink.config.def.MySQLConfig;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
+import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
+import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
+import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Config
 {
@@ -16,13 +20,27 @@ public class Config
     private boolean ignoreUpdateNoWhere = false;
     private boolean ignoreDeleteNoWhere = false;
     private boolean printSql = true;
-    public final ThreadLocal<String> dsKey = new ThreadLocal<>();
-
-    private final Map<String, DataSource> dataSourceMap = new HashMap<>();
-
-    private final DataSource defluteDataSource;
+    private final TransactionManager transactionManager;
+    private final DataSourceManager dataSourceManager;
+    private final SqlSessionFactory sqlSessionFactory;
 
     public Config(DbType dbType, DataSource dataSource)
+    {
+        typeOf(dbType);
+        this.dataSourceManager = new DefaultDataSourceManager(dataSource);
+        this.transactionManager = new DefaultTransactionManager(dataSourceManager);
+        this.sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
+    }
+
+    public Config(DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory)
+    {
+        typeOf(dbType);
+        this.transactionManager = transactionManager;
+        this.dataSourceManager = dataSourceManager;
+        this.sqlSessionFactory = sqlSessionFactory;
+    }
+
+    private void typeOf(DbType dbType)
     {
         switch (dbType)
         {
@@ -35,8 +53,13 @@ public class Config
                 useDefault();
                 break;
         }
-        defluteDataSource = dataSource;
     }
+
+    public DataSourceManager getDataSourceManager()
+    {
+        return dataSourceManager;
+    }
+
 
     private void useMySQL()
     {
@@ -65,20 +88,6 @@ public class Config
         return dbType;
     }
 
-    public void useDs(String key)
-    {
-        dsKey.set(key);
-    }
-
-    public void useDefDs()
-    {
-        dsKey.remove();
-    }
-
-    public String getDsKey()
-    {
-        return dsKey.get();
-    }
 
     public boolean isIgnoreUpdateNoWhere()
     {
@@ -90,24 +99,14 @@ public class Config
         return ignoreDeleteNoWhere;
     }
 
-    public void addDataSource(String key, DataSource dataSource)
+    public void setIgnoreUpdateNoWhere(boolean ignoreUpdateNoWhere)
     {
-        dataSourceMap.put(key, dataSource);
+        this.ignoreUpdateNoWhere = ignoreUpdateNoWhere;
     }
 
-    public DataSource getDataSource()
+    public void setIgnoreDeleteNoWhere(boolean ignoreDeleteNoWhere)
     {
-        String dsKey1 = getDsKey();
-        if (dsKey1 == null)
-        {
-            return getDefluteDataSource();
-        }
-        return dataSourceMap.get(dsKey1);
-    }
-
-    private DataSource getDefluteDataSource()
-    {
-        return defluteDataSource;
+        this.ignoreDeleteNoWhere = ignoreDeleteNoWhere;
     }
 
     public boolean isPrintSql()
@@ -119,4 +118,15 @@ public class Config
     {
         this.printSql = printSql;
     }
+
+    public TransactionManager getTransactionManager()
+    {
+        return transactionManager;
+    }
+
+    public SqlSessionFactory getSqlSessionFactory()
+    {
+        return sqlSessionFactory;
+    }
+
 }

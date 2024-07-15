@@ -4,7 +4,10 @@ import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.InsertSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
-import io.github.kiryu1223.drink.core.builder.*;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.lang.reflect.InvocationTargetException;
@@ -68,12 +71,13 @@ public abstract class InsertBase extends CRUD
 
     private long objectsExecuteRows(List<Object> objects)
     {
+        Config config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = makeByObjects(objects, sqlValues);
         System.out.println("===> " + sql);
-        String key = sqlBuilder.getConfig().getDsKey();
+        String key = config.getDataSourceManager().getDsKey();
         System.out.println("使用数据源: " + (key == null ? "默认" : key));
-        SqlSession session = SqlSessionBuilder.getSession(getConfig());
+        SqlSession session = config.getSqlSessionFactory().getSession();
         if (objects.size() > 1)
         {
             System.out.println("batchExecute");
@@ -107,7 +111,7 @@ public abstract class InsertBase extends CRUD
                         Object obj = pro.getGetter().invoke(o);
                         if (obj != null)
                         {
-                            values.add(converter.toDb(cast(obj),pro));
+                            values.add(converter.toDb(cast(obj), pro));
                         }
                         else
                         {

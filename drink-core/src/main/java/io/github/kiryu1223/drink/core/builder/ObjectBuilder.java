@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.core.builder;
 
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.lang.reflect.InvocationTargetException;

@@ -2,8 +2,8 @@ package io.github.kiryu1223.drink.api.crud.builder;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
-import io.github.kiryu1223.drink.core.builder.MetaData;
-import io.github.kiryu1223.drink.core.builder.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 
 import java.util.ArrayList;

@@ -20,7 +20,7 @@ public class Drink
 
     public Drink addDataSource(String key, DataSource dataSource)
     {
-        config.addDataSource(key, dataSource);
+        config.getDataSourceManager().addDataSource(key, dataSource);
         return this;
     }
 

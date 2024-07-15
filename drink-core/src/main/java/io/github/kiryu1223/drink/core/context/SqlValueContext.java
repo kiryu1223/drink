@@ -1,15 +1,13 @@
 package io.github.kiryu1223.drink.core.context;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
-import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.ext.IConverter;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 

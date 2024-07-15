@@ -1,19 +1,13 @@
 package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.MetaData;
-import io.github.kiryu1223.drink.core.builder.MetaDataCache;
 import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlPropertyContext;
 import io.github.kiryu1223.drink.core.context.SqlSetContext;
 import io.github.kiryu1223.drink.core.context.SqlSetsContext;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isSetter;
 
 public class SetVisitor extends SqlVisitor
 {

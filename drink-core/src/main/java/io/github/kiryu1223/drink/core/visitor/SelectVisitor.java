@@ -2,9 +2,9 @@ package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.MetaData;
-import io.github.kiryu1223.drink.core.builder.MetaDataCache;
-import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.expressionTree.expressions.*;
 

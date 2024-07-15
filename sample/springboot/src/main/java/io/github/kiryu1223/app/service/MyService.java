@@ -1,8 +1,10 @@
 package io.github.kiryu1223.app.service;
 
+import io.github.kiryu1223.app.pojos.Department;
 import io.github.kiryu1223.app.pojos.Employee;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
+import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,5 +45,65 @@ public class MyService
 
         System.out.println(list.size());
         return list;
+    }
+
+    public long insertTest()
+    {
+        try (Transaction transaction = client.beginTransaction())
+        {
+            try
+            {
+                Department department = new Department();
+                department.setNumber("101");
+                department.setName("ddd");
+                long l = client.insert(department).executeRows();
+                System.out.println(1 / 0);
+                transaction.commit();
+                return l;
+            }
+            catch (Exception e)
+            {
+                transaction.rollback();
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public long dataBaseTest()
+    {
+        try (Transaction transaction = client.beginTransaction())
+        {
+            Department department1 = new Department();
+            department1.setNumber("100");
+            long l = client.insert(department1).executeRows();
+            System.out.println("插入条数:" + l);
+
+            List<Department> list = client.query(Department.class).limit(1).toList();
+            System.out.println(list);
+
+            long l2 = client.update(Department.class)
+                    .set(s -> s.setName("newName"))
+                    .where(w -> w.getNumber() == "100")
+                    .executeRows();
+
+            System.out.println("更新影响条数:" + l);
+
+
+            List<Department> list2 = client.query(Department.class).limit(1).toList();
+            System.out.println(list2);
+
+            long l3 = client.delete(Department.class)
+                    .where(w -> w.getNumber() == "100")
+                    .executeRows();
+
+            System.out.println("删除影响条数:" + l);
+
+            List<Department> list3 = client.query(Department.class).limit(1).toList();
+            System.out.println(list3);
+
+            transaction.rollback();
+
+            return 0;
+        }
     }
 }

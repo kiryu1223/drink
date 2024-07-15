@@ -4,9 +4,8 @@ import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
-import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
-import io.github.kiryu1223.drink.core.builder.SqlSession;
-import io.github.kiryu1223.drink.core.builder.SqlSessionBuilder;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
 import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
@@ -46,7 +45,7 @@ public abstract class QueryBase extends CRUD
 
     protected boolean any()
     {
-        SqlSession session = SqlSessionBuilder.getSession(getConfig());
+        SqlSession session = getConfig().getSqlSessionFactory().getSession();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         return session.executeQuery(f -> f.next(), "SELECT 1 FROM (" + sql + ") LIMIT 1", values);
@@ -60,14 +59,15 @@ public abstract class QueryBase extends CRUD
 
     protected <T> List<T> toList()
     {
+        Config config = getConfig();
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         List<PropertyMetaData> mappingData = sqlBuilder.getMappingData(atomicBoolean);
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         System.out.println("===> " + sql);
-        String key = getConfig().getDsKey();
+        String key = config.getDataSourceManager().getDsKey();
         System.out.println("使用数据源: " + (key == null ? "默认" : key));
-        SqlSession session = SqlSessionBuilder.getSession(getConfig());
+        SqlSession session = config.getSqlSessionFactory().getSession();
         return session.executeQuery(
                 r -> ObjectBuilder.start(r, (Class<T>) sqlBuilder.getTargetClass(), mappingData, atomicBoolean.get()).createList(),
                 sql,

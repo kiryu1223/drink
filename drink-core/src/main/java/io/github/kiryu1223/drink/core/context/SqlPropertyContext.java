@@ -2,7 +2,7 @@ package io.github.kiryu1223.drink.core.context;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.inter.IDBConfig;
-import io.github.kiryu1223.drink.core.builder.PropertyMetaData;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
 import java.util.List;
 

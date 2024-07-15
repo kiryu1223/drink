@@ -1,11 +1,14 @@
 spring:
+  output:
+    ansi:
+      enabled: always
   profiles:
     active: dev
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: "jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true"
-    username: "root"
-    password: "root"
+    url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
+    username: root
+    password: root
     driverClassName: com.mysql.cj.jdbc.Driver
 
 server:
