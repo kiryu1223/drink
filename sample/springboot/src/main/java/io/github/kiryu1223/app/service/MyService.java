@@ -5,12 +5,15 @@ import io.github.kiryu1223.app.pojos.Employee;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
+import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MyService
@@ -104,6 +107,16 @@ public class MyService
             transaction.rollback();
 
             return 0;
+        }
+    }
+
+    public void dsTest()
+    {
+        DataSourceManager dataSourceManager = client.getConfig().getDataSourceManager();
+        for (Map.Entry<String, DataSource> entry : dataSourceManager.getDataSources().entrySet()) {
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+            System.out.println(entry.getValue() == null);
         }
     }
 }

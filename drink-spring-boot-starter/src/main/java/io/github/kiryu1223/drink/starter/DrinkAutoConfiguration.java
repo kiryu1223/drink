@@ -14,22 +14,21 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableConfigurationProperties(DrinkProperties.class)
-public class DrinkAutoConfiguration
-{
+public class DrinkAutoConfiguration {
     private final Config config;
 
     @Autowired
-    public DrinkAutoConfiguration(DataSource dataSource, DrinkProperties properties)
-    {
+    public DrinkAutoConfiguration(DataSource dataSource, DrinkProperties properties) {
         SpringDataSourceManager dataSourceManager = new SpringDataSourceManager(dataSource);
         SpringTransactionManager transactionManager = new SpringTransactionManager(dataSourceManager);
         config = new Config(properties.getDataBase(), transactionManager, dataSourceManager, new DefaultSqlSessionFactory(dataSourceManager, transactionManager));
         config.setPrintSql(properties.isPrintSql());
+        config.setPrintBatch(properties.isPrintBatch());
+        config.setPrintBatch(properties.isPrintUseDs());
     }
 
     @Bean
-    public DrinkClient drinkClient()
-    {
+    public DrinkClient drinkClient() {
         return new DrinkClient(config);
     }
 }

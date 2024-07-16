@@ -74,4 +74,8 @@ public class DrinkClient
         }
         throw new RuntimeException();
     }
+
+    public Config getConfig() {
+        return config;
+    }
 }
