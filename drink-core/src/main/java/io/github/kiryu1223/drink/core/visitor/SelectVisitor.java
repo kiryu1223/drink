@@ -2,10 +2,11 @@ package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Method;
@@ -37,7 +38,7 @@ public class SelectVisitor extends SqlVisitor
     public SqlContext visit(NewExpression newExpression)
     {
         BlockExpression classBody = newExpression.getClassBody();
-        if (classBody == null) throw new RuntimeException();
+        if (classBody == null) throw new IllegalExpressionException(newExpression);
         List<SqlContext> contexts = new ArrayList<>();
         for (Expression expression : classBody.getExpressions())
         {
@@ -69,7 +70,7 @@ public class SelectVisitor extends SqlVisitor
                 }
                 else
                 {
-                    throw new RuntimeException();
+                    throw new IllegalExpressionException(blockExpression);
                 }
             }
             else if (expression instanceof MethodCallExpression)
@@ -120,10 +121,6 @@ public class SelectVisitor extends SqlVisitor
         if (parameters.contains(parameter))
         {
             Class<?> type = parameter.getType();
-            if (IGroup.class.isAssignableFrom(type))
-            {
-                throw new RuntimeException("select中暂时不支持直接返回Group对象");
-            }
             int index = parameters.indexOf(parameter);
             MetaData metaData = MetaDataCache.getMetaData(type);
             //propertyMetaData.addAll(metaData.getColumns().values());

@@ -4,8 +4,12 @@ import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.ext.DbType;
+import io.github.kiryu1223.drink.api.crud.transaction.DefaultTransactionManager;
+import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
+import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
+import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
+import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import io.github.kiryu1223.drink.pojos.GenderConverter;
@@ -35,7 +39,7 @@ public class SQLTest
 
     public SQLTest()
     {
-        Config config = new Config(DbType.MySQL, new DataSource()
+        DataSourceManager dataSourceManager = new DefaultDataSourceManager(new DataSource()
         {
             @Override
             public Connection getConnection() throws SQLException
@@ -91,7 +95,13 @@ public class SQLTest
                 return null;
             }
         });
-        client = Drink.bootStrap(config).build();
+        TransactionManager transactionManager = new DefaultTransactionManager(dataSourceManager);
+        SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
+        client = Drink.bootStrap()
+                .setDataSourceManager(dataSourceManager)
+                .setTransactionManager(transactionManager)
+                .setSqlSessionFactory(sqlSessionFactory)
+                .build();
     }
 
     @Test

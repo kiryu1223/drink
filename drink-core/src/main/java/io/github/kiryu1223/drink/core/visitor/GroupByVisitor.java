@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.core.visitor;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.context.SqlGroupContext;
+import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.util.LinkedHashMap;
@@ -19,7 +20,7 @@ public class GroupByVisitor extends SqlVisitor
     public SqlContext visit(NewExpression newExpression)
     {
         BlockExpression classBody = newExpression.getClassBody();
-        if (classBody == null) throw new RuntimeException();
+        if (classBody == null) throw new IllegalExpressionException(newExpression);
         LinkedHashMap<String, SqlContext> contextMap = new LinkedHashMap<>();
         for (Expression expression : classBody.getExpressions())
         {

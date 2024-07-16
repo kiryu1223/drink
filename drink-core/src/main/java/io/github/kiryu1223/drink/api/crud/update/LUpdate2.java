@@ -5,6 +5,7 @@ import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.visitor.SetVisitor;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action2;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
@@ -23,7 +24,7 @@ public class LUpdate2<T1, T2> extends UpdateBase
     //region [JOIN]
     public <Tn> LUpdate3<T1, T2, Tn> innerJoin(Class<Tn> target, @Expr Func3<T1, T2, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LUpdate3<T1, T2, Tn> innerJoin(Class<Tn> target, ExprTree<Func3<T1, T2, Tn, Boolean>> expr)
@@ -34,7 +35,7 @@ public class LUpdate2<T1, T2> extends UpdateBase
 
     public <Tn> LUpdate3<T1, T2, Tn> leftJoin(Class<Tn> target, @Expr Func3<T1, T2, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LUpdate3<T1, T2, Tn> leftJoin(Class<Tn> target, ExprTree<Func3<T1, T2, Tn, Boolean>> expr)
@@ -45,7 +46,7 @@ public class LUpdate2<T1, T2> extends UpdateBase
 
     public <Tn> LUpdate3<T1, T2, Tn> rightJoin(Class<Tn> target, @Expr Func3<T1, T2, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LUpdate3<T1, T2, Tn> rightJoin(Class<Tn> target, ExprTree<Func3<T1, T2, Tn, Boolean>> expr)
@@ -58,7 +59,7 @@ public class LUpdate2<T1, T2> extends UpdateBase
     //region [SET]
     public LUpdate2<T1, T2> set(@Expr Action2<T1, T2> action)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public LUpdate2<T1, T2> set(ExprTree<Action2<T1, T2>> expr)
@@ -73,7 +74,7 @@ public class LUpdate2<T1, T2> extends UpdateBase
     //region [WHERE]
     public LUpdate2<T1, T2> where(@Expr Func2<T1, T2, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public LUpdate2<T1, T2> where(ExprTree<Func2<T1, T2, Boolean>> expr)

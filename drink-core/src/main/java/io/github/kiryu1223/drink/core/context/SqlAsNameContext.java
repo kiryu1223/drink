@@ -28,12 +28,12 @@ public class SqlAsNameContext extends SqlContext
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return context.getSqlAndValue(config, values) + " AS " + config.getDbConfig().propertyDisambiguation(asName);
+        return context.getSqlAndValue(config, values) + " AS " + config.getDisambiguation().disambiguation(asName);
     }
 
     @Override
     public String getSql(Config config)
     {
-        return context.getSql(config) + " AS " + config.getDbConfig().propertyDisambiguation(asName);
+        return context.getSql(config) + " AS " + config.getDisambiguation().disambiguation(asName);
     }
 }

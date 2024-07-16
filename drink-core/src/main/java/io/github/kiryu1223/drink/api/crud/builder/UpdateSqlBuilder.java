@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.builder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.inter.IDBConfig;
+import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.context.*;
@@ -75,8 +75,8 @@ public class UpdateSqlBuilder implements ISqlBuilder
     private String makeUpdate()
     {
         MetaData metaData = MetaDataCache.getMetaData(mainTable);
-        IDBConfig dbConfig = config.getDbConfig();
-        return "UPDATE " + dbConfig.propertyDisambiguation(metaData.getTableName()) + " AS t0";
+        IDisambiguation dbConfig = config.getDisambiguation();
+        return "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
     }
 
     private String makeJoin(List<Object> values)

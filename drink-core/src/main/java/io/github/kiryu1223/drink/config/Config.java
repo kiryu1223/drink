@@ -1,58 +1,46 @@
 package io.github.kiryu1223.drink.config;
 
-import io.github.kiryu1223.drink.api.crud.transaction.DefaultTransactionManager;
 import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
-import io.github.kiryu1223.drink.config.def.DefaultDBConfig;
-import io.github.kiryu1223.drink.config.def.MySQLConfig;
-import io.github.kiryu1223.drink.config.inter.IDBConfig;
+import io.github.kiryu1223.drink.config.disambiguation.DefaultDisambiguation;
+import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
+import io.github.kiryu1223.drink.config.disambiguation.MySQLDisambiguation;
+import io.github.kiryu1223.drink.config.disambiguation.SqlServerDisambiguation;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
-import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
 
-import javax.sql.DataSource;
-
 public class Config
 {
-    private DbType dbType;
-    private IDBConfig dbConfig;
     private boolean ignoreUpdateNoWhere = false;
     private boolean ignoreDeleteNoWhere = false;
     private boolean printSql = true;
+    private boolean printUseDs = true;
+    private boolean printBatch = true;
+    private final DbType dbType;
+    private final IDisambiguation disambiguation;
     private final TransactionManager transactionManager;
     private final DataSourceManager dataSourceManager;
     private final SqlSessionFactory sqlSessionFactory;
 
-    public Config(DbType dbType, DataSource dataSource)
-    {
-        typeOf(dbType);
-        this.dataSourceManager = new DefaultDataSourceManager(dataSource);
-        this.transactionManager = new DefaultTransactionManager(dataSourceManager);
-        this.sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
-    }
-
     public Config(DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory)
     {
-        typeOf(dbType);
-        this.transactionManager = transactionManager;
-        this.dataSourceManager = dataSourceManager;
-        this.sqlSessionFactory = sqlSessionFactory;
-    }
-
-    private void typeOf(DbType dbType)
-    {
+        this.dbType = dbType;
         switch (dbType)
         {
             case MySQL:
-                useMySQL();
+                disambiguation = new MySQLDisambiguation();
                 break;
             case SqlServer:
+                disambiguation = new SqlServerDisambiguation();
+                break;
             case H2:
             default:
-                useDefault();
+                disambiguation = new DefaultDisambiguation();
                 break;
         }
+        this.transactionManager = transactionManager;
+        this.dataSourceManager = dataSourceManager;
+        this.sqlSessionFactory = sqlSessionFactory;
     }
 
     public DataSourceManager getDataSourceManager()
@@ -60,34 +48,15 @@ public class Config
         return dataSourceManager;
     }
 
-
-    private void useMySQL()
+    public IDisambiguation getDisambiguation()
     {
-        dbConfig = new MySQLConfig();
-        dbType = DbType.MySQL;
-    }
-
-    private void useDefault()
-    {
-        dbConfig = new DefaultDBConfig();
-        dbType = DbType.Other;
-    }
-
-    public IDBConfig getDbConfig()
-    {
-        return dbConfig;
-    }
-
-    public void setDbConfig(IDBConfig dbConfig)
-    {
-        this.dbConfig = dbConfig;
+        return disambiguation;
     }
 
     public DbType getDbType()
     {
         return dbType;
     }
-
 
     public boolean isIgnoreUpdateNoWhere()
     {
@@ -129,4 +98,23 @@ public class Config
         return sqlSessionFactory;
     }
 
+    public boolean isPrintUseDs()
+    {
+        return printUseDs;
+    }
+
+    public void setPrintUseDs(boolean printUseDs)
+    {
+        this.printUseDs = printUseDs;
+    }
+
+    public boolean isPrintBatch()
+    {
+        return printBatch;
+    }
+
+    public void setPrintBatch(boolean printBatch)
+    {
+        this.printBatch = printBatch;
+    }
 }

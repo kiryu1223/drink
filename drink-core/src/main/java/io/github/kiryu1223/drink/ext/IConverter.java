@@ -23,7 +23,7 @@ public interface IConverter<J, D>
                 return (Class<D>) dbType;
             }
         }
-        throw new RuntimeException();
+        throw new RuntimeException("无法找到D的类型");
     }
 
     default Class<J> getJavaType()
@@ -38,6 +38,6 @@ public interface IConverter<J, D>
                 return (Class<J>) javaType;
             }
         }
-        throw new RuntimeException();
+        throw new RuntimeException("无法找到J的类型");
     }
 }

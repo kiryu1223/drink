@@ -2,17 +2,17 @@ package io.github.kiryu1223.drink.ext;
 
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
-public class NoConverter implements IConverter<Void, Void>
+public class NoConverter implements IConverter<Object, Object>
 {
     @Override
-    public Void toDb(Void value, PropertyMetaData propertyMetaData)
+    public Object toDb(Object value, PropertyMetaData propertyMetaData)
     {
-        throw new RuntimeException();
+        return value;
     }
 
     @Override
-    public Void toJava(Void value, PropertyMetaData propertyMetaData)
+    public Object toJava(Object value, PropertyMetaData propertyMetaData)
     {
-        throw new RuntimeException();
+        return value;
     }
 }

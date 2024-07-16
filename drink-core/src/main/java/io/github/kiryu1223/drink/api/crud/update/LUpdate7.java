@@ -5,6 +5,7 @@ import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.visitor.SetVisitor;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action7;
 import io.github.kiryu1223.expressionTree.delegate.Func7;
 import io.github.kiryu1223.expressionTree.delegate.Func8;
@@ -21,7 +22,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase
     //region [JOIN]
     public <Tn> LUpdate8<T1, T2, T3, T4, T5, T6, T7, Tn> innerJoin(Class<Tn> target, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LUpdate8<T1, T2, T3, T4, T5, T6, T7, Tn> innerJoin(Class<Tn> target, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, Tn, Boolean>> expr)
@@ -32,7 +33,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase
 
     public <Tn> LUpdate8<T1, T2, T3, T4, T5, T6, T7, Tn> leftJoin(Class<Tn> target, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LUpdate8<T1, T2, T3, T4, T5, T6, T7, Tn> leftJoin(Class<Tn> target, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, Tn, Boolean>> expr)
@@ -43,7 +44,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase
 
     public <Tn> LUpdate8<T1, T2, T3, T4, T5, T6, T7, Tn> rightJoin(Class<Tn> target, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LUpdate8<T1, T2, T3, T4, T5, T6, T7, Tn> rightJoin(Class<Tn> target, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, Tn, Boolean>> expr)
@@ -56,7 +57,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase
     //region [SET]
     public LUpdate7<T1, T2, T3, T4, T5, T6, T7> set(@Expr Action7<T1, T2, T3, T4, T5, T6, T7> action)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public LUpdate7<T1, T2, T3, T4, T5, T6, T7> set(ExprTree<Action7<T1, T2, T3, T4, T5, T6, T7>> expr)
@@ -71,7 +72,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase
     //region [WHERE]
     public LUpdate7<T1, T2, T3, T4, T5, T6, T7> where(@Expr Func7<T1, T2, T3, T4, T5, T6, T7, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public LUpdate7<T1, T2, T3, T4, T5, T6, T7> where(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, Boolean>> expr)

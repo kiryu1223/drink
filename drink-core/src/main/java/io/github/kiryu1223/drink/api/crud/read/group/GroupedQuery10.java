@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
+import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -20,7 +21,7 @@ public class GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extend
     // region [HAVING]
     public GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> having(@Expr(Expr.BodyType.Expr) Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> having(ExprTree<Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, Boolean>> expr)
@@ -34,7 +35,7 @@ public class GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extend
     // region [ORDER BY]
     public <R> GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R> expr, boolean asc)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(ExprTree<Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R>> expr, boolean asc)
@@ -45,7 +46,7 @@ public class GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extend
 
     public <R> GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(@Expr(Expr.BodyType.Expr) Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R> expr)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orderBy(ExprTree<Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R>> expr)
@@ -72,7 +73,7 @@ public class GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extend
     // region [SELECT]
     public <R> LQuery<R> select(@Expr Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R> expr)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> LQuery<R> select(ExprTree<Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R>> expr)
@@ -83,7 +84,7 @@ public class GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extend
 
     public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R> expr)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> EndQuery<R> selectSingle(ExprTree<Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R>> expr)
@@ -92,6 +93,12 @@ public class GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extend
         return new EndQuery<>(boxedQuerySqlBuilder());
     }
     // endregion
+
+    @Override
+    public boolean any()
+    {
+        return super.any();
+    }
 
     @Override
     public List<Key> toList()

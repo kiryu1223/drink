@@ -35,26 +35,6 @@ public class MetaData
             IConverter<?, ?> converter = column == null ? ConverterCache.get(NoConverter.class) : ConverterCache.get(column.converter());
             Columns.put(property, new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field.getType(), converter));
         }
-
-//        for (Field field : getAllFields(type))
-//        {
-//            if (Modifier.isTransient(field.getModifiers())
-//                    || Modifier.isStatic(field.getModifiers())
-//                    || Modifier.isFinal(field.getModifiers()))
-//            {
-//                continue;
-//            }
-//            String name = field.getName();
-//            Column column = field.getAnnotation(Column.class);
-//            if (column == null || column.value().isEmpty())
-//            {
-//                Columns.put(name, field);
-//            }
-//            else
-//            {
-//                Columns.put(column.value(), field);
-//            }
-//        }
     }
 
     public Map<String, PropertyMetaData> getColumns()

@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.context.SqlOperator;
+import io.github.kiryu1223.drink.exception.SqlCalculatesInvokeException;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
 
 import java.util.Collection;
@@ -116,18 +117,11 @@ public class SqlCalculates
         return false;
     }
 
-//    @SqlOperatorMethod(SqlOperator.EXISTS)
-//    public static boolean exists(QueryBase queryBase)
-//    {
-//        boom();
-//        return false;
-//    }
-
     private static void boom()
     {
-        if (win)
+        if (win) // if win we win always
         {
-            throw new SqlFunctionInvokeException();
+            throw new SqlCalculatesInvokeException();
         }
     }
 

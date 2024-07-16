@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery5;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
 import io.github.kiryu1223.expressionTree.delegate.Func6;
@@ -31,7 +32,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> innerJoin(Class<Tn> target, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> innerJoin(Class<Tn> target, ExprTree<Func6<T1, T2, T3, T4, T5, Tn, Boolean>> expr)
@@ -42,7 +43,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> innerJoin(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> innerJoin(LQuery<Tn> target, ExprTree<Func6<T1, T2, T3, T4, T5, Tn, Boolean>> expr)
@@ -53,7 +54,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> leftJoin(Class<Tn> target, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> leftJoin(Class<Tn> target, ExprTree<Func6<T1, T2, T3, T4, T5, Tn, Boolean>> expr)
@@ -64,7 +65,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> leftJoin(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> leftJoin(LQuery<Tn> target, ExprTree<Func6<T1, T2, T3, T4, T5, Tn, Boolean>> expr)
@@ -75,7 +76,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> rightJoin(Class<Tn> target, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> rightJoin(Class<Tn> target, ExprTree<Func6<T1, T2, T3, T4, T5, Tn, Boolean>> expr)
@@ -86,7 +87,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> rightJoin(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, Tn, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Tn> LQuery6<T1, T2, T3, T4, T5, Tn> rightJoin(LQuery<Tn> target, ExprTree<Func6<T1, T2, T3, T4, T5, Tn, Boolean>> expr)
@@ -100,7 +101,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
     // region [WHERE]
     public LQuery5<T1, T2, T3, T4, T5> where(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public LQuery5<T1, T2, T3, T4, T5> where(ExprTree<Func5<T1, T2, T3, T4, T5, Boolean>> expr)
@@ -111,7 +112,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public LQuery5<T1, T2, T3, T4, T5> orWhere(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public LQuery5<T1, T2, T3, T4, T5> orWhere(ExprTree<Func5<T1, T2, T3, T4, T5, Boolean>> expr)
@@ -122,7 +123,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <E> LQuery5<T1, T2, T3, T4, T5> exists(Class<E> table, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, E, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <E> LQuery5<T1, T2, T3, T4, T5> exists(Class<E> table, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
@@ -133,7 +134,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <E> LQuery5<T1, T2, T3, T4, T5> exists(LQuery<E> query, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, E, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <E> LQuery5<T1, T2, T3, T4, T5> exists(LQuery<E> query, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
@@ -144,7 +145,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <E> LQuery5<T1, T2, T3, T4, T5> notExists(Class<E> table, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, E, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <E> LQuery5<T1, T2, T3, T4, T5> notExists(Class<E> table, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
@@ -155,7 +156,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <E> LQuery5<T1, T2, T3, T4, T5> notExists(LQuery<E> query, @Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, E, Boolean> func)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <E> LQuery5<T1, T2, T3, T4, T5> notExists(LQuery<E> query, ExprTree<Func6<T1, T2, T3, T4, T5, E, Boolean>> expr)
@@ -168,7 +169,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
     // region [ORDER BY]
     public <R> LQuery5<T1, T2, T3, T4, T5> orderBy(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, R> expr, boolean asc)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> LQuery5<T1, T2, T3, T4, T5> orderBy(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr, boolean asc)
@@ -179,7 +180,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <R> LQuery5<T1, T2, T3, T4, T5> orderBy(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, R> expr)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> LQuery5<T1, T2, T3, T4, T5> orderBy(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr)
@@ -206,7 +207,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
     // region [GROUP BY]
     public <Key> GroupedQuery5<Key, T1, T2, T3, T4, T5> groupBy(@Expr Func5<T1, T2, T3, T4, T5, Key> expr)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <Key> GroupedQuery5<Key, T1, T2, T3, T4, T5> groupBy(ExprTree<Func5<T1, T2, T3, T4, T5, Key>> expr)
@@ -224,7 +225,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <R> LQuery<R> select(@Expr Func5<T1, T2, T3, T4, T5, R> expr)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> LQuery<R> select(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr)
@@ -236,7 +237,7 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
 
     public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, R> expr)
     {
-        throw new RuntimeException();
+        throw new NotCompiledException();
     }
 
     public <R> EndQuery<R> selectSingle(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr)

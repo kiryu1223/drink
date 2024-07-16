@@ -4,15 +4,17 @@ import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
+import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
 import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
 import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class QueryBase extends CRUD
 {
+    public final static Logger log = LoggerFactory.getLogger(QueryBase.class);
+
     private final QuerySqlBuilder sqlBuilder;
 
     public QueryBase(Config config)
@@ -64,9 +68,8 @@ public abstract class QueryBase extends CRUD
         List<PropertyMetaData> mappingData = sqlBuilder.getMappingData(atomicBoolean);
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
-        System.out.println("===> " + sql);
-        String key = config.getDataSourceManager().getDsKey();
-        System.out.println("使用数据源: " + (key == null ? "默认" : key));
+        tryPrintUseDs(log,config.getDataSourceManager().getDsKey());
+        tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession();
         return session.executeQuery(
                 r -> ObjectBuilder.start(r, (Class<T>) sqlBuilder.getTargetClass(), mappingData, atomicBoolean.get()).createList(),
@@ -88,8 +91,6 @@ public abstract class QueryBase extends CRUD
         SqlContext context = selectVisitor.visit(lambda);
         getSqlBuilder().setSelect(context);
         getSqlBuilder().setTargetClass(lambda.getReturnType());
-        //propertyMetaData = selectVisitor.getPropertyMetaData();
-        //System.out.println(propertyMetaData.size());
         return !(context instanceof SqlSelectorContext);
     }
 

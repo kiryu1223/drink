@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.core.context;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.inter.IDBConfig;
+import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public class SqlPropertyContext extends SqlContext
     @Override
     public String getSql(Config config)
     {
-        IDBConfig dbConfig = config.getDbConfig();
-        return "t" + tableIndex + "." + dbConfig.propertyDisambiguation(property);
+        IDisambiguation dbConfig = config.getDisambiguation();
+        return "t" + tableIndex + "." + dbConfig.disambiguation(property);
     }
 }

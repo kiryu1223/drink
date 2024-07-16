@@ -77,7 +77,6 @@ public class DefaultSqlSession implements SqlSession
     {
         if (!transactionManager.currentThreadInTransaction())
         {
-            System.out.println("无事务");
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeUpdate(connection, sql, values);
@@ -89,7 +88,6 @@ public class DefaultSqlSession implements SqlSession
         }
         else
         {
-            System.out.println("有事务");
             try
             {
                 Connection connection;
@@ -114,7 +112,6 @@ public class DefaultSqlSession implements SqlSession
     {
         if (!transactionManager.currentThreadInTransaction())
         {
-            System.out.println("无事务");
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeUpdate(connection, sql, values);
@@ -126,7 +123,6 @@ public class DefaultSqlSession implements SqlSession
         }
         else
         {
-            System.out.println("有事务");
             try
             {
                 Connection connection;
@@ -151,7 +147,6 @@ public class DefaultSqlSession implements SqlSession
     {
         if (!transactionManager.currentThreadInTransaction())
         {
-            System.out.println("无事务");
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return batchExecuteUpdate(connection, sql, limit, values);
@@ -165,7 +160,6 @@ public class DefaultSqlSession implements SqlSession
         {
             try
             {
-                System.out.println("有事务");
                 Connection connection;
                 if (transactionManager.isOpenTransaction())
                 {

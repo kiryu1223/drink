@@ -3,19 +3,23 @@ package io.github.kiryu1223.drink.api.crud.update;
 import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.context.SqlRealTableContext;
 import io.github.kiryu1223.drink.core.context.SqlTableContext;
+import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateBase extends CRUD
 {
+    public final static Logger log = LoggerFactory.getLogger(UpdateBase.class);
+
     private final UpdateSqlBuilder sqlBuilder;
 
     public UpdateBase(Config config)
@@ -49,9 +53,8 @@ public class UpdateBase extends CRUD
         checkHasWhere();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
-        System.out.println("===> " + sql);
-        String key = config.getDataSourceManager().getDsKey();
-        System.out.println("使用数据源: " + (key == null ? "默认" : key));
+        tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
+        tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession();
         return session.executeUpdate(sql, values);
     }

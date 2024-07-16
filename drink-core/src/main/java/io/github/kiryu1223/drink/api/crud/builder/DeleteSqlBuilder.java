@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.builder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.inter.IDBConfig;
+import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.context.SqlContext;
@@ -55,9 +55,9 @@ public class DeleteSqlBuilder implements ISqlBuilder
 
     private String makeDelete()
     {
-        IDBConfig dbConfig = config.getDbConfig();
+        IDisambiguation dbConfig = config.getDisambiguation();
         MetaData metaData = MetaDataCache.getMetaData(deleteTable);
-        return "DELETE FROM " + dbConfig.propertyDisambiguation(metaData.getTableName()) + " AS t0";
+        return "DELETE FROM " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
     }
 
     private String makeWhere()

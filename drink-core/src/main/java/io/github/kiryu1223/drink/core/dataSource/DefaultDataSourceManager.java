@@ -10,13 +10,11 @@ public class DefaultDataSourceManager implements DataSourceManager
 {
     private final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
 
-    private final DataSource defluteDataSource;
-
     private final ThreadLocal<String> dsKey = new ThreadLocal<>();
 
     public DefaultDataSourceManager(DataSource defluteDataSource)
     {
-        this.defluteDataSource = defluteDataSource;
+        dataSourceMap.put("default", defluteDataSource);
     }
 
     @Override
@@ -35,14 +33,9 @@ public class DefaultDataSourceManager implements DataSourceManager
         String key = getDsKey();
         if (key == null)
         {
-            return getDefluteDataSource();
+            return dataSourceMap.get("default");
         }
         return dataSourceMap.get(key);
-    }
-
-    private DataSource getDefluteDataSource()
-    {
-        return defluteDataSource;
     }
 
     public void useDs(String key)
@@ -50,6 +43,7 @@ public class DefaultDataSourceManager implements DataSourceManager
         dsKey.set(key);
     }
 
+    @Override
     public void useDefDs()
     {
         dsKey.remove();

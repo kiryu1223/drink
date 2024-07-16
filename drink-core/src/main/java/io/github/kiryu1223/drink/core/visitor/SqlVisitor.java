@@ -4,9 +4,11 @@ import io.github.kiryu1223.drink.annotation.SqlFuncExt;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.exception.IllegalExpressionException;
+import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.expressionTree.expressions.*;
@@ -58,7 +60,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             SqlContext right = visit(assignExpression.getRight());
             return new SqlSetContext(sqlPropertyContext, right);
         }
-        throw new RuntimeException();
+        throw new RuntimeException("表达式中不能出现非lambda入参为赋值对象的语句");
     }
 
     @Override
@@ -102,7 +104,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                     }
                     return new SqlFuncContext(name.toUpperCase(), args);
                 default:
-                    throw new RuntimeException();
+                    throw new IllegalExpressionException(methodCall);
             }
         }
         else if (SqlFunctions.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
@@ -204,7 +206,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 }
                 else
                 {
-                    throw new RuntimeException();
+                    throw new IllegalExpressionException(methodCall);
                 }
             }
         }
@@ -328,7 +330,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 int index = parameters.indexOf(parameter);
                 Method setter = methodCall.getMethod();
                 MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
-                SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getPropertyMetaDataBySetter(setter),index);
+                SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getPropertyMetaDataBySetter(setter), index);
                 SqlContext context = visit(methodCall.getArgs().get(0));
                 return new SqlSetContext(propertyContext, context);
             }
@@ -395,13 +397,16 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     protected SqlValueContext checkAndReturnValue(MethodCallExpression expression)
     {
         Method method = expression.getMethod();
-        if (isVoid(method.getReturnType()) || hasParameter(expression)) throw new RuntimeException();
+        if (isVoid(method.getReturnType()) || hasParameter(expression))
+        {
+            throw new IllegalExpressionException(expression);
+        }
         return new SqlValueContext(expression.getValue());
     }
 
     protected SqlValueContext checkAndReturnValue(FieldSelectExpression expression)
     {
-        if (hasParameter(expression)) throw new RuntimeException();
+        if (hasParameter(expression)) throw new IllegalExpressionException(expression);
         return new SqlValueContext(expression.getValue());
     }
 
@@ -425,7 +430,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
         List<SqlFuncExt> collect = Arrays.stream(sqlFuncExts).filter(a -> a.dbType() == dbType).collect(Collectors.toList());
         if (collect.isEmpty())
         {
-            throw new RuntimeException("未找到对应的数据库类型:" + dbType + " 的SqlFuncExt注解");
+            throw new SqlFuncExtNotFoundException(dbType);
         }
         else
         {

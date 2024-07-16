@@ -1,14 +1,11 @@
 package io.github.kiryu1223.drink.exception;
 
+import io.github.kiryu1223.expressionTree.expressions.Expression;
+
 public class IllegalExpressionException extends RuntimeException
 {
-    public IllegalExpressionException()
+    public IllegalExpressionException(Expression expression)
     {
-        super("不支持的表达式");
-    }
-
-    public IllegalExpressionException(Object mes)
-    {
-        super("不支持的表达式\n" + mes);
+        super("Unsupported expression\n" + expression);
     }
 }

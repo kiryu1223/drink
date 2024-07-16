@@ -299,7 +299,7 @@ public class QuerySqlBuilder implements ISqlBuilder
                 List<String> stringList = new ArrayList<>();
                 for (PropertyMetaData data : metaData.getColumns().values())
                 {
-                    stringList.add("t0." + config.getDbConfig().propertyDisambiguation(data.getColumn()));
+                    stringList.add("t0." + config.getDisambiguation().disambiguation(data.getColumn()));
                 }
                 return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
             }
@@ -338,7 +338,7 @@ public class QuerySqlBuilder implements ISqlBuilder
                 List<String> stringList = new ArrayList<>();
                 for (PropertyMetaData data : metaData.getColumns().values())
                 {
-                    stringList.add("t0." + config.getDbConfig().propertyDisambiguation(data.getColumn()));
+                    stringList.add("t0." + config.getDisambiguation().disambiguation(data.getColumn()));
                 }
                 return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
             }

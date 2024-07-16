@@ -65,40 +65,6 @@ public class ExpressionUtil
     {
         return method.isAnnotationPresent(SqlOperatorMethod.class);
     }
-//    public static String propertyName(Method method)
-//    {
-//        try
-//        {
-//            String fieldName = method.getName();
-//            if (fieldName.startsWith("get") || fieldName.startsWith("set"))
-//            {
-//                fieldName = fieldName.substring(3);
-//            }
-//            else // is
-//            {
-//                fieldName = fieldName.substring(2);
-//            }
-//            Field field = method.getDeclaringClass().getDeclaredField(toLowerCaseFirstOne(fieldName));
-//            return propertyName(field);
-//        }
-//        catch (NoSuchFieldException e)
-//        {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    public static String propertyName(Field field)
-//    {
-//        Column column = field.getAnnotation(Column.class);
-//        if (column == null || column.value().isEmpty())
-//        {
-//            return field.getName();
-//        }
-//        else
-//        {
-//            return column.value();
-//        }
-//    }
 
     public static String toLowerCaseFirstOne(String s)
     {

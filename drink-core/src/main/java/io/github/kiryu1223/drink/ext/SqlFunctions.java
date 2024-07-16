@@ -1885,7 +1885,7 @@ public class SqlFunctions
 
     private static void boom()
     {
-        if (win)
+        if (win) // if win we win always
         {
             throw new SqlFunctionInvokeException();
         }
@@ -1895,10 +1895,7 @@ public class SqlFunctions
 
     private static class Num extends Number
     {
-        private Num()
-        {
-            throw new RuntimeException();
-        }
+        private Num() {}
 
         @Override
         public int intValue()
