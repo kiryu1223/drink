@@ -1,4 +1,4 @@
-package io.github.kiryu1223.plugin;
+package io.github.kiryu1223.plugin.configuration;
 
 import io.github.kiryu1223.drink.Option;
 import io.github.kiryu1223.drink.ext.DbType;

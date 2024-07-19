@@ -2,12 +2,14 @@ package io.github.kiryu1223.plugin;
 
 import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.crud.transaction.DefaultTransactionManager;
 import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
-import io.github.kiryu1223.plugin.datasource.SolonDataSourceManager;
+import io.github.kiryu1223.plugin.configuration.DrinkProperties;
+import io.github.kiryu1223.plugin.datasource.SolonDataSourceManagerWrap;
+import io.github.kiryu1223.plugin.datasource.SolonDynamicDataSourceManager;
+import io.github.kiryu1223.plugin.datasource.SolonSingleDataSourceManager;
 import io.github.kiryu1223.plugin.transaction.SolonTransactionManager;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanWrap;
@@ -29,7 +31,7 @@ public class XPluginImpl implements Plugin
             Props props = entry.getValue();
             DrinkProperties properties = props.getBean(DrinkProperties.class);
             if (properties.getDatasource().isEmpty()) continue;
-            DataSourceManager dataSourceManager = new SolonDataSourceManager(properties.getDatasource());
+            DataSourceManager dataSourceManager = new SolonDataSourceManagerWrap(properties.getDatasource());
             TransactionManager transactionManager = new SolonTransactionManager(dataSourceManager);
             SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
             DrinkClient client = Drink.bootStrap()
@@ -50,43 +52,19 @@ public class XPluginImpl implements Plugin
         String name = beanWrap.name();
         for (DrinkClient client : context.getBeansOfType(DrinkClient.class))
         {
-            SolonDataSourceManager dataSourceManager = (SolonDataSourceManager) client.getConfig().getDataSourceManager();
-            if (!dataSourceManager.getDsName().equals(name)) continue;
+            SolonDataSourceManagerWrap dataSourceManagerWrap = (SolonDataSourceManagerWrap) client.getConfig().getDataSourceManager();
+            if (!dataSourceManagerWrap.getDsName().equals(name)) continue;
             DataSource dataSource = beanWrap.get();
             if (dataSource instanceof DynamicDataSource)
             {
                 DynamicDataSource dynamicDataSource = (DynamicDataSource) dataSource;
-                setDynamic(dataSourceManager, dynamicDataSource);
+                dataSourceManagerWrap.setDataSourceManager(new SolonDynamicDataSourceManager(dynamicDataSource));
             }
             else
             {
-                setDefault(dataSourceManager, dataSource);
+                dataSourceManagerWrap.setDataSourceManager(new SolonSingleDataSourceManager(dataSource));
             }
             break;
-        }
-    }
-
-    private void setDefault(SolonDataSourceManager dataSourceManager, DataSource dataSource)
-    {
-        if (!dataSourceManager.hasDefaultDataSource())
-        {
-            dataSourceManager.setDefaultDataSource(dataSource);
-        }
-        else
-        {
-            throw new RuntimeException("hasDefaultDataSource");
-        }
-    }
-
-    private void setDynamic(SolonDataSourceManager dataSourceManager, DynamicDataSource dynamicDataSource)
-    {
-        if (!dataSourceManager.hasDynamicDataSource())
-        {
-            dataSourceManager.setDynamicDataSource(dynamicDataSource);
-        }
-        else
-        {
-            throw new RuntimeException("hasDynamicDataSource");
         }
     }
 }

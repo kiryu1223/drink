@@ -10,28 +10,28 @@ spring:
     username: root
     password: root
     driverClassName: com.mysql.cj.jdbc.Driver
-    dynamic:
-      enabled: true
-      strict: true
-      datasource's:
-        d1:
-          type: com.zaxxer.hikari.HikariDataSource
-          url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-          username: root
-          password: root
-          driverClassName: com.mysql.cj.jdbc.Driver
-        d2:
-          type: com.zaxxer.hikari.HikariDataSource
-          url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-          username: root
-          password: root
-          driverClassName: com.mysql.cj.jdbc.Driver
+#    dynamic:
+#      enabled: true
+#      strict: true
+#      datasource's:
+#        d1:
+#          type: com.zaxxer.hikari.HikariDataSource
+#          url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
+#          username: root
+#          password: root
+#          driverClassName: com.mysql.cj.jdbc.Driver
+#        d2:
+#          type: com.zaxxer.hikari.HikariDataSource
+#          url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
+#          username: root
+#          password: root
+#          driverClassName: com.mysql.cj.jdbc.Driver
 
 server:
   port: 8080
 
-drink:
-  database: mysql
-  print-use-ds: on
+#drink:
+#  database: mysql
+#  print-use-ds: on
 
 

@@ -37,7 +37,7 @@ ds1:
 #    password: 123456
 
 drink:
-  client1:
+  main:
     database: MySQL
     datasource: normalDs1
 #  client2:

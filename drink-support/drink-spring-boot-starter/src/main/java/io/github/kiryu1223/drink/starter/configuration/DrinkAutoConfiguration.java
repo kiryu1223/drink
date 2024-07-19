@@ -1,6 +1,5 @@
-package io.github.kiryu1223.drink.starter;
+package io.github.kiryu1223.drink.starter.configuration;
 
-import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
@@ -10,7 +9,6 @@ import io.github.kiryu1223.drink.starter.dataSource.SpringSingleDataSourceManage
 import io.github.kiryu1223.drink.starter.transaction.SpringTransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

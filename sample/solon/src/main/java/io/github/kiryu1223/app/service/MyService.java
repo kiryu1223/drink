@@ -19,7 +19,7 @@ import java.util.List;
 @ProxyComponent
 public class MyService
 {
-    @Inject("client1")
+    @Inject("main")
     DrinkClient client;
 
 

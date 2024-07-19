@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.starter;
+package io.github.kiryu1223.drink.starter.configuration;
 
 
 import io.github.kiryu1223.drink.starter.dataSource.SpringDynamicDataSourceManager;
