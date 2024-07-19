@@ -17,7 +17,8 @@ public class Drink
     {
     }
 
-    private DbType dbType;
+    private DbType dbType = DbType.MySQL;
+    private Option option = new Option();
     private DataSourceManager dataSourceManager;
     private TransactionManager transactionManager;
     private SqlSessionFactory sqlSessionFactory;
@@ -31,6 +32,9 @@ public class Drink
             dataSourceManager.addDataSource(entry.getKey(), entry.getValue());
         }
         Config config = new Config(dbType, transactionManager, dataSourceManager, sqlSessionFactory);
+        config.setPrintSql(option.isPrintSql());
+        config.setPrintUseDs(option.isPrintUseDs());
+        config.setPrintBatch(option.isPrintBatch());
         return new DrinkClient(config);
     }
 
@@ -67,5 +71,10 @@ public class Drink
     {
         this.dbType = dbType;
         return this;
+    }
+
+    public Drink setOption(Option option)
+    {
+        this.option = option;return this;
     }
 }

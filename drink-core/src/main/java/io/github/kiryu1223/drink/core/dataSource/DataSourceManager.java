@@ -18,6 +18,4 @@ public interface DataSourceManager
     void useDefDs();
 
     String getDsKey();
-
-    Map<String,DataSource> getDataSources();
 }

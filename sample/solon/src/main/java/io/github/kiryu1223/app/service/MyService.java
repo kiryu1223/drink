@@ -6,22 +6,22 @@ import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.starter.dataSource.SpringDynamicDataSourceManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.annotation.ProxyComponent;
+import org.noear.solon.data.annotation.Tran;
 
-import javax.sql.DataSource;
+
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
-@Service
+@ProxyComponent
 public class MyService
 {
-    @Autowired
+    @Inject("client1")
     DrinkClient client;
+
 
     public long showCount()
     {
@@ -52,25 +52,15 @@ public class MyService
         return list;
     }
 
+    @Tran
     public long insertTest()
     {
-        try (Transaction transaction = client.beginTransaction())
-        {
-            try
-            {
-                Department department = new Department();
-                department.setNumber("101");
-                department.setName("ddd");
-                long l = client.insert(department).executeRows();
-                System.out.println(1 / 0);
-                transaction.commit();
-                return l;
-            } catch (Exception e)
-            {
-                transaction.rollback();
-                throw new RuntimeException(e);
-            }
-        }
+        Department department = new Department();
+        department.setNumber("101");
+        department.setName("ddd");
+        long l = client.insert(department).executeRows();
+        System.out.println(1 / 0);
+        return l;
     }
 
     public long dataBaseTest()

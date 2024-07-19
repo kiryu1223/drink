@@ -7,47 +7,63 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultDataSourceManager implements DataSourceManager {
+public class DefaultDataSourceManager implements DataSourceManager
+{
     private final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
 
     private final ThreadLocal<String> dsKey = new ThreadLocal<>();
 
-    public DefaultDataSourceManager(DataSource defluteDataSource) {
-        dataSourceMap.put("default", defluteDataSource);
+    private final static String Default = "default";
+
+    public DefaultDataSourceManager(DataSource defluteDataSource)
+    {
+        dataSourceMap.put(Default, defluteDataSource);
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException
+    {
         return getDataSource().getConnection();
     }
 
-    public void addDataSource(String key, DataSource dataSource) {
+    public void addDataSource(String key, DataSource dataSource)
+    {
         dataSourceMap.put(key, dataSource);
     }
 
-    public DataSource getDataSource() {
+    public DataSource getDataSource()
+    {
         String key = getDsKey();
-        if (key == null) {
-            return dataSourceMap.get("default");
+        if (key == null)
+        {
+            return getDataSource(Default);
         }
-        return dataSourceMap.get(key);
+        return getDataSource(key);
     }
 
-    public void useDs(String key) {
+    private DataSource getDataSource(String key)
+    {
+        DataSource dataSource = dataSourceMap.get(key);
+        if (dataSource == null)
+        {
+            throw new RuntimeException("No DataSource found for key: " + key);
+        }
+        return dataSource;
+    }
+
+    public void useDs(String key)
+    {
         dsKey.set(key);
     }
 
     @Override
-    public void useDefDs() {
+    public void useDefDs()
+    {
         dsKey.remove();
     }
 
-    public String getDsKey() {
+    public String getDsKey()
+    {
         return dsKey.get();
-    }
-
-    @Override
-    public Map<String, DataSource> getDataSources() {
-        return dataSourceMap;
     }
 }

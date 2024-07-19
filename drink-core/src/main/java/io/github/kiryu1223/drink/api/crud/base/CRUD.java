@@ -20,7 +20,7 @@ public abstract class CRUD
     {
         if (getConfig().isPrintUseDs())
         {
-            log.info("current use datasource:{}", ds == null ? "default" : ds);
+            log.info("Current use datasource: {}", ds == null ? "default" : ds);
         }
     }
 
@@ -28,7 +28,7 @@ public abstract class CRUD
     {
         if (getConfig().isPrintBatch())
         {
-            log.info("dataSize:{} use batch execute",count);
+            log.info("DataSize: {} Use batch execute", count);
         }
     }
 
@@ -36,7 +36,7 @@ public abstract class CRUD
     {
         if (getConfig().isPrintBatch())
         {
-            log.info("dataSize:{} use normal execute",count);
+            log.info("DataSize: {} Use normal execute", count);
         }
     }
 }

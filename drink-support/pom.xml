@@ -3,17 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.kiryu1223</groupId>
+        <artifactId>drink-all</artifactId>
+        <version>1.0.0</version>
+    </parent>
 
-    <groupId>io.github.kiryu1223</groupId>
-    <artifactId>drink-all</artifactId>
-    <version>1.0.0</version>
+    <artifactId>drink-support</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>drink-core</module>
-        <module>drink-test</module>
-        <module>sample</module>
-        <module>drink-support</module>
+        <module>drink-spring-boot-starter</module>
+        <module>drink-solon-plugin</module>
     </modules>
+
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
