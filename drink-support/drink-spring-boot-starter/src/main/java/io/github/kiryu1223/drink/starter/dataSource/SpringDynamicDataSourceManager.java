@@ -23,7 +23,6 @@ public class SpringDynamicDataSourceManager extends AbstractRoutingDataSource im
     public void setTargetDataSources(Map<Object, Object> targetDataSources)
     {
         super.setTargetDataSources(targetDataSources);
-        //afterPropertiesSet();
     }
 
     @Override

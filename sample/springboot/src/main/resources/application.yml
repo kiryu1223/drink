@@ -11,7 +11,7 @@ spring:
     password: root
     driverClassName: com.mysql.cj.jdbc.Driver
     dynamic:
-      enabled: on
+      enabled: true
       strict: true
       datasource's:
         d1:
