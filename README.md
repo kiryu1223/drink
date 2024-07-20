@@ -283,15 +283,23 @@
 查询由client对象的query方法发起，query方法接收一个class对象，返回一个查询过程对象，
 可以在后续调用`where` `group by` `limit`等方法添加查询条件
 
-| 方法        | 参数                                            | 返回                        | 说明                                                                                                                                                         |
-|-----------|-----------------------------------------------|---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| leftJoin  | 参数1：class对象或者LQuery对象<br/> 参数2：连接条件的lambda表达式 | 当前泛型数量+1的查询过程对象（因为连了一张新表） | 左连接                                                                                                                                                        |
-| rightJoin | 同leftJoin                                     | 同leftJoin                 | 右连接                                                                                                                                                        |
-| innerJoin | 同leftJoin                                     | 同leftJoin                 | 内连接                                                                                                                                                        |
-| where     | where条件的lambda表达式                             | this                      | where过滤条件，多个where默认使用and拼接                                                                                                                                 |
-| orWhere   | 同where                                        | this                      | 同where，区别是多个where使用or拼接                                                                                                                                    |
-| group by  | 返回单个元素或者包含多个元素的Grouper对象的lambda               | 组查询过程对象                   | 单个元素的group by时，可以直接类似于a->a.getId()这样的lambda,多个元素时需要使用 <br/>a -> new Grouper()<br/>{ <br/>int id=a.getId();<br/>String name=a.getName();<br/>...<br/>} 这样的lambda |
-|           |                                               |                           |                                                                                                                                                            |
+以下是查询过程的api
+
+| 方法             | 参数                                            | 返回                        | 说明                                                                                                                                                                            |
+|----------------|-----------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `leftJoin`     | 参数1：class对象或者LQuery对象<br/> 参数2：连接条件的lambda表达式 | 当前泛型数量+1的查询过程对象（因为连了一张新表） | 左连接                                                                                                                                                                           |
+| `rightJoin`    | 同leftJoin                                     | 同leftJoin                 | 右连接                                                                                                                                                                           |
+| `innerJoin`    | 同leftJoin                                     | 同leftJoin                 | 内连接                                                                                                                                                                           |
+| `where`        | where条件的lambda表达式                             | this                      | where过滤条件，多个where默认使用and拼接                                                                                                                                                    |
+| `orWhere`      | 同where                                        | this                      | 同where，区别是多个where使用or拼接                                                                                                                                                       |
+| `groupBy`      | 返回单个元素或者包含多个元素的Grouper对象的lambda               | 组查询过程对象                   | 单个元素的group by时，可以直接类似于<br/>`a -> a.getId()`<br/>这样的lambda,多个元素时需要使用 <br/>a -> new Grouper()<br/>{ <br/>int id=a.getId();<br/>String name=a.getName();<br/>...<br/>} 这样的lambda |
+| `having`       | having条件的lambda表达式                            | this                      | having过滤条件，多个having使用and连接                                                                                                                                                    |
+| `orderBy`      | 参数1：需要排序的一个字段<br/>参数2：是否反向排序                  | this                      | 默认正序排序，有多个排序字段的需求时需要调用次orderBy方法                                                                                                                                              |
+| `limit`        | rows或者offset和rows                             | this                      |                                                                                                                                                                               |
+| `distinct`     | 无参或bool                                       | this                      | 无参调用时将distinct设置为true                                                                                                                                                         |
+| `select `      | 无参select()或select(Type.class)或select(lambda)  | 新查询过程对象                   | select代表一次查询过程的终结，在select之后调用任意条件api（例如where）都将把上一个查询过程视为中间表然后对中间表进行的查询                                                                                                       |
+| `selectSingle` | 需要返回的字段与返回类型                                  | 终结查询过程对象                  | 同select,区别是当需要返回单一的元素时（比如说`select(s -> s.getId())`），出于安全考虑强制要求使用selectSingle（`selectSingle(s -> s.getId())`）而非select                                                          |
+| `toList`       |                                               | 查询返回的结果集                  | 多表查询时必须进行一次select之后才能进行返回结果集操作（因为多表情况下不知道到底要返回什么）                                                                                                                             |
 
 ### 新增
 
