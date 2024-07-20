@@ -10,7 +10,9 @@ import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.starter.dataSource.SpringDynamicDataSourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
@@ -52,25 +54,15 @@ public class MyService
         return list;
     }
 
+    @Transactional
     public long insertTest()
     {
-        try (Transaction transaction = client.beginTransaction())
-        {
-            try
-            {
-                Department department = new Department();
-                department.setNumber("101");
-                department.setName("ddd");
-                long l = client.insert(department).executeRows();
-                System.out.println(1 / 0);
-                transaction.commit();
-                return l;
-            } catch (Exception e)
-            {
-                transaction.rollback();
-                throw new RuntimeException(e);
-            }
-        }
+        Department department = new Department();
+        department.setNumber("101");
+        department.setName("ddd");
+        long l = client.insert(department).executeRows();
+        System.out.println(1 / 0);
+        return l;
     }
 
     public long dataBaseTest()

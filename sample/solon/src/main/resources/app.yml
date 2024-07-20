@@ -4,12 +4,12 @@ ds1:
   driverClassName: com.mysql.cj.jdbc.Driver
   username: root
   password: root
-#ds2:
-#  type: com.zaxxer.hikari.HikariDataSource
-#  jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-#  driverClassName: com.mysql.cj.jdbc.Driver
-#  username: root
-#  password: root
+ds2:
+  type: com.zaxxer.hikari.HikariDataSource
+  jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
+  driverClassName: com.mysql.cj.jdbc.Driver
+  username: root
+  password: root
 #ds3:
 #  type: com.zaxxer.hikari.HikariDataSource
 #  jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
@@ -40,12 +40,12 @@ drink:
   main:
     database: MySQL
     datasource: normalDs1
-#  client2:
-#    database: SqlServer
-#    datasource: normalDs2
-#  client3:
+  sub:
+    database: SqlServer
+    datasource: normalDs2
+#  readonly:
 #    database: H2
 #    datasource: normalDs3
-#  dynamicClient:
+#  dynamic:
 #    database: H2
 #    datasource: dynamicDs

@@ -16,12 +16,14 @@ import org.noear.solon.data.annotation.Tran;
 import java.time.LocalDate;
 import java.util.List;
 
-@ProxyComponent
+@Component
 public class MyService
 {
     @Inject("main")
     DrinkClient client;
 
+    @Inject("sub")
+    DrinkClient client2;
 
     public long showCount()
     {

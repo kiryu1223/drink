@@ -40,8 +40,15 @@ public class XPluginImpl implements Plugin
                     .setSqlSessionFactory(sqlSessionFactory)
                     .setOption(properties.bulidOption())
                     .build();
-            BeanWrap wrap = context.wrap(entry.getKey(), client);
-            context.beanRegister(wrap, entry.getKey(), false);
+            if (drink.size() == 1)
+            {
+                context.wrapAndPut(DrinkClient.class, client);
+            }
+            else
+            {
+                BeanWrap wrap = context.wrap(entry.getKey(), client);
+                context.beanRegister(wrap, entry.getKey(), false);
+            }
         }
         context.subWrapsOfType(DataSource.class, beanWrap -> register(context, beanWrap));
     }

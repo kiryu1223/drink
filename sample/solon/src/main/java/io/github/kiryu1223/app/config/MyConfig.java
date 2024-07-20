@@ -17,11 +17,11 @@ public class MyConfig
         return dataSource;
     }
 
-//    @Bean("normalDs2")
-//    public DataSource dataSource2(@Inject("${ds2}") HikariDataSource dataSource)
-//    {
-//        return dataSource;
-//    }
+    @Bean("normalDs2")
+    public DataSource dataSource2(@Inject("${ds2}") HikariDataSource dataSource)
+    {
+        return dataSource;
+    }
 //
 //    @Bean("normalDs3")
 //    public DataSource dataSource3(@Inject("${ds3}") HikariDataSource dataSource)

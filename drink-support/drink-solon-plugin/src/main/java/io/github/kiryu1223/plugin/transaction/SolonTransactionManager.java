@@ -11,6 +11,7 @@ public class SolonTransactionManager extends DefaultTransactionManager
     {
         super(dataSourceManager);
     }
+
     @Override
     public Transaction get(Integer isolationLevel)
     {
@@ -22,6 +23,7 @@ public class SolonTransactionManager extends DefaultTransactionManager
         curTransaction.set(solonTransaction);
         return solonTransaction;
     }
+
     @Override
     public boolean currentThreadInTransaction()
     {
