@@ -4,6 +4,7 @@ spring:
       enabled: always
   profiles:
     active: dev
+  # 最低程度配置下只需要提供一个数据源
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
@@ -30,8 +31,9 @@ spring:
 server:
   port: 8080
 
+# 不配置的情况下默认以database: mysql和print-sql: true模式运行
 #drink:
 #  database: mysql
-#  print-use-ds: on
+#  print-sql: true
 
 

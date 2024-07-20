@@ -1,51 +1,56 @@
+# 这个名称与config类中的@Inject("${ds1}")对应
 ds1:
   type: com.zaxxer.hikari.HikariDataSource
   jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
   driverClassName: com.mysql.cj.jdbc.Driver
   username: root
   password: root
+# 这个名称与config类中的@Inject("${ds2}")对应
 ds2:
   type: com.zaxxer.hikari.HikariDataSource
   jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
   driverClassName: com.mysql.cj.jdbc.Driver
   username: root
   password: root
-#ds3:
-#  type: com.zaxxer.hikari.HikariDataSource
-#  jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-#  driverClassName: com.mysql.cj.jdbc.Driver
-#  username: root
-#  password: root
-#
+# 这个名称与config类中的@Inject("${ds3}")对应
+ds3:
+  type: com.zaxxer.hikari.HikariDataSource
+  jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
+  driverClassName: com.mysql.cj.jdbc.Driver
+  username: root
+  password: root
 
-## 多数据源
-#dynamic:
-#  type: com.zaxxer.hikari.HikariDataSource
-#  strict: true #严格模式（指定的源不存时：严格模式会抛异常；非严格模式用默认源）
-#  default: db_user_1 #指定默认数据源
-#  db_user_1:
-#    schema: db_user
-#    jdbcUrl: jdbc:mysql://localhost:3306/db_user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=true
-#    driverClassName: com.mysql.cj.jdbc.Driver
-#    username: root
-#    password: 123456
-#  db_user_2:
-#    schema: db_user
-#    jdbcUrl: jdbc:mysql://localhost:3307/db_user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=true
-#    driverClassName: com.mysql.cj.jdbc.Driver
-#    username: root
-#    password: 123456
+# 这个名称与config类中的@Inject("${dynamic}")对应
+# 多数据源
+dynamic:
+  type: com.zaxxer.hikari.HikariDataSource
+  strict: true #严格模式（指定的源不存时：严格模式会抛异常；非严格模式用默认源）
+  default: db_user_1 #指定默认数据源
+  db_user_1:
+    schema: db_user
+    jdbcUrl: jdbc:mysql://localhost:3306/db_user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+  db_user_2:
+    schema: db_user
+    jdbcUrl: jdbc:mysql://localhost:3307/db_user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
 
 drink:
+  # 这个名称代表了ioc容器中Client对象bean的别名，通过@Inject("main")注入到你想要的地方，下同
   main:
     database: MySQL
+    # 这里需要一个config类中定义的的数据源的bean的别名，下同
     datasource: normalDs1
   sub:
     database: SqlServer
     datasource: normalDs2
-#  readonly:
-#    database: H2
-#    datasource: normalDs3
-#  dynamic:
-#    database: H2
-#    datasource: dynamicDs
+  readonly:
+    database: H2
+    datasource: normalDs3
+  dynamic:
+    database: H2
+    datasource: dynamicDs
