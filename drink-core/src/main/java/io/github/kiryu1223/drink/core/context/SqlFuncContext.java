@@ -25,7 +25,7 @@ public class SqlFuncContext extends SqlContext
         {
             strings.add(arg.getSqlAndValue(config, values));
         }
-        return function + (strings.isEmpty() ? "(" + String.join(",", strings) + ")" : "");
+        return function + "(" + String.join(",", strings) + ")";
     }
 
     @Override

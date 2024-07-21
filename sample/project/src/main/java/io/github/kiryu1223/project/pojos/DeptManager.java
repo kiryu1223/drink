@@ -1,4 +1,4 @@
-package io.github.kiryu1223.app.pojos;
+package io.github.kiryu1223.project.pojos;
 
 import io.github.kiryu1223.drink.annotation.Column;
 import io.github.kiryu1223.drink.annotation.Table;

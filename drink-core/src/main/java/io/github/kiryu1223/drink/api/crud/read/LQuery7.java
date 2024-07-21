@@ -223,19 +223,19 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase
         return super.select(r);
     }
 
-    public <R> LQuery<R> select(@Expr Func7<T1, T2, T3, T4, T5, T6, T7, R> expr)
+    public <R> LQuery<? extends R> select(@Expr Func7<T1, T2, T3, T4, T5, T6, T7, ? extends R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<R> select(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr)
+    public <R> LQuery<? extends R> select(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, ? extends R>> expr)
     {
         boolean single = select(expr.getTree());
         singleCheck(single);
         return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr)
+    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7,R> expr)
     {
         throw new NotCompiledException();
     }

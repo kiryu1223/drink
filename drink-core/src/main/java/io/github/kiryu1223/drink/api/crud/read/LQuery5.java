@@ -223,12 +223,12 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
         return super.select(r);
     }
 
-    public <R> LQuery<R> select(@Expr Func5<T1, T2, T3, T4, T5, R> expr)
+    public <R> LQuery<? extends R> select(@Expr Func5<T1, T2, T3, T4, T5, ? extends R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<R> select(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr)
+    public <R> LQuery<? extends R> select(ExprTree<Func5<T1, T2, T3, T4, T5, ? extends R>> expr)
     {
         boolean single = select(expr.getTree());
         singleCheck(single);

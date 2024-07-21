@@ -395,7 +395,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             joinStr.add(context.getSqlAndValue(config, values));
         }
-        return " " + String.join(",", joinStr);
+        return " " + String.join(" ", joinStr);
     }
 
     private String makeJoin()
@@ -406,7 +406,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             joinStr.add(context.getSql(config));
         }
-        return " " + String.join(",", joinStr);
+        return " " + String.join(" ", joinStr);
     }
 
     private String makeWhere(List<Object> values)

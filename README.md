@@ -283,7 +283,7 @@
 查询由client对象的query方法发起，query方法接收一个class对象，返回一个查询过程对象，
 可以在后续调用`where` `group by` `limit`等方法添加查询条件
 
-以下是查询过程的api
+以下是常用的查询过程的api
 
 | 方法             | 参数                                            | 返回                        | 说明                                                                                                                                                                            |
 |----------------|-----------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -297,9 +297,215 @@
 | `orderBy`      | 参数1：需要排序的一个字段<br/>参数2：是否反向排序                  | this                      | 默认正序排序，有多个排序字段的需求时需要调用次orderBy方法                                                                                                                                              |
 | `limit`        | rows或者offset和rows                             | this                      |                                                                                                                                                                               |
 | `distinct`     | 无参或bool                                       | this                      | 无参调用时将distinct设置为true                                                                                                                                                         |
-| `select `      | 无参select()或select(Type.class)或select(lambda)  | 新查询过程对象                   | select代表一次查询过程的终结，在select之后调用任意条件api（例如where）都将把上一个查询过程视为中间表然后对中间表进行的查询                                                                                                       |
+| `select `      | 无参select()或select(Vo.class)或select(lambda)    | 新查询过程对象                   | select代表一次查询过程的终结，在select之后调用任意条件api（例如where）都将把上一个查询过程视为中间表然后对中间表进行的查询                                                                                                       |
 | `selectSingle` | 需要返回的字段与返回类型                                  | 终结查询过程对象                  | 同select,区别是当需要返回单一的元素时（比如说`select(s -> s.getId())`），出于安全考虑强制要求使用selectSingle（`selectSingle(s -> s.getId())`）而非select                                                          |
 | `toList`       |                                               | 查询返回的结果集                  | 多表查询时必须进行一次select之后才能进行返回结果集操作（因为多表情况下不知道到底要返回什么）                                                                                                                             |
+
+假设我们有一个员工表
+```java
+@Data
+@Table("employees")
+public class Employee
+{
+    //员工id
+    @Column("emp_no")
+    private int number;
+    //生日
+    @Column("birth_date")
+    private LocalDate birthDay;
+    @Column("first_name")
+    private String firstName;
+    @Column("last_name")
+    private String lastName;
+    //性别
+    @Column(converter = GenderConverter.class)
+    private Gender gender;
+    //入职日期
+    @Column("hire_date")
+    private LocalDate hireDay;
+}
+```
+
+根据id获得员工对象
+```java
+public class DisplayTest extends BaseTest
+{
+   public void d1()
+   {
+      int id = 10001;
+      List<Employee> list = client.query(Employee.class) // FROM `employees` AS t0
+              .where(e -> e.getNumber() == id) // WHERE t0.`emp_no` = ?
+              // 因为没有select，默认选择了全字段 
+              // SELECT t0.`birth_date`,t0.`first_name`,t0.`last_name`,t0.`emp_no`,t0.`hire_date`,t0.`gender`
+              .toList(); 
+   }
+}
+```
+
+对应的sql
+```mysql
+SELECT t0.`birth_date`, t0.`first_name`, t0.`last_name`, t0.`emp_no`, t0.`hire_date`, t0.`gender`
+FROM `employees` AS t0
+WHERE t0.`emp_no` = ?
+```
+
+根据firstName和性别获得员工对象
+```java
+public class DisplayTest extends BaseTest
+{
+    public void d2()
+    {
+        List<Employee> list = client.query(Employee.class) // FROM `employees` AS t0
+                .where(e -> e.getGender() == Gender.F && e.getFirstName() == "lady") // WHERE t0.`gender` = ? AND t0.`first_name` = ?
+                // 因为没有select，默认选择了全字段 
+                // SELECT t0.`birth_date`, t0.`first_name`, t0.`last_name`, t0.`emp_no`, t0.`hire_date`, t0.`gender`
+                .toList();
+    }
+}
+```
+
+对应的sql
+```mysql
+SELECT t0.`birth_date`, t0.`first_name`, t0.`last_name`, t0.`emp_no`, t0.`hire_date`, t0.`gender`
+FROM `employees` AS t0
+WHERE t0.`gender` = ?
+  AND t0.`first_name` = ?
+```
+
+假设我们还有一张员工薪资历史表
+```java
+@Data
+@Table("salaries")
+public class Salary
+{
+    //员工id
+    @Column("emp_no")
+    private int empNumber;
+    //薪资
+    private int salary;
+    //何时开始的
+    @Column("from_date")
+    private LocalDate from;
+    //何时为止的
+    @Column("to_date")
+    private LocalDate to;
+}
+```
+
+查询一个员工的姓名和历史最高薪资和平均薪资
+```java
+public class DisplayTest extends BaseTest
+{
+    public void d3()
+    {
+        int id = 10001;
+        List<? extends Result> list = client.query(Employee.class) // FROM `employees` AS t0
+                .leftJoin(Salary.class, (e, s) -> e.getNumber() == s.getEmpNumber()) // LEFT JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
+                .where((e, s) -> e.getNumber() == id) // WHERE t0.`emp_no` = ?
+                // SELECT
+                .select((e, s) -> new Result()
+                {
+                   // CONCAT(t0.`first_name`, ?, t0.`last_name`) AS `name` 
+                   String name = SqlFunctions.concat(e.getFirstName(), " ", e.getLastName());
+                   // MAX(t1.`salary`)                           AS `maxSalary`,
+                   int maxSalary = SqlFunctions.max(s.getSalary());
+                   // AVG(t1.`salary`)                           AS `avgSalary`
+                   BigDecimal avgSalary = SqlFunctions.avg(s.getSalary());
+                })
+                .toList();
+    }
+}
+```
+
+对应的sql
+```mysql
+SELECT CONCAT(t0.`first_name`, ?, t0.`last_name`) AS `name`,
+       MAX(t1.`salary`)                           AS `maxSalary`,
+       AVG(t1.`salary`)                           AS `avgSalary`
+FROM `employees` AS t0
+        LEFT JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
+WHERE t0.`emp_no` = ?
+```
+
+假设我们还有部门表和员工部门中间表
+```java
+@Table("departments")
+@Data
+public class Department
+{
+    // 部门编号
+    @Column("dept_no")
+    private String number;
+    // 部门名称
+    @Column("dept_name")
+    private String name;
+}
+```
+```java
+@Data
+@Table("dept_emp")
+public class DeptEmp
+{
+    // 员工编号
+    @Column("emp_no")
+    private int empNumber;
+    // 部门编号
+    @Column("dept_no")
+    private String deptNumber;
+    // 什么时候加入的
+    @Column("from_date")
+    private LocalDate from;
+    // 什么时候离开的
+    @Column("to_date")
+    private LocalDate to;
+}
+```
+
+查询某部门的员工的平均薪水
+```java
+public class DisplayTest extends BaseTest
+{
+    public void d4()
+    {
+        String departmentId = "d009";
+
+        List<? extends Result> list = client.query(DeptEmp.class) // FROM `dept_emp` AS t0
+                .innerJoin(Salary.class, (de, s) -> de.getEmpNumber() == s.getEmpNumber()) // INNER JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
+                .innerJoin(Department.class, (de, s, d) -> de.getDeptNumber() == d.getNumber()) // INNER JOIN `departments` AS t2 ON t0.`dept_no` = t2.`dept_no`
+                .where((de, s, d) -> de.getDeptNumber() == departmentId && s.getTo() == LocalDate.of(9999, 1, 1)) // WHERE t0.`dept_no` = ? AND t1.`to_date` = ?
+                // GROUP BY 
+                .groupBy((de, s, d) -> new Grouper()
+                {
+                    // t0.`dept_no`, 
+                    String id = de.getDeptNumber();
+                    // t2.`dept_name`
+                    String name = d.getName();
+                })
+                // SELECT
+                .select(g -> new Result()
+                {
+                    // t0.`dept_no` AS `deptId`
+                    String deptId = g.key.id;
+                    // t2.`dept_name` AS `deptName`
+                    String deptName = g.key.name;
+                    // AVG(t1.`salary`) AS `avgSalary`
+                    BigDecimal avgSalary = g.avg((de, s, d) -> s.getSalary());
+                })
+                .toList();
+    }
+}
+```
+
+对应的sql
+```mysql
+SELECT t0.`dept_no` AS `deptId`, t2.`dept_name` AS `deptName`, AVG(t1.`salary`) AS `avgSalary`
+FROM `dept_emp` AS t0
+        INNER JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
+        INNER JOIN `departments` AS t2 ON t0.`dept_no` = t2.`dept_no`
+WHERE t0.`dept_no` = ?
+  AND t1.`to_date` = ?
+GROUP BY t0.`dept_no`, t2.`dept_name`
+```
 
 ### 新增
 

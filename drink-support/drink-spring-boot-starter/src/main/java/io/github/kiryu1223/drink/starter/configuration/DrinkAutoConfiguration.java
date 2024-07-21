@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.starter.configuration;
 
+import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.starter.dataSource.SpringDynamicDataSourceManager;
@@ -24,27 +24,31 @@ public class DrinkAutoConfiguration
 {
     private static final Logger log = LoggerFactory.getLogger(DrinkAutoConfiguration.class);
 
-    private Config config;
-
-    private void init(DataSource dataSource, DrinkProperties properties)
+    private DrinkClient init(DataSource dataSource, DrinkProperties properties)
     {
         DataSourceManager dataSourceManager = new SpringSingleDataSourceManager(dataSource);
         SpringTransactionManager transactionManager = new SpringTransactionManager(dataSourceManager);
-        config = new Config(properties.getDatabase(), transactionManager, dataSourceManager, new DefaultSqlSessionFactory(dataSourceManager, transactionManager));
-        config.setPrintSql(properties.isPrintSql());
-        config.setPrintBatch(properties.isPrintBatch());
-        config.setPrintBatch(properties.isPrintUseDs());
+        DrinkClient client = Drink.bootStrap().setDataSourceManager(dataSourceManager)
+                .setTransactionManager(transactionManager)
+                .setSqlSessionFactory(new DefaultSqlSessionFactory(dataSourceManager, transactionManager))
+                .setDbType(properties.getDatabase())
+                .setOption(properties.bulidOption())
+                .build();
         log.info("Client DataSource Mod: [Single]");
+        return client;
     }
 
-    private void init(SpringDynamicDataSourceManager dataSourceManager, DrinkProperties properties)
+    private DrinkClient init(SpringDynamicDataSourceManager dataSourceManager, DrinkProperties properties)
     {
         SpringTransactionManager transactionManager = new SpringTransactionManager(dataSourceManager);
-        config = new Config(properties.getDatabase(), transactionManager, dataSourceManager, new DefaultSqlSessionFactory(dataSourceManager, transactionManager));
-        config.setPrintSql(properties.isPrintSql());
-        config.setPrintBatch(properties.isPrintBatch());
-        config.setPrintBatch(properties.isPrintUseDs());
+        DrinkClient client = Drink.bootStrap().setDataSourceManager(dataSourceManager)
+                .setTransactionManager(transactionManager)
+                .setSqlSessionFactory(new DefaultSqlSessionFactory(dataSourceManager, transactionManager))
+                .setDbType(properties.getDatabase())
+                .setOption(properties.bulidOption())
+                .build();
         log.info("Client DataSource Mod: [Dynamic]");
+        return client;
     }
 
     @Bean
@@ -52,8 +56,7 @@ public class DrinkAutoConfiguration
     @ConditionalOnMissingBean(DrinkClient.class)
     public DrinkClient buildD(@Qualifier("SpringDynamicDataSourceManager") SpringDynamicDataSourceManager manager, DrinkProperties properties)
     {
-        init(manager, properties);
-        return new DrinkClient(config);
+        return init(manager, properties);
     }
 
     @Bean
@@ -61,7 +64,6 @@ public class DrinkAutoConfiguration
     @ConditionalOnMissingBean(DrinkClient.class)
     public DrinkClient buildS(DataSource dataSource, DrinkProperties properties)
     {
-        init(dataSource, properties);
-        return new DrinkClient(config);
+        return init(dataSource, properties);
     }
 }

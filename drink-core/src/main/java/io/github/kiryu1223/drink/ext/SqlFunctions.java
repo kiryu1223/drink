@@ -4,6 +4,7 @@ package io.github.kiryu1223.drink.ext;
 import io.github.kiryu1223.drink.annotation.SqlFuncExt;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -40,10 +41,10 @@ public class SqlFunctions
 
     @SqlFuncExt(dbType = DbType.H2, function = "AVG({})")
     @SqlFuncExt(dbType = DbType.MySQL, function = "AVG({})")
-    public static <T extends Number> T avg(T t)
+    public static <T extends Number> BigDecimal avg(T t)
     {
         boom();
-        return (T) new Num();
+        return BigDecimal.ZERO;
     }
 
     @SqlFuncExt(dbType = DbType.H2, function = "MIN({})")
@@ -1394,10 +1395,10 @@ public class SqlFunctions
 
     @SqlFuncExt(dbType = DbType.H2, function = "FLOOR({})")
     @SqlFuncExt(dbType = DbType.MySQL, function = "FLOOR({})")
-    public static <T extends Number> long floor(T a)
+    public static <T extends Number> T floor(T a)
     {
         boom();
-        return 0;
+        return (T) new Num();
     }
 
     @SafeVarargs

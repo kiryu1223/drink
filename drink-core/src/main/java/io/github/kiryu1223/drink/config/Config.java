@@ -14,8 +14,8 @@ public class Config
     private boolean ignoreUpdateNoWhere = false;
     private boolean ignoreDeleteNoWhere = false;
     private boolean printSql = true;
-    private boolean printUseDs = true;
-    private boolean printBatch = true;
+    private boolean printUseDs;
+    private boolean printBatch;
     private final DbType dbType;
     private final IDisambiguation disambiguation;
     private final TransactionManager transactionManager;

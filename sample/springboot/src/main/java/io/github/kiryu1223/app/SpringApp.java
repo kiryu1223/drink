@@ -9,7 +9,7 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 
 @SpringBootApplication
-public class SpringApp implements ApplicationListener<ApplicationStartedEvent>
+public class SpringApp/* implements ApplicationListener<ApplicationStartedEvent>*/
 {
     @Autowired
     MyService myService;
@@ -19,11 +19,9 @@ public class SpringApp implements ApplicationListener<ApplicationStartedEvent>
         SpringApplication.run(SpringApp.class, args);
     }
 
-
-    @Override
-    public void onApplicationEvent(ApplicationStartedEvent event)
-    {
-        myService.dsTest();
-
-    }
+//    @Override
+//    public void onApplicationEvent(ApplicationStartedEvent event)
+//    {
+//        myService.dsTest();
+//    }
 }

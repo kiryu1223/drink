@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 @Table("titles")
-public class Title
+public class Titles
 {
     @Column("emp_no")
     private int empNumber;

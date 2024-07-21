@@ -72,12 +72,12 @@ public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase
     // endregion
 
     // region [SELECT]
-    public <R> LQuery<R> select(@Expr Func1<Group3<Key, T1, T2, T3>, R> expr)
+    public <R> LQuery<? extends R> select(@Expr Func1<Group3<Key, T1, T2, T3>, ? extends R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<R> select(ExprTree<Func1<Group3<Key, T1, T2, T3>, R>> expr)
+    public <R> LQuery<? extends R> select(ExprTree<Func1<Group3<Key, T1, T2, T3>, ? extends R>> expr)
     {
         singleCheck(select(expr.getTree()));
 

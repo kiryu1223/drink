@@ -71,12 +71,12 @@ public class GroupedQuery10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extend
     // endregion
 
     // region [SELECT]
-    public <R> LQuery<R> select(@Expr Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R> expr)
+    public <R> LQuery<? extends R> select(@Expr Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, ? extends R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<R> select(ExprTree<Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, R>> expr)
+    public <R> LQuery<? extends R> select(ExprTree<Func1<Group10<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, ? extends R>> expr)
     {
         singleCheck(select(expr.getTree()));
         return new LQuery<>(boxedQuerySqlBuilder());

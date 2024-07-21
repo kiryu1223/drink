@@ -12,9 +12,7 @@ import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
-import io.github.kiryu1223.drink.pojos.GenderConverter;
-import io.github.kiryu1223.drink.pojos.Top;
-import io.github.kiryu1223.drink.pojos.Topic;
+import io.github.kiryu1223.drink.pojos.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +23,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -373,5 +372,28 @@ public class SQLTest
         GenderConverter genderConverter = new GenderConverter();
         System.out.println(genderConverter.getDbType());
         System.out.println(genderConverter.getJavaType());
+    }
+
+    @Test
+    public void m19()
+    {
+        LocalDate end = LocalDate.of(9999, 1, 1);
+        String sql = client.query(DeptEmp.class)
+                .innerJoin(Salary.class, (de, s) -> de.getEmpNumber() == s.getEmpNumber())
+                .innerJoin(Department.class, (de, s, d) -> de.getDeptNumber() == d.getNumber())
+                .where((de, s, d) -> de.getDeptNumber() == "d001" && s.getTo() == end)
+                .groupBy((de, s, d) -> new Grouper()
+                {
+                    String id = de.getDeptNumber();
+                    String name = d.getName();
+                })
+                .select(g -> new Result()
+                {
+                    String deptId = g.key.id;
+                    String deptName = g.key.name;
+                    BigDecimal avgSalary = g.avg((de, s, d) -> s.getSalary());
+                }).toSql();
+
+        System.out.println(sql);
     }
 }
