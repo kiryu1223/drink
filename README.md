@@ -302,7 +302,9 @@
 | `toList`       |                                               | 查询返回的结果集                  | 多表查询时必须进行一次select之后才能进行返回结果集操作（因为多表情况下不知道到底要返回什么）                                                                                                                             |
 
 假设我们有一个员工表
+
 ```java
+
 @Data
 @Table("employees")
 public class Employee
@@ -327,22 +329,24 @@ public class Employee
 ```
 
 根据id获得员工对象
+
 ```java
 public class DisplayTest extends BaseTest
 {
-   public void d1()
-   {
-      int id = 10001;
-      List<Employee> list = client.query(Employee.class) // FROM `employees` AS t0
-              .where(e -> e.getNumber() == id) // WHERE t0.`emp_no` = ?
-              // 因为没有select，默认选择了全字段 
-              // SELECT t0.`birth_date`,t0.`first_name`,t0.`last_name`,t0.`emp_no`,t0.`hire_date`,t0.`gender`
-              .toList(); 
-   }
+    public void d1()
+    {
+        int id = 10001;
+        List<Employee> list = client.query(Employee.class) // FROM `employees` AS t0
+                .where(e -> e.getNumber() == id) // WHERE t0.`emp_no` = ?
+                // 因为没有select，默认选择了全字段 
+                // SELECT t0.`birth_date`,t0.`first_name`,t0.`last_name`,t0.`emp_no`,t0.`hire_date`,t0.`gender`
+                .toList();
+    }
 }
 ```
 
 对应的sql
+
 ```mysql
 SELECT t0.`birth_date`, t0.`first_name`, t0.`last_name`, t0.`emp_no`, t0.`hire_date`, t0.`gender`
 FROM `employees` AS t0
@@ -350,6 +354,7 @@ WHERE t0.`emp_no` = ?
 ```
 
 根据firstName和性别获得员工对象
+
 ```java
 public class DisplayTest extends BaseTest
 {
@@ -365,6 +370,7 @@ public class DisplayTest extends BaseTest
 ```
 
 对应的sql
+
 ```mysql
 SELECT t0.`birth_date`, t0.`first_name`, t0.`last_name`, t0.`emp_no`, t0.`hire_date`, t0.`gender`
 FROM `employees` AS t0
@@ -373,7 +379,9 @@ WHERE t0.`gender` = ?
 ```
 
 假设我们还有一张员工薪资历史表
+
 ```java
+
 @Data
 @Table("salaries")
 public class Salary
@@ -393,6 +401,7 @@ public class Salary
 ```
 
 查询一个员工的姓名和历史最高薪资和平均薪资
+
 ```java
 public class DisplayTest extends BaseTest
 {
@@ -405,12 +414,12 @@ public class DisplayTest extends BaseTest
                 // SELECT
                 .select((e, s) -> new Result()
                 {
-                   // CONCAT(t0.`first_name`, ?, t0.`last_name`) AS `name` 
-                   String name = SqlFunctions.concat(e.getFirstName(), " ", e.getLastName());
-                   // MAX(t1.`salary`)                           AS `maxSalary`,
-                   int maxSalary = SqlFunctions.max(s.getSalary());
-                   // AVG(t1.`salary`)                           AS `avgSalary`
-                   BigDecimal avgSalary = SqlFunctions.avg(s.getSalary());
+                    // CONCAT(t0.`first_name`, ?, t0.`last_name`) AS `name` 
+                    String name = SqlFunctions.concat(e.getFirstName(), " ", e.getLastName());
+                    // MAX(t1.`salary`)                           AS `maxSalary`,
+                    int maxSalary = SqlFunctions.max(s.getSalary());
+                    // AVG(t1.`salary`)                           AS `avgSalary`
+                    BigDecimal avgSalary = SqlFunctions.avg(s.getSalary());
                 })
                 .toList();
     }
@@ -418,17 +427,20 @@ public class DisplayTest extends BaseTest
 ```
 
 对应的sql
+
 ```mysql
 SELECT CONCAT(t0.`first_name`, ?, t0.`last_name`) AS `name`,
        MAX(t1.`salary`)                           AS `maxSalary`,
        AVG(t1.`salary`)                           AS `avgSalary`
 FROM `employees` AS t0
-        LEFT JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
+         LEFT JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
 WHERE t0.`emp_no` = ?
 ```
 
 假设我们还有部门表和员工部门中间表
+
 ```java
+
 @Table("departments")
 @Data
 public class Department
@@ -441,7 +453,9 @@ public class Department
     private String name;
 }
 ```
+
 ```java
+
 @Data
 @Table("dept_emp")
 public class DeptEmp
@@ -462,6 +476,7 @@ public class DeptEmp
 ```
 
 查询某部门的员工的平均薪水
+
 ```java
 public class DisplayTest extends BaseTest
 {
@@ -497,11 +512,12 @@ public class DisplayTest extends BaseTest
 ```
 
 对应的sql
+
 ```mysql
 SELECT t0.`dept_no` AS `deptId`, t2.`dept_name` AS `deptName`, AVG(t1.`salary`) AS `avgSalary`
 FROM `dept_emp` AS t0
-        INNER JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
-        INNER JOIN `departments` AS t2 ON t0.`dept_no` = t2.`dept_no`
+         INNER JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
+         INNER JOIN `departments` AS t2 ON t0.`dept_no` = t2.`dept_no`
 WHERE t0.`dept_no` = ?
   AND t1.`to_date` = ?
 GROUP BY t0.`dept_no`, t2.`dept_name`
@@ -509,11 +525,94 @@ GROUP BY t0.`dept_no`, t2.`dept_name`
 
 ### 新增
 
-xxxx
+查询由client对象的insert方法发起，insert方法接收一个或多个数据库表对应的对象，
+返回一个新增过程对象,可以对这个新增过程对象后续进行insert方法添加更多数据
+
+| 方法          | 参数           | 返回      | 说明             |
+|-------------|--------------|---------|----------------|
+| insert      | 同类型单个对象或对象集合 | this    | 添加更多需要传入数据库的对象 |
+| executeRows |              | 执行成功的数量 | 执行insert       |
+
+>注意：insert根据数量自动选择批量执行（数量>=2）
+
+Department表新增一个数据
+
+```java
+public class DisplayTest extends BaseTest
+{
+    public void i1()
+    {
+        Department department = new Department();
+        department.setNumber("101");
+        department.setName("ddd");
+
+        client.insert(department).executeRows();
+    }
+}
+```
+
+新增多个数据
+
+```java
+public class DisplayTest extends BaseTest
+{
+    public void i2()
+    {
+        Department department1 = new Department();
+        department1.setNumber("101");
+        department1.setName("ddd");
+        Department department2 = new Department();
+        department2.setNumber("102");
+        department2.setName("eee");
+        Department department3 = new Department();
+        department3.setNumber("103");
+        department3.setName("fff");
+
+        List<Department> list = Arrays.asList(department1, department2, department3);
+
+        client.insert(list).executeRows();
+    }
+}
+```
+
+新增任意数据
+
+```java
+public class DisplayTest extends BaseTest
+{
+    public void i3()
+    {
+        Department d = new Department();
+
+        Department department1 = new Department();
+        department1.setNumber("101");
+        department1.setName("ddd");
+        Department department2 = new Department();
+        department2.setNumber("102");
+        department2.setName("eee");
+        Department department3 = new Department();
+        department3.setNumber("103");
+        department3.setName("fff");
+
+        List<Department> ds = Arrays.asList(department1, department2, department3);
+
+        client.insert(d).insert(ds).executeRows();
+    }
+}
+```
 
 ### 更新
 
-xxxx
+查询由client对象的update方法发起，update方法接收一个class对象，返回一个更新过程对象，
+可以对这个对象后续进行`set`设置数据和`where`限制更新范围等操作
+
+| 方法       | 参数               | 返回       | 说明                          |
+|----------|------------------|----------|-----------------------------|
+| leftJoin | 同查询过程对象的leftJoin | 新的查询过程对象 | 用于连表更新的场合，操作方式与查询时的join方法一致 |
+| set      | lambda表达式        | this     | 设置更新数据的lambda表达式            |
+| where    | 同查询过程对象的where    | this     | 同查询过程对象的where               |
+
+>警告：进行无where限制下的update时默认会报错，需要手动开始无视无where限制
 
 ### 删除
 

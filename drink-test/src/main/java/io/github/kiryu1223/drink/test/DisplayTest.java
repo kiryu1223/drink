@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 public class DisplayTest extends BaseTest
@@ -72,5 +73,49 @@ public class DisplayTest extends BaseTest
                 .toSql();
 
         System.out.println(list);
+    }
+
+    public void i1()
+    {
+        Department department = new Department();
+        department.setNumber("101");
+        department.setName("ddd");
+        client.insert(department).executeRows();
+    }
+
+    public void i2()
+    {
+        Department department1 = new Department();
+        department1.setNumber("101");
+        department1.setName("ddd");
+        Department department2 = new Department();
+        department2.setNumber("102");
+        department2.setName("eee");
+        Department department3 = new Department();
+        department3.setNumber("103");
+        department3.setName("fff");
+
+        List<Department> list = Arrays.asList(department1, department2, department3);
+
+        client.insert(list).executeRows();
+    }
+
+    public void i3()
+    {
+        Department d = new Department();
+
+        Department department1 = new Department();
+        department1.setNumber("101");
+        department1.setName("ddd");
+        Department department2 = new Department();
+        department2.setNumber("102");
+        department2.setName("eee");
+        Department department3 = new Department();
+        department3.setNumber("103");
+        department3.setName("fff");
+
+        List<Department> ds = Arrays.asList(department1, department2, department3);
+
+        client.insert(d).insert(ds).executeRows();
     }
 }
