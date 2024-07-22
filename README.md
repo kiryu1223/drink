@@ -115,7 +115,7 @@
 ### 使用SpringBoot
 
 1. 引入starter
-   ```xm
+   ```xml
            <dependency>
                <groupId>io.github.kiryu1223</groupId>
                <artifactId>drink-spring-boot-starter</artifactId>
@@ -123,7 +123,7 @@
            </dependency>
    ```
 2. 配置yml
-   ```ya
+   ```yaml
    spring:
      output:
        ansi:
