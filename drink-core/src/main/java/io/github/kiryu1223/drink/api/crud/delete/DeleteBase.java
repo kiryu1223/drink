@@ -3,7 +3,13 @@ package io.github.kiryu1223.drink.api.crud.delete;
 import io.github.kiryu1223.drink.api.crud.base.CRUD;
 import io.github.kiryu1223.drink.api.crud.builder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.context.SqlRealTableContext;
+import io.github.kiryu1223.drink.core.context.SqlTableContext;
 import io.github.kiryu1223.drink.core.session.SqlSession;
+import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +27,11 @@ public abstract class DeleteBase extends CRUD
         this.sqlBuilder = new DeleteSqlBuilder(config);
     }
 
+    public DeleteBase(DeleteSqlBuilder sqlBuilder)
+    {
+        this.sqlBuilder = sqlBuilder;
+    }
+
     protected DeleteSqlBuilder getSqlBuilder()
     {
         return sqlBuilder;
@@ -33,7 +44,7 @@ public abstract class DeleteBase extends CRUD
 
     protected void setDeleteTable(Class<?> c)
     {
-        sqlBuilder.setDeleteTable(c);
+        sqlBuilder.setFromTable(c);
     }
 
     public long executeRows()
@@ -59,5 +70,18 @@ public abstract class DeleteBase extends CRUD
         {
             throw new RuntimeException("DELETE没有条件");
         }
+    }
+
+    protected void join(JoinType joinType, Class<?> target, ExprTree<?> expr)
+    {
+        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
+        SqlContext onContext = whereVisitor.visit(expr.getTree());
+        SqlTableContext tableContext = new SqlRealTableContext(target);
+        getSqlBuilder().addJoin(target, joinType, tableContext, onContext);
+    }
+
+    protected void selectDeleteTable(Class<?> c)
+    {
+        getSqlBuilder().addExclude(c);
     }
 }

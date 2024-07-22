@@ -6,8 +6,8 @@ import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@Repeatable(SqlFuncExts.class)
-public @interface SqlFuncExt
+@Repeatable(SqlExtensionExpressions.class)
+public @interface SqlExtensionExpression
 {
     DbType dbType() default DbType.Other;
     String function();

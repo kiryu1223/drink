@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.core.visitor;
 
-import io.github.kiryu1223.drink.annotation.SqlFuncExt;
+import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
@@ -112,8 +112,8 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             Method method = methodCall.getMethod();
             List<Expression> args = methodCall.getArgs();
             List<SqlContext> contexts = new ArrayList<>(args.size());
-            SqlFuncExt[] sqlFuncExts = method.getAnnotationsByType(SqlFuncExt.class);
-            if (sqlFuncExts.length == 0)
+            SqlExtensionExpression[] sqlExtensionExpressions = method.getAnnotationsByType(SqlExtensionExpression.class);
+            if (sqlExtensionExpressions.length == 0)
             {
                 List<String> strings = new ArrayList<>();
                 strings.add(method.getName() + "(");
@@ -128,7 +128,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             }
             else
             {
-                String function = getSqlFuncExt(sqlFuncExts).function();
+                String function = getSqlFuncExt(sqlExtensionExpressions).function();
                 if (method.getParameterCount() == 0)
                 {
                     return new SqlFunctionsContext(Collections.singletonList(function), Collections.emptyList());
@@ -424,10 +424,10 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
         return atomicBoolean.get();
     }
 
-    protected SqlFuncExt getSqlFuncExt(SqlFuncExt[] sqlFuncExts)
+    protected SqlExtensionExpression getSqlFuncExt(SqlExtensionExpression[] sqlExtensionExpressions)
     {
         DbType dbType = config.getDbType();
-        List<SqlFuncExt> collect = Arrays.stream(sqlFuncExts).filter(a -> a.dbType() == dbType).collect(Collectors.toList());
+        List<SqlExtensionExpression> collect = Arrays.stream(sqlExtensionExpressions).filter(a -> a.dbType() == dbType).collect(Collectors.toList());
         if (collect.isEmpty())
         {
             throw new SqlFuncExtNotFoundException(dbType);

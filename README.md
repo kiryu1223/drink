@@ -265,6 +265,13 @@
 
 3. 启动！
 
+## 常用的注解
+
+| 名称       | 参数                    | 说明                                                          |
+|----------|-----------------------|-------------------------------------------------------------|
+| `Column` | 参数1：数据库列名<br/>参数2：转换器 | Column注解用于类型的字段与数据库字段不一致的场合，或者是类型不一致需要转换的场合（java枚举<->数据库枚举） |
+| `Table`  | 参数1：表名                | Table注解用于类名与表名不一致的场合                                        |
+
 ## CRUD
 
 所有的增删查改操作都由DrinkClient对象完成（以下简称为client）
@@ -525,7 +532,7 @@ GROUP BY t0.`dept_no`, t2.`dept_name`
 
 ### 新增
 
-查询由client对象的insert方法发起，insert方法接收一个或多个数据库表对应的对象，
+新增由client对象的insert方法发起，insert方法接收一个或多个数据库表对应的对象，
 返回一个新增过程对象,可以对这个新增过程对象后续进行insert方法添加更多数据
 
 | 方法          | 参数           | 返回      | 说明             |
@@ -533,7 +540,7 @@ GROUP BY t0.`dept_no`, t2.`dept_name`
 | insert      | 同类型单个对象或对象集合 | this    | 添加更多需要传入数据库的对象 |
 | executeRows |              | 执行成功的数量 | 执行insert       |
 
->注意：insert根据数量自动选择批量执行（数量>=2）
+> 注意：insert根据数量自动选择批量执行（数量>=2）
 
 Department表新增一个数据
 
@@ -603,17 +610,125 @@ public class DisplayTest extends BaseTest
 
 ### 更新
 
-查询由client对象的update方法发起，update方法接收一个class对象，返回一个更新过程对象，
+更新由client对象的update方法发起，update方法接收一个class对象，返回一个更新过程对象，
 可以对这个对象后续进行`set`设置数据和`where`限制更新范围等操作
 
-| 方法       | 参数               | 返回       | 说明                          |
-|----------|------------------|----------|-----------------------------|
-| leftJoin | 同查询过程对象的leftJoin | 新的查询过程对象 | 用于连表更新的场合，操作方式与查询时的join方法一致 |
-| set      | lambda表达式        | this     | 设置更新数据的lambda表达式            |
-| where    | 同查询过程对象的where    | this     | 同查询过程对象的where               |
+| 方法                   | 参数               | 返回       | 说明                       |
+|----------------------|------------------|----------|--------------------------|
+| left/right/innerJoin | 同查询过程对象的leftJoin | 新的更新过程对象 | 用于连表更新，操作方式与查询时的join方法一致 |
+| set                  | lambda表达式        | this     | 设置更新数据的lambda表达式         |
+| where                | 同查询过程对象的where    | this     | 同查询过程对象的where            |
 
->警告：进行无where限制下的update时默认会报错，需要手动开始无视无where限制
+> 警告：进行无where限制下的update时默认会报错，需要手开启无视无where限制
+
+为Department表更新数据
+
+```java
+public class UpdateTest extends BaseTest
+{
+    public void display0()
+    {
+        long l2 = client.update(Department.class)
+                .set(s ->
+                {
+                    s.setName("newName");
+                })
+                .where(w -> w.getNumber() == "100")
+                .executeRows();
+    }
+}
+```
+
+对应sql
+
+```mysql
+UPDATE `departments` AS t0
+SET t0.`dept_name` = ?
+WHERE t0.`dept_no` = ?
+```
+
+连表更新
+
+```java
+public class UpdateTest extends BaseTest
+{
+    long l = client.update(Department.class)
+            .leftJoin(DeptEmp.class, (a, b) -> a.getNumber() == b.getDeptNumber())
+            .set((a, b) -> a.setName(b.getDeptNumber()))
+            .where((a, b) -> 1 == 1)
+            .executeRows();
+}
+```
+
+对应sql
+
+```mysql
+UPDATE `departments` AS t0 LEFT JOIN `dept_emp` AS t1 ON t0.`dept_no` = t1.`dept_no`
+SET t0.`dept_name` = t1.`dept_no`
+WHERE ? = ?
+```
 
 ### 删除
 
-xxxx
+删除由client对象的delete方法发起，delete方法接收一个class对象，返回一个删除过程对象，
+可以对这个对象后续进行`where`限制更新范围等操作
+
+| 方法                   | 参数                      | 返回       | 说明                                                |
+|----------------------|-------------------------|----------|---------------------------------------------------|
+| left/right/innerJoin | 同查询过程对象的leftJoin        | 新的删除过程对象 | 用于连表删除，操作方式与查询时的join方法一致                          |
+| where                | 同查询过程对象的where           | this     | 同查询过程对象的where                                     |
+| selectDelete         | 返回需要删除的目标表的对象的lambda表达式 | this     | join后连表删除时可以使用，用于指定需要删除的表，可以通过多次调用增加目标（无调用默认选择全部） |
+
+> 警告：进行无where限制下的delete时默认会报错，需要手开启无视无where限制
+
+为Department表删除数据
+
+```java
+public class DeleteTest extends BaseTest
+{
+    @Test
+    public void d1()
+    {
+        long executeRows = client.delete(Department.class)
+                .where(w -> w.getNumber() == "10009")
+                .executeRows();
+    }
+}
+```
+
+对应sql
+
+```mysql
+DELETE
+FROM `departments` AS t0
+WHERE t0.`dept_no` = ?
+```
+
+连表删除
+
+```java
+public class DeleteTest extends BaseTest
+{
+    @Test
+    public void d2()
+    {
+        String sql = client.delete(Department.class)
+                .leftJoin(DeptEmp.class, (d, dm) -> d.getNumber() == dm.getDeptNumber())
+                .where((d, dm) -> d.getNumber() == "d009")
+//                .selectDeleteTable((d, dm) -> d)
+                .selectDelete((d, dm) -> dm)
+                .toSql();
+        System.out.println(sql);
+    }
+}
+```
+
+对应sql
+
+```mysql
+DELETE t1
+FROM `departments` AS t0
+         LEFT JOIN `dept_emp` AS t1 ON t0.`dept_no` = t1.`dept_no`
+WHERE t0.`dept_no` = ?
+```
+

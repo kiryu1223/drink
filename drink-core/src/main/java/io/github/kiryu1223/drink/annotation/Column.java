@@ -12,7 +12,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Column
 {
+    /**
+     * 数据库列名
+     */
     String value() default "";
 
+    /**
+     * 转换器，用于列类型与java类型不一致的情况（比如数据库枚举=>java枚举）
+     */
     Class<? extends IConverter<?, ?>> converter() default NoConverter.class;
 }

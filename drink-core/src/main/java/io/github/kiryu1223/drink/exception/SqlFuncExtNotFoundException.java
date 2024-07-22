@@ -6,6 +6,6 @@ public class SqlFuncExtNotFoundException extends RuntimeException
 {
     public SqlFuncExtNotFoundException(DbType type)
     {
-        super("No corresponding SqlFuncExt annotation found for database type: " + type);
+        super("No corresponding SqlExtensionExpression annotation found for database type: " + type);
     }
 }

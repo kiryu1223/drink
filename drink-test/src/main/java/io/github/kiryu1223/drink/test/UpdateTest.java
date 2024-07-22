@@ -33,7 +33,7 @@ public class UpdateTest extends BaseTest
                     {
                         s.setName("newName");
                     })
-                    .where(w -> SqlCalculates.eq(w.getNumber(),"100"))
+                    .where(w -> SqlCalculates.eq(w.getNumber(), "100"))
                     .executeRows();
 
             System.out.println("更新影响条数:" + l);
@@ -43,7 +43,7 @@ public class UpdateTest extends BaseTest
             System.out.println(list2);
 
             long l3 = client.delete(Department.class)
-                    .where(w -> SqlCalculates.eq(w.getNumber(),"100"))
+                    .where(w -> SqlCalculates.eq(w.getNumber(), "100"))
                     .executeRows();
 
             System.out.println("删除影响条数:" + l);
@@ -91,5 +91,28 @@ public class UpdateTest extends BaseTest
                 ).toSql();
 
         System.out.println(sql);
+    }
+
+    @Test
+    public void display0()
+    {
+        String sql = client.update(Department.class)
+                .set(s ->
+                {
+                    s.setName("newName");
+                })
+                .where(w -> w.getNumber() == "100")
+                .toSql();
+        System.out.println(sql);
+    }
+
+    @Test
+    public void display1()
+    {
+        long l = client.update(Department.class)
+                .leftJoin(DeptEmp.class, (a, b) -> a.getNumber() == b.getDeptNumber())
+                .set((a, b) -> a.setName(b.getDeptNumber()))
+                .where((a, b) -> 1 == 1)
+                .executeRows();
     }
 }

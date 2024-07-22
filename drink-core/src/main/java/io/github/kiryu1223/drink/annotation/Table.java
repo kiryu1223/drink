@@ -9,5 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Table
 {
+    /**
+     * 数据库表名
+     */
     String value() default "";
 }
