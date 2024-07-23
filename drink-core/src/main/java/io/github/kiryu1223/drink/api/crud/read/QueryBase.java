@@ -218,7 +218,7 @@ public abstract class QueryBase extends CRUD
     {
         if (single)
         {
-            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素, 单元素请使用selectSingle");
+            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素, 单元素请使用endSelect");
         }
     }
 

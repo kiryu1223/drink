@@ -125,7 +125,7 @@ public class SQLTest
                     String stars0000 = s.getId();
                 })
                 .distinct()
-                .selectSingle(r -> r.id0000)
+                .endSelect(r -> r.id0000)
                 .toSql();
         System.out.println(sql);
 //        log.info(sql);
@@ -140,7 +140,7 @@ public class SQLTest
                 .orderBy(f -> f.getId())
                 .orderBy(f -> f.getCreateTime(), false)
                 .distinct()
-                .selectSingle(s -> s.getStars())
+                .endSelect(s -> s.getStars())
                 .toSql();
         System.out.println(sql);
 
@@ -161,7 +161,7 @@ public class SQLTest
                     int id0000 = b.getStars();
                     String stars0000 = a.getId();
                 })
-                .selectSingle(s -> s.id0000)
+                .endSelect(s -> s.id0000)
                 .toSql();
         System.out.println(sql);
 
@@ -262,7 +262,7 @@ public class SQLTest
     {
         String sql = client.query(Topic.class)
                 .where(a -> SqlFunctions.convert(a.getId(), int.class) > 50)
-                .selectSingle(s -> SqlFunctions.count(s.getId()))
+                .endSelect(s -> SqlFunctions.count(s.getId()))
                 .toSql();
 
         System.out.println(sql);
@@ -273,7 +273,7 @@ public class SQLTest
     {
         String sql = client.query(Topic.class)
                 .where(a -> SqlFunctions.convert(a.getId(), int.class) > 50)
-                .selectSingle(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .endSelect(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
                 .toSql();
 
         System.out.println(sql);
@@ -285,14 +285,14 @@ public class SQLTest
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
         String sql1 = client.query(Topic.class)
                 .where(a -> list.contains(a.getStars()))
-                .selectSingle(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .endSelect(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
                 .toSql();
 
         System.out.println(sql1);
 
         String sql2 = client.query(Topic.class)
                 .where(a -> "aabb".contains(a.getTitle()) || "aabb".startsWith(a.getTitle()) || "aabb".endsWith(a.getTitle()))
-                .selectSingle(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .endSelect(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
                 .toSql();
         System.out.println(sql2);
     }
@@ -301,7 +301,7 @@ public class SQLTest
     public void m12()
     {
         String sql1 = client.query(Topic.class)
-                .selectSingle(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
+                .endSelect(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
                 .toSql();
 
         System.out.println(sql1);
@@ -312,7 +312,7 @@ public class SQLTest
     {
         String sql1 = client.query(Topic.class)
                 .where(w -> between(w.getStars(), 0, 500))
-                .selectSingle(s -> s)
+                .endSelect(s -> s)
                 .toSql();
 
         System.out.println(sql1);
@@ -321,12 +321,12 @@ public class SQLTest
     @Test
     public void m14()
     {
-        //exists(client.query(Top.class).where(t1 -> t1.getTitle() == t0.getTitle()).selectSingle(s -> 1))
+        //exists(client.query(Top.class).where(t1 -> t1.getTitle() == t0.getTitle()).endSelect(s -> 1))
         String sql1 = client.query(Topic.class)
                 .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
                 .exists(Top.class, (a, b, c) -> a.getTitle() == SqlFunctions.toStr(c.getStars()))
                 .exists(Top.class, (a, b, c) -> b.getTitle() == SqlFunctions.toStr(c.getStars()))
-                .selectSingle((s1, s2) -> 1)
+                .endSelect((s1, s2) -> 1)
                 .toSql();
 
         System.out.println(sql1);
@@ -337,7 +337,7 @@ public class SQLTest
     {
         String sql1 = client.query(Topic.class)
                 .exists(Top.class, (a, b) -> a.getId() == b.getTitle())
-                .selectSingle((s1) -> 1)
+                .endSelect((s1) -> 1)
                 .toSql();
 
         System.out.println(sql1);

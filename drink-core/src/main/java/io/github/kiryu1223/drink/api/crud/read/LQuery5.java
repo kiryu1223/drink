@@ -233,12 +233,12 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase
         return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, R> expr)
+    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<R> selectSingle(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr)
+    public <R> EndQuery<R> endSelect(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr)
     {
         select(expr.getTree());
         return new EndQuery<>(boxedQuerySqlBuilder());

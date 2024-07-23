@@ -271,12 +271,12 @@ public class LQuery<T> extends QueryBase
         return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func1<T, R> expr)
+    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func1<T, R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<R> selectSingle(ExprTree<Func1<T, R>> expr)
+    public <R> EndQuery<R> endSelect(ExprTree<Func1<T, R>> expr)
     {
         select(expr.getTree());
         return new EndQuery<>(boxedQuerySqlBuilder());

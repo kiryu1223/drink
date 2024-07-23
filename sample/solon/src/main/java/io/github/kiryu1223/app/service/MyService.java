@@ -28,7 +28,7 @@ public class MyService
     {
         long aLong = client
                 .query(Employee.class)
-                .selectSingle(s -> SqlFunctions.count())
+                .endSelect(s -> SqlFunctions.count())
                 .toList()
                 .get(0);
 

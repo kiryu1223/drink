@@ -70,7 +70,7 @@ public class DepartmentTest extends BaseTest
     @Test
     public void q4()
     {
-        List<Long> list1 = client.query(Employee.class).selectSingle(s -> SqlFunctions.count()).toList();
+        List<Long> list1 = client.query(Employee.class).endSelect(s -> SqlFunctions.count()).toList();
         System.out.println(list1.get(0));
     }
 

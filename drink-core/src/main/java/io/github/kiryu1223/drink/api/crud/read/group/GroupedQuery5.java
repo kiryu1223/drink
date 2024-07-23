@@ -82,12 +82,12 @@ public class GroupedQuery5<Key, T1, T2, T3, T4, T5> extends QueryBase
         return new LQuery<>(boxedQuerySqlBuilder());
     }
 
-    public <R> EndQuery<R> selectSingle(@Expr(Expr.BodyType.Expr) Func1<Group5<Key, T1, T2, T3, T4, T5>, R> expr)
+    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func1<Group5<Key, T1, T2, T3, T4, T5>, R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<R> selectSingle(ExprTree<Func1<Group5<Key, T1, T2, T3, T4, T5>, R>> expr)
+    public <R> EndQuery<R> endSelect(ExprTree<Func1<Group5<Key, T1, T2, T3, T4, T5>, R>> expr)
     {
         select(expr.getTree());
         return new EndQuery<>(boxedQuerySqlBuilder());
