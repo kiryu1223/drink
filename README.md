@@ -1,5 +1,7 @@
 qq群：257911716
 
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.kiryu1223/drink-all)
+
 ## 如何引入
 
 ### 从零开始构建的场合
