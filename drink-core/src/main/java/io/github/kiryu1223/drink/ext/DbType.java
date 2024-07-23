@@ -2,7 +2,7 @@ package io.github.kiryu1223.drink.ext;
 
 public enum DbType
 {
-    Other,
+    Any,
     MySQL,
     SqlServer,
     H2,

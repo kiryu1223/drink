@@ -9,6 +9,6 @@ import java.lang.annotation.*;
 @Repeatable(SqlExtensionExpressions.class)
 public @interface SqlExtensionExpression
 {
-    DbType dbType() default DbType.Other;
+    DbType dbType() default DbType.Any;
     String function();
 }
