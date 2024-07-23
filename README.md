@@ -123,13 +123,37 @@ qq群：257911716
 
 ### 使用SpringBoot
 
-1. 引入starter
+1. 引入starter并且开启apt
+
    ```xml
            <dependency>
                <groupId>io.github.kiryu1223</groupId>
                <artifactId>drink-spring-boot-starter</artifactId>
                <version>${project.version}</version>
            </dependency>
+   ```
+   ```xml
+      <build>
+         <plugins>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-compiler-plugin</artifactId>
+                 <version>3.8.1</version>
+                 <configuration>
+                     <compilerArgs>
+                         <arg>-Xplugin:ExpressionTree</arg>
+                     </compilerArgs>
+                     <annotationProcessorPaths>
+                         <path>
+                             <groupId>io.github.kiryu1223</groupId>
+                             <artifactId>drink-core</artifactId>
+                             <version>${project.version}</version>
+                         </path>
+                     </annotationProcessorPaths>
+                 </configuration>
+             </plugin>
+         </plugins>
+     </build>
    ```
 2. 配置yml
    ```yaml
@@ -160,7 +184,7 @@ qq群：257911716
 
 ### 使用Solon
 
-1. 引入插件
+1. 引入插件并且开启apt
 
    ```xml
            <dependency>
@@ -168,6 +192,29 @@ qq群：257911716
                <artifactId>drink-solon-plugin</artifactId>
                <version>${project.version}</version>
            </dependency>
+   ```
+   ```xml
+      <build>
+         <plugins>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-compiler-plugin</artifactId>
+                 <version>3.8.1</version>
+                 <configuration>
+                     <compilerArgs>
+                         <arg>-Xplugin:ExpressionTree</arg>
+                     </compilerArgs>
+                     <annotationProcessorPaths>
+                         <path>
+                             <groupId>io.github.kiryu1223</groupId>
+                             <artifactId>drink-core</artifactId>
+                             <version>${project.version}</version>
+                         </path>
+                     </annotationProcessorPaths>
+                 </configuration>
+             </plugin>
+         </plugins>
+     </build>
    ```
 2. 配置config和yml
 
