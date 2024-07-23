@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.core.context;
 
-import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.api.crud.read.QueryBase;
+import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.List;

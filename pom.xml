@@ -10,9 +10,11 @@
     <packaging>pom</packaging>
     <modules>
         <module>drink-core</module>
+        <module>drink-support</module>
+
+        <!-- skip -->
         <module>drink-test</module>
         <module>sample</module>
-        <module>drink-support</module>
     </modules>
 
     <properties>

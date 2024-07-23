@@ -47,21 +47,21 @@ public class MetaData
         return Columns.get(key);
     }
 
-    private List<Field> getAllFields(Class<?> clazz)
-    {
-        List<Field> fields = new ArrayList<>();
-        if (!clazz.isAnonymousClass())
-        {
-            Class<?> superClass = clazz.getSuperclass();
-            if (superClass != null)
-            {
-                List<Field> allFields0 = getAllFields(superClass);
-                fields.addAll(allFields0);
-            }
-        }
-        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-        return fields;
-    }
+//    private List<Field> getAllFields(Class<?> clazz)
+//    {
+//        List<Field> fields = new ArrayList<>();
+//        if (!clazz.isAnonymousClass())
+//        {
+//            Class<?> superClass = clazz.getSuperclass();
+//            if (superClass != null)
+//            {
+//                List<Field> allFields0 = getAllFields(superClass);
+//                fields.addAll(allFields0);
+//            }
+//        }
+//        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+//        return fields;
+//    }
 
     public PropertyDescriptor[] propertyDescriptors(Class<?> c)
     {

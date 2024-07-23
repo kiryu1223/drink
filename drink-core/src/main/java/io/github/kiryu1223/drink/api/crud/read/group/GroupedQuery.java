@@ -1,9 +1,8 @@
 package io.github.kiryu1223.drink.api.crud.read.group;
 
-import io.github.kiryu1223.drink.api.crud.builder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
-import io.github.kiryu1223.drink.api.crud.read.LQuery3;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;

@@ -4,20 +4,15 @@ import io.github.kiryu1223.app.pojos.Department;
 import io.github.kiryu1223.app.pojos.Employee;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
+import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.starter.dataSource.SpringDynamicDataSourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class MyService

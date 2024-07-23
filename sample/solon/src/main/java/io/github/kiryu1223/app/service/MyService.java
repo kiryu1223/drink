@@ -4,12 +4,11 @@ import io.github.kiryu1223.app.pojos.Department;
 import io.github.kiryu1223.app.pojos.Employee;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
+import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
-import org.noear.solon.annotation.ProxyComponent;
 import org.noear.solon.data.annotation.Tran;
 
 

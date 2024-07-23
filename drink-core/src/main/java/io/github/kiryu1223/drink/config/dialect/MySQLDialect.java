@@ -1,6 +1,6 @@
-package io.github.kiryu1223.drink.config.disambiguation;
+package io.github.kiryu1223.drink.config.dialect;
 
-public class MySQLDisambiguation implements IDisambiguation
+public class MySQLDialect implements IDialect
 {
     @Override
     public String disambiguation(String property)

@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.test;
 
-import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
+import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.pojos.Department;
 import org.junit.Test;
 

@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
-import io.github.kiryu1223.drink.api.crud.base.CRUD;
-import io.github.kiryu1223.drink.api.crud.builder.UpdateSqlBuilder;
+import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
@@ -61,6 +61,7 @@ public class UpdateBase extends CRUD
 
     private void checkHasWhere()
     {
+        if (getConfig().isIgnoreUpdateNoWhere()) return;
         if (!sqlBuilder.hasWhere())
         {
             throw new RuntimeException("UPDATE没有条件");

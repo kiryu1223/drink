@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.api.crud.transaction;
+package io.github.kiryu1223.drink.api.transaction;
 
 public interface TransactionManager
 {

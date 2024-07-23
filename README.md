@@ -1,3 +1,5 @@
+qq群：257911716
+
 ## 如何引入
 
 ### 从零开始构建的场合
@@ -17,7 +19,7 @@
            <dependency>
                <groupId>ch.qos.logback</groupId>
                <artifactId>logback-classic</artifactId>
-               <version>1.4.12</version>
+               <version>1.2.12</version>
            </dependency>
 
            <!--数据库-->
@@ -33,6 +35,13 @@
                <artifactId>HikariCP</artifactId>
                <version>4.0.3</version>
            </dependency>
+   
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.34</version>
+            </dependency>
+   
        </dependencies>
 
        <build>
@@ -54,11 +63,11 @@
                                <version>${project.version}</version>
                            </path>
                            <!--你的剩余apt路径配置，假设你的项目中还依赖了lombok等apt的话-->
-                           <!--<path>-->
-                           <!--    <groupId>org.projectlombok</groupId>-->
-                           <!--    <artifactId>lombok</artifactId>-->
-                           <!--    <version>1.18.34</version>-->
-                           <!--</path>-->
+                           <path>
+                               <groupId>org.projectlombok</groupId>
+                               <artifactId>lombok</artifactId>
+                               <version>1.18.34</version>
+                           </path>
                        </annotationProcessorPaths>
                    </configuration>
                </plugin>
@@ -73,8 +82,8 @@
    import com.zaxxer.hikari.HikariDataSource;
    import io.github.kiryu1223.drink.Drink;
    import io.github.kiryu1223.drink.api.client.DrinkClient;
-   import io.github.kiryu1223.drink.api.crud.transaction.DefaultTransactionManager;
-   import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
+   import io.github.kiryu1223.drink.transaction.DefaultTransactionManager;
+   import io.github.kiryu1223.drink.transaction.TransactionManager;
    import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
    import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
    import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;

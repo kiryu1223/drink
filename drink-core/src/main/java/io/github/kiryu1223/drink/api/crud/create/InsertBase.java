@@ -1,9 +1,9 @@
 package io.github.kiryu1223.drink.api.crud.create;
 
-import io.github.kiryu1223.drink.api.crud.base.CRUD;
-import io.github.kiryu1223.drink.api.crud.builder.InsertSqlBuilder;
+import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.sqlBuilder.InsertSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
+import io.github.kiryu1223.drink.config.dialect.IDialect;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
@@ -145,7 +145,7 @@ public abstract class InsertBase extends CRUD
             }
 
         }
-        IDisambiguation dbConfig = getSqlBuilder().getConfig().getDisambiguation();
+        IDialect dbConfig = getSqlBuilder().getConfig().getDisambiguation();
         return "INSERT INTO " + dbConfig.disambiguation(metaData.getTableName()) + "(" + String.join(",", tableFields)
                 + ") VALUES(" + String.join(",", tableValues) + ")";
     }

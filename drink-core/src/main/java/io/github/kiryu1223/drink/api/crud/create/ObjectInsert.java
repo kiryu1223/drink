@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.api.crud.create;
 
-import io.github.kiryu1223.drink.api.crud.builder.InsertSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.ArrayList;

@@ -1,15 +1,14 @@
 package io.github.kiryu1223.drink;
 
 import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
+import io.github.kiryu1223.drink.config.Option;
+import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
+import io.github.kiryu1223.drink.api.transaction.DefaultTransactionManager;
+import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
-
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Drink
 {
@@ -23,25 +22,22 @@ public class Drink
     private TransactionManager transactionManager;
     private SqlSessionFactory sqlSessionFactory;
 
-    private Map<String, DataSource> map = new HashMap<>();
-
     public DrinkClient build()
     {
-        for (Map.Entry<String, DataSource> entry : map.entrySet())
+        if (dataSourceManager == null)
         {
-            dataSourceManager.addDataSource(entry.getKey(), entry.getValue());
+            throw new NullPointerException("dataSourceManager is null");
         }
-        Config config = new Config(dbType, transactionManager, dataSourceManager, sqlSessionFactory);
-        config.setPrintSql(option.isPrintSql());
-        config.setPrintUseDs(option.isPrintUseDs());
-        config.setPrintBatch(option.isPrintBatch());
+        if (transactionManager == null)
+        {
+            transactionManager = new DefaultTransactionManager(dataSourceManager);
+        }
+        if (sqlSessionFactory == null)
+        {
+            sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
+        }
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory);
         return new DrinkClient(config);
-    }
-
-    public Drink addDataSource(String key, DataSource dataSource)
-    {
-        map.put(key, dataSource);
-        return this;
     }
 
     public static Drink bootStrap()
@@ -75,6 +71,7 @@ public class Drink
 
     public Drink setOption(Option option)
     {
-        this.option = option;return this;
+        this.option = option;
+        return this;
     }
 }

@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.api.crud.base;
+package io.github.kiryu1223.drink.api.crud;
 
 
 import io.github.kiryu1223.drink.config.Config;

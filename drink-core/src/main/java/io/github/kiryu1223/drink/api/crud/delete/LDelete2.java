@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
-import io.github.kiryu1223.drink.api.crud.builder.DeleteSqlBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
@@ -9,8 +9,6 @@ import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
-
-import java.util.List;
 
 public class LDelete2<T1, T2> extends DeleteBase
 {
@@ -80,5 +78,4 @@ public class LDelete2<T1, T2> extends DeleteBase
         selectDeleteTable(returnType);
         return this;
     }
-
 }

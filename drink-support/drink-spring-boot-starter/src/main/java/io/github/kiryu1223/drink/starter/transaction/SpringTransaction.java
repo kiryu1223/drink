@@ -1,8 +1,7 @@
 package io.github.kiryu1223.drink.starter.transaction;
 
-import io.github.kiryu1223.drink.api.crud.transaction.DefaultTransaction;
-import io.github.kiryu1223.drink.api.crud.transaction.Transaction;
-import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
+import io.github.kiryu1223.drink.api.transaction.DefaultTransaction;
+import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;

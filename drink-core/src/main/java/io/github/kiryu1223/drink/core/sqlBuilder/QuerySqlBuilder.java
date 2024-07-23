@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.api.crud.builder;
+package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.metaData.MetaData;

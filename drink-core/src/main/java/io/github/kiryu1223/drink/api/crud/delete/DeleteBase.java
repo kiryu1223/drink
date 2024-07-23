@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
-import io.github.kiryu1223.drink.api.crud.base.CRUD;
-import io.github.kiryu1223.drink.api.crud.builder.DeleteSqlBuilder;
+import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
@@ -66,6 +66,7 @@ public abstract class DeleteBase extends CRUD
 
     private void checkHasWhere()
     {
+        if (getConfig().isIgnoreDeleteNoWhere()) return;
         if (!sqlBuilder.hasWhere())
         {
             throw new RuntimeException("DELETE没有条件");

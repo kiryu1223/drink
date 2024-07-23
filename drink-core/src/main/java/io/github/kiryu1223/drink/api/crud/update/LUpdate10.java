@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
-import io.github.kiryu1223.drink.api.crud.builder.UpdateSqlBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.visitor.SetVisitor;
 import io.github.kiryu1223.drink.core.visitor.WhereVisitor;

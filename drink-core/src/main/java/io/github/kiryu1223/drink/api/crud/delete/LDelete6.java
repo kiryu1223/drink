@@ -1,8 +1,12 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
-import io.github.kiryu1223.drink.api.crud.builder.DeleteSqlBuilder;
+import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
+import io.github.kiryu1223.expressionTree.delegate.Func5;
+import io.github.kiryu1223.expressionTree.delegate.Func6;
 import io.github.kiryu1223.expressionTree.delegate.Func7;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -48,4 +52,31 @@ public class LDelete6<T1, T2, T3, T4, T5, T6> extends DeleteBase
         return new LDelete7<>(getSqlBuilder());
     }
     //endregion
+
+    // region [WHERE]
+    public LDelete6<T1, T2, T3, T4, T5, T6> where(@Expr Func6<T1, T2, T3, T4, T5, T6, Boolean> func)
+    {
+        throw new NotCompiledException();
+    }
+
+    public LDelete6<T1, T2, T3, T4, T5, T6> where(ExprTree<Func6<T1, T2, T3, T4, T5, T6, Boolean>> expr)
+    {
+        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
+        SqlContext context = whereVisitor.visit(expr.getTree());
+        getSqlBuilder().addWhere(context);
+        return this;
+    }
+    // endregion
+
+    public <R> LDelete6<T1, T2, T3, T4, T5, T6> selectDelete(@Expr(Expr.BodyType.Expr) Func6<T1, T2, T3, T4, T5, T6, R> expr)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> LDelete6<T1, T2, T3, T4, T5, T6> selectDelete(ExprTree<Func6<T1, T2, T3, T4, T5, T6, R>> expr)
+    {
+        Class<?> returnType = expr.getTree().getReturnType();
+        selectDeleteTable(returnType);
+        return this;
+    }
 }

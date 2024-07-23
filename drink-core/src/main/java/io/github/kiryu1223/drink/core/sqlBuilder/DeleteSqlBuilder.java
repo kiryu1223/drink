@@ -1,30 +1,34 @@
-package io.github.kiryu1223.drink.api.crud.builder;
+package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
+import io.github.kiryu1223.drink.config.dialect.IDialect;
+import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.core.context.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class UpdateSqlBuilder implements ISqlBuilder
+public class DeleteSqlBuilder implements ISqlBuilder
 {
     private final Config config;
     private final List<SqlJoinContext> joins = new ArrayList<>();
-    private final List<SqlContext> sets = new ArrayList<>();
+    private final List<Class<?>> orderClasses = new ArrayList<>();
     private final List<SqlContext> wheres = new ArrayList<>();
-    private Class<?> mainTable;
+    private Class<?> fromTable;
+    private Set<Integer> excludes = new HashSet<>();
 
-    public UpdateSqlBuilder(Config config)
+    public DeleteSqlBuilder(Config config)
     {
         this.config = config;
     }
 
-    public void setMainTable(Class<?> mainTable)
+    public void setFromTable(Class<?> fromTable)
     {
-        this.mainTable = mainTable;
+        this.fromTable = fromTable;
+        orderClasses.add(fromTable);
     }
 
     public void addJoin(Class<?> target, JoinType joinType, SqlTableContext tableContext, SqlContext onContext)
@@ -38,16 +42,23 @@ public class UpdateSqlBuilder implements ISqlBuilder
                 onContext
         );
         joins.add(joinContext);
+        orderClasses.add(target);
     }
 
-    public void addSet(SqlContext set)
+    public void addExclude(Class<?> c)
     {
-        sets.add(set);
+        excludes.add(orderClasses.indexOf(c));
     }
 
     public void addWhere(SqlContext where)
     {
         wheres.add(where);
+    }
+
+    @Override
+    public Config getConfig()
+    {
+        return config;
     }
 
     public boolean hasWhere()
@@ -58,36 +69,34 @@ public class UpdateSqlBuilder implements ISqlBuilder
     @Override
     public String getSql()
     {
-        return makeUpdate() + makeJoin() + makeSet() + makeWhere();
+        return makeDelete() + makeJoin() + makeWhere();
     }
 
     @Override
     public String getSqlAndValue(List<Object> values)
     {
-        return makeUpdate() + makeJoin(values) + makeSet(values) + makeWhere(values);
+        return makeDelete() + makeJoin(values) + makeWhere(values);
     }
 
-    public Config getConfig()
+    private String makeDelete()
     {
-        return config;
-    }
-
-    private String makeUpdate()
-    {
-        MetaData metaData = MetaDataCache.getMetaData(mainTable);
-        IDisambiguation dbConfig = config.getDisambiguation();
-        return "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
-    }
-
-    private String makeJoin(List<Object> values)
-    {
-        if (joins.isEmpty()) return "";
-        List<String> joinStr = new ArrayList<>(joins.size());
-        for (SqlContext context : joins)
+        StringBuilder builder = new StringBuilder("DELETE");
+        if (!excludes.isEmpty())
         {
-            joinStr.add(context.getSqlAndValue(config, values));
+            builder.append(" ");
+            List<String> strings = new ArrayList<>(excludes.size());
+            for (int index : excludes)
+            {
+                if (index != -1)
+                {
+                    strings.add("t" + index);
+                }
+            }
+            builder.append(String.join(",", strings));
         }
-        return " " + String.join(",", joinStr);
+        IDialect dbConfig = config.getDisambiguation();
+        MetaData metaData = MetaDataCache.getMetaData(fromTable);
+        return builder.append(" FROM ").append(dbConfig.disambiguation(metaData.getTableName())).append(" AS t0").toString();
     }
 
     private String makeJoin()
@@ -101,24 +110,15 @@ public class UpdateSqlBuilder implements ISqlBuilder
         return " " + String.join(",", joinStr);
     }
 
-    private String makeSet()
+    private String makeJoin(List<Object> values)
     {
-        List<String> strings = new ArrayList<>();
-        for (SqlContext set : sets)
+        if (joins.isEmpty()) return "";
+        List<String> joinStr = new ArrayList<>(joins.size());
+        for (SqlContext context : joins)
         {
-            strings.add(set.getSql(config));
+            joinStr.add(context.getSqlAndValue(config, values));
         }
-        return " SET " + String.join(",", strings);
-    }
-
-    private String makeSet(List<Object> values)
-    {
-        List<String> strings = new ArrayList<>();
-        for (SqlContext set : sets)
-        {
-            strings.add(set.getSqlAndValue(config, values));
-        }
-        return " SET " + String.join(",", strings);
+        return " " + String.join(",", joinStr);
     }
 
     private String makeWhere()

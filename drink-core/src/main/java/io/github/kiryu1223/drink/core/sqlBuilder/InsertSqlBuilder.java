@@ -1,9 +1,7 @@
-package io.github.kiryu1223.drink.api.crud.builder;
+package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.SqlContext;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class InsertSqlBuilder implements ISqlBuilder

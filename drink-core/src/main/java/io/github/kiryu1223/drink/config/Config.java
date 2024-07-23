@@ -1,41 +1,38 @@
 package io.github.kiryu1223.drink.config;
 
-import io.github.kiryu1223.drink.api.crud.transaction.TransactionManager;
-import io.github.kiryu1223.drink.config.disambiguation.DefaultDisambiguation;
-import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
-import io.github.kiryu1223.drink.config.disambiguation.MySQLDisambiguation;
-import io.github.kiryu1223.drink.config.disambiguation.SqlServerDisambiguation;
+import io.github.kiryu1223.drink.api.transaction.TransactionManager;
+import io.github.kiryu1223.drink.config.dialect.DefaultDialect;
+import io.github.kiryu1223.drink.config.dialect.IDialect;
+import io.github.kiryu1223.drink.config.dialect.MySQLDialect;
+import io.github.kiryu1223.drink.config.dialect.SqlServerDialect;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
 
 public class Config
 {
-    private boolean ignoreUpdateNoWhere = false;
-    private boolean ignoreDeleteNoWhere = false;
-    private boolean printSql = true;
-    private boolean printUseDs;
-    private boolean printBatch;
+    private final Option option;
     private final DbType dbType;
-    private final IDisambiguation disambiguation;
+    private final IDialect disambiguation;
     private final TransactionManager transactionManager;
     private final DataSourceManager dataSourceManager;
     private final SqlSessionFactory sqlSessionFactory;
 
-    public Config(DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory)
+    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory)
     {
+        this.option = option;
         this.dbType = dbType;
         switch (dbType)
         {
             case MySQL:
-                disambiguation = new MySQLDisambiguation();
+                disambiguation = new MySQLDialect();
                 break;
             case SqlServer:
-                disambiguation = new SqlServerDisambiguation();
+                disambiguation = new SqlServerDialect();
                 break;
             case H2:
             default:
-                disambiguation = new DefaultDisambiguation();
+                disambiguation = new DefaultDialect();
                 break;
         }
         this.transactionManager = transactionManager;
@@ -48,7 +45,7 @@ public class Config
         return dataSourceManager;
     }
 
-    public IDisambiguation getDisambiguation()
+    public IDialect getDisambiguation()
     {
         return disambiguation;
     }
@@ -60,32 +57,17 @@ public class Config
 
     public boolean isIgnoreUpdateNoWhere()
     {
-        return ignoreUpdateNoWhere;
+        return option.isIgnoreUpdateNoWhere();
     }
 
     public boolean isIgnoreDeleteNoWhere()
     {
-        return ignoreDeleteNoWhere;
-    }
-
-    public void setIgnoreUpdateNoWhere(boolean ignoreUpdateNoWhere)
-    {
-        this.ignoreUpdateNoWhere = ignoreUpdateNoWhere;
-    }
-
-    public void setIgnoreDeleteNoWhere(boolean ignoreDeleteNoWhere)
-    {
-        this.ignoreDeleteNoWhere = ignoreDeleteNoWhere;
+        return option.isIgnoreDeleteNoWhere();
     }
 
     public boolean isPrintSql()
     {
-        return printSql;
-    }
-
-    public void setPrintSql(boolean printSql)
-    {
-        this.printSql = printSql;
+        return option.isPrintSql();
     }
 
     public TransactionManager getTransactionManager()
@@ -100,21 +82,11 @@ public class Config
 
     public boolean isPrintUseDs()
     {
-        return printUseDs;
-    }
-
-    public void setPrintUseDs(boolean printUseDs)
-    {
-        this.printUseDs = printUseDs;
+        return option.isPrintUseDs();
     }
 
     public boolean isPrintBatch()
     {
-        return printBatch;
-    }
-
-    public void setPrintBatch(boolean printBatch)
-    {
-        this.printBatch = printBatch;
+        return option.isPrintBatch();
     }
 }

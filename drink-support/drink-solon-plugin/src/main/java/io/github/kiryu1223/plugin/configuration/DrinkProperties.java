@@ -1,9 +1,8 @@
 package io.github.kiryu1223.plugin.configuration;
 
-import io.github.kiryu1223.drink.Option;
+import io.github.kiryu1223.drink.config.Option;
 import io.github.kiryu1223.drink.ext.DbType;
 import org.noear.solon.annotation.Configuration;
-import org.noear.solon.annotation.Inject;
 
 @Configuration
 public class DrinkProperties

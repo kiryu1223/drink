@@ -1,34 +1,30 @@
-package io.github.kiryu1223.drink.api.crud.builder;
+package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.disambiguation.IDisambiguation;
-import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.config.dialect.IDialect;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.context.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class DeleteSqlBuilder implements ISqlBuilder
+public class UpdateSqlBuilder implements ISqlBuilder
 {
     private final Config config;
     private final List<SqlJoinContext> joins = new ArrayList<>();
-    private final List<Class<?>> orderClasses = new ArrayList<>();
+    private final List<SqlContext> sets = new ArrayList<>();
     private final List<SqlContext> wheres = new ArrayList<>();
-    private Class<?> fromTable;
-    private Set<Integer> excludes = new HashSet<>();
+    private Class<?> mainTable;
 
-    public DeleteSqlBuilder(Config config)
+    public UpdateSqlBuilder(Config config)
     {
         this.config = config;
     }
 
-    public void setFromTable(Class<?> fromTable)
+    public void setMainTable(Class<?> mainTable)
     {
-        this.fromTable = fromTable;
-        orderClasses.add(fromTable);
+        this.mainTable = mainTable;
     }
 
     public void addJoin(Class<?> target, JoinType joinType, SqlTableContext tableContext, SqlContext onContext)
@@ -42,23 +38,16 @@ public class DeleteSqlBuilder implements ISqlBuilder
                 onContext
         );
         joins.add(joinContext);
-        orderClasses.add(target);
     }
 
-    public void addExclude(Class<?> c)
+    public void addSet(SqlContext set)
     {
-        excludes.add(orderClasses.indexOf(c));
+        sets.add(set);
     }
 
     public void addWhere(SqlContext where)
     {
         wheres.add(where);
-    }
-
-    @Override
-    public Config getConfig()
-    {
-        return config;
     }
 
     public boolean hasWhere()
@@ -69,34 +58,36 @@ public class DeleteSqlBuilder implements ISqlBuilder
     @Override
     public String getSql()
     {
-        return makeDelete() + makeJoin() + makeWhere();
+        return makeUpdate() + makeJoin() + makeSet() + makeWhere();
     }
 
     @Override
     public String getSqlAndValue(List<Object> values)
     {
-        return makeDelete() + makeJoin(values) + makeWhere(values);
+        return makeUpdate() + makeJoin(values) + makeSet(values) + makeWhere(values);
     }
 
-    private String makeDelete()
+    public Config getConfig()
     {
-        StringBuilder builder = new StringBuilder("DELETE");
-        if (!excludes.isEmpty())
+        return config;
+    }
+
+    private String makeUpdate()
+    {
+        MetaData metaData = MetaDataCache.getMetaData(mainTable);
+        IDialect dbConfig = config.getDisambiguation();
+        return "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
+    }
+
+    private String makeJoin(List<Object> values)
+    {
+        if (joins.isEmpty()) return "";
+        List<String> joinStr = new ArrayList<>(joins.size());
+        for (SqlContext context : joins)
         {
-            builder.append(" ");
-            List<String> strings = new ArrayList<>(excludes.size());
-            for (int index : excludes)
-            {
-                if (index != -1)
-                {
-                    strings.add("t" + index);
-                }
-            }
-            builder.append(String.join(",", strings));
+            joinStr.add(context.getSqlAndValue(config, values));
         }
-        IDisambiguation dbConfig = config.getDisambiguation();
-        MetaData metaData = MetaDataCache.getMetaData(fromTable);
-        return builder.append(" FROM ").append(dbConfig.disambiguation(metaData.getTableName())).append(" AS t0").toString();
+        return " " + String.join(",", joinStr);
     }
 
     private String makeJoin()
@@ -110,15 +101,24 @@ public class DeleteSqlBuilder implements ISqlBuilder
         return " " + String.join(",", joinStr);
     }
 
-    private String makeJoin(List<Object> values)
+    private String makeSet()
     {
-        if (joins.isEmpty()) return "";
-        List<String> joinStr = new ArrayList<>(joins.size());
-        for (SqlContext context : joins)
+        List<String> strings = new ArrayList<>();
+        for (SqlContext set : sets)
         {
-            joinStr.add(context.getSqlAndValue(config, values));
+            strings.add(set.getSql(config));
         }
-        return " " + String.join(",", joinStr);
+        return " SET " + String.join(",", strings);
+    }
+
+    private String makeSet(List<Object> values)
+    {
+        List<String> strings = new ArrayList<>();
+        for (SqlContext set : sets)
+        {
+            strings.add(set.getSqlAndValue(config, values));
+        }
+        return " SET " + String.join(",", strings);
     }
 
     private String makeWhere()
