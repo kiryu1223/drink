@@ -1,6 +1,8 @@
 package io.github.kiryu1223.drink.core.metaData;
 
 import io.github.kiryu1223.drink.annotation.Column;
+import io.github.kiryu1223.drink.annotation.IgnoreColumn;
+import io.github.kiryu1223.drink.annotation.Navigate;
 import io.github.kiryu1223.drink.annotation.Table;
 import io.github.kiryu1223.drink.core.builder.ConverterCache;
 import io.github.kiryu1223.drink.ext.IConverter;
@@ -14,6 +16,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MetaData
 {
@@ -33,13 +36,19 @@ public class MetaData
             Column column = field.getAnnotation(Column.class);
             String columnStr = (column == null || column.value().isEmpty()) ? property : column.value();
             IConverter<?, ?> converter = column == null ? ConverterCache.get(NoConverter.class) : ConverterCache.get(column.converter());
-            Columns.put(property, new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field.getType(), converter));
+            IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
+            Columns.put(property, new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn != null, field.getAnnotation(Navigate.class)));
         }
     }
 
     public Map<String, PropertyMetaData> getColumns()
     {
         return Columns;
+    }
+
+    public List<PropertyMetaData> getNotIgnoreColumns()
+    {
+        return Columns.values().stream().filter(f -> !f.isIgnoreColumn()).collect(Collectors.toList());
     }
 
     public PropertyMetaData getPropertyMetaData(String key)
@@ -69,8 +78,7 @@ public class MetaData
         {
             BeanInfo beanInfo = Introspector.getBeanInfo(c, Object.class);
             return beanInfo.getPropertyDescriptors();
-        }
-        catch (IntrospectionException e)
+        } catch (IntrospectionException e)
         {
             throw new RuntimeException(e);
         }

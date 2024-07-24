@@ -1,6 +1,6 @@
 qq群：257911716
 
-![Maven Central Version](https://img.shields.io/maven-central/v/io.github.kiryu1223/drink-all)
+**最新最热版本:**![Maven Central Version](https://img.shields.io/maven-central/v/io.github.kiryu1223/drink-all)
 
 ## 如何引入
 

@@ -1,16 +1,26 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.annotation.Navigate;
+import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
+import io.github.kiryu1223.drink.core.visitor.IncludeVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -280,6 +290,32 @@ public class LQuery<T> extends QueryBase
     {
         select(expr.getTree());
         return new EndQuery<>(boxedQuerySqlBuilder());
+    }
+
+//    public <R> LQuery<R> selectMany(@Expr Func1<T, Collection<R>> expr)
+//    {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <R> LQuery<R> selectMany(ExprTree<Func1<T, Collection<R>>> expr)
+//    {
+//        return new LQuery<>(getSqlBuilder());
+//    }
+
+
+    // endregion
+
+    // region [INCLUDE]
+
+    public <R> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr)
+    {
+        include(expr.getTree());
+        return this;
     }
 
     // endregion

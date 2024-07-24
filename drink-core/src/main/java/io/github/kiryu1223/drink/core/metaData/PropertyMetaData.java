@@ -1,8 +1,10 @@
 package io.github.kiryu1223.drink.core.metaData;
 
+import io.github.kiryu1223.drink.annotation.Navigate;
 import io.github.kiryu1223.drink.ext.IConverter;
 import io.github.kiryu1223.drink.ext.NoConverter;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -12,21 +14,25 @@ public class PropertyMetaData
     private final String column;
     private final Method getter;
     private final Method setter;
-    private final Class<?> type;
+    private final Field field;
     private final IConverter<?, ?> converter;
     private final boolean hasConverter;
+    private final boolean ignoreColumn;
+    private final Navigate navigate;
 
-    public PropertyMetaData(String property, String column, Method getter, Method setter, Class<?> type, IConverter<?, ?> converter)
+    public PropertyMetaData(String property, String column, Method getter, Method setter, Field field, IConverter<?, ?> converter, boolean ignoreColumn, Navigate navigate)
     {
         this.property = property;
         this.column = column;
+        this.ignoreColumn = ignoreColumn;
         getter.setAccessible(true);
         this.getter = getter;
         setter.setAccessible(true);
         this.setter = setter;
-        this.type = type;
+        this.field = field;
         this.converter = converter;
         this.hasConverter = !(converter instanceof NoConverter);
+        this.navigate = navigate;
     }
 
     public String getProperty()
@@ -49,9 +55,10 @@ public class PropertyMetaData
         return setter;
     }
 
-    public Class<?> getType()
+
+    public Field getField()
     {
-        return type;
+        return field;
     }
 
     public IConverter<?, ?> getConverter()
@@ -64,32 +71,23 @@ public class PropertyMetaData
         return hasConverter;
     }
 
-    @Override
-    public boolean equals(Object object)
+    public boolean isIgnoreColumn()
     {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        PropertyMetaData metaData = (PropertyMetaData) object;
-        return hasConverter == metaData.hasConverter && Objects.equals(property, metaData.property) && Objects.equals(column, metaData.column) && Objects.equals(getter, metaData.getter) && Objects.equals(setter, metaData.setter) && Objects.equals(type, metaData.type) && Objects.equals(converter, metaData.converter);
+        return ignoreColumn;
     }
 
-    @Override
-    public int hashCode()
+    public boolean HasNavigate()
     {
-        return Objects.hash(property, column, getter, setter, type, converter, hasConverter);
+        return navigate != null;
     }
 
-    @Override
-    public String toString()
+    public Navigate getNavigate()
     {
-        return "PropertyMetaData{" +
-                "property='" + property + '\'' +
-                ", column='" + column + '\'' +
-                ", getter=" + getter +
-                ", setter=" + setter +
-                ", type=" + type +
-                ", converter=" + converter +
-                ", hasConverter=" + hasConverter +
-                '}';
+        return navigate;
+    }
+
+    public Class<?> getParentType()
+    {
+        return field.getDeclaringClass();
     }
 }

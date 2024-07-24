@@ -1,10 +1,10 @@
 package io.github.kiryu1223.drink.pojos;
 
-import io.github.kiryu1223.drink.annotation.Column;
-import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Data
@@ -23,4 +23,8 @@ public class Employee
     private Gender gender;
     @Column("hire_date")
     private LocalDate hireDay;
+
+    @IgnoreColumn
+    @Navigate(value = RelationType.OneToMany,self = "number",target = "empNumber")
+    private List<Salary> salaries;
 }

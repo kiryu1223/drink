@@ -8,11 +8,17 @@ public class SqlAsTableNameContext extends SqlContext
 {
     private final SqlContext context;
     private int index;
+    private String firstName = "t";
 
     public SqlAsTableNameContext(int index,SqlContext context)
     {
         this.context = context;
         this.index = index;
+    }
+    public SqlAsTableNameContext(int index,SqlContext context,String firstName)
+    {
+        this(index,context);
+        this.firstName = firstName;
     }
 
     public int getIndex()
@@ -30,15 +36,20 @@ public class SqlAsTableNameContext extends SqlContext
         return context;
     }
 
+    public void setFirstName(String firstName)
+    {
+        this.firstName = firstName;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return context.getSqlAndValue(config, values) + " AS " + "t" + index;
+        return context.getSqlAndValue(config, values) + " AS " + firstName + index;
     }
 
     @Override
     public String getSql(Config config)
     {
-        return context.getSql(config) + " AS " + "t" + index;
+        return context.getSql(config) + " AS " + firstName + index;
     }
 }

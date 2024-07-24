@@ -11,12 +11,19 @@ public class SqlPropertyContext extends SqlContext
     private final PropertyMetaData propertyMetaData;
     private final String property;
     private int tableIndex;
+    private String firstName = "t";
 
     public SqlPropertyContext(PropertyMetaData propertyMetaData, int tableIndex)
     {
         this.propertyMetaData = propertyMetaData;
         this.property = propertyMetaData.getColumn();
         this.tableIndex = tableIndex;
+    }
+
+    public SqlPropertyContext(PropertyMetaData propertyMetaData, int tableIndex,String firstName)
+    {
+        this(propertyMetaData,tableIndex);
+        this.firstName = firstName;
     }
 
     public String getProperty()
@@ -39,6 +46,11 @@ public class SqlPropertyContext extends SqlContext
         return propertyMetaData;
     }
 
+    public void setFirstName(String firstName)
+    {
+        this.firstName = firstName;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
@@ -49,6 +61,6 @@ public class SqlPropertyContext extends SqlContext
     public String getSql(Config config)
     {
         IDialect dbConfig = config.getDisambiguation();
-        return "t" + tableIndex + "." + dbConfig.disambiguation(property);
+        return firstName + tableIndex + "." + dbConfig.disambiguation(property);
     }
 }

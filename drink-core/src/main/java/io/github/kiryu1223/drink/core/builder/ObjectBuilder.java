@@ -81,7 +81,7 @@ public class ObjectBuilder<T>
     {
         if (!metaData.isHasConverter())
         {
-            Class<?> type = metaData.getType();
+            Class<?> type = metaData.getField().getType();
             if (type.isEnum())
             {
                 String Enum = resultSet.getString(metaData.getColumn());

@@ -1,22 +1,26 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
+import io.github.kiryu1223.drink.annotation.Navigate;
 import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
-import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
-import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
-import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.drink.core.visitor.*;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -68,7 +72,7 @@ public abstract class QueryBase extends CRUD
         List<PropertyMetaData> mappingData = sqlBuilder.getMappingData(atomicBoolean);
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
-        tryPrintUseDs(log,config.getDataSourceManager().getDsKey());
+        tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession();
         return session.executeQuery(
@@ -77,8 +81,6 @@ public abstract class QueryBase extends CRUD
                 values
         );
     }
-
-    // region [123]
 
     protected void distinct0(boolean condition)
     {
@@ -212,8 +214,6 @@ public abstract class QueryBase extends CRUD
         getSqlBuilder().setLimit(new SqlLimitContext(offset, rows));
     }
 
-    // endregion
-
     protected void singleCheck(boolean single)
     {
         if (single)
@@ -233,5 +233,22 @@ public abstract class QueryBase extends CRUD
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
         querySqlBuilder.addFrom(getSqlBuilder());
         return querySqlBuilder;
+    }
+
+    protected void include(LambdaExpression<?> lambda)
+    {
+        IncludeVisitor includeVisitor = new IncludeVisitor(getConfig());
+        SqlContext context = includeVisitor.visit(lambda);
+        if (context instanceof SqlPropertyContext)
+        {
+            SqlPropertyContext propertyContext = (SqlPropertyContext) context;
+            if(!propertyContext.getPropertyMetaData().HasNavigate())
+            {
+                throw new RuntimeException("include需要被@Navigate修饰");
+            }
+            getSqlBuilder().addInclude(propertyContext);
+            return;
+        }
+        throw new RuntimeException("include需要指定一个字段");
     }
 }

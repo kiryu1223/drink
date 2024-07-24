@@ -141,7 +141,7 @@ public abstract class InsertBase extends CRUD
                         throw new RuntimeException(e);
                     }
                 }
-                sqlValues.add(new SqlValue(pro.getType(), values));
+                sqlValues.add(new SqlValue(pro.getField().getType(), values));
             }
 
         }
