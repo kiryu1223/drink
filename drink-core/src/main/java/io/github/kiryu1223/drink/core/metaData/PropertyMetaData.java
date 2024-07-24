@@ -6,6 +6,9 @@ import io.github.kiryu1223.drink.ext.NoConverter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Objects;
 
 public class PropertyMetaData
@@ -19,6 +22,7 @@ public class PropertyMetaData
     private final boolean hasConverter;
     private final boolean ignoreColumn;
     private final Navigate navigate;
+    private final Class<?> navigateTargetType;
 
     public PropertyMetaData(String property, String column, Method getter, Method setter, Field field, IConverter<?, ?> converter, boolean ignoreColumn, Navigate navigate)
     {
@@ -33,6 +37,16 @@ public class PropertyMetaData
         this.converter = converter;
         this.hasConverter = !(converter instanceof NoConverter);
         this.navigate = navigate;
+        if (Collection.class.isAssignableFrom(field.getType()))
+        {
+            Type genericType = field.getGenericType();
+            ParameterizedType type = (ParameterizedType) genericType;
+            navigateTargetType = (Class<?>) type.getActualTypeArguments()[0];
+        }
+        else
+        {
+            navigateTargetType = field.getType();
+        }
     }
 
     public String getProperty()
@@ -89,5 +103,10 @@ public class PropertyMetaData
     public Class<?> getParentType()
     {
         return field.getDeclaringClass();
+    }
+
+    public Class<?> getNavigateTargetType()
+    {
+        return navigateTargetType;
     }
 }

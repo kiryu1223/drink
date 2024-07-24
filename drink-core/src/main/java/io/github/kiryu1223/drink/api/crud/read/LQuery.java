@@ -1,26 +1,17 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
-import io.github.kiryu1223.drink.annotation.Navigate;
-import io.github.kiryu1223.drink.core.context.*;
-import io.github.kiryu1223.drink.core.metaData.MetaData;
-import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
-import io.github.kiryu1223.drink.core.visitor.IncludeVisitor;
+import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
+import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -440,6 +431,11 @@ public class LQuery<T> extends QueryBase
     public List<T> toList()
     {
         return super.toList();
+    }
+
+    public void toListAsync(Action1<List<T>> action)
+    {
+        new Thread(() -> action.invoke(toList())).start();
     }
 
     public <R> List<R> toList(Func1<T, R> func)

@@ -2,17 +2,13 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.annotation.Navigate;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -293,95 +289,68 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     private String makeSelect(List<Object> values)
     {
-        //return "SELECT " + (distinct ? "DISTINCT " : "") + select.getSqlAndValue(config,values);
         if (select == null)
         {
-            if (groupBy == null)
-            {
-                MetaData metaData = MetaDataCache.getMetaData(targetClass);
-                List<String> stringList = new ArrayList<>();
-                for (PropertyMetaData data : metaData.getNotIgnoreColumns())
-                {
-                    stringList.add("t0." + config.getDisambiguation().disambiguation(data.getColumn()));
-                }
-                if (!includes.isEmpty())
-                {
-                    int index = 0;
-                    String inc = "i";
-                    for (SqlPropertyContext propertyContext : includes)
-                    {
-                        PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
-                        Navigate navigate = propertyMetaData.getNavigate();
-                        Field field = propertyMetaData.getField();
-                        Class<?> realType;
-                        if (Collection.class.isAssignableFrom(field.getType()))
-                        {
-                            Type genericType = field.getGenericType();
-                            ParameterizedType type = (ParameterizedType) genericType;
-                            realType = (Class<?>) type.getActualTypeArguments()[0];
-                        }
-                        else
-                        {
-                            realType = field.getType();
-                        }
+            setDefaultSelect();
+        }
 
-                        for (PropertyMetaData notIgnoreColumn : MetaDataCache.getMetaData(realType).getNotIgnoreColumns())
-                        {
-                            stringList.add(inc + index + "." + config.getDisambiguation().disambiguation(notIgnoreColumn.getColumn()));
-                        }
-                        index++;
-                    }
-                }
-                return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
-            }
-            else
-            {
-                if (groupBy instanceof SqlGroupContext)
-                {
-                    SqlGroupContext group = (SqlGroupContext) groupBy;
-                    List<String> stringList = new ArrayList<>();
-                    for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
-                    {
-                        String sql;
-                        if (values != null)
-                        {
-                            sql = new SqlAsNameContext(entry.getKey(), entry.getValue()).getSqlAndValue(config, values);
-                        }
-                        else
-                        {
-                            sql = new SqlAsNameContext(entry.getKey(), entry.getValue()).getSql(config);
-                        }
-                        stringList.add(sql);
-                    }
-                    return "SELECT " + (distinct ? "DISTINCT " : "") + String.join(",", stringList);
-                }
-                else
-                {
-                    String sql;
-                    if (values != null)
-                    {
-                        sql = groupBy.getSqlAndValue(config, values);
-                    }
-                    else
-                    {
-                        sql = groupBy.getSql(config);
-                    }
-                    return "SELECT " + (distinct ? "DISTINCT " : "") + sql;
-                }
-            }
+        String sql;
+        if (values != null)
+        {
+            sql = select.getSqlAndValue(config, values);
         }
         else
         {
-            String sql;
-            if (values != null)
+            sql = select.getSql(config);
+        }
+
+        List<String> stringList = new ArrayList<>();
+        if (!includes.isEmpty())
+        {
+            int index = 0;
+            String inc = "i";
+            for (SqlPropertyContext propertyContext : includes)
             {
-                sql = select.getSqlAndValue(config, values);
+                PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
+                for (PropertyMetaData notIgnoreColumn : MetaDataCache.getMetaData(propertyMetaData.getNavigateTargetType()).getNotIgnoreColumns())
+                {
+                    stringList.add(inc + index + "." + config.getDisambiguation().disambiguation(notIgnoreColumn.getColumn()));
+                }
+                index++;
+            }
+        }
+
+        return "SELECT " + (distinct ? "DISTINCT " : "") + sql + (stringList.isEmpty() ? "" : "," + String.join(",", stringList));
+    }
+
+    private void setDefaultSelect()
+    {
+        if (groupBy == null)
+        {
+            MetaData metaData = MetaDataCache.getMetaData(targetClass);
+            List<SqlContext> sqlContexts = new ArrayList<>();
+            for (PropertyMetaData data : metaData.getNotIgnoreColumns())
+            {
+                sqlContexts.add(new SqlPropertyContext(data, 0));
+            }
+            setSelect(new SqlSelectorContext(sqlContexts));
+        }
+        else
+        {
+            if (groupBy instanceof SqlGroupContext)
+            {
+                SqlGroupContext group = (SqlGroupContext) groupBy;
+                List<SqlContext> sqlContexts = new ArrayList<>();
+                for (Map.Entry<String, SqlContext> entry : group.getContextMap().entrySet())
+                {
+                    sqlContexts.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
+                }
+                setSelect(new SqlSelectorContext(sqlContexts));
             }
             else
             {
-                sql = select.getSql(config);
+                setSelect(groupBy);
             }
-            return "SELECT " + (distinct ? "DISTINCT " : "") + sql;
         }
     }
 
@@ -480,7 +449,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     private String makeJoin(List<Object> values)
     {
-        if (joins.isEmpty()&& includes.isEmpty()) return "";
+        if (joins.isEmpty() && includes.isEmpty()) return "";
         List<String> joinStr = new ArrayList<>(joins.size());
         for (SqlContext context : joins)
         {
@@ -510,27 +479,16 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
             Navigate navigate = propertyMetaData.getNavigate();
-            Field field = propertyMetaData.getField();
-            Class<?> realType;
-            if (Collection.class.isAssignableFrom(field.getType()))
-            {
-                Type genericType = field.getGenericType();
-                ParameterizedType type = (ParameterizedType) genericType;
-                realType = (Class<?>) type.getActualTypeArguments()[0];
-            }
-            else
-            {
-                realType = field.getType();
-            }
+            Class<?> navigateTargetType =propertyMetaData.getNavigateTargetType();
             MetaData thisMetaData = MetaDataCache.getMetaData(propertyMetaData.getParentType());
-            MetaData thatMetaData = MetaDataCache.getMetaData(realType);
+            MetaData thatMetaData = MetaDataCache.getMetaData(navigateTargetType);
             PropertyMetaData self = thisMetaData.getPropertyMetaData(navigate.self());
             PropertyMetaData target = thatMetaData.getPropertyMetaData(navigate.target());
             SqlPropertyContext left = new SqlPropertyContext(self, 0);
             SqlPropertyContext right = new SqlPropertyContext(target, index, inc);
             SqlJoinContext joinContext = new SqlJoinContext(
-                    JoinType.INNER,
-                    new SqlAsTableNameContext(index, new SqlRealTableContext(realType), inc),
+                    JoinType.LEFT,
+                    new SqlAsTableNameContext(index, new SqlRealTableContext(navigateTargetType), inc),
                     new SqlBinaryContext(SqlOperator.EQ, left, right)
             );
             if (values == null)
@@ -551,32 +509,32 @@ public class QuerySqlBuilder implements ISqlBuilder
         List<String> whereStr = new ArrayList<>(wheres.size());
         for (SqlContext context : wheres)
         {
-            whereStr.add(context.getSqlAndValue(config, values));
+            sqlOrSqlAndValue(values, whereStr, context);
         }
         return " WHERE " + String.join(" AND ", whereStr);
     }
 
     private String makeWhere()
     {
-        if (wheres.isEmpty()) return "";
-        List<String> whereStr = new ArrayList<>(wheres.size());
-        for (SqlContext context : wheres)
-        {
-            whereStr.add(context.getSql(config));
-        }
-        return " WHERE " + String.join(" AND ", whereStr);
+        return makeWhere(null);
     }
 
     private String makeGroup(List<Object> values)
     {
         if (groupBy == null) return "";
-        return " GROUP BY " + groupBy.getSqlAndValue(config, values);
+        if (values != null)
+        {
+            return " GROUP BY " + groupBy.getSqlAndValue(config, values);
+        }
+        else
+        {
+            return " GROUP BY " + groupBy.getSql(config);
+        }
     }
 
     private String makeGroup()
     {
-        if (groupBy == null) return "";
-        return " GROUP BY " + groupBy.getSql(config);
+        return makeGroup(null);
     }
 
     private String makeHaving(List<Object> values)
@@ -585,20 +543,14 @@ public class QuerySqlBuilder implements ISqlBuilder
         List<String> havingStr = new ArrayList<>(havings.size());
         for (SqlContext context : havings)
         {
-            havingStr.add(context.getSqlAndValue(config, values));
+            sqlOrSqlAndValue(values, havingStr, context);
         }
         return " HAVING " + String.join(" AND ", havingStr);
     }
 
     private String makeHaving()
     {
-        if (havings.isEmpty()) return "";
-        List<String> havingStr = new ArrayList<>(havings.size());
-        for (SqlContext context : havings)
-        {
-            havingStr.add(context.getSql(config));
-        }
-        return " HAVING " + String.join(" AND ", havingStr);
+        return makeHaving(null);
     }
 
     private String makeOrder(List<Object> values)
@@ -607,32 +559,32 @@ public class QuerySqlBuilder implements ISqlBuilder
         List<String> orderStr = new ArrayList<>(orderBys.size());
         for (SqlContext context : orderBys)
         {
-            orderStr.add(context.getSqlAndValue(config, values));
+            sqlOrSqlAndValue(values, orderStr, context);
         }
         return " ORDER BY " + String.join(",", orderStr);
     }
 
     private String makeOrder()
     {
-        if (orderBys.isEmpty()) return "";
-        List<String> orderStr = new ArrayList<>(orderBys.size());
-        for (SqlContext context : orderBys)
-        {
-            orderStr.add(context.getSql(config));
-        }
-        return " ORDER BY " + String.join(",", orderStr);
+        return makeOrder(null);
     }
 
     private String makeLimit(List<Object> values)
     {
         if (limit == null) return "";
-        return " " + limit.getSqlAndValue(config, values);
+        if (values != null)
+        {
+            return " " + limit.getSqlAndValue(config, values);
+        }
+        else
+        {
+            return " " + limit.getSql(config);
+        }
     }
 
     private String makeLimit()
     {
-        if (limit == null) return "";
-        return " " + limit.getSql(config);
+        return makeLimit(null);
     }
 
     private void removeAndBoxOr(List<SqlContext> contexts, SqlContext right)
@@ -755,6 +707,32 @@ public class QuerySqlBuilder implements ISqlBuilder
                 }
             }
         }
+        if (!includes.isEmpty())
+        {
+            int index = 0;
+            String inc = "i";
+            for (SqlPropertyContext propertyContext : includes)
+            {
+                PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
+                for (PropertyMetaData notIgnoreColumn : MetaDataCache.getMetaData(propertyMetaData.getNavigateTargetType()).getNotIgnoreColumns())
+                {
+                    sqlContextList.add(new SqlPropertyContext(notIgnoreColumn,index,inc));
+                }
+                index++;
+            }
+        }
         setSelect(new SqlSelectorContext(sqlContextList));
+    }
+
+    private void sqlOrSqlAndValue(List<Object> values, List<String> strings, SqlContext context)
+    {
+        if (values != null)
+        {
+            strings.add(context.getSqlAndValue(config, values));
+        }
+        else
+        {
+            strings.add(context.getSql(config));
+        }
     }
 }

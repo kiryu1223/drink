@@ -65,21 +65,21 @@ public class QueryTest extends BaseTest
     public void q3()
     {
 
-//        String sql = client
-//                .query(Employee.class)
-//                .include(e -> e.getSalaries())
-//                .limit(50).toSql();
-//        System.out.println(sql);
-        List<Employee> list = client
+        String sql = client
                 .query(Employee.class)
                 .include(e -> e.getSalaries())
-                .limit(50)
-                .toList();
-
-
-        for (Employee employee : list)
-        {
-            System.out.println(employee);
-        }
+                .select().limit(50).toSql();
+        System.out.println(sql);
+//        List<Employee> list = client
+//                .query(Employee.class)
+//                .include(e -> e.getSalaries())
+//                .limit(50)
+//                .toList();
+//
+//
+//        for (Employee employee : list)
+//        {
+//            System.out.println(employee);
+//        }
     }
 }
