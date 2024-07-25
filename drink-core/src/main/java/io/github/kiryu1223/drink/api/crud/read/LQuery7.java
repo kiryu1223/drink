@@ -241,7 +241,7 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase
     public <R> EndQuery<R> endSelect(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr)
     {
         select(expr.getTree());
-        return new EndQuery<>(boxedQuerySqlBuilder());
+        return new EndQuery<>(getSqlBuilder());
     }
     // endregion
 

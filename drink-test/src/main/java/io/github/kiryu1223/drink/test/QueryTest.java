@@ -64,22 +64,19 @@ public class QueryTest extends BaseTest
     @Test
     public void q3()
     {
+        long start = System.currentTimeMillis();
 
-        String sql = client
+        List<Employee> list = client
                 .query(Employee.class)
                 .include(e -> e.getSalaries())
-                .select().limit(50).toSql();
-        System.out.println(sql);
-//        List<Employee> list = client
-//                .query(Employee.class)
-//                .include(e -> e.getSalaries())
-//                .limit(50)
-//                .toList();
-//
-//
-//        for (Employee employee : list)
-//        {
-//            System.out.println(employee);
-//        }
+                .limit(5)
+                .toList();
+
+        System.out.println(System.currentTimeMillis() - start);
+        for (Employee employee : list)
+        {
+            System.out.println(employee.getSalaries().size());
+            System.out.println(employee);
+        }
     }
 }

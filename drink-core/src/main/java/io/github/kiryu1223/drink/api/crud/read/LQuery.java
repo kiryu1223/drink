@@ -21,8 +21,7 @@ public class LQuery<T> extends QueryBase
 
     public LQuery(Config config, Class<T> c)
     {
-        super(config);
-        getSqlBuilder().addFrom(c);
+        super(config,c);
     }
 
     public LQuery(QuerySqlBuilder sqlBuilder)
@@ -259,10 +258,7 @@ public class LQuery<T> extends QueryBase
 
     public LQuery<T> select()
     {
-        select0();
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
-        querySqlBuilder.addFrom(getSqlBuilder());
-        return new LQuery<>(querySqlBuilder);
+        return new LQuery<>(boxedQuerySqlBuilder());
     }
 
     public <R> LQuery<? extends R> select(ExprTree<Func1<T, ? extends R>> expr)
@@ -280,7 +276,7 @@ public class LQuery<T> extends QueryBase
     public <R> EndQuery<R> endSelect(ExprTree<Func1<T, R>> expr)
     {
         select(expr.getTree());
-        return new EndQuery<>(boxedQuerySqlBuilder());
+        return new EndQuery<>(getSqlBuilder());
     }
 
 //    public <R> LQuery<R> selectMany(@Expr Func1<T, Collection<R>> expr)

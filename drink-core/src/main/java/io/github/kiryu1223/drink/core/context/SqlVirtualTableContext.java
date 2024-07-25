@@ -30,4 +30,10 @@ public class SqlVirtualTableContext extends SqlTableContext
     {
         return sqlBuilder.getSql();
     }
+
+    @Override
+    public Class<?> getTableClass()
+    {
+        return sqlBuilder.getTargetClass();
+    }
 }

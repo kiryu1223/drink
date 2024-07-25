@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.api.crud.read;
 
 import io.github.kiryu1223.drink.annotation.Navigate;
 import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.builder.NavigateBuilder;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,9 +33,9 @@ public abstract class QueryBase extends CRUD
 
     private final QuerySqlBuilder sqlBuilder;
 
-    public QueryBase(Config config)
+    public QueryBase(Config config, Class<?> c)
     {
-        sqlBuilder = new QuerySqlBuilder(config);
+        sqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(c));
     }
 
     public QueryBase(QuerySqlBuilder sqlBuilder)
@@ -59,27 +61,33 @@ public abstract class QueryBase extends CRUD
         return session.executeQuery(f -> f.next(), "SELECT 1 FROM (" + sql + ") LIMIT 1", values);
     }
 
-    protected <R> EndQuery<R> select(Class<R> r)
-    {
-        select0(r);
-        return new EndQuery<>(boxedQuerySqlBuilder());
-    }
-
     protected <T> List<T> toList()
     {
         Config config = getConfig();
-        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
-        List<PropertyMetaData> mappingData = sqlBuilder.getMappingData(atomicBoolean);
+        List<PropertyMetaData> mappingData = sqlBuilder.getMappingData();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
         tryPrintSql(log, sql);
+        Class<T> targetClass = (Class<T>) sqlBuilder.getTargetClass();
         SqlSession session = config.getSqlSessionFactory().getSession();
-        return session.executeQuery(
-                r -> ObjectBuilder.start(r, (Class<T>) sqlBuilder.getTargetClass(), mappingData, atomicBoolean.get()).createList(),
+        List<T> ts = session.executeQuery(
+                r -> ObjectBuilder.start(r, targetClass, mappingData, false).createList(),
                 sql,
                 values
         );
+        if (!includes.isEmpty())
+        {
+            try
+            {
+                NavigateBuilder<T> navigateBuilder = new NavigateBuilder<>(getConfig(),targetClass, ts, includes);
+                navigateBuilder.build();
+            } catch (InvocationTargetException | IllegalAccessException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+        return ts;
     }
 
     protected void distinct0(boolean condition)
@@ -87,24 +95,42 @@ public abstract class QueryBase extends CRUD
         sqlBuilder.setDistinct(condition);
     }
 
+    protected <R> EndQuery<R> select(Class<R> r)
+    {
+        select0(r);
+        return new EndQuery<>(boxedQuerySqlBuilder());
+    }
+
     protected boolean select(LambdaExpression<?> lambda)
     {
         SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy(), getConfig());
         SqlContext context = selectVisitor.visit(lambda);
-        getSqlBuilder().setSelect(context);
-        getSqlBuilder().setTargetClass(lambda.getReturnType());
+        getSqlBuilder().setSelect(context, lambda.getReturnType());
         return !(context instanceof SqlSelectorContext);
-    }
-
-    protected void select0()
-    {
-        sqlBuilder.setTypeSelect();
     }
 
     protected void select0(Class<?> c)
     {
-        getSqlBuilder().setTargetClass(c);
-        sqlBuilder.setTypeSelect();
+        MetaData metaData = MetaDataCache.getMetaData(c);
+        List<SqlContext> propertyContexts = new ArrayList<>();
+        for (PropertyMetaData sel : metaData.getNotIgnoreColumns())
+        {
+            int index = 0;
+            lable:
+            for (MetaData data : MetaDataCache.getMetaData(sqlBuilder.getOrderedClass()))
+            {
+                for (PropertyMetaData noi : data.getNotIgnoreColumns())
+                {
+                    if (noi.getColumn().equals(sel.getColumn()))
+                    {
+                        propertyContexts.add(new SqlPropertyContext(sel, index));
+                        break lable;
+                    }
+                }
+                index++;
+            }
+        }
+        getSqlBuilder().setSelect(new SqlSelectorContext(propertyContexts), c);
     }
 
     protected <Tn> QueryBase joinNewQuery()
@@ -146,10 +172,8 @@ public abstract class QueryBase extends CRUD
     {
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
         SqlContext where = whereVisitor.visit(lambda);
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
-        querySqlBuilder.addMoveCount(getSqlBuilder().getOrderedClass().size());
-        querySqlBuilder.setSelect(new SqlConstString("1"));
-        querySqlBuilder.addFrom(table);
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), new SqlRealTableContext(table), sqlBuilder.getOrderedClass().size());
+        querySqlBuilder.setSelect(new SqlConstString("1"), table);
         querySqlBuilder.addWhere(where);
         SqlUnaryContext exists = new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder)));
         if (not)
@@ -166,10 +190,8 @@ public abstract class QueryBase extends CRUD
     {
         WhereVisitor whereVisitor = new WhereVisitor(getConfig());
         SqlContext where = whereVisitor.visit(lambda);
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
-        querySqlBuilder.addMoveCount(getSqlBuilder().getOrderedClass().size());
-        querySqlBuilder.setSelect(new SqlConstString("1"));
-        querySqlBuilder.addFrom(queryBase.sqlBuilder);
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(queryBase.getSqlBuilder()), sqlBuilder.getOrderedClass().size());
+        querySqlBuilder.setSelect(new SqlConstString("1"), queryBase.getSqlBuilder().getTargetClass());
         querySqlBuilder.addWhere(where);
         SqlUnaryContext exists = new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder)));
         if (not)
@@ -186,8 +208,7 @@ public abstract class QueryBase extends CRUD
     {
         GroupByVisitor groupByVisitor = new GroupByVisitor(getConfig());
         SqlContext context = groupByVisitor.visit(lambda);
-        getSqlBuilder().setGroupBy(context);
-        getSqlBuilder().setTargetClass(lambda.getReturnType());
+        getSqlBuilder().setGroupBy(context, lambda.getReturnType());
     }
 
     protected void having(LambdaExpression<?> lambda)
@@ -224,16 +245,15 @@ public abstract class QueryBase extends CRUD
 
     public String toSql()
     {
-        //setDefaultSelect();
         return sqlBuilder.getSql();
     }
 
     protected QuerySqlBuilder boxedQuerySqlBuilder()
     {
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig());
-        querySqlBuilder.addFrom(getSqlBuilder());
-        return querySqlBuilder;
+        return new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(sqlBuilder));
     }
+
+    private final List<SqlPropertyContext> includes = new ArrayList<>();
 
     protected void include(LambdaExpression<?> lambda)
     {
@@ -242,11 +262,11 @@ public abstract class QueryBase extends CRUD
         if (context instanceof SqlPropertyContext)
         {
             SqlPropertyContext propertyContext = (SqlPropertyContext) context;
-            if(!propertyContext.getPropertyMetaData().HasNavigate())
+            if (!propertyContext.getPropertyMetaData().HasNavigate())
             {
-                throw new RuntimeException("include需要被@Navigate修饰");
+                throw new RuntimeException("include指定的字段需要被@Navigate修饰");
             }
-            getSqlBuilder().addInclude(propertyContext);
+            includes.add(propertyContext);
             return;
         }
         throw new RuntimeException("include需要指定一个字段");

@@ -1,5 +1,7 @@
 package io.github.kiryu1223.drink.core.builder;
 
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.ext.IConverter;
 
@@ -7,7 +9,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class ObjectBuilder<T>
@@ -28,6 +32,34 @@ public class ObjectBuilder<T>
         this.target = target;
         this.propertyMetaDataList = propertyMetaDataList;
         this.isSingle = isSingle;
+    }
+
+    public <Key> Map<Key, List<T>> createMapList(PropertyMetaData column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
+    {
+        FastCreator<T> fastCreator = new FastCreator<>(target);
+        Supplier<T> creator = fastCreator.getCreator();
+        Map<Key, List<T>> hashMap = new HashMap<>();
+        while (resultSet.next())
+        {
+            T t = creator.get();
+            for (PropertyMetaData metaData : propertyMetaDataList)
+            {
+                Object value = convertValue(metaData);
+                metaData.getSetter().invoke(t, value);
+            }
+            Key key = (Key) column.getGetter().invoke(t);
+            if (!hashMap.containsKey(key))
+            {
+                List<T> tempList = new ArrayList<>();
+                tempList.add(t);
+                hashMap.put(key, tempList);
+            }
+            else
+            {
+                hashMap.get(key).add(t);
+            }
+        }
+        return hashMap;
     }
 
     public List<T> createList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
@@ -57,11 +89,6 @@ public class ObjectBuilder<T>
     {
         FastCreator<T> fastCreator = new FastCreator<>(target);
         Supplier<T> creator = fastCreator.getCreator();
-//        Map<String, FastCreator.Setter<T>> setterMap = new HashMap<>(propertyMetaDataList.size());
-//        for (PropertyMetaData metaData : propertyMetaDataList)
-//        {
-//            setterMap.put(metaData.getColumn(), fastCreator.getSetter(metaData.getType(), metaData.getSetter(), config.getLookup()));
-//        }
         List<T> list = new ArrayList<>();
         while (resultSet.next())
         {
@@ -70,7 +97,6 @@ public class ObjectBuilder<T>
             {
                 Object value = convertValue(metaData);
                 metaData.getSetter().invoke(t, value);
-                //setterMap.get(metaData.getColumn()).set(t,value);
             }
             list.add(t);
         }
@@ -89,13 +115,13 @@ public class ObjectBuilder<T>
             }
             else
             {
-                return resultSet.getObject(metaData.getColumn(),type);
+                return resultSet.getObject(metaData.getColumn(), type);
             }
         }
         else
         {
             IConverter<?, ?> converter = metaData.getConverter();
-            Object temp = resultSet.getObject(metaData.getColumn(),converter.getDbType());
+            Object temp = resultSet.getObject(metaData.getColumn(), converter.getDbType());
             return converter.toJava(cast(temp), metaData);
         }
     }

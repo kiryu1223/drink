@@ -59,13 +59,13 @@ public class UpdateTest extends BaseTest
     @Test
     public void u2()
     {
-        /*String sql = client.update(Department.class)
+        String sql = client.update(Department.class)
                 .leftJoin(DeptEmp.class, (a, b) -> a.getNumber() == b.getDeptNumber())
-                .set((a, b) -> a.setName(b.getDeptNumber()))
-                .where((a, b) -> 1 == 1)
+                .set((a, b) -> a.setName("111"))
+                .where((a, b) -> b.getEmpNumber() == 1)
                 .toSql();
 
-        System.out.println(sql);*/
+        System.out.println(sql);
     }
 
     public void display()

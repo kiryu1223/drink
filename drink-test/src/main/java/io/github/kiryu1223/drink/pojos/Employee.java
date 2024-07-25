@@ -23,7 +23,6 @@ public class Employee
     private Gender gender;
     @Column("hire_date")
     private LocalDate hireDay;
-
     @IgnoreColumn
     @Navigate(value = RelationType.OneToMany,self = "number",target = "empNumber")
     private List<Salary> salaries;
