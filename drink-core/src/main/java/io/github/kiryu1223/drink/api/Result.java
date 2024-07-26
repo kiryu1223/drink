@@ -24,13 +24,12 @@ public class Result
         {
             List<String> strings = new ArrayList<>();
             MetaData metaData = MetaDataCache.getMetaData(this.getClass());
-            for (Map.Entry<String, PropertyMetaData> entry : metaData.getColumns().entrySet())
+            for (PropertyMetaData property : metaData.getPropertys())
             {
-                strings.add(entry.getKey() + "=" + entry.getValue().getGetter().invoke(this));
+                strings.add(property.getProperty() + "=" + property.getGetter().invoke(this));
             }
             return "(" + String.join(",", strings) + ")";
-        }
-        catch (IllegalAccessException | InvocationTargetException e)
+        } catch (IllegalAccessException | InvocationTargetException e)
         {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,5 @@
 package io.github.kiryu1223.drink.core.builder;
 
-import io.github.kiryu1223.drink.core.metaData.MetaData;
-import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.ext.IConverter;
 
@@ -34,7 +32,31 @@ public class ObjectBuilder<T>
         this.isSingle = isSingle;
     }
 
-    public <Key> Map<Key, List<T>> createMapList(PropertyMetaData column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
+    public <Key> Map<Key, T> createMap(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
+    {
+        FastCreator<T> fastCreator = new FastCreator<>(target);
+        Supplier<T> creator = fastCreator.getCreator();
+        Map<Key, T> hashMap = new HashMap<>();
+        while (resultSet.next())
+        {
+            T t = creator.get();
+            Key key = null;
+            for (PropertyMetaData metaData : propertyMetaDataList)
+            {
+                Object value = convertValue(metaData);
+                if (column.equals(metaData.getColumn()))
+                {
+                    key = (Key) value;
+                }
+                metaData.getSetter().invoke(t, value);
+            }
+            if (key == null) throw new RuntimeException("key is null");
+            hashMap.put(key, t);
+        }
+        return hashMap;
+    }
+
+    public <Key> Map<Key, List<T>> createMapList(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
         FastCreator<T> fastCreator = new FastCreator<>(target);
         Supplier<T> creator = fastCreator.getCreator();
@@ -42,12 +64,17 @@ public class ObjectBuilder<T>
         while (resultSet.next())
         {
             T t = creator.get();
+            Key key = null;
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
                 Object value = convertValue(metaData);
+                if (column.equals(metaData.getColumn()))
+                {
+                    key = (Key) value;
+                }
                 metaData.getSetter().invoke(t, value);
             }
-            Key key = (Key) column.getGetter().invoke(t);
+            if (key == null) throw new RuntimeException("key is null");
             if (!hashMap.containsKey(key))
             {
                 List<T> tempList = new ArrayList<>();
@@ -105,7 +132,7 @@ public class ObjectBuilder<T>
 
     private Object convertValue(PropertyMetaData metaData) throws NoSuchFieldException, SQLException, IllegalAccessException
     {
-        if (!metaData.isHasConverter())
+        if (!metaData.hasConverter())
         {
             Class<?> type = metaData.getField().getType();
             if (type.isEnum())

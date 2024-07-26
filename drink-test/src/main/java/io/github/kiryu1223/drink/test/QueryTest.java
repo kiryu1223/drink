@@ -6,12 +6,15 @@ import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.pojos.DeptManager;
 import io.github.kiryu1223.drink.pojos.Employee;
 import io.github.kiryu1223.drink.pojos.Gender;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class QueryTest extends BaseTest
 {
@@ -46,13 +49,13 @@ public class QueryTest extends BaseTest
     {
         LQuery<Employee> query = client.query(Employee.class);
 
-        if(1==1)
+        if (1 == 1)
         {
-            query.where(e->e.getGender()!= Gender.F);
+            query.where(e -> e.getGender() != Gender.F);
         }
         else
         {
-            query.where(e->e.getGender()!= Gender.M);
+            query.where(e -> e.getGender() != Gender.M);
         }
 
         for (Employee employee : query.toList())
@@ -64,7 +67,6 @@ public class QueryTest extends BaseTest
     @Test
     public void q3()
     {
-        long start = System.currentTimeMillis();
 
         List<Employee> list = client
                 .query(Employee.class)
@@ -72,11 +74,57 @@ public class QueryTest extends BaseTest
                 .limit(5)
                 .toList();
 
-        System.out.println(System.currentTimeMillis() - start);
         for (Employee employee : list)
         {
             System.out.println(employee.getSalaries().size());
             System.out.println(employee);
+        }
+    }
+
+    @Test
+    public void q4()
+    {
+
+        List<Integer> list = client
+                .query(Employee.class)
+                .limit(1000)
+                .endSelect(e -> e.getNumber())
+                .toList();
+
+        for (Integer employee : list)
+        {
+            System.out.println(employee);
+        }
+    }
+
+    @Test
+    public void q5()
+    {
+        Map<Integer, Employee> map = client
+                .query(Employee.class)
+                .include(e -> e.getSalaries())
+                .include(e -> e.getDeptEmp())
+                .limit(5)
+                .toMap(e -> e.getNumber());
+
+        for (Map.Entry<Integer, Employee> entry : map.entrySet())
+        {
+            System.out.println(entry);
+        }
+    }
+
+    @Test
+    public void q6()
+    {
+        List<DeptManager> list = client
+                .query(DeptManager.class)
+                .include(d -> d.getDepartment())
+                .limit(5)
+                .toList();
+
+        for (DeptManager deptManager : list)
+        {
+            System.out.println(deptManager);
         }
     }
 }

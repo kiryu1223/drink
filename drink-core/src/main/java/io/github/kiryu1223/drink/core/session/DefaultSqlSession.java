@@ -9,6 +9,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 
 public class DefaultSqlSession implements SqlSession
@@ -22,15 +23,14 @@ public class DefaultSqlSession implements SqlSession
         this.transactionManager = transactionManager;
     }
 
-    public <R> R executeQuery(Function<ResultSet, R> func, String sql, List<Object> values)
+    public <R> R executeQuery(Function<ResultSet, R> func, String sql, Collection<Object> values)
     {
         if (!transactionManager.currentThreadInTransaction())
         {
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeQuery(connection, func, sql, values);
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -48,16 +48,15 @@ public class DefaultSqlSession implements SqlSession
                 {
                     connection = dataSourceManager.getConnection();
                 }
-                return executeQuery(connection,func, sql, values);
-            }
-            catch (SQLException e)
+                return executeQuery(connection, func, sql, values);
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private <R> R executeQuery(Connection connection, Function<ResultSet, R> func, String sql, List<Object> values)
+    private <R> R executeQuery(Connection connection, Function<ResultSet, R> func, String sql, Collection<Object> values)
     {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
         {
@@ -66,8 +65,7 @@ public class DefaultSqlSession implements SqlSession
             {
                 return func.invoke(resultSet);
             }
-        }
-        catch (SQLException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e)
+        } catch (SQLException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e)
         {
             throw new RuntimeException(e);
         }
@@ -80,8 +78,7 @@ public class DefaultSqlSession implements SqlSession
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -100,8 +97,7 @@ public class DefaultSqlSession implements SqlSession
                     connection = dataSourceManager.getConnection();
                 }
                 return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -115,8 +111,7 @@ public class DefaultSqlSession implements SqlSession
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -135,8 +130,7 @@ public class DefaultSqlSession implements SqlSession
                     connection = dataSourceManager.getConnection();
                 }
                 return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -150,8 +144,7 @@ public class DefaultSqlSession implements SqlSession
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return batchExecuteUpdate(connection, sql, limit, values);
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -170,8 +163,7 @@ public class DefaultSqlSession implements SqlSession
                     connection = dataSourceManager.getConnection();
                 }
                 return batchExecuteUpdate(connection, sql, limit, values);
-            }
-            catch (SQLException e)
+            } catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -184,21 +176,19 @@ public class DefaultSqlSession implements SqlSession
         {
             setObjectsIfNull(preparedStatement, values);
             return preparedStatement.executeUpdate();
-        }
-        catch (SQLException e)
+        } catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    protected long executeUpdate(Connection connection, String sql, List<Object> values, Object... o)
+    protected long executeUpdate(Connection connection, String sql, Collection<Object> values, Object... o)
     {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
         {
             setObjects(preparedStatement, values);
             return preparedStatement.executeUpdate();
-        }
-        catch (SQLException e)
+        } catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
@@ -210,19 +200,18 @@ public class DefaultSqlSession implements SqlSession
         {
             batchSetObjects(preparedStatement, limit, values);
             return preparedStatement.executeBatch().length;
-        }
-        catch (SQLException e)
+        } catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    protected void setObjects(PreparedStatement preparedStatement, List<Object> values) throws SQLException
+    protected void setObjects(PreparedStatement preparedStatement, Collection<Object> values) throws SQLException
     {
-        for (int i = 1; i <= values.size(); i++)
+        int index = 1;
+        for (Object value : values)
         {
-            Object value = values.get(i - 1);
-            preparedStatement.setObject(i, value);
+            preparedStatement.setObject(index++, value);
         }
     }
 

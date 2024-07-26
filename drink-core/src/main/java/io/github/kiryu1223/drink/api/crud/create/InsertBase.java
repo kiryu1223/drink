@@ -98,14 +98,14 @@ public abstract class InsertBase extends CRUD
         MetaData metaData = MetaDataCache.getMetaData(getTableType());
         List<String> tableFields = new ArrayList<>();
         List<String> tableValues = new ArrayList<>();
-        for (PropertyMetaData pro : metaData.getColumns().values())
+        for (PropertyMetaData pro : metaData.getNotIgnorePropertys())
         {
             IConverter<?, ?> converter = pro.getConverter();
             tableFields.add(pro.getColumn());
             tableValues.add("?");
             if (sqlValues == null) continue;
             List<Object> values = new ArrayList<>(objects.size());
-            if (pro.isHasConverter())
+            if (pro.hasConverter())
             {
                 for (Object o : objects)
                 {

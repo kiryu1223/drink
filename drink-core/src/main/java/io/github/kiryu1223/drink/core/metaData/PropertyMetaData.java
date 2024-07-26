@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Objects;
 
 public class PropertyMetaData
 {
@@ -19,12 +18,10 @@ public class PropertyMetaData
     private final Method setter;
     private final Field field;
     private final IConverter<?, ?> converter;
-    private final boolean hasConverter;
     private final boolean ignoreColumn;
-    private final Navigate navigate;
-    private final Class<?> navigateTargetType;
+    private final NavigateData navigateData;
 
-    public PropertyMetaData(String property, String column, Method getter, Method setter, Field field, IConverter<?, ?> converter, boolean ignoreColumn, Navigate navigate)
+    public PropertyMetaData(String property, String column, Method getter, Method setter, Field field, IConverter<?, ?> converter, boolean ignoreColumn, NavigateData navigateData)
     {
         this.property = property;
         this.column = column;
@@ -35,18 +32,8 @@ public class PropertyMetaData
         this.setter = setter;
         this.field = field;
         this.converter = converter;
-        this.hasConverter = !(converter instanceof NoConverter);
-        this.navigate = navigate;
-        if (Collection.class.isAssignableFrom(field.getType()))
-        {
-            Type genericType = field.getGenericType();
-            ParameterizedType type = (ParameterizedType) genericType;
-            navigateTargetType = (Class<?>) type.getActualTypeArguments()[0];
-        }
-        else
-        {
-            navigateTargetType = field.getType();
-        }
+        this.navigateData = navigateData;
+
     }
 
     public String getProperty()
@@ -69,7 +56,6 @@ public class PropertyMetaData
         return setter;
     }
 
-
     public Field getField()
     {
         return field;
@@ -80,9 +66,9 @@ public class PropertyMetaData
         return converter;
     }
 
-    public boolean isHasConverter()
+    public boolean hasConverter()
     {
-        return hasConverter;
+        return converter != null && !(converter instanceof NoConverter);
     }
 
     public boolean isIgnoreColumn()
@@ -90,23 +76,18 @@ public class PropertyMetaData
         return ignoreColumn;
     }
 
-    public boolean HasNavigate()
+    public boolean hasNavigate()
     {
-        return navigate != null;
+        return navigateData != null;
     }
 
-    public Navigate getNavigate()
+    public NavigateData getNavigateData()
     {
-        return navigate;
+        return navigateData;
     }
 
     public Class<?> getParentType()
     {
         return field.getDeclaringClass();
-    }
-
-    public Class<?> getNavigateTargetType()
-    {
-        return navigateTargetType;
     }
 }

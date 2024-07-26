@@ -15,12 +15,14 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class MetaData
 {
-    private final Map<String, PropertyMetaData> Columns = new HashMap<>();
+    private final List<PropertyMetaData> propertys = new ArrayList<>();
     private final Class<?> type;
     private final String tableName;
 
@@ -36,43 +38,29 @@ public class MetaData
             Column column = field.getAnnotation(Column.class);
             String columnStr = (column == null || column.value().isEmpty()) ? property : column.value();
             IConverter<?, ?> converter = column == null ? ConverterCache.get(NoConverter.class) : ConverterCache.get(column.converter());
-            IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
-            Columns.put(property, new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn != null, field.getAnnotation(Navigate.class)));
+            NavigateData navigateData = null;
+            Navigate navigate = field.getAnnotation(Navigate.class);
+            if (navigate != null)
+            {
+                Class<?> navigateTargetType;
+                if (Collection.class.isAssignableFrom(field.getType()))
+                {
+                    Type genericType = field.getGenericType();
+                    navigateTargetType = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
+                    navigateData = new NavigateData(navigate, navigateTargetType, (Class<? extends Collection<?>>) field.getType());
+                }
+                else
+                {
+                    navigateTargetType = field.getType();
+                    navigateData = new NavigateData(navigate, navigateTargetType,null);
+                }
+            }
+            boolean ignoreColumn = field.getAnnotation(IgnoreColumn.class) != null || navigateData != null;
+            propertys.add(new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn, navigateData));
         }
     }
 
-    public Map<String, PropertyMetaData> getColumns()
-    {
-        return Columns;
-    }
-
-    public List<PropertyMetaData> getNotIgnoreColumns()
-    {
-        return Columns.values().stream().filter(f -> !f.isIgnoreColumn()).collect(Collectors.toList());
-    }
-
-    public PropertyMetaData getPropertyMetaData(String key)
-    {
-        return Columns.get(key);
-    }
-
-//    private List<Field> getAllFields(Class<?> clazz)
-//    {
-//        List<Field> fields = new ArrayList<>();
-//        if (!clazz.isAnonymousClass())
-//        {
-//            Class<?> superClass = clazz.getSuperclass();
-//            if (superClass != null)
-//            {
-//                List<Field> allFields0 = getAllFields(superClass);
-//                fields.addAll(allFields0);
-//            }
-//        }
-//        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-//        return fields;
-//    }
-
-    public PropertyDescriptor[] propertyDescriptors(Class<?> c)
+    private PropertyDescriptor[] propertyDescriptors(Class<?> c)
     {
         try
         {
@@ -84,14 +72,24 @@ public class MetaData
         }
     }
 
-    public String getColumnNameByPropertyName(String property)
+    public List<PropertyMetaData> getPropertys()
     {
-        return Columns.get(property).getColumn();
+        return propertys;
+    }
+
+    public List<PropertyMetaData> getNotIgnorePropertys()
+    {
+        return propertys.stream().filter(f -> !f.isIgnoreColumn()).collect(Collectors.toList());
+    }
+
+    public PropertyMetaData getPropertyMetaData(String key)
+    {
+        return propertys.stream().filter(f -> f.getProperty().equals(key)).findFirst().get();
     }
 
     public PropertyMetaData getPropertyMetaDataByColumnName(String asName)
     {
-        return Columns.values().stream().filter(f -> f.getColumn().equals(asName)).findFirst().get();
+        return propertys.stream().filter(f -> f.getColumn().equals(asName)).findFirst().get();
     }
 
     public PropertyMetaData getPropertyMetaDataByGetter(Method getter)
@@ -106,12 +104,12 @@ public class MetaData
 
     public String getColumnNameByGetter(Method getter)
     {
-        return Columns.values().stream().filter(f -> f.getGetter().equals(getter)).findFirst().get().getColumn();
+        return propertys.stream().filter(f -> f.getGetter().equals(getter)).findFirst().get().getColumn();
     }
 
     public String getColumnNameBySetter(Method setter)
     {
-        return Columns.values().stream().filter(f -> f.getSetter().equals(setter)).findFirst().get().getColumn();
+        return propertys.stream().filter(f -> f.getSetter().equals(setter)).findFirst().get().getColumn();
     }
 
     public Class<?> getType()

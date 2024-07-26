@@ -125,7 +125,7 @@ public class SelectVisitor extends SqlVisitor
             MetaData metaData = MetaDataCache.getMetaData(type);
             //propertyMetaData.addAll(metaData.getColumns().values());
             List<SqlContext> contextList = new ArrayList<>();
-            for (PropertyMetaData pm : metaData.getColumns().values())
+            for (PropertyMetaData pm : metaData.getNotIgnorePropertys())
             {
                 contextList.add(new SqlPropertyContext(pm, index));
             }

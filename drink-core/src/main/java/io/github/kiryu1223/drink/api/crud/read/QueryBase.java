@@ -1,10 +1,11 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
-import io.github.kiryu1223.drink.annotation.Navigate;
+import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.builder.NavigateBuilder;
+import io.github.kiryu1223.drink.core.builder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
@@ -17,12 +18,8 @@ import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -61,10 +58,50 @@ public abstract class QueryBase extends CRUD
         return session.executeQuery(f -> f.next(), "SELECT 1 FROM (" + sql + ") LIMIT 1", values);
     }
 
+
+    // 脑子瓦塔了，toMap不用这么麻烦
+//    protected <K,T> Map<K,T> toMap(LambdaExpression<?> lambda)
+//    {
+//        // getMapKey
+//        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+//        SqlContext context = normalVisitor.visit(lambda);
+//        if (!(context instanceof SqlPropertyContext)) throw new RuntimeException("toMap需要一个对象拥有的字段为key");
+//        SqlPropertyContext propertyContext = (SqlPropertyContext) context;
+//        String column=propertyContext.getProperty();
+//
+//        Config config = getConfig();
+//        AtomicBoolean atomicBoolean=new AtomicBoolean();
+//        List<PropertyMetaData> mappingData = sqlBuilder.getMappingData(atomicBoolean);
+//        List<Object> values = new ArrayList<>();
+//        String sql = sqlBuilder.getSqlAndValue(values);
+//        tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
+//        tryPrintSql(log, sql);
+//        Class<T> targetClass = (Class<T>) sqlBuilder.getTargetClass();
+//        SqlSession session = config.getSqlSessionFactory().getSession();
+//        Map<K, T> map = session.executeQuery(
+//                r -> ObjectBuilder.start(r, targetClass, mappingData, atomicBoolean.get()).createMap(column),
+//                sql,
+//                values
+//        );
+//        if (!includes.isEmpty())
+//        {
+//            try
+//            {
+//                IncludeBuilder<T> navigateBuilder = new IncludeBuilder<>(getConfig(),targetClass, map.values(), includes);
+//                navigateBuilder.build();
+//            } catch (InvocationTargetException | IllegalAccessException e)
+//            {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        return map;
+//    }
+
     protected <T> List<T> toList()
     {
         Config config = getConfig();
-        List<PropertyMetaData> mappingData = sqlBuilder.getMappingData();
+        AtomicBoolean atomicBoolean = new AtomicBoolean();
+        List<PropertyMetaData> mappingData = sqlBuilder.getMappingData(atomicBoolean);
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
         tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
@@ -72,7 +109,7 @@ public abstract class QueryBase extends CRUD
         Class<T> targetClass = (Class<T>) sqlBuilder.getTargetClass();
         SqlSession session = config.getSqlSessionFactory().getSession();
         List<T> ts = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, false).createList(),
+                r -> ObjectBuilder.start(r, targetClass, mappingData, atomicBoolean.get()).createList(),
                 sql,
                 values
         );
@@ -80,8 +117,8 @@ public abstract class QueryBase extends CRUD
         {
             try
             {
-                NavigateBuilder<T> navigateBuilder = new NavigateBuilder<>(getConfig(),targetClass, ts, includes);
-                navigateBuilder.build();
+                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, includes);
+                includeBuilder.build();
             } catch (InvocationTargetException | IllegalAccessException e)
             {
                 throw new RuntimeException(e);
@@ -113,13 +150,13 @@ public abstract class QueryBase extends CRUD
     {
         MetaData metaData = MetaDataCache.getMetaData(c);
         List<SqlContext> propertyContexts = new ArrayList<>();
-        for (PropertyMetaData sel : metaData.getNotIgnoreColumns())
+        for (PropertyMetaData sel : metaData.getNotIgnorePropertys())
         {
             int index = 0;
             lable:
             for (MetaData data : MetaDataCache.getMetaData(sqlBuilder.getOrderedClass()))
             {
-                for (PropertyMetaData noi : data.getNotIgnoreColumns())
+                for (PropertyMetaData noi : data.getNotIgnorePropertys())
                 {
                     if (noi.getColumn().equals(sel.getColumn()))
                     {
@@ -140,38 +177,38 @@ public abstract class QueryBase extends CRUD
 
     protected void join(JoinType joinType, Class<?> target, ExprTree<?> expr)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext onContext = whereVisitor.visit(expr.getTree());
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext onContext = normalVisitor.visit(expr.getTree());
         SqlTableContext tableContext = new SqlRealTableContext(target);
         getSqlBuilder().addJoin(target, joinType, tableContext, onContext);
     }
 
     protected void join(JoinType joinType, QueryBase target, ExprTree<?> expr)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext onContext = whereVisitor.visit(expr.getTree());
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext onContext = normalVisitor.visit(expr.getTree());
         SqlTableContext tableContext = new SqlVirtualTableContext(target.getSqlBuilder());
         getSqlBuilder().addJoin(target.getSqlBuilder().getTargetClass(), joinType, tableContext, onContext);
     }
 
     protected void where(LambdaExpression<?> lambda)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext where = whereVisitor.visit(lambda);
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext where = normalVisitor.visit(lambda);
         getSqlBuilder().addWhere(where);
     }
 
     protected void orWhere(LambdaExpression<?> lambda)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext right = whereVisitor.visit(lambda);
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext right = normalVisitor.visit(lambda);
         getSqlBuilder().addOrWhere(right);
     }
 
     protected void exists(Class<?> table, LambdaExpression<?> lambda, boolean not)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext where = whereVisitor.visit(lambda);
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext where = normalVisitor.visit(lambda);
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), new SqlRealTableContext(table), sqlBuilder.getOrderedClass().size());
         querySqlBuilder.setSelect(new SqlConstString("1"), table);
         querySqlBuilder.addWhere(where);
@@ -188,8 +225,8 @@ public abstract class QueryBase extends CRUD
 
     protected void exists(QueryBase queryBase, LambdaExpression<?> lambda, boolean not)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext where = whereVisitor.visit(lambda);
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext where = normalVisitor.visit(lambda);
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(queryBase.getSqlBuilder()), sqlBuilder.getOrderedClass().size());
         querySqlBuilder.setSelect(new SqlConstString("1"), queryBase.getSqlBuilder().getTargetClass());
         querySqlBuilder.addWhere(where);
@@ -257,18 +294,33 @@ public abstract class QueryBase extends CRUD
 
     protected void include(LambdaExpression<?> lambda)
     {
-        IncludeVisitor includeVisitor = new IncludeVisitor(getConfig());
-        SqlContext context = includeVisitor.visit(lambda);
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext context = normalVisitor.visit(lambda);
         if (context instanceof SqlPropertyContext)
         {
             SqlPropertyContext propertyContext = (SqlPropertyContext) context;
-            if (!propertyContext.getPropertyMetaData().HasNavigate())
+            if (!propertyContext.getPropertyMetaData().hasNavigate())
             {
                 throw new RuntimeException("include指定的字段需要被@Navigate修饰");
             }
+            relationTypeCheck(propertyContext.getPropertyMetaData().getNavigateData());
             includes.add(propertyContext);
             return;
         }
         throw new RuntimeException("include需要指定一个字段");
+    }
+
+    private void relationTypeCheck(NavigateData navigateData)
+    {
+        if (navigateData.getRelationType() == RelationType.OneToOne
+                && navigateData.isCollectionWrapper())
+        {
+            throw new RuntimeException("OneToOne不支持集合");
+        }
+        else if (navigateData.getRelationType() == RelationType.OneToMany
+                && !navigateData.isCollectionWrapper())
+        {
+            throw new RuntimeException("OneToMany只支持集合");
+        }
     }
 }

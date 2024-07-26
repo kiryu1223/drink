@@ -21,7 +21,7 @@ public class SqlSetContext extends SqlContext
     {
         String set = propertyContext.getSqlAndValue(config, values) + " = ";
         PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
-        if (propertyMetaData.isHasConverter() && value instanceof SqlValueContext)
+        if (propertyMetaData.hasConverter() && value instanceof SqlValueContext)
         {
             SqlValueContext sqlValueContext = (SqlValueContext) value;
             return set + sqlValueContext.getSqlAndValue(config, values, propertyMetaData.getConverter(), propertyMetaData);

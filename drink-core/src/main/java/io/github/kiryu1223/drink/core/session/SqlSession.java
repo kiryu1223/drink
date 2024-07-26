@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.api.crud.create.SqlValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
+import java.util.Collection;
 import java.util.List;
 
 public interface SqlSession
@@ -13,7 +14,7 @@ public interface SqlSession
         R invoke(T t) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException;
     }
 
-    <R> R executeQuery(Function<ResultSet, R> func, String sql, List<Object> values);
+    <R> R executeQuery(Function<ResultSet, R> func, String sql, Collection<Object> values);
 
     long executeUpdate(String sql, List<SqlValue> values);
 

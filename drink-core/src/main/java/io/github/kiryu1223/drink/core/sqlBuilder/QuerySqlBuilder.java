@@ -5,14 +5,12 @@ import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.unBox;
 
 public class QuerySqlBuilder implements ISqlBuilder
 {
@@ -46,26 +44,22 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             this.from = new SqlAsTableNameContext(startIndex, new SqlParensContext(tableContext));
         }
-        setTargetClass(tableContext.getTableClass());
+        setSelect(tableContext.getTableClass());
         orderedClass.add(tableContext.getTableClass());
     }
 
-    public void setTargetClass(Class<?> targetClass)
-    {
-        setDefaultSelect(targetClass);
-    }
-
-    private void setDefaultSelect(Class<?> targetClass)
+    private SqlContext getSelectByClass(Class<?> targetClass)
     {
         if (groupBy == null)
         {
             MetaData metaData = MetaDataCache.getMetaData(targetClass);
             List<SqlContext> sqlContexts = new ArrayList<>();
-            for (PropertyMetaData data : metaData.getNotIgnoreColumns())
+            for (PropertyMetaData data : metaData.getNotIgnorePropertys())
             {
                 sqlContexts.add(new SqlPropertyContext(data, 0));
             }
-            setSelect(new SqlSelectorContext(sqlContexts), targetClass);
+            return new SqlSelectorContext(sqlContexts);
+            //setSelect(new SqlSelectorContext(sqlContexts), targetClass);
         }
         else
         {
@@ -77,11 +71,13 @@ public class QuerySqlBuilder implements ISqlBuilder
                 {
                     sqlContexts.add(new SqlAsNameContext(entry.getKey(), entry.getValue()));
                 }
-                setSelect(new SqlSelectorContext(sqlContexts), targetClass);
+                return new SqlSelectorContext(sqlContexts);
+                //setSelect(new SqlSelectorContext(sqlContexts), targetClass);
             }
             else
             {
-                setSelect(groupBy, targetClass);
+                return groupBy;
+                //setSelect(groupBy, targetClass);
             }
         }
     }
@@ -98,8 +94,18 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public void setSelect(SqlContext select, Class<?> targetClass)
     {
-        this.select = select;
+        SqlContext temp = select;
+        if (temp == null)
+        {
+            temp = getSelectByClass(targetClass);
+        }
+        this.select = temp;
         this.targetClass = targetClass;
+    }
+
+    public void setSelect(Class<?> targetClass)
+    {
+        setSelect(null, targetClass);
     }
 
 //    public void addFrom(Class<?> queryClass)
@@ -168,7 +174,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     public void setGroupBy(SqlContext groupBy, Class<?> targetClass)
     {
         this.groupBy = groupBy;
-        setTargetClass(targetClass);
+        setSelect(targetClass);
     }
 
     public void addHaving(SqlContext having)
@@ -406,10 +412,40 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
     }
 
-    public List<PropertyMetaData> getMappingData()
+    public List<PropertyMetaData> getMappingData(AtomicBoolean isSingle)
     {
-        MetaData metaData = MetaDataCache.getMetaData(getTargetClass());
-        return new ArrayList<>(metaData.getNotIgnoreColumns());
+        MetaData metaData = MetaDataCache.getMetaData(targetClass);
+        List<PropertyMetaData> props;
+        if (select instanceof SqlSelectorContext)
+        {
+            SqlSelectorContext sqlSelectorContext = (SqlSelectorContext) select;
+            props = new ArrayList<>(sqlSelectorContext.getSqlContexts().size());
+            for (SqlContext sqlContext : sqlSelectorContext.getSqlContexts())
+            {
+                if (sqlContext instanceof SqlAsNameContext)
+                {
+                    SqlAsNameContext asNameContext = (SqlAsNameContext) sqlContext;
+                    PropertyMetaData propertyMetaData = metaData.getPropertyMetaData(asNameContext.getAsName());
+                    props.add(propertyMetaData);
+                }
+                else if (sqlContext instanceof SqlPropertyContext)
+                {
+                    SqlPropertyContext propertyContext = (SqlPropertyContext) sqlContext;
+                    String property = propertyContext.getProperty();
+                    PropertyMetaData propertyMetaData = metaData.getPropertyMetaDataByColumnName(property);
+                    props.add(propertyMetaData);
+                }
+            }
+        }
+        else
+        {
+            props = Collections.emptyList();
+            if (isSingle != null)
+            {
+                isSingle.set(true);
+            }
+        }
+        return props;
     }
 
     private void sqlOrSqlAndValue(List<Object> values, List<String> strings, SqlContext context)

@@ -3,16 +3,20 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.context.SqlPropertyContext;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
-import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class LQuery<T> extends QueryBase
@@ -21,7 +25,7 @@ public class LQuery<T> extends QueryBase
 
     public LQuery(Config config, Class<T> c)
     {
-        super(config,c);
+        super(config, c);
     }
 
     public LQuery(QuerySqlBuilder sqlBuilder)
@@ -429,11 +433,6 @@ public class LQuery<T> extends QueryBase
         return super.toList();
     }
 
-    public void toListAsync(Action1<List<T>> action)
-    {
-        new Thread(() -> action.invoke(toList())).start();
-    }
-
     public <R> List<R> toList(Func1<T, R> func)
     {
         List<R> rList = new ArrayList<>();
@@ -444,6 +443,29 @@ public class LQuery<T> extends QueryBase
         return rList;
     }
 
+    public <K> Map<K, T> toMap(Func1<T, K> func)
+    {
+        return toMap(func, new HashMap<>());
+    }
+
+    public <K> Map<K, T> toMap(Func1<T, K> func, Map<K, T> map)
+    {
+        for (T t : toList())
+        {
+            map.put(func.invoke(t), t);
+        }
+        return map;
+    }
+
+//    public <K> Map<K, T> toMap(@Expr(Expr.BodyType.Expr) Func1<T, K> func)
+//    {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <K> Map<K, T> toMap(ExprTree<Func1<T, K>> expr)
+//    {
+//        return super.toMap(expr.getTree());
+//    }
 
 //    public <R> List<R> toList(Func1<T, R> func)
 //    {

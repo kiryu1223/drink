@@ -4,7 +4,7 @@ import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.visitor.SetVisitor;
-import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action5;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
@@ -77,8 +77,8 @@ public class LUpdate5<T1, T2, T3, T4, T5> extends UpdateBase
 
     public LUpdate5<T1, T2, T3, T4, T5> where(ExprTree<Func5<T1, T2, T3, T4, T5, Boolean>> expr)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext context = whereVisitor.visit(expr.getTree());
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext context = normalVisitor.visit(expr.getTree());
         getSqlBuilder().addWhere(context);
         return this;
     }

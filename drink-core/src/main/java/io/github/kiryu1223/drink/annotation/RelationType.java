@@ -4,6 +4,6 @@ public enum RelationType
 {
     OneToOne,
     OneToMany,
-    ManyToOne,
-    ManyToMany
+//    ManyToOne,
+//    ManyToMany
 }

@@ -3,9 +3,8 @@ package io.github.kiryu1223.drink.api.crud.delete;
 import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.drink.core.visitor.WhereVisitor;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
-import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
@@ -61,8 +60,8 @@ public class LDelete3<T1,T2,T3> extends DeleteBase
 
     public LDelete3<T1,T2,T3> where(ExprTree<Func3<T1,T2,T3, Boolean>> expr)
     {
-        WhereVisitor whereVisitor = new WhereVisitor(getConfig());
-        SqlContext context = whereVisitor.visit(expr.getTree());
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlContext context = normalVisitor.visit(expr.getTree());
         getSqlBuilder().addWhere(context);
         return this;
     }
