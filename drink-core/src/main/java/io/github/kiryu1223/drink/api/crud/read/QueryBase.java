@@ -13,6 +13,7 @@ import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.core.visitor.*;
+import io.github.kiryu1223.drink.ext.IMappingTable;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
@@ -88,7 +89,7 @@ public abstract class QueryBase extends CRUD
 //            try
 //            {
 //                IncludeBuilder<T> navigateBuilder = new IncludeBuilder<>(getConfig(),targetClass, map.values(), includes);
-//                navigateBuilder.build();
+//                navigateBuilder.include();
 //            } catch (InvocationTargetException | IllegalAccessException e)
 //            {
 //                throw new RuntimeException(e);
@@ -118,7 +119,7 @@ public abstract class QueryBase extends CRUD
             try
             {
                 IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, includes);
-                includeBuilder.build();
+                includeBuilder.include();
             } catch (InvocationTargetException | IllegalAccessException e)
             {
                 throw new RuntimeException(e);
@@ -312,15 +313,31 @@ public abstract class QueryBase extends CRUD
 
     private void relationTypeCheck(NavigateData navigateData)
     {
-        if (navigateData.getRelationType() == RelationType.OneToOne
-                && navigateData.isCollectionWrapper())
+        RelationType relationType = navigateData.getRelationType();
+        switch (relationType)
         {
-            throw new RuntimeException("OneToOne不支持集合");
-        }
-        else if (navigateData.getRelationType() == RelationType.OneToMany
-                && !navigateData.isCollectionWrapper())
-        {
-            throw new RuntimeException("OneToMany只支持集合");
+            case OneToOne:
+            case ManyToOne:
+                if (navigateData.isCollectionWrapper())
+                {
+                    throw new RuntimeException(relationType + "不支持集合");
+                }
+            case OneToMany:
+                if (!navigateData.isCollectionWrapper())
+                {
+                    throw new RuntimeException(relationType + "只支持集合");
+                }
+            case ManyToMany:
+                if (!navigateData.isCollectionWrapper())
+                {
+                    throw new RuntimeException(relationType + "只支持集合");
+                }
+                if (navigateData.getMappingTableType() == IMappingTable.class
+                        || navigateData.getSelfMappingPropertyName().isEmpty()
+                        || navigateData.getTargetMappingPropertyName().isEmpty())
+                {
+                    throw new RuntimeException(relationType + "下@Navigate注解的midTable和SelfMapping和TargetMapping字段都不能为空");
+                }
         }
     }
 }

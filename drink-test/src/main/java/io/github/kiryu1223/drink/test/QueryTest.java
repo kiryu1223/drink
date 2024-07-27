@@ -70,13 +70,13 @@ public class QueryTest extends BaseTest
 
         List<Employee> list = client
                 .query(Employee.class)
-                .include(e -> e.getSalaries())
+                //.include(e -> e.getSalaries())
                 .limit(5)
                 .toList();
 
         for (Employee employee : list)
         {
-            System.out.println(employee.getSalaries().size());
+            //System.out.println(employee.getSalaries().size());
             System.out.println(employee);
         }
     }
@@ -102,8 +102,8 @@ public class QueryTest extends BaseTest
     {
         Map<Integer, Employee> map = client
                 .query(Employee.class)
-                .include(e -> e.getSalaries())
-                .include(e -> e.getDeptEmp())
+                //.include(e -> e.getSalaries())
+                //.include(e -> e.getDeptEmp())
                 .limit(5)
                 .toMap(e -> e.getNumber());
 
@@ -123,6 +123,21 @@ public class QueryTest extends BaseTest
                 .toList();
 
         for (DeptManager deptManager : list)
+        {
+            System.out.println(deptManager);
+        }
+    }
+
+    @Test
+    public void q7()
+    {
+        List<Employee> list = client
+                .query(Employee.class)
+                .include(e -> e.getDepartments())
+                .limit(20)
+                .toList();
+
+        for (Employee deptManager : list)
         {
             System.out.println(deptManager);
         }

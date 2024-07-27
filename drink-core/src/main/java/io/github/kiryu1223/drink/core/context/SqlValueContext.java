@@ -94,7 +94,7 @@ public class SqlValueContext extends SqlContext
             {
                 strings.add("?");
             }
-            return "(" + String.join(",", strings) + ")";
+            return String.join(",", strings);
         }
         else
         {

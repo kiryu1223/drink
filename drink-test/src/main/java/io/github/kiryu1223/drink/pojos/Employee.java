@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.pojos;
 
 import io.github.kiryu1223.drink.annotation.*;
 import lombok.Data;
-import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,8 +23,18 @@ public class Employee
     private Gender gender;
     @Column("hire_date")
     private LocalDate hireDay;
-    @Navigate(value = RelationType.OneToMany,self = "number",target = "empNumber")
-    private List<Salary> salaries;
-    @Navigate(value = RelationType.OneToOne,self = "number",target = "empNumber")
-    private DeptEmp deptEmp;
+//    @Navigate(value = RelationType.OneToMany, self = "number", target = "empNumber")
+//    private List<Salary> salaries;
+//    @Navigate(value = RelationType.OneToMany, self = "number", target = "empNumber")
+//    private List<DeptEmp> deptEmp;
+
+    @Navigate(
+            value = RelationType.ManyToMany,
+            self = "number",
+            target = "number",
+            mappingTable = DeptEmp.class,
+            selfMapping = "empNumber",
+            targetMapping = "deptNumber"
+    )
+    private List<Department> departments;
 }

@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.core.metaData;
 
 import io.github.kiryu1223.drink.annotation.Navigate;
 import io.github.kiryu1223.drink.annotation.RelationType;
+import io.github.kiryu1223.drink.ext.IMappingTable;
 
 import java.util.Collection;
 
@@ -46,5 +47,20 @@ public class NavigateData
     public Class<? extends Collection<?>> getCollectionWrapperType()
     {
         return navigateCollectionType;
+    }
+
+    public Class<? extends IMappingTable> getMappingTableType()
+    {
+        return navigate.mappingTable();
+    }
+
+    public String getSelfMappingPropertyName()
+    {
+        return navigate.selfMapping();
+    }
+
+    public String getTargetMappingPropertyName()
+    {
+        return navigate.targetMapping();
     }
 }

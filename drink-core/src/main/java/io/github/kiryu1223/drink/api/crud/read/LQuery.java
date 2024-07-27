@@ -283,16 +283,6 @@ public class LQuery<T> extends QueryBase
         return new EndQuery<>(getSqlBuilder());
     }
 
-//    public <R> LQuery<R> selectMany(@Expr Func1<T, Collection<R>> expr)
-//    {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <R> LQuery<R> selectMany(ExprTree<Func1<T, Collection<R>>> expr)
-//    {
-//        return new LQuery<>(getSqlBuilder());
-//    }
-
 
     // endregion
 
@@ -311,96 +301,6 @@ public class LQuery<T> extends QueryBase
 
     // endregion
 
-//    // region [INCLUDE]
-//    public <R> LQuery<T> include(@Expr Func1<T, R> expr, int groupSize)
-//    {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr, int groupSize)
-//    {
-//        Include include = new Include(expr.getTree(), groupSize);
-//        include.analysis(clientQueryable, queryData);
-//        return this;
-//    }
-//
-//    public <R> LQuery<T> include(@Expr Func1<T, R> expr)
-//    {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr)
-//    {
-//        Include include = new Include(expr.getTree());
-//        include.analysis(clientQueryable, queryData);
-//        return this;
-//    }
-//    // endregion
-//
-//    // region [UNION]
-//
-//    public LQuery<T> union(LQuery<T> q1)
-//    {
-//        clientQueryable.union(q1.getClientQueryable());
-//        return this;
-//    }
-//
-//    public LQuery<T> union(LQuery<T> q1, LQuery<T> q2)
-//    {
-//        clientQueryable.union(q1.getClientQueryable(), q2.getClientQueryable());
-//        return this;
-//    }
-//
-//    public LQuery<T> union(LQuery<T> q1, LQuery<T> q2, LQuery<T> q3)
-//    {
-//        clientQueryable.union(q1.getClientQueryable(), q2.getClientQueryable(), q3.getClientQueryable());
-//        return this;
-//    }
-//
-//    public LQuery<T> union(Collection<LQuery<T>> qs)
-//    {
-//        List<ClientQueryable<T>> clientQueryable = new ArrayList<>();
-//        for (LQuery<T> q : qs)
-//        {
-//            clientQueryable.add(q.getClientQueryable());
-//        }
-//        this.clientQueryable.union(clientQueryable);
-//        return this;
-//    }
-//
-//    public LQuery<T> unionAll(LQuery<T> q1)
-//    {
-//        clientQueryable.unionAll(q1.getClientQueryable());
-//        return this;
-//    }
-//
-//    public LQuery<T> unionAll(LQuery<T> q1, LQuery<T> q2)
-//    {
-//        clientQueryable.unionAll(q1.getClientQueryable(), q2.getClientQueryable());
-//        return this;
-//    }
-//
-//    public LQuery<T> unionAll(LQuery<T> q1, LQuery<T> q2, LQuery<T> q3)
-//    {
-//        clientQueryable.unionAll(q1.getClientQueryable(), q2.getClientQueryable(), q3.getClientQueryable());
-//        return this;
-//    }
-//
-//    public LQuery<T> unionAll(Collection<LQuery<T>> qs)
-//    {
-//        List<ClientQueryable<T>> clientQueryable = new ArrayList<>();
-//        for (LQuery<T> q : qs)
-//        {
-//            clientQueryable.add(q.getClientQueryable());
-//        }
-//        this.clientQueryable.unionAll(clientQueryable);
-//        return this;
-//    }
-//
-//    // endregion
-
-    //region [OTHER]
-
     public LQuery<T> distinct()
     {
         distinct0(true);
@@ -413,13 +313,6 @@ public class LQuery<T> extends QueryBase
         return this;
     }
 
-//    public T firstOrNull()
-//    {
-//        return clientQueryable.firstOrNull();
-//    }
-//
-//    //endregion
-//
     // region [toAny]
 
     @Override
@@ -456,51 +349,6 @@ public class LQuery<T> extends QueryBase
         }
         return map;
     }
-
-//    public <K> Map<K, T> toMap(@Expr(Expr.BodyType.Expr) Func1<T, K> func)
-//    {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <K> Map<K, T> toMap(ExprTree<Func1<T, K>> expr)
-//    {
-//        return super.toMap(expr.getTree());
-//    }
-
-//    public <R> List<R> toList(Func1<T, R> func)
-//    {
-//        List<R> rList = new ArrayList<>();
-//        for (T t : toList())
-//        {
-//            rList.add(func.invoke(t));
-//        }
-//        return rList;
-//    }
-//
-//    public Map<String, Object> toMap()
-//    {
-//        return clientQueryable.toMap();
-//    }
-//
-//    public List<Map<String, Object>> toMaps()
-//    {
-//        return clientQueryable.toMaps();
-//    }
-
-//    public EasyPageResult<T> toPageResult(long pageIndex, long pageSize)
-//    {
-//        return clientQueryable.toPageResult(pageIndex, pageSize);
-//    }
-//
-//    public EasyPageResult<T> toPageResult(long pageIndex, long pageSize, long pageTotal)
-//    {
-//        return clientQueryable.toPageResult(pageIndex, pageSize, pageTotal);
-//    }
-//
-//    public <TPageResult> TPageResult toPageResult(Pager<T,TPageResult> pager)
-//    {
-//        return clientQueryable.toPageResult(pager);
-//    }
 
     // endregion
 }

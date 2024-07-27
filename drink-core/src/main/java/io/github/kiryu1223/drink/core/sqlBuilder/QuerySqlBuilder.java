@@ -17,7 +17,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private final Config config;
     private SqlContext select;
     private boolean distinct = false;
-    private final SqlContext from;
+    private final SqlAsTableNameContext from;
     private final List<SqlContext> joins = new ArrayList<>();
     private final List<SqlContext> wheres = new ArrayList<>();
     private SqlContext groupBy;
@@ -209,33 +209,81 @@ public class QuerySqlBuilder implements ISqlBuilder
         return config;
     }
 
+    private SqlTableContext unbox(SqlContext context)
+    {
+        if (context instanceof SqlTableContext)
+        {
+            return (SqlTableContext) context;
+        }
+        else if (context instanceof SqlAsTableNameContext)
+        {
+            SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
+            return unbox(sqlAsTableNameContext.getContext());
+        }
+        else if (context instanceof SqlParensContext)
+        {
+            SqlParensContext parensContext = (SqlParensContext) context;
+            return unbox(parensContext.getContext());
+        }
+        else
+        {
+            throw new RuntimeException("Unsupported sql context type: " + context.getClass().getName());
+        }
+    }
+
+    private boolean needUnbox()
+    {
+        return !(from.getContext() instanceof SqlTableContext)
+                && !distinct
+                && joins.isEmpty()
+                && wheres.isEmpty()
+                && groupBy == null
+                && havings.isEmpty()
+                && orderBys.isEmpty()
+                && limit == null;
+    }
+
     @Override
     public String getSql()
     {
-        return makeSelect() +
-                makeFrom() +
-                makeJoin() +
-                makeWhere() +
-                makeGroup() +
-                makeHaving() +
-                makeOrder() +
-                makeLimit();
+        if (needUnbox())
+        {
+            return unbox(from).getSql(config);
+        }
+        else
+        {
+            return makeSelect() +
+                    makeFrom() +
+                    makeJoin() +
+                    makeWhere() +
+                    makeGroup() +
+                    makeHaving() +
+                    makeOrder() +
+                    makeLimit();
+        }
     }
 
     @Override
     public String getSqlAndValue(List<Object> values)
     {
-        return makeSelect(values) +
-                makeFrom(values) +
-                makeJoin(values) +
-                makeWhere(values) +
-                makeGroup(values) +
-                makeHaving(values) +
-                makeOrder(values) +
-                makeLimit(values);
+        if (needUnbox())
+        {
+            return unbox(from).getSqlAndValue(config, values);
+        }
+        else
+        {
+            return makeSelect(values) +
+                    makeFrom(values) +
+                    makeJoin(values) +
+                    makeWhere(values) +
+                    makeGroup(values) +
+                    makeHaving(values) +
+                    makeOrder(values) +
+                    makeLimit(values);
+        }
     }
 
-    private String makeSelect(List<Object> values)
+    protected String makeSelect(List<Object> values)
     {
         String sql;
         if (values != null)
@@ -249,25 +297,25 @@ public class QuerySqlBuilder implements ISqlBuilder
         return "SELECT " + (distinct ? "DISTINCT " : "") + sql;
     }
 
-    private String makeSelect()
+    protected String makeSelect()
     {
         return makeSelect(null);
     }
 
 
-    private String makeFrom(List<Object> values)
+    protected String makeFrom(List<Object> values)
     {
         List<String> froms = new ArrayList<>(1);
         sqlOrSqlAndValue(values, froms, from);
         return " FROM " + String.join(",", froms);
     }
 
-    private String makeFrom()
+    protected String makeFrom()
     {
         return makeFrom(null);
     }
 
-    private String makeJoin(List<Object> values)
+    protected String makeJoin(List<Object> values)
     {
         if (joins.isEmpty()) return "";
         List<String> joinStr = new ArrayList<>(joins.size());
@@ -278,7 +326,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         return " " + String.join(" ", joinStr);
     }
 
-    private String makeJoin()
+    protected String makeJoin()
     {
         return makeJoin(null);
     }
@@ -315,7 +363,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 //        }
 //    }
 
-    private String makeWhere(List<Object> values)
+    protected String makeWhere(List<Object> values)
     {
         if (wheres.isEmpty()) return "";
         List<String> whereStr = new ArrayList<>(wheres.size());
@@ -326,12 +374,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         return " WHERE " + String.join(" AND ", whereStr);
     }
 
-    private String makeWhere()
+    protected String makeWhere()
     {
         return makeWhere(null);
     }
 
-    private String makeGroup(List<Object> values)
+    protected String makeGroup(List<Object> values)
     {
         if (groupBy == null) return "";
         if (values != null)
@@ -344,12 +392,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
     }
 
-    private String makeGroup()
+    protected String makeGroup()
     {
         return makeGroup(null);
     }
 
-    private String makeHaving(List<Object> values)
+    protected String makeHaving(List<Object> values)
     {
         if (havings.isEmpty()) return "";
         List<String> havingStr = new ArrayList<>(havings.size());
@@ -360,12 +408,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         return " HAVING " + String.join(" AND ", havingStr);
     }
 
-    private String makeHaving()
+    protected String makeHaving()
     {
         return makeHaving(null);
     }
 
-    private String makeOrder(List<Object> values)
+    protected String makeOrder(List<Object> values)
     {
         if (orderBys.isEmpty()) return "";
         List<String> orderStr = new ArrayList<>(orderBys.size());
@@ -376,12 +424,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         return " ORDER BY " + String.join(",", orderStr);
     }
 
-    private String makeOrder()
+    protected String makeOrder()
     {
         return makeOrder(null);
     }
 
-    private String makeLimit(List<Object> values)
+    protected String makeLimit(List<Object> values)
     {
         if (limit == null) return "";
         if (values != null)
@@ -394,7 +442,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
     }
 
-    private String makeLimit()
+    protected String makeLimit()
     {
         return makeLimit(null);
     }

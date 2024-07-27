@@ -20,6 +20,6 @@ public class DeptManager
     private LocalDate from;
     @Column("to_date")
     private LocalDate to;
-    @Navigate(value = RelationType.OneToOne, self = "deptNumber", target = "number")
+    @Navigate(value = RelationType.ManyToOne, self = "deptNumber", target = "number")
     private Department department;
 }

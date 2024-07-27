@@ -50,8 +50,7 @@ public class ObjectBuilder<T>
                 }
                 metaData.getSetter().invoke(t, value);
             }
-            if (key == null) throw new RuntimeException("key is null");
-            hashMap.put(key, t);
+            if (key != null) hashMap.put(key, t);
         }
         return hashMap;
     }
@@ -74,16 +73,18 @@ public class ObjectBuilder<T>
                 }
                 metaData.getSetter().invoke(t, value);
             }
-            if (key == null) throw new RuntimeException("key is null");
-            if (!hashMap.containsKey(key))
+            if (key != null)
             {
-                List<T> tempList = new ArrayList<>();
-                tempList.add(t);
-                hashMap.put(key, tempList);
-            }
-            else
-            {
-                hashMap.get(key).add(t);
+                if (!hashMap.containsKey(key))
+                {
+                    List<T> tempList = new ArrayList<>();
+                    tempList.add(t);
+                    hashMap.put(key, tempList);
+                }
+                else
+                {
+                    hashMap.get(key).add(t);
+                }
             }
         }
         return hashMap;
