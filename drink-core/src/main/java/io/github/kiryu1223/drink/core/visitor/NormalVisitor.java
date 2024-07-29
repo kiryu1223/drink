@@ -10,6 +10,11 @@ public class NormalVisitor extends SqlVisitor
         super(config);
     }
 
+    public NormalVisitor(Config config, int offset)
+    {
+        super(config, offset);
+    }
+
     @Override
     protected NormalVisitor getSelf()
     {

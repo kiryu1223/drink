@@ -13,10 +13,7 @@ import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class LQuery<T> extends QueryBase
@@ -296,6 +293,39 @@ public class LQuery<T> extends QueryBase
     public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr)
     {
         include(expr.getTree());
+        return this;
+    }
+
+    public <R> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, @Expr(Expr.BodyType.Expr) Func1<R, Boolean> cond)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr, ExprTree<Func1<R, Boolean>> cond)
+    {
+        include(expr.getTree(), cond.getTree());
+        return this;
+    }
+
+    public <R> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr)
+    {
+        include(expr.getTree());
+        return this;
+    }
+
+    public <R> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, @Expr(Expr.BodyType.Expr) Func1<R, Boolean> cond)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr, ExprTree<Func1<R, Boolean>> cond)
+    {
+        include(expr.getTree(), cond.getTree());
         return this;
     }
 

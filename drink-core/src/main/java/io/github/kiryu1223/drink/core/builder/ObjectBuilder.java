@@ -55,7 +55,7 @@ public class ObjectBuilder<T>
         return hashMap;
     }
 
-    public <Key> Map<Key, List<T>> createMapList(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
+    public <Key> Map<Key, List<T>> createMapList(String keyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
         FastCreator<T> fastCreator = new FastCreator<>(target);
         Supplier<T> creator = fastCreator.getCreator();
@@ -67,11 +67,49 @@ public class ObjectBuilder<T>
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
                 Object value = convertValue(metaData);
-                if (column.equals(metaData.getColumn()))
+                if (keyColumn.equals(metaData.getColumn()))
                 {
                     key = (Key) value;
                 }
                 metaData.getSetter().invoke(t, value);
+            }
+            if (key != null)
+            {
+                if (!hashMap.containsKey(key))
+                {
+                    List<T> tempList = new ArrayList<>();
+                    tempList.add(t);
+                    hashMap.put(key, tempList);
+                }
+                else
+                {
+                    hashMap.get(key).add(t);
+                }
+            }
+        }
+        return hashMap;
+    }
+
+    public <Key> Map<Key, List<T>> createMapListByAnotherKey(String anotherKeyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
+    {
+        FastCreator<T> fastCreator = new FastCreator<>(target);
+        Supplier<T> creator = fastCreator.getCreator();
+        Map<Key, List<T>> hashMap = new HashMap<>();
+        while (resultSet.next())
+        {
+            T t = creator.get();
+            Key key = null;
+            for (PropertyMetaData metaData : propertyMetaDataList)
+            {
+                Object value = convertValue(metaData);
+                if (anotherKeyColumn.equals(metaData.getColumn()))
+                {
+                    key = (Key) value;
+                }
+                else
+                {
+                    metaData.getSetter().invoke(t, value);
+                }
             }
             if (key != null)
             {
@@ -131,7 +169,7 @@ public class ObjectBuilder<T>
         return list;
     }
 
-    private Object convertValue(PropertyMetaData metaData) throws NoSuchFieldException, SQLException, IllegalAccessException
+    private Object convertValue(PropertyMetaData metaData) throws SQLException, NoSuchFieldException, IllegalAccessException
     {
         if (!metaData.hasConverter())
         {

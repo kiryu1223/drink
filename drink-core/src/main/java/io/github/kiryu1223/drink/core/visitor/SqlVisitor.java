@@ -29,10 +29,18 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
 {
     protected List<ParameterExpression> parameters;
     protected final Config config;
+    protected final int offset;
 
     protected SqlVisitor(Config config)
     {
         this.config = config;
+        this.offset = 0;
+    }
+
+    public SqlVisitor(Config config, int offset)
+    {
+        this.config = config;
+        this.offset = offset;
     }
 
     @Override
@@ -69,7 +77,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
         if (isProperty(parameters, fieldSelect))
         {
             ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
-            int index = parameters.indexOf(parameter);
+            int index = parameters.indexOf(parameter) + offset;
             Field field = fieldSelect.getField();
             MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
             return new SqlPropertyContext(metaData.getPropertyMetaData(field.getName()), index);
@@ -319,7 +327,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             if (isGetter(methodCall.getMethod()))
             {
                 ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                int index = parameters.indexOf(parameter);
+                int index = parameters.indexOf(parameter)+offset;
                 Method getter = methodCall.getMethod();
                 MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
                 return new SqlPropertyContext(metaData.getPropertyMetaDataByGetter(getter), index);
@@ -327,7 +335,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             else if (isSetter(methodCall.getMethod()))
             {
                 ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                int index = parameters.indexOf(parameter);
+                int index = parameters.indexOf(parameter)+offset;
                 Method setter = methodCall.getMethod();
                 MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
                 SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getPropertyMetaDataBySetter(setter), index);

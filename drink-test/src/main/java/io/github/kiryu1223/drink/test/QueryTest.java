@@ -84,6 +84,7 @@ public class QueryTest extends BaseTest
     @Test
     public void q4()
     {
+        // select e.emp_no from employees as e limit 1000
 
         List<Integer> list = client
                 .query(Employee.class)
@@ -102,8 +103,8 @@ public class QueryTest extends BaseTest
     {
         Map<Integer, Employee> map = client
                 .query(Employee.class)
-                //.include(e -> e.getSalaries())
-                //.include(e -> e.getDeptEmp())
+                .include(e -> e.getSalaries())// one many
+                .include(e -> e.getDeptEmp())// one one
                 .limit(5)
                 .toMap(e -> e.getNumber());
 
@@ -118,7 +119,7 @@ public class QueryTest extends BaseTest
     {
         List<DeptManager> list = client
                 .query(DeptManager.class)
-                .include(d -> d.getDepartment())
+                .include(dm -> dm.getDepartment(), d -> d.getName().contains("Mark"))
                 .limit(5)
                 .toList();
 
@@ -133,8 +134,11 @@ public class QueryTest extends BaseTest
     {
         List<Employee> list = client
                 .query(Employee.class)
-                .include(e -> e.getDepartments())
-                .limit(20)
+                .includes(e -> e.getSalaries(), s ->
+                        s.getTo().isBefore(LocalDate.of(9999, 1, 1))
+                )
+                .includes(e -> e.getDepartments(), d -> d.getNumber() == "d005")
+                .limit(5)
                 .toList();
 
         for (Employee deptManager : list)

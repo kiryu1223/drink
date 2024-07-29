@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.builder.IncludeBuilder;
+import io.github.kiryu1223.drink.core.builder.IncludeSet;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
@@ -181,7 +182,7 @@ public abstract class QueryBase extends CRUD
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext onContext = normalVisitor.visit(expr.getTree());
         SqlTableContext tableContext = new SqlRealTableContext(target);
-        getSqlBuilder().addJoin(target, joinType, tableContext, onContext);
+        getSqlBuilder().addJoin(joinType, tableContext, onContext);
     }
 
     protected void join(JoinType joinType, QueryBase target, ExprTree<?> expr)
@@ -189,7 +190,7 @@ public abstract class QueryBase extends CRUD
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext onContext = normalVisitor.visit(expr.getTree());
         SqlTableContext tableContext = new SqlVirtualTableContext(target.getSqlBuilder());
-        getSqlBuilder().addJoin(target.getSqlBuilder().getTargetClass(), joinType, tableContext, onContext);
+        getSqlBuilder().addJoin(joinType, tableContext, onContext);
     }
 
     protected void where(LambdaExpression<?> lambda)
@@ -291,9 +292,9 @@ public abstract class QueryBase extends CRUD
         return new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(sqlBuilder));
     }
 
-    private final List<SqlPropertyContext> includes = new ArrayList<>();
+    private final List<IncludeSet> includes = new ArrayList<>();
 
-    protected void include(LambdaExpression<?> lambda)
+    protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext context = normalVisitor.visit(lambda);
@@ -305,10 +306,26 @@ public abstract class QueryBase extends CRUD
                 throw new RuntimeException("include指定的字段需要被@Navigate修饰");
             }
             relationTypeCheck(propertyContext.getPropertyMetaData().getNavigateData());
-            includes.add(propertyContext);
+            IncludeSet includeSet;
+            if (cond != null)
+            {
+                NormalVisitor normalVisitor2 = new NormalVisitor(getConfig());
+                SqlContext condition = normalVisitor2.visit(cond);
+                includeSet = new IncludeSet(propertyContext, condition);
+            }
+            else
+            {
+                includeSet = new IncludeSet(propertyContext);
+            }
+            includes.add(includeSet);
             return;
         }
         throw new RuntimeException("include需要指定一个字段");
+    }
+
+    protected void include(LambdaExpression<?> lambda)
+    {
+        include(lambda, null);
     }
 
     private void relationTypeCheck(NavigateData navigateData)
@@ -322,11 +339,13 @@ public abstract class QueryBase extends CRUD
                 {
                     throw new RuntimeException(relationType + "不支持集合");
                 }
+                break;
             case OneToMany:
                 if (!navigateData.isCollectionWrapper())
                 {
                     throw new RuntimeException(relationType + "只支持集合");
                 }
+                break;
             case ManyToMany:
                 if (!navigateData.isCollectionWrapper())
                 {
@@ -338,6 +357,7 @@ public abstract class QueryBase extends CRUD
                 {
                     throw new RuntimeException(relationType + "下@Navigate注解的midTable和SelfMapping和TargetMapping字段都不能为空");
                 }
+                break;
         }
     }
 }

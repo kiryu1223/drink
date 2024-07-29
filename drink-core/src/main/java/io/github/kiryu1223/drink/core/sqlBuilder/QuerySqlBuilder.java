@@ -26,7 +26,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private SqlContext limit;
     private final List<Class<?>> orderedClass = new ArrayList<>();
     private Class<?> targetClass;
-    //private int startIndex = 0;
+    private int startIndex = 0;
 
     public QuerySqlBuilder(Config config, SqlTableContext tableContext)
     {
@@ -36,6 +36,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     public QuerySqlBuilder(Config config, SqlTableContext tableContext, int startIndex)
     {
         this.config = config;
+        this.startIndex = startIndex;
         if (tableContext instanceof SqlRealTableContext)
         {
             this.from = new SqlAsTableNameContext(startIndex, tableContext);
@@ -56,7 +57,7 @@ public class QuerySqlBuilder implements ISqlBuilder
             List<SqlContext> sqlContexts = new ArrayList<>();
             for (PropertyMetaData data : metaData.getNotIgnorePropertys())
             {
-                sqlContexts.add(new SqlPropertyContext(data, 0));
+                sqlContexts.add(new SqlPropertyContext(data, startIndex));
             }
             return new SqlSelectorContext(sqlContexts);
             //setSelect(new SqlSelectorContext(sqlContexts), targetClass);
@@ -147,18 +148,18 @@ public class QuerySqlBuilder implements ISqlBuilder
 //        }
 //    }
 
-    public void addJoin(Class<?> target, JoinType joinType, SqlTableContext tableContext, SqlContext onContext)
+    public void addJoin(JoinType joinType, SqlTableContext tableContext, SqlContext onContext)
     {
         SqlJoinContext joinContext = new SqlJoinContext(
                 joinType,
-                new SqlAsTableNameContext(1 + joins.size(),
+                new SqlAsTableNameContext(startIndex + 1 + joins.size(),
                         tableContext instanceof SqlRealTableContext
                                 ? tableContext :
                                 new SqlParensContext(tableContext)),
                 onContext
         );
         joins.add(joinContext);
-        orderedClass.add(target);
+        orderedClass.add(tableContext.getTableClass());
     }
 
     public void addWhere(SqlContext where)
@@ -506,5 +507,10 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             strings.add(context.getSql(config));
         }
+    }
+
+    public SqlContext getSelect()
+    {
+        return select;
     }
 }

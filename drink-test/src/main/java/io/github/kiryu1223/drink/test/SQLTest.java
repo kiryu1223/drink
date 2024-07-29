@@ -396,4 +396,41 @@ public class SQLTest
 
         System.out.println(sql);
     }
+
+    //@Test
+    public void m20()
+    {
+//        List<? extends Result> list = client.query(UserDo.class)
+//                .leftJoin(UserAddress.class, (u, ua) -> u.getId() == ua.getId())
+//                .leftJoin(Area.class, (u, ua, a) -> ua.getId() == a.getId())
+//                .where((u, ua, a) ->
+//                        u.getId() == 1
+//                                && ua.getTel().contains("10086")
+//                )
+//                .select((u, ua, a) -> new Result()
+//                {
+//                    int id = u.getId();
+//                    String name = u.getName();
+//                    int sex = u.getSex();
+//                    String url = u.getHeadImg();
+//                    String tel = ua.getTel();
+//                    String address = ua.getAddress();
+//                    String pro = a.getProvince();
+//                    String ct = a.getCity();
+//                })
+//                .toList();
+
+//        List<UserDto> list = client.query(UserDo.class)
+//                .leftJoin(UserAddress.class, (u, ua) -> u.getId() == ua.getId())
+//                .leftJoin(Area.class, (u, ua, a) -> ua.getId() == a.getId())
+//                .where((u, ua, a) ->
+//                        u.getId() == 1
+//                                && ua.getTel().contains("10086")
+//                                && (a.getCity() == "上海" && a.getProvince() == "shanghai")
+//                                || 1 == 1
+//                )
+//                .select(UserDto.class)
+//                .toList();
+
+    }
 }

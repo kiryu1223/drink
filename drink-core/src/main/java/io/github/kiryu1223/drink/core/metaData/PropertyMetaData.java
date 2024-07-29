@@ -90,4 +90,9 @@ public class PropertyMetaData
     {
         return field.getDeclaringClass();
     }
+
+//    public Class<?> getType()
+//    {
+//        return field.getType();
+//    }
 }
