@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.pojos;
 
 import io.github.kiryu1223.drink.annotation.Column;
+import io.github.kiryu1223.drink.annotation.IgnoreColumn;
 import io.github.kiryu1223.drink.annotation.Table;
 import io.github.kiryu1223.drink.converter.IntConverter;
 import lombok.Data;

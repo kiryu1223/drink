@@ -119,7 +119,7 @@ public abstract class QueryBase extends CRUD
         {
             try
             {
-                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, includes);
+                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, includes,sqlBuilder);
                 includeBuilder.include();
             } catch (InvocationTargetException | IllegalAccessException e)
             {

@@ -6,6 +6,7 @@ import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.pojos.DeptEmp;
 import io.github.kiryu1223.drink.pojos.DeptManager;
 import io.github.kiryu1223.drink.pojos.Employee;
 import io.github.kiryu1223.drink.pojos.Gender;
@@ -49,19 +50,9 @@ public class QueryTest extends BaseTest
     {
         LQuery<Employee> query = client.query(Employee.class);
 
-        if (1 == 1)
-        {
-            query.where(e -> e.getGender() != Gender.F);
-        }
-        else
-        {
-            query.where(e -> e.getGender() != Gender.M);
-        }
+        List<Employee> list = query.where(e -> e.getGender() != Gender.F).toList();
 
-        for (Employee employee : query.toList())
-        {
-            System.out.println(employee);
-        }
+        System.out.println(list.size());
     }
 
     @Test
@@ -103,8 +94,9 @@ public class QueryTest extends BaseTest
     {
         Map<Integer, Employee> map = client
                 .query(Employee.class)
-                .include(e -> e.getSalaries())// one many
-                .include(e -> e.getDeptEmp())// one one
+                .includes(e -> e.getDepartments())
+//                .includes(e -> e.getSalaries())
+//                .includes(e -> e.getDeptEmp())
                 .limit(5)
                 .toMap(e -> e.getNumber());
 
@@ -119,8 +111,8 @@ public class QueryTest extends BaseTest
     {
         List<DeptManager> list = client
                 .query(DeptManager.class)
-                .include(dm -> dm.getDepartment(), d -> d.getName().contains("Mark"))
-                .limit(5)
+                .include(dm -> dm.getDepartment())
+                .limit(10)
                 .toList();
 
         for (DeptManager deptManager : list)
@@ -134,10 +126,8 @@ public class QueryTest extends BaseTest
     {
         List<Employee> list = client
                 .query(Employee.class)
-                .includes(e -> e.getSalaries(), s ->
-                        s.getTo().isBefore(LocalDate.of(9999, 1, 1))
-                )
-                .includes(e -> e.getDepartments(), d -> d.getNumber() == "d005")
+                .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
+                //.includes(e -> e.getDepartments(), d -> d.getNumber() == "d005")
                 .limit(5)
                 .toList();
 

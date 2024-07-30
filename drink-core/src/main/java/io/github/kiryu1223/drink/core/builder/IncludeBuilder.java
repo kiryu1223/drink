@@ -22,18 +22,21 @@ public class IncludeBuilder<T>
     private final Class<T> targetClass;
     private final Collection<T> sources;
     private final List<IncludeSet> includes;
+    private final QuerySqlBuilder mainSqlBuilder;
 
-    public IncludeBuilder(Config config, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes)
+    public IncludeBuilder(Config config, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, QuerySqlBuilder mainSqlBuilder)
     {
         this.config = config;
         this.targetClass = targetClass;
         this.sources = sources;
         this.includes = includes;
+        this.mainSqlBuilder = mainSqlBuilder;
     }
 
     public void include() throws InvocationTargetException, IllegalAccessException
     {
         MetaData targetClassMetaData = MetaDataCache.getMetaData(targetClass);
+        SqlSession session = config.getSqlSessionFactory().getSession();
         Map<Object, T> sourcesMap = null;
         Map<Object, List<T>> sourcesMapList = null;
         for (IncludeSet include : includes)
@@ -43,8 +46,6 @@ public class IncludeBuilder<T>
             PropertyMetaData selfPropertyMetaData = targetClassMetaData.getPropertyMetaData(navigateData.getSelfPropertyName());
             PropertyMetaData targetPropertyMetaData = MetaDataCache.getMetaData(navigateTargetType).getPropertyMetaData(navigateData.getTargetPropertyName());
             PropertyMetaData includePropertyMetaData = include.getPropertyContext().getPropertyMetaData();
-
-            SqlSession session = config.getSqlSessionFactory().getSession();
 
             // 一对一情况
             // 主表的字段(self)与从表的字段(target)一对一对应
@@ -59,17 +60,20 @@ public class IncludeBuilder<T>
                 {
                     sourcesMap = getMap(selfPropertyMetaData);
                 }
-                // 构建sub查询
+                // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlValueContext(sourcesMap.keySet())));
-                List<Object> values = new ArrayList<>(sourcesMap.keySet());
+                // join自身表
+                querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+                // 包一层，并选择字段
+                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp)));
+
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    List<Object> temp = new ArrayList<>();
-                    cond.getSqlAndValue(config, temp);
-                    values.addAll(temp);
                     SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
                     querySqlBuilder.addWhere(exCondition);
                 }
@@ -77,7 +81,8 @@ public class IncludeBuilder<T>
                 {
                     querySqlBuilder.addWhere(condition);
                 }
-                String sql = querySqlBuilder.getSql();
+                List<Object> values = new ArrayList<>();
+                String sql = querySqlBuilder.getSqlAndValue(values);
                 System.out.println(sql);
                 List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
                 // 获取从表的map
@@ -105,17 +110,20 @@ public class IncludeBuilder<T>
                 {
                     sourcesMap = getMap(selfPropertyMetaData);
                 }
-                // 构建sub查询
+                // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlValueContext(sourcesMap.keySet())));
-                List<Object> values = new ArrayList<>(sourcesMap.keySet());
+                // join自身表
+                querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+                // 包一层，并选择字段
+                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp)));
+
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    List<Object> temp = new ArrayList<>();
-                    cond.getSqlAndValue(config, temp);
-                    values.addAll(temp);
                     SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
                     querySqlBuilder.addWhere(exCondition);
                 }
@@ -123,10 +131,10 @@ public class IncludeBuilder<T>
                 {
                     querySqlBuilder.addWhere(condition);
                 }
-                String sql = querySqlBuilder.getSql();
+                List<Object> values = new ArrayList<>();
+                String sql = querySqlBuilder.getSqlAndValue(values);
                 System.out.println(sql);
                 List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
-
                 // 查询从表数据，按key进行list归类的map构建
                 Map<Object, List<Object>> objectListMap = session.executeQuery(
                         r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapList(targetPropertyMetaData.getColumn()),
@@ -153,17 +161,20 @@ public class IncludeBuilder<T>
                 {
                     sourcesMapList = getMapList(selfPropertyMetaData);
                 }
-                // 构建sub查询
+                // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlValueContext(sourcesMapList.keySet())));
-                List<Object> values = new ArrayList<>(sourcesMapList.keySet());
+                // join自身表
+                querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+                // 包一层，并选择字段
+                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp)));
+
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    List<Object> temp = new ArrayList<>();
-                    cond.getSqlAndValue(config, temp);
-                    values.addAll(temp);
                     SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
                     querySqlBuilder.addWhere(exCondition);
                 }
@@ -171,7 +182,8 @@ public class IncludeBuilder<T>
                 {
                     querySqlBuilder.addWhere(condition);
                 }
-                String sql = querySqlBuilder.getSql();
+                List<Object> values = new ArrayList<>();
+                String sql = querySqlBuilder.getSqlAndValue(values);
                 System.out.println(sql);
                 List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
                 // 获取目标表的map
@@ -207,20 +219,19 @@ public class IncludeBuilder<T>
                 PropertyMetaData selfMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(selfMappingPropertyName);
                 String targetMappingPropertyName = navigateData.getTargetMappingPropertyName();
                 PropertyMetaData targetMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(targetMappingPropertyName);
-                // 构建一个目标表查询，leftJoin中间表，join条件为目标表字段与中间表的目标映射字段相等
-                // FROM navigateTargetType as t LEFT JOIN mappingTableType as ON t.target = m.targetMapping
+                // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+                // join中间表
                 querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mappingTableType), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(targetMappingPropertyMetaData, 1)));
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfMappingPropertyMetaData, 1), new SqlParensContext(new SqlValueContext(sourcesMapList.keySet())));
-                List<Object> values = new ArrayList<>(sourcesMapList.keySet());
+                // 包一层，并选择字段
+                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfMappingPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp)));
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    List<Object> temp = new ArrayList<>();
-                    cond.getSqlAndValue(config, temp);
-                    values.addAll(temp);
                     SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
                     querySqlBuilder.addWhere(exCondition);
                 }
@@ -228,12 +239,14 @@ public class IncludeBuilder<T>
                 {
                     querySqlBuilder.addWhere(condition);
                 }
-                SqlSelectorContext select = (SqlSelectorContext) querySqlBuilder.getSelect();
-                select.getSqlContexts().add(new SqlPropertyContext(selfMappingPropertyMetaData, 1));
-                mappingData.add(selfMappingPropertyMetaData);
-                String sql = querySqlBuilder.getSql();
-                System.out.println(sql);
 
+                SqlSelectorContext select = (SqlSelectorContext) querySqlBuilder.getSelect();
+                querySqlBuilder.setSelect(select,navigateTargetType);
+                select.getSqlContexts().add(new SqlPropertyContext(selfMappingPropertyMetaData, 1));
+                List<Object> values = new ArrayList<>();
+                String sql = querySqlBuilder.getSqlAndValue(values);
+                System.out.println(sql);
+                List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
                 Map<Object, List<Object>> targetMap = session.executeQuery(
                         r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData.getColumn()),
                         sql,

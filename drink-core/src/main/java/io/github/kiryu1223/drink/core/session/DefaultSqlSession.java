@@ -211,7 +211,14 @@ public class DefaultSqlSession implements SqlSession
         int index = 1;
         for (Object value : values)
         {
-            preparedStatement.setObject(index++, value);
+            if (value.getClass().isEnum())
+            {
+                preparedStatement.setString(index++, value.toString());
+            }
+            else
+            {
+                preparedStatement.setObject(index++, value);
+            }
         }
     }
 

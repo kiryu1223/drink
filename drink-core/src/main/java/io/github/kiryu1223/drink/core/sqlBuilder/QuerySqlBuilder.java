@@ -26,7 +26,13 @@ public class QuerySqlBuilder implements ISqlBuilder
     private SqlContext limit;
     private final List<Class<?>> orderedClass = new ArrayList<>();
     private Class<?> targetClass;
-    private int startIndex = 0;
+    private int startIndex;
+    private boolean changed;
+
+    private void change()
+    {
+        changed = true;
+    }
 
     public QuerySqlBuilder(Config config, SqlTableContext tableContext)
     {
@@ -45,8 +51,9 @@ public class QuerySqlBuilder implements ISqlBuilder
         {
             this.from = new SqlAsTableNameContext(startIndex, new SqlParensContext(tableContext));
         }
-        setSelect(tableContext.getTableClass());
         orderedClass.add(tableContext.getTableClass());
+        this.targetClass = tableContext.getTableClass();
+        this.select = getSelectByClass(targetClass);
     }
 
     private SqlContext getSelectByClass(Class<?> targetClass)
@@ -102,6 +109,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
         this.select = temp;
         this.targetClass = targetClass;
+        change();
     }
 
     public void setSelect(Class<?> targetClass)
@@ -160,49 +168,55 @@ public class QuerySqlBuilder implements ISqlBuilder
         );
         joins.add(joinContext);
         orderedClass.add(tableContext.getTableClass());
+        change();
     }
 
     public void addWhere(SqlContext where)
     {
         wheres.add(where);
+        change();
     }
 
     public void addOrWhere(SqlContext where)
     {
         removeAndBoxOr(wheres, where);
+        change();
     }
 
     public void setGroupBy(SqlContext groupBy, Class<?> targetClass)
     {
         this.groupBy = groupBy;
         setSelect(targetClass);
+        change();
     }
 
     public void addHaving(SqlContext having)
     {
         havings.add(having);
-
+        change();
     }
 
     public void addOrderBy(SqlContext orderBy)
     {
         orderBys.add(orderBy);
-
+        change();
     }
 
     public void setLimit(SqlContext limit)
     {
         this.limit = limit;
-    }
-
-    public SqlContext getGroupBy()
-    {
-        return groupBy;
+        change();
     }
 
     public void setDistinct(boolean distinct)
     {
         this.distinct = distinct;
+        change();
+    }
+
+    public SqlContext getGroupBy()
+    {
+        return groupBy;
     }
 
     public Config getConfig()
@@ -234,14 +248,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     private boolean needUnbox()
     {
-        return !(from.getContext() instanceof SqlTableContext)
-                && !distinct
-                && joins.isEmpty()
-                && wheres.isEmpty()
-                && groupBy == null
-                && havings.isEmpty()
-                && orderBys.isEmpty()
-                && limit == null;
+        return !changed;
     }
 
     @Override
@@ -480,9 +487,7 @@ public class QuerySqlBuilder implements ISqlBuilder
                 else if (sqlContext instanceof SqlPropertyContext)
                 {
                     SqlPropertyContext propertyContext = (SqlPropertyContext) sqlContext;
-                    String property = propertyContext.getProperty();
-                    PropertyMetaData propertyMetaData = metaData.getPropertyMetaDataByColumnName(property);
-                    props.add(propertyMetaData);
+                    props.add(propertyContext.getPropertyMetaData());
                 }
             }
         }
