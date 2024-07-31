@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.ext;
 
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -14,30 +15,14 @@ public interface IConverter<J, D>
     default Class<D> getDbType()
     {
         Type[] interfaces = this.getClass().getGenericInterfaces();
-        for (Type type : interfaces)
-        {
-            if (type instanceof ParameterizedType)
-            {
-                ParameterizedType pType = (ParameterizedType) type;
-                Type dbType = pType.getActualTypeArguments()[1];
-                return (Class<D>) dbType;
-            }
-        }
-        throw new RuntimeException("无法找到D的类型");
+        Type type = interfaces[0];
+        return ExpressionUtil.getType(type, 1);
     }
 
     default Class<J> getJavaType()
     {
         Type[] interfaces = this.getClass().getGenericInterfaces();
-        for (Type type : interfaces)
-        {
-            if (type instanceof ParameterizedType)
-            {
-                ParameterizedType pType = (ParameterizedType) type;
-                Type javaType = pType.getActualTypeArguments()[0];
-                return (Class<J>) javaType;
-            }
-        }
-        throw new RuntimeException("无法找到J的类型");
+        Type type = interfaces[0];
+        return ExpressionUtil.getType(type, 0);
     }
 }

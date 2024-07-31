@@ -15,6 +15,7 @@ import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.core.visitor.*;
 import io.github.kiryu1223.drink.ext.IMappingTable;
+import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
@@ -115,11 +116,11 @@ public abstract class QueryBase extends CRUD
                 sql,
                 values
         );
-        if (!includes.isEmpty())
+        if (!sqlBuilder.getIncludes().isEmpty())
         {
             try
             {
-                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, includes,sqlBuilder);
+                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, sqlBuilder.getIncludes(),sqlBuilder);
                 includeBuilder.include();
             } catch (InvocationTargetException | IllegalAccessException e)
             {
@@ -292,8 +293,6 @@ public abstract class QueryBase extends CRUD
         return new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(sqlBuilder));
     }
 
-    private final List<IncludeSet> includes = new ArrayList<>();
-
     protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
@@ -317,7 +316,7 @@ public abstract class QueryBase extends CRUD
             {
                 includeSet = new IncludeSet(propertyContext);
             }
-            includes.add(includeSet);
+            sqlBuilder.getIncludes().add(includeSet);
             return;
         }
         throw new RuntimeException("include需要指定一个字段");
@@ -326,6 +325,18 @@ public abstract class QueryBase extends CRUD
     protected void include(LambdaExpression<?> lambda)
     {
         include(lambda, null);
+    }
+
+    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<LQuery<R>> action)
+    {
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlPropertyContext propertyContext = (SqlPropertyContext) normalVisitor.visit(lambda);
+        PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
+        Class<R> navigateTargetType = (Class<R>) propertyMetaData.getNavigateData().getNavigateTargetType();
+        LQuery<R> temp = new LQuery<>(getConfig(), navigateTargetType);
+        action.invoke(temp);
+        IncludeSet includeSet = new IncludeSet(propertyContext, new SqlVirtualTableContext(temp.getSqlBuilder()));
+        sqlBuilder.getIncludes().add(includeSet);
     }
 
     private void relationTypeCheck(NavigateData navigateData)

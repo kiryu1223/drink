@@ -119,18 +119,39 @@ public class IncludeBuilder<T>
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
                 SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp)));
-
+                querySqlBuilder.addWhere(condition);
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
-                    querySqlBuilder.addWhere(exCondition);
+                    // 复杂条件
+                    if(cond instanceof SqlVirtualTableContext)
+                    {
+                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                        QuerySqlBuilder sqlBuilder = virtualTableContext.getSqlBuilder();
+                        List<SqlContext> wheres = sqlBuilder.getWheres();
+                        List<SqlContext> orderBys = sqlBuilder.getOrderBys();
+                        SqlContext limit = sqlBuilder.getLimit();
+                        if(!wheres.isEmpty())
+                        {
+                            querySqlBuilder.addWhere(new SqlParensContext(new SqlConditionsContext(wheres)));
+                        }
+                        if (!orderBys.isEmpty())
+                        {
+                            querySqlBuilder.addOrderBy(orderBys);
+                        }
+                        if (limit != null)
+                        {
+                            querySqlBuilder.setLimit(limit);
+                        }
+                    }
+                    // 简易条件
+                    else
+                    {
+                        querySqlBuilder.addWhere(new SqlParensContext(cond));
+                    }
                 }
-                else
-                {
-                    querySqlBuilder.addWhere(condition);
-                }
+
                 List<Object> values = new ArrayList<>();
                 String sql = querySqlBuilder.getSqlAndValue(values);
                 System.out.println(sql);
@@ -170,17 +191,37 @@ public class IncludeBuilder<T>
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
                 SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp)));
-
+                querySqlBuilder.addWhere(condition);
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
-                    querySqlBuilder.addWhere(exCondition);
-                }
-                else
-                {
-                    querySqlBuilder.addWhere(condition);
+                    // 复杂条件
+                    if(cond instanceof SqlVirtualTableContext)
+                    {
+                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                        QuerySqlBuilder sqlBuilder = virtualTableContext.getSqlBuilder();
+                        List<SqlContext> wheres = sqlBuilder.getWheres();
+                        List<SqlContext> orderBys = sqlBuilder.getOrderBys();
+                        SqlContext limit = sqlBuilder.getLimit();
+                        if(!wheres.isEmpty())
+                        {
+                            querySqlBuilder.addWhere(new SqlParensContext(new SqlConditionsContext(wheres)));
+                        }
+                        if (!orderBys.isEmpty())
+                        {
+                            querySqlBuilder.addOrderBy(orderBys);
+                        }
+                        if (limit != null)
+                        {
+                            querySqlBuilder.setLimit(limit);
+                        }
+                    }
+                    // 简易条件
+                    else
+                    {
+                        querySqlBuilder.addWhere(new SqlParensContext(cond));
+                    }
                 }
                 List<Object> values = new ArrayList<>();
                 String sql = querySqlBuilder.getSqlAndValue(values);
@@ -296,4 +337,5 @@ public class IncludeBuilder<T>
         }
         return sourcesMapList;
     }
+
 }

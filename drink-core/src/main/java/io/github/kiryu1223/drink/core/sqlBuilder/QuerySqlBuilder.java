@@ -1,15 +1,13 @@
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.builder.IncludeSet;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class QuerySqlBuilder implements ISqlBuilder
@@ -177,6 +175,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         change();
     }
 
+    public void addWhere(Collection<SqlContext> where)
+    {
+        wheres.addAll(where);
+        change();
+    }
+
     public void addOrWhere(SqlContext where)
     {
         removeAndBoxOr(wheres, where);
@@ -202,6 +206,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         change();
     }
 
+    public void addOrderBy(Collection<SqlContext> orderBy)
+    {
+        orderBys.addAll(orderBy);
+        change();
+    }
+
     public void setLimit(SqlContext limit)
     {
         this.limit = limit;
@@ -212,6 +222,21 @@ public class QuerySqlBuilder implements ISqlBuilder
     {
         this.distinct = distinct;
         change();
+    }
+
+    public List<SqlContext> getWheres()
+    {
+        return wheres;
+    }
+
+    public List<SqlContext> getOrderBys()
+    {
+        return orderBys;
+    }
+
+    public SqlContext getLimit()
+    {
+        return limit;
     }
 
     public SqlContext getGroupBy()
@@ -517,5 +542,12 @@ public class QuerySqlBuilder implements ISqlBuilder
     public SqlContext getSelect()
     {
         return select;
+    }
+
+    private final List<IncludeSet> includes = new ArrayList<>();
+
+    public List<IncludeSet> getIncludes()
+    {
+        return includes;
     }
 }

@@ -3,17 +3,13 @@ package io.github.kiryu1223.drink.test;
 
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
-import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.pojos.DeptEmp;
 import io.github.kiryu1223.drink.pojos.DeptManager;
 import io.github.kiryu1223.drink.pojos.Employee;
 import io.github.kiryu1223.drink.pojos.Gender;
 import org.junit.Test;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,16 +54,20 @@ public class QueryTest extends BaseTest
     @Test
     public void q3()
     {
+        LocalDate end = LocalDate.of(9999, 1, 1);
+
 
         List<Employee> list = client
                 .query(Employee.class)
-                //.include(e -> e.getSalaries())
+                .includesByCond(e -> e.getSalaries(), q -> q
+                        .where(s -> s.getTo().isBefore(end))
+                        .limit(5)
+                )
                 .limit(5)
                 .toList();
 
         for (Employee employee : list)
         {
-            //System.out.println(employee.getSalaries().size());
             System.out.println(employee);
         }
     }
@@ -124,10 +124,28 @@ public class QueryTest extends BaseTest
     @Test
     public void q7()
     {
+        LocalDate end = LocalDate.of(9999, 1, 1);
+
         List<Employee> list = client
                 .query(Employee.class)
-                .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
-                //.includes(e -> e.getDepartments(), d -> d.getNumber() == "d005")
+                .includesByCond(e -> e.getSalaries(), cond -> cond.where(s -> s.getTo().isBefore(end)))
+                .limit(5)
+                .toList();
+
+        for (Employee deptManager : list)
+        {
+            System.out.println(deptManager);
+        }
+    }
+
+    @Test
+    public void q8()
+    {
+        List<Employee> list = client
+                .query(Employee.class)
+                .includes(e -> e.getDepartments())
+//                .thenIncludes(d -> d.getDeptManager())
+//                .thenInclude(dm -> dm.getDepartment())
                 .limit(5)
                 .toList();
 

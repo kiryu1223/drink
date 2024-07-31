@@ -10,6 +10,8 @@ import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class ExpressionUtil
@@ -108,5 +110,16 @@ public class ExpressionUtil
     public static <R> R cast(Object o)
     {
         return (R) o;
+    }
+
+    public static <T> Class<T> getType(Type type, int index)
+    {
+        if (type instanceof ParameterizedType)
+        {
+            ParameterizedType pType = (ParameterizedType) type;
+            Type dbType = pType.getActualTypeArguments()[index];
+            return (Class<T>) dbType;
+        }
+        throw new RuntimeException(String.format("无法找到%s的第%s个泛型类型", type, index));
     }
 }
