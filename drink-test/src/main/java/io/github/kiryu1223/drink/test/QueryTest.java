@@ -74,6 +74,24 @@ public class QueryTest extends BaseTest
     }
 
     @Test
+    public void q3_1()
+    {
+        LocalDate end = LocalDate.of(9999, 1, 1);
+
+        List<Employee> list = client
+                .query(Employee.class)
+                .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(end))
+                .limit(5)
+                .toList();
+
+        for (Employee employee : list)
+        {
+            System.out.println(employee.getSalaries().size());
+            System.out.println(employee);
+        }
+    }
+
+    @Test
     public void q4()
     {
         // select e.emp_no from employees as e limit 1000
@@ -112,7 +130,7 @@ public class QueryTest extends BaseTest
     {
         List<DeptManager> list = client
                 .query(DeptManager.class)
-                .include(dm -> dm.getDepartment())
+                .include(dm -> dm.getDepartment(),dm->dm.getName().startsWith("Mark"))
                 .limit(10)
                 .toList();
 
@@ -144,10 +162,12 @@ public class QueryTest extends BaseTest
     {
         List<Employee> list = client
                 .query(Employee.class)
-                .includes(e -> e.getDepartments())
+                .includesByCond(e -> e.getDepartments(),
+                        query -> query.limit(1)
+                )
 //                .thenIncludes(d -> d.getDeptManager())
 //                .thenInclude(dm -> dm.getDepartment())
-                .limit(5)
+                .limit(100)
                 .toList();
 
         for (Employee deptManager : list)

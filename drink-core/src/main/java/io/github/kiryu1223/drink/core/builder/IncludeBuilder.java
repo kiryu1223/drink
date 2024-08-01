@@ -68,19 +68,26 @@ public class IncludeBuilder<T>
                 QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp)));
+                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
 
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
-                    querySqlBuilder.addWhere(exCondition);
+                    // 复杂条件
+                    if (cond instanceof SqlVirtualTableContext)
+                    {
+                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                        // 替换
+                        querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
+                    }
+                    // 简易条件
+                    else
+                    {
+                        querySqlBuilder.addWhere(new SqlParensContext(cond));
+                    }
                 }
-                else
-                {
-                    querySqlBuilder.addWhere(condition);
-                }
+
                 List<Object> values = new ArrayList<>();
                 String sql = querySqlBuilder.getSqlAndValue(values);
                 System.out.println(sql);
@@ -145,8 +152,7 @@ public class IncludeBuilder<T>
                 QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp)));
-                querySqlBuilder.addWhere(condition);
+                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp))));
 
                 // 如果有额外条件就加入
                 if (include.hasCond())
@@ -156,45 +162,8 @@ public class IncludeBuilder<T>
                     if (cond instanceof SqlVirtualTableContext)
                     {
                         SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
-                        List<SqlContext> orderBys = virtualTableContext.getSqlBuilder().getOrderBys();
-                        List<SqlContext> wheres = virtualTableContext.getSqlBuilder().getWheres();
-                        SqlLimitContext limit = virtualTableContext.getSqlBuilder().getLimit();
-                        if (!wheres.isEmpty())
-                        {
-                            querySqlBuilder.addWhere(new SqlParensContext(new SqlConditionsContext(wheres)));
-                        }
-                        // 包装一下窗口查询
-                        QuerySqlBuilder window = new QuerySqlBuilder(config, new SqlVirtualTableContext(querySqlBuilder));
-                        List<SqlContext> selects = new ArrayList<>(2);
-                        selects.add(new SqlConstString("*"));
-                        List<String> orderStr = new ArrayList<>();
-                        orderStr.add("ROW_NUMBER() OVER ( PARTITION BY ");
-                        List<SqlContext> newOrder = new ArrayList<>(orderBys);
-                        newOrder.add(0, new SqlPropertyContext(targetPropertyMetaData, 0));
-                        if (!orderBys.isEmpty())
-                        {
-                            orderStr.add(" ORDER BY ");
-                            for (int i = 0; i < orderBys.size(); i++)
-                            {
-                                if (i < orderBys.size() - 1) orderStr.add(",");
-                            }
-                        }
-                        orderStr.add(")");
-                        String rank = "-rank-";
-                        selects.add(new SqlAsNameContext(rank, new SqlFunctionsContext(orderStr, newOrder)));
-                        window.setSelect(new SqlSelectorContext(selects), navigateTargetType);
-                        // 最外层
-                        QuerySqlBuilder window2 = new QuerySqlBuilder(config, new SqlVirtualTableContext(window));
-                        window2.setSelect(querySqlBuilder.getSelect(), navigateTargetType);
-                        if (limit != null)
-                        {
-                            SqlConstString _rank_ = new SqlConstString(config.getDisambiguation().disambiguation(rank));
-                            SqlBinaryContext skip = new SqlBinaryContext(SqlOperator.GT, _rank_, new SqlValueContext(limit.getOffset()));
-                            SqlBinaryContext take = new SqlBinaryContext(SqlOperator.LE, _rank_, new SqlValueContext(limit.getRows()));
-                            window2.addWhere(new SqlParensContext(new SqlBinaryContext(SqlOperator.AND, skip, take)));
-                        }
                         // 替换
-                        querySqlBuilder = window2;
+                        querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
                     }
                     // 简易条件
                     else
@@ -241,8 +210,8 @@ public class IncludeBuilder<T>
                 QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp)));
-                querySqlBuilder.addWhere(condition);
+                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
+
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
@@ -251,22 +220,8 @@ public class IncludeBuilder<T>
                     if (cond instanceof SqlVirtualTableContext)
                     {
                         SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
-                        QuerySqlBuilder sqlBuilder = virtualTableContext.getSqlBuilder();
-                        List<SqlContext> wheres = sqlBuilder.getWheres();
-                        List<SqlContext> orderBys = sqlBuilder.getOrderBys();
-                        SqlLimitContext limit = sqlBuilder.getLimit();
-                        if (!wheres.isEmpty())
-                        {
-                            querySqlBuilder.addWhere(new SqlParensContext(new SqlConditionsContext(wheres)));
-                        }
-                        if (!orderBys.isEmpty())
-                        {
-                            querySqlBuilder.addOrderBy(orderBys);
-                        }
-                        if (limit != null)
-                        {
-                            querySqlBuilder.setLimit(limit);
-                        }
+                        // 替换
+                        querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
                     }
                     // 简易条件
                     else
@@ -274,6 +229,7 @@ public class IncludeBuilder<T>
                         querySqlBuilder.addWhere(new SqlParensContext(cond));
                     }
                 }
+
                 List<Object> values = new ArrayList<>();
                 String sql = querySqlBuilder.getSqlAndValue(values);
                 System.out.println(sql);
@@ -319,22 +275,32 @@ public class IncludeBuilder<T>
                 QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
-                SqlBinaryContext condition = new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfMappingPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp)));
+                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfMappingPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp))));
+
+                // 增加上额外用于排序的字段
+                SqlSelectorContext select = (SqlSelectorContext) querySqlBuilder.getSelect();
+                querySqlBuilder.setSelect(select, navigateTargetType);
+                select.getSqlContexts().add(new SqlPropertyContext(selfMappingPropertyMetaData, 1));
+
                 // 如果有额外条件就加入
                 if (include.hasCond())
                 {
                     SqlContext cond = include.getCond();
-                    SqlBinaryContext exCondition = new SqlBinaryContext(SqlOperator.AND, condition, new SqlParensContext(cond));
-                    querySqlBuilder.addWhere(exCondition);
-                }
-                else
-                {
-                    querySqlBuilder.addWhere(condition);
+                    // 复杂条件
+                    if (cond instanceof SqlVirtualTableContext)
+                    {
+                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                        // 替换
+                        querySqlBuilder = warp(querySqlBuilder, selfMappingPropertyMetaData, navigateTargetType, virtualTableContext, new SqlPropertyContext(selfMappingPropertyMetaData, 0));
+                    }
+                    // 简易条件
+                    else
+                    {
+                        querySqlBuilder.addWhere(new SqlParensContext(cond));
+                    }
                 }
 
-                SqlSelectorContext select = (SqlSelectorContext) querySqlBuilder.getSelect();
-                querySqlBuilder.setSelect(select, navigateTargetType);
-                select.getSqlContexts().add(new SqlPropertyContext(selfMappingPropertyMetaData, 1));
+
                 List<Object> values = new ArrayList<>();
                 String sql = querySqlBuilder.getSqlAndValue(values);
                 System.out.println(sql);
@@ -389,4 +355,59 @@ public class IncludeBuilder<T>
         return sourcesMapList;
     }
 
+    private QuerySqlBuilder warp(QuerySqlBuilder querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlVirtualTableContext virtualTableContext)
+    {
+        return warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext, null);
+    }
+
+    private QuerySqlBuilder warp(QuerySqlBuilder querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlVirtualTableContext virtualTableContext, SqlPropertyContext another)
+    {
+        List<SqlContext> orderBys = virtualTableContext.getSqlBuilder().getOrderBys();
+        List<SqlContext> wheres = virtualTableContext.getSqlBuilder().getWheres();
+        SqlLimitContext limit = virtualTableContext.getSqlBuilder().getLimit();
+        if (!wheres.isEmpty())
+        {
+            querySqlBuilder.addWhere(new SqlParensContext(new SqlConditionsContext(wheres)));
+        }
+        // 包装一下窗口查询
+        QuerySqlBuilder window = new QuerySqlBuilder(config, new SqlVirtualTableContext(querySqlBuilder));
+        List<SqlContext> selects = new ArrayList<>(2);
+        selects.add(new SqlConstString("*"));
+        List<String> orderStr = new ArrayList<>();
+        orderStr.add("ROW_NUMBER() OVER ( PARTITION BY ");
+        List<SqlContext> newOrder = new ArrayList<>(orderBys);
+        newOrder.add(0, new SqlPropertyContext(targetPropertyMetaData, 0));
+        if (!orderBys.isEmpty())
+        {
+            orderStr.add(" ORDER BY ");
+            for (int i = 0; i < orderBys.size(); i++)
+            {
+                if (i < orderBys.size() - 1) orderStr.add(",");
+            }
+        }
+        orderStr.add(")");
+        String rank = "-rank-";
+        selects.add(new SqlAsNameContext(rank, new SqlFunctionsContext(orderStr, newOrder)));
+        window.setSelect(new SqlSelectorContext(selects), navigateTargetType);
+        // 最外层
+        QuerySqlBuilder window2 = new QuerySqlBuilder(config, new SqlVirtualTableContext(window));
+        if (another != null)
+        {
+            window2.setSelect(navigateTargetType);
+            SqlSelectorContext selectorContext = (SqlSelectorContext) window2.getSelect();
+            selectorContext.getSqlContexts().add(another);
+        }
+        else
+        {
+            window2.setSelect(querySqlBuilder.getSelect(), navigateTargetType);
+        }
+        if (limit != null)
+        {
+            SqlConstString _rank_ = new SqlConstString(config.getDisambiguation().disambiguation(rank));
+            SqlBinaryContext skip = new SqlBinaryContext(SqlOperator.GT, _rank_, new SqlValueContext(limit.getOffset()));
+            SqlBinaryContext take = new SqlBinaryContext(SqlOperator.LE, _rank_, new SqlValueContext(limit.getRows()));
+            window2.addWhere(new SqlParensContext(new SqlBinaryContext(SqlOperator.AND, skip, take)));
+        }
+        return window2;
+    }
 }
