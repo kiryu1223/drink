@@ -56,11 +56,11 @@ public class QueryTest extends BaseTest
     {
         LocalDate end = LocalDate.of(9999, 1, 1);
 
-
         List<Employee> list = client
                 .query(Employee.class)
                 .includesByCond(e -> e.getSalaries(), q -> q
                         .where(s -> s.getTo().isBefore(end))
+                        .orderBy(s -> s.getSalary())
                         .limit(5)
                 )
                 .limit(5)
@@ -68,6 +68,7 @@ public class QueryTest extends BaseTest
 
         for (Employee employee : list)
         {
+            System.out.println(employee.getSalaries().size());
             System.out.println(employee);
         }
     }

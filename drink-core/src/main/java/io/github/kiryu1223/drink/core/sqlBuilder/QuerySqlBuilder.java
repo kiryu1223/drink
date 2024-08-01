@@ -21,7 +21,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     private SqlContext groupBy;
     private final List<SqlContext> havings = new ArrayList<>();
     private final List<SqlContext> orderBys = new ArrayList<>();
-    private SqlContext limit;
+    private SqlLimitContext limit;
     private final List<Class<?>> orderedClass = new ArrayList<>();
     private Class<?> targetClass;
     private int startIndex;
@@ -212,7 +212,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         change();
     }
 
-    public void setLimit(SqlContext limit)
+    public void setLimit(SqlLimitContext limit)
     {
         this.limit = limit;
         change();
@@ -234,7 +234,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         return orderBys;
     }
 
-    public SqlContext getLimit()
+    public SqlLimitContext getLimit()
     {
         return limit;
     }

@@ -120,7 +120,7 @@ public abstract class QueryBase extends CRUD
         {
             try
             {
-                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, sqlBuilder.getIncludes(),sqlBuilder);
+                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, sqlBuilder.getIncludes(), sqlBuilder);
                 includeBuilder.include();
             } catch (InvocationTargetException | IllegalAccessException e)
             {
@@ -317,9 +317,11 @@ public abstract class QueryBase extends CRUD
                 includeSet = new IncludeSet(propertyContext);
             }
             sqlBuilder.getIncludes().add(includeSet);
-            return;
         }
-        throw new RuntimeException("include需要指定一个字段");
+        else
+        {
+            throw new RuntimeException("include需要指定一个字段");
+        }
     }
 
     protected void include(LambdaExpression<?> lambda)
@@ -330,13 +332,26 @@ public abstract class QueryBase extends CRUD
     protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<LQuery<R>> action)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlPropertyContext propertyContext = (SqlPropertyContext) normalVisitor.visit(lambda);
-        PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
-        Class<R> navigateTargetType = (Class<R>) propertyMetaData.getNavigateData().getNavigateTargetType();
-        LQuery<R> temp = new LQuery<>(getConfig(), navigateTargetType);
-        action.invoke(temp);
-        IncludeSet includeSet = new IncludeSet(propertyContext, new SqlVirtualTableContext(temp.getSqlBuilder()));
-        sqlBuilder.getIncludes().add(includeSet);
+        SqlContext context = normalVisitor.visit(lambda);
+        if (context instanceof SqlPropertyContext)
+        {
+            SqlPropertyContext propertyContext = (SqlPropertyContext) context;
+            PropertyMetaData propertyMetaData = propertyContext.getPropertyMetaData();
+            if (!propertyContext.getPropertyMetaData().hasNavigate())
+            {
+                throw new RuntimeException("include指定的字段需要被@Navigate修饰");
+            }
+            relationTypeCheck(propertyContext.getPropertyMetaData().getNavigateData());
+            Class<R> navigateTargetType = (Class<R>) propertyMetaData.getNavigateData().getNavigateTargetType();
+            LQuery<R> temp = new LQuery<>(getConfig(), navigateTargetType);
+            action.invoke(temp);
+            IncludeSet includeSet = new IncludeSet(propertyContext, new SqlVirtualTableContext(temp.getSqlBuilder()));
+            sqlBuilder.getIncludes().add(includeSet);
+        }
+        else
+        {
+            throw new RuntimeException("include需要指定一个字段");
+        }
     }
 
     private void relationTypeCheck(NavigateData navigateData)

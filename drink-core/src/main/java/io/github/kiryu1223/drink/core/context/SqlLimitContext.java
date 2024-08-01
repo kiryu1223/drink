@@ -20,6 +20,16 @@ public class SqlLimitContext extends SqlContext
         this.rows = rows;
     }
 
+    public long getOffset()
+    {
+        return offset;
+    }
+
+    public long getRows()
+    {
+        return rows;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
