@@ -62,13 +62,12 @@ public class IncludeBuilder<T>
                 }
                 // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                // join自身表
-                querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+                // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
                 // 包一层，并选择字段
                 QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
-                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
+                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
 
                 // 如果有额外条件就加入
                 if (include.hasCond())
@@ -108,33 +107,6 @@ public class IncludeBuilder<T>
                 }
             }
 
-//            SELECT# rank仅作为where条件，非必须品
-//              # t0.`-rank-`,
-//              t0.`emp_no`,
-//              t0.`from_date`,
-//              t0.`salary`,
-//              t0.`to_date`
-//            FROM
-//                    (
-//                            SELECT
-//                             *,
-//                            ROW_NUMBER() OVER ( PARTITION BY t0.emp_no ) AS `-rank-`
-//            FROM
-//                    (
-//                            SELECT
-//                            t0.`emp_no`,
-//                            t0.`from_date`,
-//                            t0.`salary`,
-//                            t0.`to_date`
-//                            FROM
-//                            `salaries` AS t0
-//                            LEFT JOIN employees AS t1 ON t0.emp_no = t1.emp_no
-//                            WHERE
-//                            t1.emp_no IN ( SELECT t0.emp_no FROM ( SELECT * FROM employees AS t0 LIMIT 10 ) AS t0 )
-//                    ) AS t0
-//	                ) AS t0
-//            WHERE
-//            t0.`-rank-` <= 10
             // 一对多情况
             // 主表的字段(self)与多个从表的字段(target)对应
             else if (navigateData.getRelationType() == RelationType.OneToMany)
@@ -146,13 +118,12 @@ public class IncludeBuilder<T>
                 }
                 // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                // join自身表
-                querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+                // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
                 // 包一层，并选择字段
                 QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
-                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp))));
+                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
 
                 // 如果有额外条件就加入
                 if (include.hasCond())
@@ -204,13 +175,13 @@ public class IncludeBuilder<T>
                 }
                 // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                // join自身表
-                querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+
+                // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
                 // 包一层，并选择字段
                 QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
                 warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
 
-                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
+                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
 
                 // 如果有额外条件就加入
                 if (include.hasCond())
@@ -403,10 +374,30 @@ public class IncludeBuilder<T>
         }
         if (limit != null)
         {
+            long offset = limit.getOffset();
+            long rows = limit.getRows();
             SqlConstString _rank_ = new SqlConstString(config.getDisambiguation().disambiguation(rank));
-            SqlBinaryContext skip = new SqlBinaryContext(SqlOperator.GT, _rank_, new SqlValueContext(limit.getOffset()));
-            SqlBinaryContext take = new SqlBinaryContext(SqlOperator.LE, _rank_, new SqlValueContext(limit.getRows()));
-            window2.addWhere(new SqlParensContext(new SqlBinaryContext(SqlOperator.AND, skip, take)));
+            SqlBinaryContext skip = null;
+            SqlBinaryContext take = null;
+            if (offset > 0)
+            {
+                skip = new SqlBinaryContext(SqlOperator.GT, _rank_, new SqlValueContext(offset));
+                take = new SqlBinaryContext(SqlOperator.LE, _rank_, new SqlValueContext(offset + rows));
+            }
+            else
+            {
+                take = new SqlBinaryContext(SqlOperator.LE, _rank_, new SqlValueContext(rows));
+            }
+            SqlContext limitCond;
+            if (skip != null)
+            {
+                limitCond = new SqlBinaryContext(SqlOperator.AND, skip, take);
+            }
+            else
+            {
+                limitCond = take;
+            }
+            window2.addWhere(limitCond);
         }
         return window2;
     }

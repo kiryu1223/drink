@@ -14,23 +14,23 @@ public class IncludeQuery<T, TPreviousProperty> extends LQuery<T>
         super(sqlBuilder);
     }
 
-    public <TProperty> IncludeQuery<T, TProperty> thenInclude(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, TProperty> expr, Func1<TProperty, Boolean> cond)
-    {
-        throw new RuntimeException();
-    }
-
-    public <TProperty> IncludeQuery<T, TProperty> thenInclude(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, TProperty> expr)
-    {
-        throw new RuntimeException();
-    }
-
-    public <TProperty> IncludeQuery<T, TProperty> thenIncludes(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, Collection<TProperty>> expr, Func1<TProperty, Boolean> cond)
-    {
-        throw new RuntimeException();
-    }
-
-    public <TProperty> IncludeQuery<T, TProperty> thenIncludes(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, Collection<TProperty>> expr)
-    {
-        throw new RuntimeException();
-    }
+//    public <TProperty> IncludeQuery<T, TProperty> thenInclude(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, TProperty> expr, Func1<TProperty, Boolean> cond)
+//    {
+//        throw new RuntimeException();
+//    }
+//
+//    public <TProperty> IncludeQuery<T, TProperty> thenInclude(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, TProperty> expr)
+//    {
+//        throw new RuntimeException();
+//    }
+//
+//    public <TProperty> IncludeQuery<T, TProperty> thenIncludes(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, Collection<TProperty>> expr, Func1<TProperty, Boolean> cond)
+//    {
+//        throw new RuntimeException();
+//    }
+//
+//    public <TProperty> IncludeQuery<T, TProperty> thenIncludes(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, Collection<TProperty>> expr)
+//    {
+//        throw new RuntimeException();
+//    }
 }

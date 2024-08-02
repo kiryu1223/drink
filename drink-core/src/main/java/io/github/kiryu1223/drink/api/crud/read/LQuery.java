@@ -332,12 +332,12 @@ public class LQuery<T> extends QueryBase
         return new IncludeQuery<>(getSqlBuilder());
     }
 
-    public <R> IncludeQuery<T, R> includesByCond(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, Action1<LQuery<R>> cond)
+    public <R> IncludeQuery<T, R> includesByCond(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, Action1<IncludeCond<R>> cond)
     {
         throw new NotCompiledException();
     }
 
-    public <R> IncludeQuery<T, R> includesByCond(ExprTree<Func1<T, Collection<R>>> expr, Action1<LQuery<R>> action)
+    public <R> IncludeQuery<T, R> includesByCond(ExprTree<Func1<T, Collection<R>>> expr, Action1<IncludeCond<R>> action)
     {
         includeByCond(expr.getTree(),action);
         return new IncludeQuery<>(getSqlBuilder());

@@ -130,7 +130,7 @@ public class QueryTest extends BaseTest
     {
         List<DeptManager> list = client
                 .query(DeptManager.class)
-                .include(dm -> dm.getDepartment(),dm->dm.getName().startsWith("Mark"))
+                .include(dm -> dm.getDepartment(), dm -> dm.getName().startsWith("Mark"))
                 .limit(10)
                 .toList();
 
@@ -172,6 +172,40 @@ public class QueryTest extends BaseTest
 
         for (Employee deptManager : list)
         {
+            System.out.println(deptManager);
+        }
+    }
+
+    @Test
+    public void oneToManyTest()
+    {
+        LocalDate end = LocalDate.of(9999, 1, 1);
+
+        List<Employee> list1 = client
+                .query(Employee.class)
+                .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(end))
+                .limit(100)
+                .toList();
+
+        for (Employee deptManager : list1)
+        {
+            System.out.println(deptManager);
+        }
+
+        List<Employee> list2 = client
+                .query(Employee.class)
+                .includesByCond(e -> e.getSalaries(), q -> q
+                        .where(s->s.getTo().isBefore(end))
+                        .limit(5,5)
+                        .orderBy(s -> s.getFrom())
+                        .orderBy(s -> s.getSalary())
+                )
+                .limit(10)
+                .toList();
+
+        for (Employee deptManager : list2)
+        {
+            //System.out.println(deptManager.getSalaries().size());
             System.out.println(deptManager);
         }
     }

@@ -329,7 +329,7 @@ public abstract class QueryBase extends CRUD
         include(lambda, null);
     }
 
-    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<LQuery<R>> action)
+    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext context = normalVisitor.visit(lambda);
@@ -343,7 +343,7 @@ public abstract class QueryBase extends CRUD
             }
             relationTypeCheck(propertyContext.getPropertyMetaData().getNavigateData());
             Class<R> navigateTargetType = (Class<R>) propertyMetaData.getNavigateData().getNavigateTargetType();
-            LQuery<R> temp = new LQuery<>(getConfig(), navigateTargetType);
+            IncludeCond<R> temp = new IncludeCond<>(getConfig(), navigateTargetType);
             action.invoke(temp);
             IncludeSet includeSet = new IncludeSet(propertyContext, new SqlVirtualTableContext(temp.getSqlBuilder()));
             sqlBuilder.getIncludes().add(includeSet);

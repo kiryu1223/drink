@@ -9,4 +9,7 @@ public class UserDo
     private String name;
     private int sex;
     private String headImg;
+
+    private UserAddress address;
+    private Area area;
 }
