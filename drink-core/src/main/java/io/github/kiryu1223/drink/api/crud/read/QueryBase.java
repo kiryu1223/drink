@@ -293,7 +293,7 @@ public abstract class QueryBase extends CRUD
         return new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(sqlBuilder));
     }
 
-    protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond)
+    protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond, boolean isSub)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext context = normalVisitor.visit(lambda);
@@ -316,7 +316,14 @@ public abstract class QueryBase extends CRUD
             {
                 includeSet = new IncludeSet(propertyContext);
             }
-            sqlBuilder.getIncludes().add(includeSet);
+            if (!isSub)
+            {
+                sqlBuilder.getIncludes().add(includeSet);
+            }
+            else
+            {
+                sqlBuilder.getLastInclude().getIncludeSets().add(includeSet);
+            }
         }
         else
         {
@@ -324,12 +331,17 @@ public abstract class QueryBase extends CRUD
         }
     }
 
+    protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond)
+    {
+        include(lambda, cond, false);
+    }
+
     protected void include(LambdaExpression<?> lambda)
     {
         include(lambda, null);
     }
 
-    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action)
+    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action, boolean isSub)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext context = normalVisitor.visit(lambda);
@@ -346,12 +358,24 @@ public abstract class QueryBase extends CRUD
             IncludeCond<R> temp = new IncludeCond<>(getConfig(), navigateTargetType);
             action.invoke(temp);
             IncludeSet includeSet = new IncludeSet(propertyContext, new SqlVirtualTableContext(temp.getSqlBuilder()));
-            sqlBuilder.getIncludes().add(includeSet);
+            if (!isSub)
+            {
+                sqlBuilder.getIncludes().add(includeSet);
+            }
+            else
+            {
+                sqlBuilder.getLastInclude().getIncludeSets().add(includeSet);
+            }
         }
         else
         {
             throw new RuntimeException("include需要指定一个字段");
         }
+    }
+
+    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action)
+    {
+        includeByCond(lambda, action, false);
     }
 
     private void relationTypeCheck(NavigateData navigateData)

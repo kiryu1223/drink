@@ -550,4 +550,9 @@ public class QuerySqlBuilder implements ISqlBuilder
     {
         return includes;
     }
+
+    public IncludeSet getLastInclude()
+    {
+        return includes.get(includes.size() - 1);
+    }
 }

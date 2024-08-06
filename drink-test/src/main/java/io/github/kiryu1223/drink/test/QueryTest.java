@@ -2,11 +2,13 @@ package io.github.kiryu1223.drink.test;
 
 
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.api.crud.read.IncludeQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.pojos.DeptManager;
 import io.github.kiryu1223.drink.pojos.Employee;
 import io.github.kiryu1223.drink.pojos.Gender;
+import io.github.kiryu1223.drink.pojos.Salary;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -195,8 +197,8 @@ public class QueryTest extends BaseTest
         List<Employee> list2 = client
                 .query(Employee.class)
                 .includesByCond(e -> e.getSalaries(), q -> q
-                        .where(s->s.getTo().isBefore(end))
-                        .limit(5,5)
+                        .where(s -> s.getTo().isBefore(end))
+                        .limit(5, 5)
                         .orderBy(s -> s.getFrom())
                         .orderBy(s -> s.getSalary())
                 )
@@ -208,5 +210,16 @@ public class QueryTest extends BaseTest
             //System.out.println(deptManager.getSalaries().size());
             System.out.println(deptManager);
         }
+    }
+
+    @Test
+    public void q10()
+    {
+        IncludeQuery<Employee, Salary> includeQuery = client.query(Employee.class).includes(e -> e.getSalaries());
+
+        includeQuery.thenInclude(s -> s.getSalary());
+        includeQuery.thenInclude(s -> s.getEmpNumber());
+
+        System.out.println(includeQuery.toSql());
     }
 }
