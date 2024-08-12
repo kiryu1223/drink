@@ -1,6 +1,8 @@
 package io.github.kiryu1223.drink.pojos;
 
 import io.github.kiryu1223.drink.annotation.Column;
+import io.github.kiryu1223.drink.annotation.Navigate;
+import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.annotation.Table;
 import lombok.Data;
 
@@ -17,4 +19,7 @@ public class Salary
     private LocalDate from;
     @Column("to_date")
     private LocalDate to;
+
+    @Navigate(value = RelationType.ManyToOne,self = "empNumber",target = "number")
+    private Employee employee;
 }

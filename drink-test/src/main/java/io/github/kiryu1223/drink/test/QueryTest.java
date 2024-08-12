@@ -215,11 +215,19 @@ public class QueryTest extends BaseTest
     @Test
     public void q10()
     {
-        IncludeQuery<Employee, Salary> includeQuery = client.query(Employee.class).includes(e -> e.getSalaries());
+        LocalDate end = LocalDate.of(9999, 1, 1);
 
-        includeQuery.thenInclude(s -> s.getSalary());
-        includeQuery.thenInclude(s -> s.getEmpNumber());
+        List<Employee> list = client
+                .query(Employee.class)
+                .limit(10)
+                .includes(e -> e.getSalaries(),s->s.getTo().isBefore(end))
+                .thenInclude(s -> s.getEmployee())
+                .toList();
 
-        System.out.println(includeQuery.toSql());
+        for (Employee deptManager : list)
+        {
+            System.out.println();
+            deptManager.getSalaries().forEach(System.out::println);
+        }
     }
 }

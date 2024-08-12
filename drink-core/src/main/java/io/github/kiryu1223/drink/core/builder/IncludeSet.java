@@ -42,4 +42,9 @@ public class IncludeSet
     {
         return includeSets;
     }
+
+    public IncludeSet getLastIncludeSet()
+    {
+        return includeSets.get(includeSets.size() - 1);
+    }
 }

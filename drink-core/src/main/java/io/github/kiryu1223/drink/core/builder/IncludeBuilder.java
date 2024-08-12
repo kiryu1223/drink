@@ -13,6 +13,7 @@ import io.github.kiryu1223.drink.ext.IMappingTable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
@@ -105,6 +106,7 @@ public class IncludeBuilder<T>
                     T t = sourcesMap.get(key);
                     includePropertyMetaData.getSetter().invoke(t, value);
                 }
+                round(include, navigateTargetType, sourcesMap.values(), querySqlBuilder);
             }
 
             // 一对多情况
@@ -161,6 +163,8 @@ public class IncludeBuilder<T>
                     T t = sourcesMap.get(key);
                     includePropertyMetaData.getSetter().invoke(t, value);
                 }
+                List<Object> collect = objectListMap.values().stream().flatMap(o -> o.stream()).collect(Collectors.toList());
+                round(include, navigateTargetType, collect, querySqlBuilder);
             }
 
             // 多对一情况
@@ -216,11 +220,13 @@ public class IncludeBuilder<T>
                 {
                     Object key = objectEntry.getKey();
                     Object value = objectEntry.getValue();
-                    for (T t : sourcesMapList.get(key))
+                    List<T> ts = sourcesMapList.get(key);
+                    for (T t : ts)
                     {
                         includePropertyMetaData.getSetter().invoke(t, value);
                     }
                 }
+                round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
             }
 
             // 多对多情况
@@ -290,6 +296,7 @@ public class IncludeBuilder<T>
                     {
                         includePropertyMetaData.getSetter().invoke(t, targetValues);
                     }
+                    round(include, navigateTargetType, value, querySqlBuilder);
                 }
             }
         }
@@ -378,7 +385,7 @@ public class IncludeBuilder<T>
             long rows = limit.getRows();
             SqlConstString _rank_ = new SqlConstString(config.getDisambiguation().disambiguation(rank));
             SqlBinaryContext skip = null;
-            SqlBinaryContext take = null;
+            SqlBinaryContext take;
             if (offset > 0)
             {
                 skip = new SqlBinaryContext(SqlOperator.GT, _rank_, new SqlValueContext(offset));
@@ -400,5 +407,13 @@ public class IncludeBuilder<T>
             window2.addWhere(limitCond);
         }
         return window2;
+    }
+
+    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<?> sources, QuerySqlBuilder main) throws InvocationTargetException, IllegalAccessException
+    {
+        if (!include.getIncludeSets().isEmpty())
+        {
+            new IncludeBuilder<>(config, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
+        }
     }
 }

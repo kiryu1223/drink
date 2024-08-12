@@ -293,7 +293,7 @@ public abstract class QueryBase extends CRUD
         return new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(sqlBuilder));
     }
 
-    protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond, boolean isSub)
+    protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond, List<IncludeSet> includeSets)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext context = normalVisitor.visit(lambda);
@@ -316,14 +316,7 @@ public abstract class QueryBase extends CRUD
             {
                 includeSet = new IncludeSet(propertyContext);
             }
-            if (!isSub)
-            {
-                sqlBuilder.getIncludes().add(includeSet);
-            }
-            else
-            {
-                sqlBuilder.getLastInclude().getIncludeSets().add(includeSet);
-            }
+            includeSets.add(includeSet);
         }
         else
         {
@@ -333,15 +326,15 @@ public abstract class QueryBase extends CRUD
 
     protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond)
     {
-        include(lambda, cond, false);
+        include(lambda, cond, sqlBuilder.getIncludes());
     }
 
     protected void include(LambdaExpression<?> lambda)
     {
-        include(lambda, null);
+        include(lambda, null, sqlBuilder.getIncludes());
     }
 
-    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action, boolean isSub)
+    protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action, List<IncludeSet> includeSets)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext context = normalVisitor.visit(lambda);
@@ -358,14 +351,7 @@ public abstract class QueryBase extends CRUD
             IncludeCond<R> temp = new IncludeCond<>(getConfig(), navigateTargetType);
             action.invoke(temp);
             IncludeSet includeSet = new IncludeSet(propertyContext, new SqlVirtualTableContext(temp.getSqlBuilder()));
-            if (!isSub)
-            {
-                sqlBuilder.getIncludes().add(includeSet);
-            }
-            else
-            {
-                sqlBuilder.getLastInclude().getIncludeSets().add(includeSet);
-            }
+            includeSets.add(includeSet);
         }
         else
         {
@@ -375,10 +361,10 @@ public abstract class QueryBase extends CRUD
 
     protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action)
     {
-        includeByCond(lambda, action, false);
+        includeByCond(lambda, action, sqlBuilder.getIncludes());
     }
 
-    private void relationTypeCheck(NavigateData navigateData)
+    protected void relationTypeCheck(NavigateData navigateData)
     {
         RelationType relationType = navigateData.getRelationType();
         switch (relationType)
