@@ -38,8 +38,8 @@ public class IncludeBuilder<T>
     {
         MetaData targetClassMetaData = MetaDataCache.getMetaData(targetClass);
         SqlSession session = config.getSqlSessionFactory().getSession();
-        //Map<Object, T> sourcesMap = null;
-        Map<Object, List<T>> sourcesMapList = null;
+        Map<PropertyMetaData, Map<Object, List<T>>> cache = new HashMap<>();
+
         for (IncludeSet include : includes)
         {
             NavigateData navigateData = include.getPropertyContext().getPropertyMetaData().getNavigateData();
@@ -48,9 +48,11 @@ public class IncludeBuilder<T>
             PropertyMetaData targetPropertyMetaData = MetaDataCache.getMetaData(navigateTargetType).getPropertyMetaData(navigateData.getTargetPropertyName());
             PropertyMetaData includePropertyMetaData = include.getPropertyContext().getPropertyMetaData();
 
+            Map<Object, List<T>> sourcesMapList = cache.get(selfPropertyMetaData);
             if (sourcesMapList == null)
             {
                 sourcesMapList = getMapList(selfPropertyMetaData);
+                cache.put(selfPropertyMetaData, sourcesMapList);
             }
 
             switch (navigateData.getRelationType())

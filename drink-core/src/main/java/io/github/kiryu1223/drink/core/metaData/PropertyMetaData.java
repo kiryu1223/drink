@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Objects;
 
 public class PropertyMetaData
 {
@@ -91,8 +92,18 @@ public class PropertyMetaData
         return field.getDeclaringClass();
     }
 
-//    public Class<?> getType()
-//    {
-//        return field.getType();
-//    }
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PropertyMetaData that = (PropertyMetaData) o;
+        return ignoreColumn == that.ignoreColumn && Objects.equals(property, that.property) && Objects.equals(column, that.column) && Objects.equals(getter, that.getter) && Objects.equals(setter, that.setter) && Objects.equals(field, that.field) && Objects.equals(converter, that.converter) && Objects.equals(navigateData, that.navigateData);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(property, column, getter, setter, field, converter, ignoreColumn, navigateData);
+    }
 }
