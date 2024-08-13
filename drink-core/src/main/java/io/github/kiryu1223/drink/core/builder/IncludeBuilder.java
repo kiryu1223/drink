@@ -10,6 +10,8 @@ import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.ext.IMappingTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -19,6 +21,7 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
 public class IncludeBuilder<T>
 {
+    private static final Logger log = LoggerFactory.getLogger(IncludeBuilder.class);
     private final Config config;
     private final Class<T> targetClass;
     private final Collection<T> sources;
@@ -103,7 +106,9 @@ public class IncludeBuilder<T>
 
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
-        System.out.println(sql);
+
+        log.info("==> {}", sql);
+
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 获取从表的map
         Map<Object, Object> objectMap = session.executeQuery(
@@ -155,7 +160,9 @@ public class IncludeBuilder<T>
 
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
-        System.out.println(sql);
+
+        log.info("==> {}", sql);
+
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 查询从表数据，按key进行list归类的map构建
         Map<Object, List<Object>> targetMap = session.executeQuery(
@@ -206,7 +213,9 @@ public class IncludeBuilder<T>
 
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
-        System.out.println(sql);
+
+        log.info("==> {}", sql);
+
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 获取目标表的map
         Map<Object, Object> objectMap = session.executeQuery(
@@ -272,23 +281,35 @@ public class IncludeBuilder<T>
 
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
-        System.out.println(sql);
+
+        log.info("==> {}", sql);
+
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         Map<Object, List<Object>> targetMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData.getColumn()),
                 sql,
                 values
         );
-        for (Map.Entry<Object, List<T>> objectEntry : sourcesMapList.entrySet())
+        for (Map.Entry<Object, List<Object>> objectEntry : targetMap.entrySet())
         {
             Object key = objectEntry.getKey();
-            List<T> value = objectEntry.getValue();
-            List<Object> targetValues = targetMap.get(key);
-            for (T t : value)
+            List<Object> value = objectEntry.getValue();
+            List<T> ts = sourcesMapList.get(key);
+            for (T t : ts)
             {
-                includePropertyMetaData.getSetter().invoke(t, targetValues);
+                includePropertyMetaData.getSetter().invoke(t, value);
             }
         }
+//        for (Map.Entry<Object, List<T>> objectEntry : sourcesMapList.entrySet())
+//        {
+//            Object key = objectEntry.getKey();
+//            List<T> value = objectEntry.getValue();
+//            List<Object> targetValues = targetMap.get(key);
+//            for (T t : value)
+//            {
+//                includePropertyMetaData.getSetter().invoke(t, targetValues);
+//            }
+//        }
         round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
     }
 
