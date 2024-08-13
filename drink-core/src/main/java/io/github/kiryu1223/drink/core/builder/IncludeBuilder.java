@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.core.builder;
 
-import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
@@ -22,7 +21,6 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 public class IncludeBuilder<T>
 {
     private static final Logger log = LoggerFactory.getLogger(IncludeBuilder.class);
-    private static final String includeQuery = "includeQuery:";
     private final Config config;
     private final Class<T> targetClass;
     private final Collection<T> sources;
@@ -108,7 +106,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("{} ==> {}",includeQuery, sql);
+        tryPrint(sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 获取从表的map
@@ -162,7 +160,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("{} ==> {}",includeQuery, sql);
+        tryPrint(sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 查询从表数据，按key进行list归类的map构建
@@ -215,7 +213,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("{} ==> {}",includeQuery, sql);
+        tryPrint(sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 获取目标表的map
@@ -283,7 +281,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("{} ==> {}",includeQuery, sql);
+        tryPrint(sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         Map<Object, List<Object>> targetMap = session.executeQuery(
@@ -435,6 +433,14 @@ public class IncludeBuilder<T>
         {
             List<Object> collect = sources.stream().flatMap(o -> o.stream()).collect(Collectors.toList());
             new IncludeBuilder<>(config, cast(navigateTargetType), collect, include.getIncludeSets(), main).include();
+        }
+    }
+
+    private void tryPrint(String sql)
+    {
+        if (config.isPrintSql())
+        {
+            log.info("includeQuery: ==> {}", sql);
         }
     }
 }
