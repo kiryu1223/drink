@@ -38,7 +38,7 @@ public class IncludeBuilder<T>
     {
         MetaData targetClassMetaData = MetaDataCache.getMetaData(targetClass);
         SqlSession session = config.getSqlSessionFactory().getSession();
-        Map<Object, T> sourcesMap = null;
+        //Map<Object, T> sourcesMap = null;
         Map<Object, List<T>> sourcesMapList = null;
         for (IncludeSet include : includes)
         {
@@ -47,6 +47,11 @@ public class IncludeBuilder<T>
             PropertyMetaData selfPropertyMetaData = targetClassMetaData.getPropertyMetaData(navigateData.getSelfPropertyName());
             PropertyMetaData targetPropertyMetaData = MetaDataCache.getMetaData(navigateTargetType).getPropertyMetaData(navigateData.getTargetPropertyName());
             PropertyMetaData includePropertyMetaData = include.getPropertyContext().getPropertyMetaData();
+
+            if (sourcesMapList == null)
+            {
+                sourcesMapList = getMapList(selfPropertyMetaData);
+            }
 
             // 一对一情况
             // 主表的字段(self)与从表的字段(target)一对一对应
@@ -57,10 +62,7 @@ public class IncludeBuilder<T>
             if (navigateData.getRelationType() == RelationType.OneToOne)
             {
                 // 遍历结果提取key映射到map
-                if (sourcesMap == null)
-                {
-                    sourcesMap = getMap(selfPropertyMetaData);
-                }
+
                 // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
                 // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
@@ -103,10 +105,12 @@ public class IncludeBuilder<T>
                 {
                     Object key = objectEntry.getKey();
                     Object value = objectEntry.getValue();
-                    T t = sourcesMap.get(key);
-                    includePropertyMetaData.getSetter().invoke(t, value);
+                    for (T t : sourcesMapList.get(key))
+                    {
+                        includePropertyMetaData.getSetter().invoke(t, value);
+                    }
                 }
-                round(include, navigateTargetType, sourcesMap.values(), querySqlBuilder);
+                round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
             }
 
             // 一对多情况
@@ -114,10 +118,7 @@ public class IncludeBuilder<T>
             else if (navigateData.getRelationType() == RelationType.OneToMany)
             {
                 // 遍历结果提取key映射到map
-                if (sourcesMap == null)
-                {
-                    sourcesMap = getMap(selfPropertyMetaData);
-                }
+
                 // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
                 // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
@@ -150,21 +151,22 @@ public class IncludeBuilder<T>
                 System.out.println(sql);
                 List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
                 // 查询从表数据，按key进行list归类的map构建
-                Map<Object, List<Object>> objectListMap = session.executeQuery(
+                Map<Object, List<Object>> targetMap = session.executeQuery(
                         r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapList(targetPropertyMetaData.getColumn()),
                         sql,
                         values
                 );
                 // 一对多赋值
-                for (Map.Entry<Object, List<Object>> objectListEntry : objectListMap.entrySet())
+                for (Map.Entry<Object, List<Object>> objectListEntry : targetMap.entrySet())
                 {
                     Object key = objectListEntry.getKey();
                     List<Object> value = objectListEntry.getValue();
-                    T t = sourcesMap.get(key);
-                    includePropertyMetaData.getSetter().invoke(t, value);
+                    for (T t : sourcesMapList.get(key))
+                    {
+                        includePropertyMetaData.getSetter().invoke(t, value);
+                    }
                 }
-                List<Object> collect = objectListMap.values().stream().flatMap(o -> o.stream()).collect(Collectors.toList());
-                round(include, navigateTargetType, collect, querySqlBuilder);
+                round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
             }
 
             // 多对一情况
@@ -173,10 +175,7 @@ public class IncludeBuilder<T>
             {
                 // 这个时候我们不能使用Map<K, T>，因为T不再是单一存在的
                 // 我们使用Map<K, List<T>>
-                if (sourcesMapList == null)
-                {
-                    sourcesMapList = getMapList(selfPropertyMetaData);
-                }
+
                 // 查询目标表
                 QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
 
@@ -233,11 +232,6 @@ public class IncludeBuilder<T>
             // 多个自身表的字段(self)与多个目标表字段(target)对应
             else if (navigateData.getRelationType() == RelationType.ManyToMany)
             {
-
-                if (sourcesMapList == null)
-                {
-                    sourcesMapList = getMapList(selfPropertyMetaData);
-                }
                 Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
                 MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
                 String selfMappingPropertyName = navigateData.getSelfMappingPropertyName();
@@ -296,8 +290,8 @@ public class IncludeBuilder<T>
                     {
                         includePropertyMetaData.getSetter().invoke(t, targetValues);
                     }
-                    round(include, navigateTargetType, value, querySqlBuilder);
                 }
+                round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
             }
         }
     }
@@ -409,11 +403,20 @@ public class IncludeBuilder<T>
         return window2;
     }
 
-    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<?> sources, QuerySqlBuilder main) throws InvocationTargetException, IllegalAccessException
+    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<?> sources, QuerySqlBuilder main, Object... os) throws InvocationTargetException, IllegalAccessException
     {
         if (!include.getIncludeSets().isEmpty())
         {
             new IncludeBuilder<>(config, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
+        }
+    }
+
+    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<List<Object>> sources, QuerySqlBuilder main) throws InvocationTargetException, IllegalAccessException
+    {
+        if (!include.getIncludeSets().isEmpty())
+        {
+            List<Object> collect = sources.stream().flatMap(o -> o.stream()).collect(Collectors.toList());
+            new IncludeBuilder<>(config, cast(navigateTargetType), collect, include.getIncludeSets(), main).include();
         }
     }
 }

@@ -2,13 +2,9 @@ package io.github.kiryu1223.drink.test;
 
 
 import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.api.crud.read.IncludeQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.pojos.DeptManager;
-import io.github.kiryu1223.drink.pojos.Employee;
-import io.github.kiryu1223.drink.pojos.Gender;
-import io.github.kiryu1223.drink.pojos.Salary;
+import io.github.kiryu1223.drink.pojos.*;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -220,7 +216,7 @@ public class QueryTest extends BaseTest
         List<Employee> list = client
                 .query(Employee.class)
                 .limit(10)
-                .includes(e -> e.getSalaries(),s->s.getTo().isBefore(end))
+                .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(end))
                 .thenInclude(s -> s.getEmployee())
                 .toList();
 
@@ -228,6 +224,41 @@ public class QueryTest extends BaseTest
         {
             System.out.println();
             deptManager.getSalaries().forEach(System.out::println);
+        }
+    }
+
+    @Test
+    public void q11()
+    {
+        // LocalDate end = LocalDate.of(9999, 1, 1);
+
+        List<Employee> list = client
+                .query(Employee.class)
+                .limit(10)
+                .includesByCond(e -> e.getDepartments(),q -> q.limit(1))
+                .thenIncludesByCond(d -> d.getDeptManager(), q -> q.limit(1))
+                .toList();
+
+        for (Employee deptManager : list)
+        {
+            System.out.println(deptManager);
+        }
+    }
+
+    @Test
+    public void q12()
+    {
+        // LocalDate end = LocalDate.of(9999, 1, 1);
+
+        List<Department> list = client
+                .query(Department.class)
+                .limit(10)
+                .includes(e -> e.getDeptManager())
+                .toList();
+
+        for (Department department : list)
+        {
+            System.out.println(department);
         }
     }
 }
