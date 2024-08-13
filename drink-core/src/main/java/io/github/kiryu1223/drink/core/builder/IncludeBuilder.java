@@ -53,247 +53,241 @@ public class IncludeBuilder<T>
                 sourcesMapList = getMapList(selfPropertyMetaData);
             }
 
-            // 一对一情况
-            // 主表的字段(self)与从表的字段(target)一对一对应
-            // 因为是一对一对应的，所以主表查完自身的数据之后，可以将self为key返回结果为value映射为一个map
-            // 然后对从表进行查询，条件为从表的target IN map的keySet（从表的target是否为keySet中的某个）
-            // 从表的返回结果以target为key返回结果为value映射为map
-            // 遍历从表返回的map，每轮从主表map以key获取一个主表对象，把value反射进主表对象
-            if (navigateData.getRelationType() == RelationType.OneToOne)
+            switch (navigateData.getRelationType())
             {
-                // 遍历结果提取key映射到map
-
-                // 查询目标表
-                QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
-                // 包一层，并选择字段
-                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
-
-                // 如果有额外条件就加入
-                if (include.hasCond())
-                {
-                    SqlContext cond = include.getCond();
-                    // 复杂条件
-                    if (cond instanceof SqlVirtualTableContext)
-                    {
-                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
-                        // 替换
-                        querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
-                    }
-                    // 简易条件
-                    else
-                    {
-                        querySqlBuilder.addWhere(new SqlParensContext(cond));
-                    }
-                }
-
-                List<Object> values = new ArrayList<>();
-                String sql = querySqlBuilder.getSqlAndValue(values);
-                System.out.println(sql);
-                List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
-                // 获取从表的map
-                Map<Object, Object> objectMap = session.executeQuery(
-                        r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
-                        sql,
-                        values
-                );
-                // 一对一赋值
-                for (Map.Entry<Object, Object> objectEntry : objectMap.entrySet())
-                {
-                    Object key = objectEntry.getKey();
-                    Object value = objectEntry.getValue();
-                    for (T t : sourcesMapList.get(key))
-                    {
-                        includePropertyMetaData.getSetter().invoke(t, value);
-                    }
-                }
-                round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
-            }
-
-            // 一对多情况
-            // 主表的字段(self)与多个从表的字段(target)对应
-            else if (navigateData.getRelationType() == RelationType.OneToMany)
-            {
-                // 遍历结果提取key映射到map
-
-                // 查询目标表
-                QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
-                // 包一层，并选择字段
-                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
-
-                // 如果有额外条件就加入
-                if (include.hasCond())
-                {
-                    SqlContext cond = include.getCond();
-                    // 复杂条件
-                    if (cond instanceof SqlVirtualTableContext)
-                    {
-                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
-                        // 替换
-                        querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
-                    }
-                    // 简易条件
-                    else
-                    {
-                        querySqlBuilder.addWhere(new SqlParensContext(cond));
-                    }
-                }
-
-                List<Object> values = new ArrayList<>();
-                String sql = querySqlBuilder.getSqlAndValue(values);
-                System.out.println(sql);
-                List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
-                // 查询从表数据，按key进行list归类的map构建
-                Map<Object, List<Object>> targetMap = session.executeQuery(
-                        r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapList(targetPropertyMetaData.getColumn()),
-                        sql,
-                        values
-                );
-                // 一对多赋值
-                for (Map.Entry<Object, List<Object>> objectListEntry : targetMap.entrySet())
-                {
-                    Object key = objectListEntry.getKey();
-                    List<Object> value = objectListEntry.getValue();
-                    for (T t : sourcesMapList.get(key))
-                    {
-                        includePropertyMetaData.getSetter().invoke(t, value);
-                    }
-                }
-                round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
-            }
-
-            // 多对一情况
-            // 目标表的字段(target)与多个自身表的字段(self)对应
-            else if (navigateData.getRelationType() == RelationType.ManyToOne)
-            {
-                // 这个时候我们不能使用Map<K, T>，因为T不再是单一存在的
-                // 我们使用Map<K, List<T>>
-
-                // 查询目标表
-                QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-
-                // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
-                // 包一层，并选择字段
-                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
-
-                // 如果有额外条件就加入
-                if (include.hasCond())
-                {
-                    SqlContext cond = include.getCond();
-                    // 复杂条件
-                    if (cond instanceof SqlVirtualTableContext)
-                    {
-                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
-                        // 替换
-                        querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
-                    }
-                    // 简易条件
-                    else
-                    {
-                        querySqlBuilder.addWhere(new SqlParensContext(cond));
-                    }
-                }
-
-                List<Object> values = new ArrayList<>();
-                String sql = querySqlBuilder.getSqlAndValue(values);
-                System.out.println(sql);
-                List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
-                // 获取目标表的map
-                Map<Object, Object> objectMap = session.executeQuery(
-                        r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
-                        sql,
-                        values
-                );
-                // 多对一赋值
-                for (Map.Entry<Object, Object> objectEntry : objectMap.entrySet())
-                {
-                    Object key = objectEntry.getKey();
-                    Object value = objectEntry.getValue();
-                    List<T> ts = sourcesMapList.get(key);
-                    for (T t : ts)
-                    {
-                        includePropertyMetaData.getSetter().invoke(t, value);
-                    }
-                }
-                round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
-            }
-
-            // 多对多情况
-            // 多个自身表的字段(self)与多个目标表字段(target)对应
-            else if (navigateData.getRelationType() == RelationType.ManyToMany)
-            {
-                Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
-                MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
-                String selfMappingPropertyName = navigateData.getSelfMappingPropertyName();
-                PropertyMetaData selfMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(selfMappingPropertyName);
-                String targetMappingPropertyName = navigateData.getTargetMappingPropertyName();
-                PropertyMetaData targetMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(targetMappingPropertyName);
-                // 查询目标表
-                QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-                // join中间表
-                querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mappingTableType), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(targetMappingPropertyMetaData, 1)));
-                // 包一层，并选择字段
-                QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-                warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-                querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfMappingPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp))));
-
-                // 增加上额外用于排序的字段
-                SqlSelectorContext select = (SqlSelectorContext) querySqlBuilder.getSelect();
-                querySqlBuilder.setSelect(select, navigateTargetType);
-                select.getSqlContexts().add(new SqlPropertyContext(selfMappingPropertyMetaData, 1));
-
-                // 如果有额外条件就加入
-                if (include.hasCond())
-                {
-                    SqlContext cond = include.getCond();
-                    // 复杂条件
-                    if (cond instanceof SqlVirtualTableContext)
-                    {
-                        SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
-                        // 替换
-                        querySqlBuilder = warp(querySqlBuilder, selfMappingPropertyMetaData, navigateTargetType, virtualTableContext, new SqlPropertyContext(selfMappingPropertyMetaData, 0));
-                    }
-                    // 简易条件
-                    else
-                    {
-                        querySqlBuilder.addWhere(new SqlParensContext(cond));
-                    }
-                }
-
-
-                List<Object> values = new ArrayList<>();
-                String sql = querySqlBuilder.getSqlAndValue(values);
-                System.out.println(sql);
-                List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
-                Map<Object, List<Object>> targetMap = session.executeQuery(
-                        r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData.getColumn()),
-                        sql,
-                        values
-                );
-                for (Map.Entry<Object, List<T>> objectEntry : sourcesMapList.entrySet())
-                {
-                    Object key = objectEntry.getKey();
-                    List<T> value = objectEntry.getValue();
-                    List<Object> targetValues = targetMap.get(key);
-                    for (T t : value)
-                    {
-                        includePropertyMetaData.getSetter().invoke(t, targetValues);
-                    }
-                }
-                round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
+                case OneToOne:
+                    oneToOne(sourcesMapList, session, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    break;
+                case OneToMany:
+                    oneToMany(sourcesMapList, session, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    break;
+                case ManyToOne:
+                    manyToOne(sourcesMapList, session, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    break;
+                case ManyToMany:
+                    manyToMany(sourcesMapList, session, include, navigateData, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    break;
             }
         }
+    }
+
+    private void oneToOne(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    {
+        // 查询目标表
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
+        // 包一层，并选择字段
+        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
+
+        // 如果有额外条件就加入
+        if (include.hasCond())
+        {
+            SqlContext cond = include.getCond();
+            // 复杂条件
+            if (cond instanceof SqlVirtualTableContext)
+            {
+                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                // 替换
+                querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
+            }
+            // 简易条件
+            else
+            {
+                querySqlBuilder.addWhere(new SqlParensContext(cond));
+            }
+        }
+
+        List<Object> values = new ArrayList<>();
+        String sql = querySqlBuilder.getSqlAndValue(values);
+        System.out.println(sql);
+        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        // 获取从表的map
+        Map<Object, Object> objectMap = session.executeQuery(
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
+                sql,
+                values
+        );
+        // 一对一赋值
+        for (Map.Entry<Object, Object> objectEntry : objectMap.entrySet())
+        {
+            Object key = objectEntry.getKey();
+            Object value = objectEntry.getValue();
+            for (T t : sourcesMapList.get(key))
+            {
+                includePropertyMetaData.getSetter().invoke(t, value);
+            }
+        }
+        round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
+    }
+
+    private void oneToMany(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    {
+        // 查询目标表
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
+        // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+        // 包一层，并选择字段
+        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
+
+        // 如果有额外条件就加入
+        if (include.hasCond())
+        {
+            SqlContext cond = include.getCond();
+            // 复杂条件
+            if (cond instanceof SqlVirtualTableContext)
+            {
+                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                // 替换
+                querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
+            }
+            // 简易条件
+            else
+            {
+                querySqlBuilder.addWhere(new SqlParensContext(cond));
+            }
+        }
+
+        List<Object> values = new ArrayList<>();
+        String sql = querySqlBuilder.getSqlAndValue(values);
+        System.out.println(sql);
+        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        // 查询从表数据，按key进行list归类的map构建
+        Map<Object, List<Object>> targetMap = session.executeQuery(
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapList(targetPropertyMetaData.getColumn()),
+                sql,
+                values
+        );
+        // 一对多赋值
+        for (Map.Entry<Object, List<Object>> objectListEntry : targetMap.entrySet())
+        {
+            Object key = objectListEntry.getKey();
+            List<Object> value = objectListEntry.getValue();
+            for (T t : sourcesMapList.get(key))
+            {
+                includePropertyMetaData.getSetter().invoke(t, value);
+            }
+        }
+        round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
+    }
+
+    private void manyToOne(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    {
+        // 查询目标表
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
+        // 包一层，并选择字段
+        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
+
+        // 如果有额外条件就加入
+        if (include.hasCond())
+        {
+            SqlContext cond = include.getCond();
+            // 复杂条件
+            if (cond instanceof SqlVirtualTableContext)
+            {
+                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                // 替换
+                querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
+            }
+            // 简易条件
+            else
+            {
+                querySqlBuilder.addWhere(new SqlParensContext(cond));
+            }
+        }
+
+        List<Object> values = new ArrayList<>();
+        String sql = querySqlBuilder.getSqlAndValue(values);
+        System.out.println(sql);
+        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        // 获取目标表的map
+        Map<Object, Object> objectMap = session.executeQuery(
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
+                sql,
+                values
+        );
+        // 多对一赋值
+        for (Map.Entry<Object, Object> objectEntry : objectMap.entrySet())
+        {
+            Object key = objectEntry.getKey();
+            Object value = objectEntry.getValue();
+            List<T> ts = sourcesMapList.get(key);
+            for (T t : ts)
+            {
+                includePropertyMetaData.getSetter().invoke(t, value);
+            }
+        }
+        round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
+    }
+
+    private void manyToMany(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, NavigateData navigateData, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    {
+        Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
+        MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
+        String selfMappingPropertyName = navigateData.getSelfMappingPropertyName();
+        PropertyMetaData selfMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(selfMappingPropertyName);
+        String targetMappingPropertyName = navigateData.getTargetMappingPropertyName();
+        PropertyMetaData targetMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(targetMappingPropertyName);
+        // 查询目标表
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
+        // join中间表
+        querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mappingTableType), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(targetMappingPropertyMetaData, 1)));
+        // 包一层，并选择字段
+        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
+        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
+
+        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfMappingPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp))));
+
+        // 增加上额外用于排序的字段
+        SqlSelectorContext select = (SqlSelectorContext) querySqlBuilder.getSelect();
+        querySqlBuilder.setSelect(select, navigateTargetType);
+        select.getSqlContexts().add(new SqlPropertyContext(selfMappingPropertyMetaData, 1));
+
+        // 如果有额外条件就加入
+        if (include.hasCond())
+        {
+            SqlContext cond = include.getCond();
+            // 复杂条件
+            if (cond instanceof SqlVirtualTableContext)
+            {
+                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                // 替换
+                querySqlBuilder = warp(querySqlBuilder, selfMappingPropertyMetaData, navigateTargetType, virtualTableContext, new SqlPropertyContext(selfMappingPropertyMetaData, 0));
+            }
+            // 简易条件
+            else
+            {
+                querySqlBuilder.addWhere(new SqlParensContext(cond));
+            }
+        }
+
+
+        List<Object> values = new ArrayList<>();
+        String sql = querySqlBuilder.getSqlAndValue(values);
+        System.out.println(sql);
+        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        Map<Object, List<Object>> targetMap = session.executeQuery(
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData.getColumn()),
+                sql,
+                values
+        );
+        for (Map.Entry<Object, List<T>> objectEntry : sourcesMapList.entrySet())
+        {
+            Object key = objectEntry.getKey();
+            List<T> value = objectEntry.getValue();
+            List<Object> targetValues = targetMap.get(key);
+            for (T t : value)
+            {
+                includePropertyMetaData.getSetter().invoke(t, targetValues);
+            }
+        }
+        round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
     }
 
     private <K> Map<K, T> getMap(PropertyMetaData propertyMetaData) throws InvocationTargetException, IllegalAccessException
