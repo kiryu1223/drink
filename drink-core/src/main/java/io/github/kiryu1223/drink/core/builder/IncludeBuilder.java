@@ -22,6 +22,7 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 public class IncludeBuilder<T>
 {
     private static final Logger log = LoggerFactory.getLogger(IncludeBuilder.class);
+    private static final String includeQuery = "includeQuery:";
     private final Config config;
     private final Class<T> targetClass;
     private final Collection<T> sources;
@@ -107,7 +108,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("==> {}", sql);
+        log.info("{} ==> {}",includeQuery, sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 获取从表的map
@@ -161,7 +162,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("==> {}", sql);
+        log.info("{} ==> {}",includeQuery, sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 查询从表数据，按key进行list归类的map构建
@@ -214,7 +215,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("==> {}", sql);
+        log.info("{} ==> {}",includeQuery, sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         // 获取目标表的map
@@ -282,7 +283,7 @@ public class IncludeBuilder<T>
         List<Object> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
 
-        log.info("==> {}", sql);
+        log.info("{} ==> {}",includeQuery, sql);
 
         List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
         Map<Object, List<Object>> targetMap = session.executeQuery(
