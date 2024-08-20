@@ -6,4 +6,5 @@ public enum DbType
     MySQL,
     SqlServer,
     H2,
+    Oracle,
 }
