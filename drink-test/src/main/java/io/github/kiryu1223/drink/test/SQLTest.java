@@ -324,8 +324,8 @@ public class SQLTest
         //exists(client.query(Top.class).where(t1 -> t1.getTitle() == t0.getTitle()).endSelect(s -> 1))
         String sql1 = client.query(Topic.class)
                 .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
-                .exists(Top.class, (a, b, c) -> a.getTitle() == SqlFunctions.toStr(c.getStars()))
-                .exists(Top.class, (a, b, c) -> b.getTitle() == SqlFunctions.toStr(c.getStars()))
+                .exists(Top.class, (a, b, c) -> a.getTitle() == SqlFunctions.asciiToStr(c.getStars()))
+                .exists(Top.class, (a, b, c) -> b.getTitle() == SqlFunctions.asciiToStr(c.getStars()))
                 .endSelect((s1, s2) -> 1)
                 .toSql();
 
