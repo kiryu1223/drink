@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.ext;
 
+import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;
@@ -11,6 +12,20 @@ import java.util.Collection;
 
 public class SqlCalculates
 {
+    @SqlOperatorMethod(SqlOperator.IS)
+    public static <T> boolean is(T t)
+    {
+        boom();
+        return false;
+    }
+
+    @SqlOperatorMethod(SqlOperator.NOT)
+    public static <T> boolean not(T t)
+    {
+        boom();
+        return false;
+    }
+
     @SqlOperatorMethod(SqlOperator.PLUS)
     public static <T> T plus(T t1, T t2)
     {
@@ -95,20 +110,20 @@ public class SqlCalculates
         return false;
     }
 
-    @SqlOperatorMethod(SqlOperator.IN)
-    public static <T> boolean in(T t1, Collection<T> ts)
-    {
-        boom();
-        return false;
-    }
-
-
-    @SqlOperatorMethod(SqlOperator.IN)
-    public static <T> boolean in(T t1, LQuery<T> query)
-    {
-        boom();
-        return false;
-    }
+//    @SqlOperatorMethod(SqlOperator.IN)
+//    public static <T> boolean in(T t1, Collection<T> ts)
+//    {
+//        boom();
+//        return false;
+//    }
+//
+//
+//    @SqlOperatorMethod(SqlOperator.IN)
+//    public static <T> boolean in(T t1, LQuery<T> query)
+//    {
+//        boom();
+//        return false;
+//    }
 
     @SqlOperatorMethod(SqlOperator.BETWEEN)
     public static <T> boolean between(T t, T min, T max)

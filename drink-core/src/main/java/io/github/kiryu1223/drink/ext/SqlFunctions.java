@@ -264,9 +264,9 @@ public class SqlFunctions
         return LocalDate.now();
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({} + {})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},{days})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},{days})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} + {days})")
     public static LocalDateTime addDate(LocalDateTime time, int days)
     {
         boom();
@@ -1867,13 +1867,13 @@ public class SqlFunctions
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "INSERT({str},{pos},{length},{newStr})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "INSERT({str},{pos},{length},{newStr})")
-    public static String insert(String str, int pos, int length, String newStr)
-    {
-        boom();
-        return "";
-    }
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "INSERT({str},{pos},{length},{newStr})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "INSERT({str},{pos},{length},{newStr})")
+//    public static String insert(String str, int pos, int length, String newStr)
+//    {
+//        boom();
+//        return "";
+//    }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "INSTR({s1},{s2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "INSTR({s1},{s2})")
@@ -1884,176 +1884,194 @@ public class SqlFunctions
         return 0;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LOWER({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOWER({})")
-    public static String toLower(String string)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LOWER({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOWER({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOWER({str})")
+    public static String toLower(String str)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LEFT({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LEFT({},{})")
-    public static String left(String string, int length)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LEFT({str},{length})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LEFT({str},{length})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str}, 1, {length})")
+    public static String left(String str, int length)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LENGTH({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LENGTH({})")
-    public static int byteLength(String string)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LENGTH({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LENGTH({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LENGTHB({str})")
+    public static int byteLength(String str)
     {
         boom();
         return 0;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LPAD({},{},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LPAD({},{},{})")
-    public static String leftPad(String string, int length, String lpadString)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LPAD({str},{length},{lpadStr})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LPAD({str},{length},{lpadStr})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LPAD({str},{length},{lpadStr})")
+    public static String leftPad(String str, int length, String lpadStr)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LTRIM({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LTRIM({})")
-    public static String trimStart(String string)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LTRIM({str})")
+    public static String trimStart(String str)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({},{})")
-    public static int locate(String subString, String string)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({subStr},{str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr})")
+    public static int locate(String subStr, String str)
     {
         boom();
         return 0;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({},{},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({},{},{})")
-    public static int locate(String subString, String string, int offset)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({subStr},{str},{offset})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str},{offset})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr},{offset})")
+    public static int locate(String subStr, String str, int offset)
     {
         boom();
         return 0;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "REPEAT({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "REPEAT({},{})")
-    public static String repeat(String string, int number)
-    {
-        boom();
-        return "";
-    }
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "REPEAT({},{})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "REPEAT({},{})")
+//    public static String repeat(String string, int number)
+//    {
+//        boom();
+//        return "";
+//    }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "REPLACE({},{},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "REPLACE({},{},{})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "REPLACE({cur},{subs},{news})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "REPLACE({cur},{subs},{news})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "REPLACE({cur},{subs},{news})")
     public static String replace(String cur, String subs, String news)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "REVERSE({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "REVERSE({})")
-    public static String reverse(String string)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "REVERSE({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "REVERSE({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "REVERSE({str})")
+    public static String reverse(String str)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "RIGHT({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RIGHT({},{})")
-    public static String right(String string, int length)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "RIGHT({str},{length})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RIGHT({str},{length})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},LENGTH({str}) - ({length} - 1),{length})")
+    public static String right(String str, int length)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "RPAD({},{},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RPAD({},{},{})")
-    public static String rightPad(String string, int length, String rpadString)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "RPAD({str},{length},{rpadStr})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RPAD({str},{length},{rpadStr})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "RPAD({str},{length},{rpadStr})")
+    public static String rightPad(String str, int length, String rpadStr)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "RTRIM({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RTRIM({})")
-    public static String trimEnd(String string)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "RTRIM({str})")
+    public static String trimEnd(String str)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "SPACE({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SPACE({})")
-    public static String space(int number)
-    {
-        boom();
-        return "";
-    }
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "SPACE({})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SPACE({})")
+//    public static String space(int number)
+//    {
+//        boom();
+//        return "";
+//    }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "STRCMP({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "STRCMP({},{})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "STRCMP({s1},{s2})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "STRCMP({s1},{s2})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     public static int compare(String s1, String s2)
     {
         boom();
         return 0;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({},{})")
-    public static String subString(String string, int pos)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({str},{offset})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{offset})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{offset})")
+    public static String subString(String str, int offset)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({},{},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({},{},{})")
-    public static String subString(String string, int pos, int length)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({str},{offset},{length})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{offset},{length})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{offset},{length})")
+    public static String subString(String str, int offset, int length)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTRING_INDEX({},{},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTRING_INDEX({},{},{})")
-    public static String subStringIndex(String string, String delimiter, int length)
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTRING_INDEX({},{},{})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTRING_INDEX({},{},{})")
+//    public static String subStringIndex(String string, String delimiter, int length)
+//    {
+//        boom();
+//        return "";
+//    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRIM({str})")
+    public static String trim(String str)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "TRIM({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TRIM({})")
-    public static String trim(String string)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "UPPER({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "UPPER({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "UPPER({str})")
+    public static String toUpper(String str)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "UPPER({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "UPPER({})")
-    public static String toUpper(String string)
-    {
-        boom();
-        return "";
-    }
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "UNHEX({})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "UNHEX({})")
+//    public static byte[] unHex(String string)
+//    {
+//        boom();
+//        return new byte[]{};
+//    }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "UNHEX({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "UNHEX({})")
-    public static byte[] unHex(String string)
-    {
-        boom();
-        return new byte[]{};
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({property})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({property})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LISTAGG({property}) WITHIN GROUP (ORDER BY {property})")
     public static String groupJoin(String property)
     {
         boom();
@@ -2062,6 +2080,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LISTAGG({property},{delimiter}) WITHIN GROUP (ORDER BY {property})")
     public static <T> String groupJoin(String delimiter, T property)
     {
         boom();
@@ -2081,54 +2100,59 @@ public class SqlFunctions
 
     // region [控制流程]
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "IF({},{},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "IF({},{},{})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "IF({condition},{truePart},{falsePart})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "IF({condition},{truePart},{falsePart})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE WHEN {condition} THEN {truePart} ELSE {falsePart} END)")
     public static <T> T If(boolean condition, T truePart, T falsePart)
     {
         boom();
         return (T) new Object();
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "IFNULL({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "IFNULL({},{})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "IFNULL({ifNotNull},{ifNull})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "IFNULL({ifNotNull},{ifNull})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "NVL({ifNotNull},{ifNull})")
     public static <T> T ifNull(T ifNotNull, T ifNull)
     {
         boom();
         return (T) new Object();
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "NULLIF({},{})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "NULLIF({},{})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "NULLIF({ifNotEq},{t2})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "NULLIF({ifNotEq},{t2})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "NULLIF({ifNotEq},{t2})")
     public static <T> T nullIf(T ifNotEq, T t2)
     {
         boom();
         return (T) new Object();
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "CAST({} AS {})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "CAST({} AS {})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "CAST({value} AS {targetType})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "CAST({value} AS {targetType})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST({value} AS {targetType})")
     public static <T> T cast(Object value, Class<T> targetType)
     {
         boom();
         return (T) new Object();
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "CAST({} AS {})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONVERT({targetType},{value})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST({value} AS {targetType})")
     public static <T> T convert(Object value, Class<T> targetType)
     {
         boom();
         return (T) new Object();
     }
 
-    @SqlExtensionExpression(function = "{} IS NULL")
+    @SqlExtensionExpression(function = "{t} IS NULL")
     public static <T> boolean isNull(T t)
     {
         boom();
         return false;
     }
 
-    @SqlExtensionExpression(function = "{} IS NOT NULL")
+    @SqlExtensionExpression(function = "{t} IS NOT NULL")
     public static <T> boolean isNotNull(T t)
     {
         boom();
