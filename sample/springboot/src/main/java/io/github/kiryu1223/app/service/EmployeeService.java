@@ -5,6 +5,7 @@ import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -160,8 +161,8 @@ public class EmployeeService
                 .select(e -> new Result()
                 {
                     int id = e.getNumber();
-                    int totalDaysWorked = SqlFunctions.daysDiff(SqlFunctions.nowDate(), e.getHireDay());
-                    int totalYearsWorked = SqlFunctions.floor(SqlFunctions.daysDiff(SqlFunctions.nowDate(), e.getHireDay()) / 365);
+                    int totalDaysWorked = SqlFunctions.dateTimeDiff(SqlTimeUnit.DAYS, SqlFunctions.nowDate(), e.getHireDay());
+                    int totalYearsWorked = SqlFunctions.floor(SqlFunctions.dateTimeDiff(SqlTimeUnit.DAYS, SqlFunctions.nowDate(), e.getHireDay()) / 365);
                 })
                 .toList();
 
