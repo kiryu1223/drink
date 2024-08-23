@@ -301,7 +301,7 @@ public class SQLTest
     public void m12()
     {
         String sql1 = client.query(Topic.class)
-                .endSelect(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAYS, 500))
+                .endSelect(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAY, 500))
                 .toSql();
 
         System.out.println(sql1);

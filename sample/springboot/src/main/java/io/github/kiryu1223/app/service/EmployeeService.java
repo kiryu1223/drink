@@ -147,8 +147,8 @@ public class EmployeeService
 
     // 查询员工在公司的总工作年限
 
-    // SELECT emp_no, DATEDIFF(NOW(), hire_date) AS total_days_worked,
-    // FLOOR(DATEDIFF(NOW(), hire_date) / 365) AS total_years_worked
+    // SELECT emp_no, DATEDIFF(CURDATE(), hire_date) AS total_days_worked,
+    // FLOOR(DATEDIFF(CURDATE(), hire_date) / 365) AS total_years_worked
     // FROM employees
     // WHERE emp_no = 10001;
     // LIMIT 1
@@ -161,8 +161,8 @@ public class EmployeeService
                 .select(e -> new Result()
                 {
                     int id = e.getNumber();
-                    int totalDaysWorked = SqlFunctions.dateTimeDiff(SqlTimeUnit.DAYS, SqlFunctions.nowDate(), e.getHireDay());
-                    int totalYearsWorked = SqlFunctions.floor(SqlFunctions.dateTimeDiff(SqlTimeUnit.DAYS, SqlFunctions.nowDate(), e.getHireDay()) / 365);
+                    int totalDaysWorked = SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, SqlFunctions.nowDate(), e.getHireDay());
+                    int totalYearsWorked = SqlFunctions.floor(SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, SqlFunctions.nowDate(), e.getHireDay()) / 365);
                 })
                 .toList();
 
