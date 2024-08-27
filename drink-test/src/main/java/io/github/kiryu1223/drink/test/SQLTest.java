@@ -273,7 +273,7 @@ public class SQLTest
     {
         String sql = client.query(Topic.class)
                 .where(a -> SqlFunctions.convert(a.getId(), int.class) > 50)
-                .endSelect(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .endSelect(s -> SqlFunctions.join("-", s.getId(), s.getTitle()))
                 .toSql();
 
         System.out.println(sql);
@@ -285,14 +285,14 @@ public class SQLTest
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
         String sql1 = client.query(Topic.class)
                 .where(a -> list.contains(a.getStars()))
-                .endSelect(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .endSelect(s -> SqlFunctions.join("-", s.getId(), s.getTitle()))
                 .toSql();
 
         System.out.println(sql1);
 
         String sql2 = client.query(Topic.class)
                 .where(a -> "aabb".contains(a.getTitle()) || "aabb".startsWith(a.getTitle()) || "aabb".endsWith(a.getTitle()))
-                .endSelect(s -> SqlFunctions.groupJoin("-", s.getId(), s.getTitle()))
+                .endSelect(s -> SqlFunctions.join("-", s.getId(), s.getTitle()))
                 .toSql();
         System.out.println(sql2);
     }
