@@ -2,18 +2,21 @@ package io.github.kiryu1223.drink.api.crud.read;
 
 import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.builder.IncludeSet;
+import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
+import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
-import io.github.kiryu1223.drink.core.context.*;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.visitor.*;
+import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
+import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
+import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
 import io.github.kiryu1223.drink.ext.IMappingTable;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -122,7 +125,8 @@ public abstract class QueryBase extends CRUD
             {
                 IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), targetClass, ts, sqlBuilder.getIncludes(), sqlBuilder);
                 includeBuilder.include();
-            } catch (InvocationTargetException | IllegalAccessException e)
+            }
+            catch (InvocationTargetException | IllegalAccessException e)
             {
                 throw new RuntimeException(e);
             }
@@ -145,8 +149,16 @@ public abstract class QueryBase extends CRUD
     {
         SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy(), getConfig());
         SqlContext context = selectVisitor.visit(lambda);
-        getSqlBuilder().setSelect(context, lambda.getReturnType());
-        return !(context instanceof SqlSelectorContext);
+        boolean isSingle = !(context instanceof SqlSelectorContext);
+        if (isSingle)
+        {
+            getSqlBuilder().setSelect(context);
+        }
+        else
+        {
+            getSqlBuilder().setSelect(context, lambda.getReturnType());
+        }
+        return isSingle;
     }
 
     protected void select0(Class<?> c)

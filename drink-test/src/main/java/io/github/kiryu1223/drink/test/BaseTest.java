@@ -15,12 +15,10 @@ import javax.sql.DataSource;
 public class BaseTest
 {
     public final DrinkClient client;
-    public final DataSource dataSource;
 
     BaseTest()
     {
         HikariDataSource dataSource = new HikariDataSource();
-        this.dataSource = dataSource;
         dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8");
         dataSource.setUsername("root");
         dataSource.setPassword("root");

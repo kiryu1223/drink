@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.core.context.SqlAsNameContext;
@@ -66,6 +67,12 @@ public class ExpressionUtil
     public static boolean isSqlOperatorMethod(Method method)
     {
         return method.isAnnotationPresent(SqlOperatorMethod.class);
+    }
+
+    public static boolean isSqlExtensionExpressionMethod(Method method)
+    {
+        SqlExtensionExpression[] annotationsByType = method.getAnnotationsByType(SqlExtensionExpression.class);
+        return annotationsByType != null && annotationsByType.length > 0;
     }
 
     public static String toLowerCaseFirstOne(String s)

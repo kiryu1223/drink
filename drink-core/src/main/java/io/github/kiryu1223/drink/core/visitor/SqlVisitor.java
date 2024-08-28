@@ -9,9 +9,12 @@ import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
+import io.github.kiryu1223.drink.ext.BaseSqlExtension;
+import io.github.kiryu1223.drink.ext.BaseSqlExtensionCache;
 import io.github.kiryu1223.drink.ext.DbType;
-import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.ext.FunctionBox;
 import io.github.kiryu1223.expressionTree.expressions.*;
+import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -115,108 +118,160 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                     throw new IllegalExpressionException(methodCall);
             }
         }
-        else if (SqlFunctions.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        else if (isSqlExtensionExpressionMethod(methodCall.getMethod()))
         {
-            Method method = methodCall.getMethod();
+            Method sqlFunction = methodCall.getMethod();
+            SqlExtensionExpression sqlFuncExt = getSqlFuncExt(sqlFunction.getAnnotationsByType(SqlExtensionExpression.class));
             List<Expression> args = methodCall.getArgs();
             List<SqlContext> contexts = new ArrayList<>(args.size());
-            SqlExtensionExpression[] sqlExtensionExpressions = method.getAnnotationsByType(SqlExtensionExpression.class);
-            if (sqlExtensionExpressions.length == 0)
+
+            if (sqlFuncExt.extension() != BaseSqlExtension.class)
             {
-                List<String> strings = new ArrayList<>();
-                strings.add(method.getName() + "(");
-                for (int i = 0; i < args.size(); i++)
+                for (Expression arg : args)
                 {
-                    Expression arg = args.get(i);
                     contexts.add(visit(arg));
-                    if (i < args.size() - 1) strings.add(",");
                 }
-                strings.add(")");
-                return new SqlFunctionsContext(strings, contexts);
+                BaseSqlExtension baseSqlExtension = BaseSqlExtensionCache.get(sqlFuncExt.extension());
+                FunctionBox parse = baseSqlExtension.parse(sqlFunction, contexts);
+                return new SqlFunctionsContext(parse.getFunctions(),parse.getSqlContexts());
             }
             else
             {
-                String function = getSqlFuncExt(sqlExtensionExpressions).function();
-                if (method.getParameterCount() == 0)
+                List<String> strings = new ArrayList<>();
+                List<Parameter> methodParameters = Arrays.stream(methodCall.getMethod().getParameters()).collect(Collectors.toList());
+                ParamMatcher match = match(sqlFuncExt.function());
+                List<String> functions = match.remainder;
+                List<String> params = match.bracesContent;
+                for (int i = 0; i < functions.size(); i++)
                 {
-                    return new SqlFunctionsContext(Collections.singletonList(function), Collections.emptyList());
-                }
-                else if (function.contains("{}"))
-                {
-                    List<String> strings = new ArrayList<>();
-                    String[] splitFunc = function.split("\\{}");
-                    for (int i = 0; i < splitFunc.length; i++)
+                    strings.add(functions.get(i));
+                    if (i < params.size())
                     {
-                        strings.add(splitFunc[i]);
-                        // 可变参数情况
-                        if (i == splitFunc.length - 2
-                                && args.size() >= splitFunc.length)
-                        {
-                            while (i < args.size())
-                            {
-                                contexts.add(visit(args.get(i)));
-                                if (i < args.size() - 1) strings.add(",");
-                                i++;
-                            }
-                            strings.add(splitFunc[splitFunc.length - 1]);
-                        }
-                        // 正常情况
-                        else if (i < args.size()) contexts.add(visit(args.get(i)));
-                    }
-                    return new SqlFunctionsContext(strings, contexts);
-                }
-                else if (function.contains("{") && function.contains("}"))
-                {
-                    List<String> strings = new ArrayList<>();
-                    List<Parameter> methodParameters = Arrays.stream(methodCall.getMethod().getParameters()).collect(Collectors.toList());
-                    ParamMatcher match = match(function);
-                    List<String> functions = match.remainder;
-                    List<String> params = match.bracesContent;
-                    for (int i = 0; i < functions.size(); i++)
-                    {
-                        strings.add(functions.get(i));
-                        if (i < params.size())
-                        {
-                            String param = params.get(i);
-                            Parameter targetParam;
-                            int index;
-                            if (param.chars().allMatch(s -> Character.isDigit(s)))
-                            {
-                                //index形式
-                                index = Integer.parseInt(param);
-                                targetParam = methodParameters.get(index);
-                            }
-                            else
-                            {
-                                //arg名称形式
-                                targetParam = methodParameters.stream().filter(f -> f.getName().equals(param)).findFirst().get();
-                                index = methodParameters.indexOf(targetParam);
-                            }
+                        String param = params.get(i);
+                        Parameter targetParam = methodParameters.stream().filter(f -> f.getName().equals(param)).findFirst().get();
+                        int index = methodParameters.indexOf(targetParam);
 
-                            // 如果是可变参数
-                            if (targetParam.isVarArgs())
-                            {
-                                while (index < args.size())
-                                {
-                                    contexts.add(visit(args.get(index)));
-                                    if (index < args.size() - 1) strings.add(",");
-                                    index++;
-                                }
-                            }
-                            // 正常情况
-                            else
+                        // 如果是可变参数
+                        if (targetParam.isVarArgs())
+                        {
+                            while (index < args.size())
                             {
                                 contexts.add(visit(args.get(index)));
+                                if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
+                                index++;
                             }
                         }
+                        // 正常情况
+                        else
+                        {
+                            contexts.add(visit(args.get(index)));
+                        }
                     }
-                    return new SqlFunctionsContext(strings, contexts);
                 }
-                else
-                {
-                    throw new IllegalExpressionException(methodCall);
-                }
+                return new SqlFunctionsContext(strings, contexts);
             }
+
+
+//            Method method = methodCall.getMethod();
+//            List<Expression> args = methodCall.getArgs();
+//            List<SqlContext> contexts = new ArrayList<>(args.size());
+//            SqlExtensionExpression[] sqlExtensionExpressions = method.getAnnotationsByType(SqlExtensionExpression.class);
+//            if (sqlExtensionExpressions.length == 0)
+//            {
+//                List<String> strings = new ArrayList<>();
+//                strings.add(method.getName() + "(");
+//                for (int i = 0; i < args.size(); i++)
+//                {
+//                    Expression arg = args.get(i);
+//                    contexts.add(visit(arg));
+//                    if (i < args.size() - 1) strings.add(",");
+//                }
+//                strings.add(")");
+//                return new SqlFunctionsContext(strings, contexts);
+//            }
+//            else
+//            {
+//                String function = getSqlFuncExt(sqlExtensionExpressions).function();
+//                if (method.getParameterCount() == 0)
+//                {
+//                    return new SqlFunctionsContext(Collections.singletonList(function), Collections.emptyList());
+//                }
+//                else if (function.contains("{}"))
+//                {
+//                    List<String> strings = new ArrayList<>();
+//                    String[] splitFunc = function.split("\\{}");
+//                    for (int i = 0; i < splitFunc.length; i++)
+//                    {
+//                        strings.add(splitFunc[i]);
+//                        // 可变参数情况
+//                        if (i == splitFunc.length - 2
+//                                && args.size() >= splitFunc.length)
+//                        {
+//                            while (i < args.size())
+//                            {
+//                                contexts.add(visit(args.get(i)));
+//                                if (i < args.size() - 1) strings.add(",");
+//                                i++;
+//                            }
+//                            strings.add(splitFunc[splitFunc.length - 1]);
+//                        }
+//                        // 正常情况
+//                        else if (i < args.size()) contexts.add(visit(args.get(i)));
+//                    }
+//                    return new SqlFunctionsContext(strings, contexts);
+//                }
+//                else if (function.contains("{") && function.contains("}"))
+//                {
+//                    List<String> strings = new ArrayList<>();
+//                    List<Parameter> methodParameters = Arrays.stream(methodCall.getMethod().getParameters()).collect(Collectors.toList());
+//                    ParamMatcher match = match(function);
+//                    List<String> functions = match.remainder;
+//                    List<String> params = match.bracesContent;
+//                    for (int i = 0; i < functions.size(); i++)
+//                    {
+//                        strings.add(functions.get(i));
+//                        if (i < params.size())
+//                        {
+//                            String param = params.get(i);
+//                            Parameter targetParam;
+//                            int index;
+//                            if (param.chars().allMatch(s -> Character.isDigit(s)))
+//                            {
+//                                //index形式
+//                                index = Integer.parseInt(param);
+//                                targetParam = methodParameters.get(index);
+//                            }
+//                            else
+//                            {
+//                                //arg名称形式
+//                                targetParam = methodParameters.stream().filter(f -> f.getName().equals(param)).findFirst().get();
+//                                index = methodParameters.indexOf(targetParam);
+//                            }
+//
+//                            // 如果是可变参数
+//                            if (targetParam.isVarArgs())
+//                            {
+//                                while (index < args.size())
+//                                {
+//                                    contexts.add(visit(args.get(index)));
+//                                    if (index < args.size() - 1) strings.add(",");
+//                                    index++;
+//                                }
+//                            }
+//                            // 正常情况
+//                            else
+//                            {
+//                                contexts.add(visit(args.get(index)));
+//                            }
+//                        }
+//                    }
+//                    return new SqlFunctionsContext(strings, contexts);
+//                }
+//                else
+//                {
+//                    throw new IllegalExpressionException(methodCall);
+//                }
+//            }
         }
         else if (Collection.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
         {
@@ -327,7 +382,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             if (isGetter(methodCall.getMethod()))
             {
                 ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                int index = parameters.indexOf(parameter)+offset;
+                int index = parameters.indexOf(parameter) + offset;
                 Method getter = methodCall.getMethod();
                 MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
                 return new SqlPropertyContext(metaData.getPropertyMetaDataByGetter(getter), index);
@@ -335,7 +390,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             else if (isSetter(methodCall.getMethod()))
             {
                 ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                int index = parameters.indexOf(parameter)+offset;
+                int index = parameters.indexOf(parameter) + offset;
                 Method setter = methodCall.getMethod();
                 MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
                 SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getPropertyMetaDataBySetter(setter), index);
@@ -435,14 +490,19 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     protected SqlExtensionExpression getSqlFuncExt(SqlExtensionExpression[] sqlExtensionExpressions)
     {
         DbType dbType = config.getDbType();
-        List<SqlExtensionExpression> collect = Arrays.stream(sqlExtensionExpressions).filter(a -> a.dbType() == dbType).collect(Collectors.toList());
-        if (collect.isEmpty())
+        Optional<SqlExtensionExpression> first = Arrays.stream(sqlExtensionExpressions).filter(a -> a.dbType() == dbType).findFirst();
+        if (!first.isPresent())
         {
+            Optional<SqlExtensionExpression> any = Arrays.stream(sqlExtensionExpressions).filter(a -> a.dbType() == DbType.Any).findFirst();
+            if (any.isPresent())
+            {
+                return any.get();
+            }
             throw new SqlFuncExtNotFoundException(dbType);
         }
         else
         {
-            return collect.get(0);
+            return first.get();
         }
     }
 

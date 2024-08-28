@@ -62,7 +62,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "NOW()")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "NOW()")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CURRENT_TIMESTAMP")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CURRENT_DATE")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GETDATE()")
     public static LocalDateTime now()
     {
@@ -350,7 +350,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) ELSE 0 END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
     public static int dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, String t2)
     {
@@ -380,7 +380,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL({t1} - TO_DATE({t2}),'DAY')) ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL({t1} - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) ELSE 0 END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
     public static int dateTimeDiff(SqlTimeUnit unit, LocalDate t1, String t2)
     {
@@ -390,7 +390,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL(TO_DATE({t1}) - TO_DATE({t2}),'DAY')) ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) ELSE 0 END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
     public static int dateTimeDiff(SqlTimeUnit unit, String t1, String t2)
     {
@@ -1911,7 +1911,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "CONCAT({s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONCAT({s1},{s2},{ss})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "{s1}||{s2}||{ss}", separator = "||")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({s1}||{s2}||{ss})", separator = "||")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONCAT({s1},{s2},{ss})")
     public static String concat(String s1, String s2, String... ss)
     {
@@ -1921,6 +1921,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "CONCAT_WS({separator},{s1},{s2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONCAT_WS({separator},{s1},{s2})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({s1}||{separator}||{s2})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONCAT_WS({separator},{s1},{s2})")
     public static String join(String separator, String s1, String s2)
     {
@@ -1930,6 +1931,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "CONCAT_WS({separator},{s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONCAT_WS({separator},{s1},{s2},{ss})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleJoinExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONCAT_WS({separator},{s1},{s2},{ss})")
     public static String join(String separator, String s1, String s2, String... ss)
     {
@@ -1993,11 +1995,21 @@ public class SqlFunctions
         return 0;
     }
 
+    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({subStr},{str},{offset})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str},{offset})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr},{offset})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHARINDEX({subStr},{str},{offset})")
+    public static int indexOf(String str, String subStr, int offset)
+    {
+        boom();
+        return 0;
+    }
+
     @SqlExtensionExpression(dbType = DbType.H2, function = "LOWER({str})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOWER({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOWER({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOWER({str})")
-    public static String toLower(String str)
+    public static String toLowerCase(String str)
     {
         boom();
         return "";
@@ -2043,26 +2055,26 @@ public class SqlFunctions
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({subStr},{str})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHARINDEX({subStr},{str})")
-    public static int locate(String subStr, String str)
-    {
-        boom();
-        return 0;
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({subStr},{str},{offset})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str},{offset})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr},{offset})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHARINDEX({subStr},{str},{offset})")
-    public static int locate(String subStr, String str, int offset)
-    {
-        boom();
-        return 0;
-    }
-
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({subStr},{str})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr})")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHARINDEX({subStr},{str})")
+//    public static int locate(String subStr, String str)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "LOCATE({subStr},{str},{offset})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str},{offset})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr},{offset})")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHARINDEX({subStr},{str},{offset})")
+//    public static int locate(String subStr, String str, int offset)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
 //    @SqlExtensionExpression(dbType = DbType.H2, function = "REPEAT({},{})")
 //    @SqlExtensionExpression(dbType = DbType.MySQL, function = "REPEAT({},{})")
 //    public static String repeat(String string, int number)
@@ -2181,7 +2193,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "UPPER({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "UPPER({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "UPPER({str})")
-    public static String toUpper(String str)
+    public static String toUpperCase(String str)
     {
         boom();
         return "";

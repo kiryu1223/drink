@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.github.kiryu1223.drink.ext.SqlCalculates.in;
 
 @SuppressWarnings("all")
 public class UpdateTest extends BaseTest
@@ -68,30 +67,30 @@ public class UpdateTest extends BaseTest
         System.out.println(sql);
     }
 
-    public void display()
-    {
-        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
-
-        String sql = client.query(School.class)
-                .where(w ->
-                        in(w.id, client.query(School.class)
-                                .where(h -> in(h.areaId, list)
-                                                && h.areaId == w.areaId
-                                                && h.hot == 1
-                                                && h.status == 1
-                                                && in(h.classIfyId, client.query(School.class)
-                                                .where(e -> e.id == 975 && e.del == 0)
-                                                .select(s -> s.id)
-                                        ) && w.del == 0
-                                )
-                                .orderBy(o -> o.plat_sort)
-                                .limit(2)
-                                .select(s -> s.id)
-                        ) && w.del == 0
-                ).toSql();
-
-        System.out.println(sql);
-    }
+//    public void display()
+//    {
+//        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
+//
+//        String sql = client.query(School.class)
+//                .where(w ->
+//                        in(w.id, client.query(School.class)
+//                                .where(h -> in(h.areaId, list)
+//                                                && h.areaId == w.areaId
+//                                                && h.hot == 1
+//                                                && h.status == 1
+//                                                && in(h.classIfyId, client.query(School.class)
+//                                                .where(e -> e.id == 975 && e.del == 0)
+//                                                .select(s -> s.id)
+//                                        ) && w.del == 0
+//                                )
+//                                .orderBy(o -> o.plat_sort)
+//                                .limit(2)
+//                                .select(s -> s.id)
+//                        ) && w.del == 0
+//                ).toSql();
+//
+//        System.out.println(sql);
+//    }
 
     @Test
     public void display0()

@@ -6,21 +6,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 public class ConverterCache
 {
     private ConverterCache()
     {
     }
 
-    private static final Map<Class<? extends IConverter<?, ?>>, IConverter<?, ?>> metaDataCache = new ConcurrentHashMap<>();
+    private static final Map<Class<? extends IConverter<?, ?>>, IConverter<?, ?>> converterCache = new ConcurrentHashMap<>();
 
-    public static  IConverter<?, ?> get(Class<? extends IConverter<?, ?>> c)
+    public static IConverter<?, ?> get(Class<? extends IConverter<?, ?>> c)
     {
-        if (!metaDataCache.containsKey(c))
+        if (!converterCache.containsKey(c))
         {
             try
             {
-                metaDataCache.put(c, c.getConstructor().newInstance());
+                converterCache.put(c, c.getConstructor().newInstance());
             }
             catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                    NoSuchMethodException e)
@@ -28,6 +29,6 @@ public class ConverterCache
                 throw new RuntimeException(e);
             }
         }
-        return metaDataCache.get(c);
+        return converterCache.get(c);
     }
 }

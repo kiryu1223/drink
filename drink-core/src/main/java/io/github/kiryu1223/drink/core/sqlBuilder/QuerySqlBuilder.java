@@ -98,6 +98,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         return orderedClass;
     }
 
+    public void setSelect(SqlContext select)
+    {
+        this.select = select;
+        change();
+    }
+
     public void setSelect(SqlContext select, Class<?> targetClass)
     {
         SqlContext temp = select;
