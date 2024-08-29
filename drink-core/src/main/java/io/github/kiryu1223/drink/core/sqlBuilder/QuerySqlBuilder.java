@@ -98,11 +98,11 @@ public class QuerySqlBuilder implements ISqlBuilder
         return orderedClass;
     }
 
-    public void setSelect(SqlContext select)
-    {
-        this.select = select;
-        change();
-    }
+//    public void setSelect(SqlContext select)
+//    {
+//        this.select = select;
+//        change();
+//    }
 
     public void setSelect(SqlContext select, Class<?> targetClass)
     {
@@ -501,10 +501,10 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public List<PropertyMetaData> getMappingData(AtomicBoolean isSingle)
     {
-        MetaData metaData = MetaDataCache.getMetaData(targetClass);
         List<PropertyMetaData> props;
         if (select instanceof SqlSelectorContext)
         {
+            MetaData metaData = MetaDataCache.getMetaData(targetClass);
             SqlSelectorContext sqlSelectorContext = (SqlSelectorContext) select;
             props = new ArrayList<>(sqlSelectorContext.getSqlContexts().size());
             for (SqlContext sqlContext : sqlSelectorContext.getSqlContexts())

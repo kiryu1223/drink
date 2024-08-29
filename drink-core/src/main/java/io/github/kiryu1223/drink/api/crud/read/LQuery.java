@@ -3,11 +3,7 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlPropertyContext;
-import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
@@ -15,7 +11,6 @@ import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 
@@ -296,7 +291,7 @@ public class LQuery<T> extends QueryBase
     public <R> IncludeQuery<T, R> include(ExprTree<Func1<T, R>> expr)
     {
         include(expr.getTree());
-        return new IncludeQuery<>(getSqlBuilder(),getSqlBuilder().getLastInclude());
+        return new IncludeQuery<>(getSqlBuilder());
     }
 
     public <R> IncludeQuery<T, R> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, @Expr(Expr.BodyType.Expr) Func1<R, Boolean> cond)
@@ -307,7 +302,7 @@ public class LQuery<T> extends QueryBase
     public <R> IncludeQuery<T, R> include(ExprTree<Func1<T, R>> expr, ExprTree<Func1<R, Boolean>> cond)
     {
         include(expr.getTree(), cond.getTree());
-        return new IncludeQuery<>(getSqlBuilder(),getSqlBuilder().getLastInclude());
+        return new IncludeQuery<>(getSqlBuilder());
     }
 
     public <R> IncludeQuery<T, R> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr)
@@ -318,7 +313,7 @@ public class LQuery<T> extends QueryBase
     public <R> IncludeQuery<T, R> includes(ExprTree<Func1<T, Collection<R>>> expr)
     {
         include(expr.getTree());
-        return new IncludeQuery<>(getSqlBuilder(),getSqlBuilder().getLastInclude());
+        return new IncludeQuery<>(getSqlBuilder());
     }
 
     public <R> IncludeQuery<T, R> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, @Expr(Expr.BodyType.Expr) Func1<R, Boolean> cond)
@@ -329,7 +324,7 @@ public class LQuery<T> extends QueryBase
     public <R> IncludeQuery<T, R> includes(ExprTree<Func1<T, Collection<R>>> expr, ExprTree<Func1<R, Boolean>> cond)
     {
         include(expr.getTree(), cond.getTree());
-        return new IncludeQuery<>(getSqlBuilder(),getSqlBuilder().getLastInclude());
+        return new IncludeQuery<>(getSqlBuilder());
     }
 
     public <R> IncludeQuery<T, R> includesByCond(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, Action1<IncludeCond<R>> cond)
@@ -339,8 +334,8 @@ public class LQuery<T> extends QueryBase
 
     public <R> IncludeQuery<T, R> includesByCond(ExprTree<Func1<T, Collection<R>>> expr, Action1<IncludeCond<R>> action)
     {
-        includeByCond(expr.getTree(),action);
-        return new IncludeQuery<>(getSqlBuilder(),getSqlBuilder().getLastInclude());
+        includeByCond(expr.getTree(), action);
+        return new IncludeQuery<>(getSqlBuilder());
     }
 
     // endregion

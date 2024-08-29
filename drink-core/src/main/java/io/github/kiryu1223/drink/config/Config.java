@@ -1,11 +1,10 @@
 package io.github.kiryu1223.drink.config;
 
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
-import io.github.kiryu1223.drink.config.dialect.DefaultDialect;
-import io.github.kiryu1223.drink.config.dialect.IDialect;
-import io.github.kiryu1223.drink.config.dialect.MySQLDialect;
-import io.github.kiryu1223.drink.config.dialect.SqlServerDialect;
+import io.github.kiryu1223.drink.config.dialect.*;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.core.expression.ext.OracleSqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
 
@@ -17,6 +16,7 @@ public class Config
     private final TransactionManager transactionManager;
     private final DataSourceManager dataSourceManager;
     private final SqlSessionFactory sqlSessionFactory;
+    private final SqlExpressionFactory sqlExpressionFactory;
 
     public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory)
     {
@@ -26,13 +26,20 @@ public class Config
         {
             case MySQL:
                 disambiguation = new MySQLDialect();
+                sqlExpressionFactory = new SqlExpressionFactory();
                 break;
             case SqlServer:
                 disambiguation = new SqlServerDialect();
+                sqlExpressionFactory = new SqlExpressionFactory();
+                break;
+            case Oracle:
+                disambiguation = new OracleDialect();
+                sqlExpressionFactory = new OracleSqlExpressionFactory();
                 break;
             case H2:
             default:
                 disambiguation = new DefaultDialect();
+                sqlExpressionFactory = new SqlExpressionFactory();
                 break;
         }
         this.transactionManager = transactionManager;
@@ -88,5 +95,10 @@ public class Config
     public boolean isPrintBatch()
     {
         return option.isPrintBatch();
+    }
+
+    public SqlExpressionFactory getSqlExpressionFactory()
+    {
+        return sqlExpressionFactory;
     }
 }

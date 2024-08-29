@@ -13,10 +13,16 @@ public class IncludeQuery<T, TPreviousProperty> extends LQuery<T>
 {
     private final IncludeSet curIncludeSet;
 
-    public IncludeQuery(QuerySqlBuilder sqlBuilder, IncludeSet curIncludeSet)
+    public IncludeQuery(QuerySqlBuilder sqlBuilder)
     {
         super(sqlBuilder);
-        this.curIncludeSet = curIncludeSet;
+        this.curIncludeSet = sqlBuilder.getLastInclude();
+    }
+
+    public IncludeQuery(QuerySqlBuilder sqlBuilder,IncludeSet includeSet)
+    {
+        super(sqlBuilder);
+        this.curIncludeSet = includeSet;
     }
 
     public <TProperty> IncludeQuery<T, TProperty> thenInclude(@Expr(Expr.BodyType.Expr) Func1<TPreviousProperty, TProperty> expr, @Expr(Expr.BodyType.Expr) Func1<TProperty, Boolean> cond)

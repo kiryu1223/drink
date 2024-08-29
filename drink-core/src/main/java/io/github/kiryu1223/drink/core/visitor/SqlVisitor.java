@@ -14,7 +14,6 @@ import io.github.kiryu1223.drink.ext.BaseSqlExtensionCache;
 import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.FunctionBox;
 import io.github.kiryu1223.expressionTree.expressions.*;
-import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -133,7 +132,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 }
                 BaseSqlExtension baseSqlExtension = BaseSqlExtensionCache.get(sqlFuncExt.extension());
                 FunctionBox parse = baseSqlExtension.parse(sqlFunction, contexts);
-                return new SqlFunctionsContext(parse.getFunctions(),parse.getSqlContexts());
+                return new SqlFunctionsContext(parse.getFunctions(), parse.getSqlContexts());
             }
             else
             {
@@ -537,6 +536,9 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
         {
             remainder.add(input.substring(lastIndex));
         }
+
+        if (input.startsWith("{")) remainder.add(0, "");
+        if (input.endsWith("}")) remainder.add("");
 
         return paramMatcher;
     }

@@ -1,10 +1,10 @@
-package io.github.kiryu1223.drink.core.context;
+package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.List;
 
-public abstract class SqlContext
+public abstract class SqlExpression
 {
     public abstract String getSqlAndValue(Config config, List<Object> values);
 

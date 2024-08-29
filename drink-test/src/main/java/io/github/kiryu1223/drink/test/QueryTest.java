@@ -5,6 +5,7 @@ import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.pojos.*;
+import io.github.kiryu1223.expressionTree.delegate.Func1;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -192,7 +193,7 @@ public class QueryTest extends BaseTest
 
         List<Employee> list2 = client
                 .query(Employee.class)
-                .includesByCond(e -> e.getSalaries(), q -> q
+                .includesByCond(e -> e.getSalaries(), cond -> cond
                         .where(s -> s.getTo().isBefore(end))
                         .limit(5, 5)
                         .orderBy(s -> s.getFrom())

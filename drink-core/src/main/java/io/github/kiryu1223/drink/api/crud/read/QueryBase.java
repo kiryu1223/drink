@@ -150,14 +150,15 @@ public abstract class QueryBase extends CRUD
         SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy(), getConfig());
         SqlContext context = selectVisitor.visit(lambda);
         boolean isSingle = !(context instanceof SqlSelectorContext);
-        if (isSingle)
-        {
-            getSqlBuilder().setSelect(context);
-        }
-        else
-        {
-            getSqlBuilder().setSelect(context, lambda.getReturnType());
-        }
+        getSqlBuilder().setSelect(context, lambda.getReturnType());
+//        if (isSingle)
+//        {
+//            getSqlBuilder().setSelect(context);
+//        }
+//        else
+//        {
+//            getSqlBuilder().setSelect(context, lambda.getReturnType());
+//        }
         return isSingle;
     }
 
