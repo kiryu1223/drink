@@ -1,28 +1,34 @@
 package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.metaData.MetaData;
-import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SqlQueryableExpression extends SqlTableExpression
 {
-    private SqlSelectExpression select;
+    private final SqlSelectExpression select;
     private final SqlFromExpression from;
-    private SqlJoinsExpression joins;
-    private SqlWhereExpression where;
-    private SqlGroupByExpression groupBy;
-    private SqlHavingExpression having;
-    private SqlOrderByExpression orderBy;
-    private SqlLimitExpression limit;
+    private final SqlJoinsExpression joins;
+    private final SqlWhereExpression where;
+    private final SqlGroupByExpression groupBy;
+    private final SqlHavingExpression having;
+    private final SqlOrderByExpression orderBy;
+    private final SqlLimitExpression limit;
+    private boolean distinct = false;
 
-    public SqlQueryableExpression(SqlFromExpression from)
+    public SqlQueryableExpression(Config config, SqlFromExpression from)
     {
         this.from = from;
-        this.select = def();
+        SqlExpressionFactory sqlExpressionFactory = config.getSqlExpressionFactory();
+        this.select = sqlExpressionFactory.select(getTableClass());
+        this.joins = sqlExpressionFactory.Joins(new ArrayList<>());
+        this.where = sqlExpressionFactory.where(sqlExpressionFactory.Condition(new ArrayList<>()));
+        this.groupBy = sqlExpressionFactory.groupBy(new ArrayList<>());
+        this.having = sqlExpressionFactory.having(sqlExpressionFactory.Condition(new ArrayList<>()));
+        this.orderBy = sqlExpressionFactory.orderBy(new ArrayList<>());
+        this.limit = sqlExpressionFactory.limit();
     }
 
     @Override
@@ -30,31 +36,17 @@ public class SqlQueryableExpression extends SqlTableExpression
     {
         List<String> strings = new ArrayList<>();
         strings.add(select.getSqlAndValue(config, values));
+        if (distinct)
+        {
+            strings.add("DISTINCT");
+        }
         strings.add(from.getSqlAndValue(config, values));
-        if (joins != null)
-        {
-            strings.add(joins.getSqlAndValue(config, values));
-        }
-        if (where != null)
-        {
-            strings.add(where.getSqlAndValue(config, values));
-        }
-        if (groupBy != null)
-        {
-            strings.add(groupBy.getSqlAndValue(config, values));
-        }
-        if (having != null)
-        {
-            strings.add(having.getSqlAndValue(config, values));
-        }
-        if (orderBy != null)
-        {
-            strings.add(orderBy.getSqlAndValue(config, values));
-        }
-        if (limit != null)
-        {
-            strings.add(limit.getSqlAndValue(config, values));
-        }
+        strings.add(joins.getSqlAndValue(config, values));
+        strings.add(where.getSqlAndValue(config, values));
+        strings.add(groupBy.getSqlAndValue(config, values));
+        strings.add(having.getSqlAndValue(config, values));
+        strings.add(orderBy.getSqlAndValue(config, values));
+        strings.add(limit.getSqlAndValue(config, values));
         return String.join(" ", strings);
     }
 
@@ -63,31 +55,17 @@ public class SqlQueryableExpression extends SqlTableExpression
     {
         List<String> strings = new ArrayList<>();
         strings.add(select.getSql(config));
+        if (distinct)
+        {
+            strings.add("DISTINCT");
+        }
         strings.add(from.getSql(config));
-        if (joins != null)
-        {
-            strings.add(joins.getSql(config));
-        }
-        if (where != null)
-        {
-            strings.add(where.getSql(config));
-        }
-        if (groupBy != null)
-        {
-            strings.add(groupBy.getSql(config));
-        }
-        if (having != null)
-        {
-            strings.add(having.getSql(config));
-        }
-        if (orderBy != null)
-        {
-            strings.add(orderBy.getSql(config));
-        }
-        if (limit != null)
-        {
-            strings.add(limit.getSql(config));
-        }
+        strings.add(joins.getSql(config));
+        strings.add(where.getSql(config));
+        strings.add(groupBy.getSql(config));
+        strings.add(having.getSql(config));
+        strings.add(orderBy.getSql(config));
+        strings.add(limit.getSql(config));
         return String.join(" ", strings);
     }
 
@@ -97,49 +75,61 @@ public class SqlQueryableExpression extends SqlTableExpression
         return from.getSqlTableExpression().getTableClass();
     }
 
-    private SqlSelectExpression def()
+    public void addWhere(SqlExpression cond)
     {
-        MetaData metaData = MetaDataCache.getMetaData(getTableClass());
-        List<SqlExpression> sqlExpressions = new ArrayList<>();
-        for (PropertyMetaData data : metaData.getNotIgnorePropertys())
-        {
-            sqlExpressions.add(new SqlColumnExpression(data, 0));
-        }
-        return new SqlSelectExpression(sqlExpressions);
+        where.addCond(cond);
     }
 
-    public void setWhere(SqlWhereExpression where)
+    public void addJoin(SqlJoinExpression join)
     {
-        this.where = where;
+        joins.addJoin(join);
     }
 
-    public void setJoins(SqlJoinsExpression joins)
+    public void addGroup(SqlColumnExpression column)
     {
-        this.joins = joins;
+        groupBy.addColumn(column);
     }
 
-    public void setGroupBy(SqlGroupByExpression groupBy)
+    public void addHaving(SqlExpression cond)
     {
-        this.groupBy = groupBy;
+        having.addCond(cond);
     }
 
-    public void setHaving(SqlHavingExpression having)
+    public void addOrder(SqlOrderExpression order)
     {
-        this.having = having;
+        orderBy.addOrder(order);
     }
 
-    public void setOrderBy(SqlOrderByExpression orderBy)
+    public void setSelect(List<SqlExpression> columns, Class<?> target, boolean isSingle)
     {
-        this.orderBy = orderBy;
+        select.setColumns(columns);
+        select.setTarget(target);
+        select.setSingle(isSingle);
     }
 
-    public void setSelect(SqlSelectExpression select)
+    public void setLimit(long offset, long rows)
     {
-        this.select = select;
+        limit.setOffset(offset);
+        limit.setRows(rows);
     }
 
-    public void setLimit(SqlLimitExpression limit)
+    public void setLimit(long rows)
     {
-        this.limit = limit;
+        limit.setRows(rows);
+    }
+
+    public void setDistinct(boolean distinct)
+    {
+        this.distinct = distinct;
+    }
+
+    public SqlFromExpression getFrom()
+    {
+        return from;
+    }
+
+    public int getNextIndex()
+    {
+        return 1 + joins.getJoins().size();
     }
 }

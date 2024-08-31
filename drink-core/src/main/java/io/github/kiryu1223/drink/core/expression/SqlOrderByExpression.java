@@ -14,9 +14,15 @@ public class SqlOrderByExpression extends SqlExpression
         this.sqlOrders = sqlOrders;
     }
 
+    public void addOrder(SqlOrderExpression sqlOrder)
+    {
+        sqlOrders.add(sqlOrder);
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
+        if (sqlOrders.isEmpty()) return "";
         List<String> strings = new ArrayList<>(sqlOrders.size());
         for (SqlOrderExpression sqlOrder : sqlOrders)
         {
@@ -28,6 +34,7 @@ public class SqlOrderByExpression extends SqlExpression
     @Override
     public String getSql(Config config)
     {
+        if (sqlOrders.isEmpty()) return "";
         List<String> strings = new ArrayList<>(sqlOrders.size());
         for (SqlOrderExpression sqlOrder : sqlOrders)
         {

@@ -13,15 +13,22 @@ public class SqlWhereExpression extends SqlExpression
         this.conditions = conditions;
     }
 
+    public void addCond(SqlExpression condition)
+    {
+        conditions.getConditions().add(condition);
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
+        if (conditions.isEmpty()) return "";
         return "WHERE " + conditions.getSqlAndValue(config, values);
     }
 
     @Override
     public String getSql(Config config)
     {
+        if (conditions.isEmpty()) return "";
         return "WHERE " + conditions.getSql(config);
     }
 }

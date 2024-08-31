@@ -26,20 +26,20 @@ public class Config
         {
             case MySQL:
                 disambiguation = new MySQLDialect();
-                sqlExpressionFactory = new SqlExpressionFactory();
+                sqlExpressionFactory = new SqlExpressionFactory(this);
                 break;
             case SqlServer:
                 disambiguation = new SqlServerDialect();
-                sqlExpressionFactory = new SqlExpressionFactory();
+                sqlExpressionFactory = new SqlExpressionFactory(this);
                 break;
             case Oracle:
                 disambiguation = new OracleDialect();
-                sqlExpressionFactory = new OracleSqlExpressionFactory();
+                sqlExpressionFactory = new OracleSqlExpressionFactory(this);
                 break;
             case H2:
             default:
                 disambiguation = new DefaultDialect();
-                sqlExpressionFactory = new SqlExpressionFactory();
+                sqlExpressionFactory = new SqlExpressionFactory(this);
                 break;
         }
         this.transactionManager = transactionManager;

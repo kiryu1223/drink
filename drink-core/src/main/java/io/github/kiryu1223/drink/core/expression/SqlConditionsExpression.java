@@ -14,6 +14,16 @@ public class SqlConditionsExpression extends SqlExpression
         this.conditions = conditions;
     }
 
+    public List<SqlExpression> getConditions()
+    {
+        return conditions;
+    }
+
+    public boolean isEmpty()
+    {
+        return conditions.isEmpty();
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {

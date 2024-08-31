@@ -38,12 +38,12 @@ public abstract class QueryBase extends CRUD
 
     public QueryBase(Config config, Class<?> c)
     {
-        sqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(c));
+        this.sqlBuilder = new QuerySqlBuilder(config, c);
     }
 
     public QueryBase(QuerySqlBuilder sqlBuilder)
     {
-        this.sqlBuilder = sqlBuilder;
+        this.sqlBuilder = new QuerySqlBuilder(sqlBuilder.getConfig(),sqlBuilder.getQueryable());
     }
 
     protected QuerySqlBuilder getSqlBuilder()
@@ -63,7 +63,6 @@ public abstract class QueryBase extends CRUD
         String sql = sqlBuilder.getSqlAndValue(values);
         return session.executeQuery(f -> f.next(), "SELECT 1 FROM (" + sql + ") LIMIT 1", values);
     }
-
 
     // 脑子瓦塔了，toMap不用这么麻烦
 //    protected <K,T> Map<K,T> toMap(LambdaExpression<?> lambda)
@@ -136,7 +135,7 @@ public abstract class QueryBase extends CRUD
 
     protected void distinct0(boolean condition)
     {
-        sqlBuilder.setDistinct(condition);
+        sqlBuilder.getQueryable().setDistinct(condition);
     }
 
     protected <R> EndQuery<R> select(Class<R> r)
@@ -196,7 +195,7 @@ public abstract class QueryBase extends CRUD
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlContext onContext = normalVisitor.visit(expr.getTree());
         SqlTableContext tableContext = new SqlRealTableContext(target);
-        getSqlBuilder().addJoin(joinType, tableContext, onContext);
+        sqlBuilder.addJoin(joinType, tableContext, onContext);
     }
 
     protected void join(JoinType joinType, QueryBase target, ExprTree<?> expr)
@@ -280,7 +279,7 @@ public abstract class QueryBase extends CRUD
 
     protected void limit0(long rows)
     {
-        getSqlBuilder().setLimit(new SqlLimitContext(rows));
+        sqlBuilder.setLimit(rows);
     }
 
     protected void limit0(long offset, long rows)

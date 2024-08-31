@@ -14,9 +14,15 @@ public class SqlGroupByExpression extends SqlExpression
         this.columns = columns;
     }
 
+    public void addColumn(SqlColumnExpression column)
+    {
+        columns.add(column);
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
+        if (columns.isEmpty()) return "";
         List<String> strings = new ArrayList<>();
         for (SqlColumnExpression column : columns)
         {
@@ -28,6 +34,7 @@ public class SqlGroupByExpression extends SqlExpression
     @Override
     public String getSql(Config config)
     {
+        if (columns.isEmpty()) return "";
         List<String> strings = new ArrayList<>();
         for (SqlColumnExpression column : columns)
         {

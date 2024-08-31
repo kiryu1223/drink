@@ -1,10 +1,14 @@
 package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
 public class SqlValueExpression extends SqlExpression
 {
@@ -30,6 +34,19 @@ public class SqlValueExpression extends SqlExpression
         else
         {
             values.add(value);
+            return "?";
+        }
+    }
+
+    public String getSqlAndValue(Config config, List<Object> values, IConverter<?,?> converter, PropertyMetaData propertyMetaData)
+    {
+        if (value == null)
+        {
+            return "NULL";
+        }
+        else
+        {
+            values.add(converter.toDb(cast(value),propertyMetaData));
             return "?";
         }
     }

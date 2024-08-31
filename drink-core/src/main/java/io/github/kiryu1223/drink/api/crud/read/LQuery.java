@@ -278,7 +278,6 @@ public class LQuery<T> extends QueryBase
         return new EndQuery<>(getSqlBuilder());
     }
 
-
     // endregion
 
     // region [INCLUDE]

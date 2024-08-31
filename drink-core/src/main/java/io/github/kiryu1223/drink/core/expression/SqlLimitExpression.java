@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SqlLimitExpression extends SqlExpression
 {
-    private final long offset, rows;
+    private long offset, rows;
 
     public SqlLimitExpression(long rows)
     {
@@ -30,6 +30,16 @@ public class SqlLimitExpression extends SqlExpression
         return rows;
     }
 
+    public void setOffset(long offset)
+    {
+        this.offset = offset;
+    }
+
+    public void setRows(long rows)
+    {
+        this.rows = rows;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
@@ -41,11 +51,18 @@ public class SqlLimitExpression extends SqlExpression
     {
         if (offset != 0)
         {
-            return "LIMIT " + offset + "," + rows;
+            return "LIMIT " + rows + " OFFSET " + offset;
         }
         else
         {
-            return "LIMIT " + rows;
+            if (rows != 0)
+            {
+                return "LIMIT " + rows;
+            }
+            else
+            {
+                return "";
+            }
         }
     }
 }

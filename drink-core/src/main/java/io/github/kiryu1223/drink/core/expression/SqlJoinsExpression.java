@@ -14,9 +14,20 @@ public class SqlJoinsExpression extends SqlExpression
         this.joins = joins;
     }
 
+    public void addJoin(SqlJoinExpression join)
+    {
+        joins.add(join);
+    }
+
+    public List<SqlJoinExpression> getJoins()
+    {
+        return joins;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
+        if (joins.isEmpty()) return "";
         List<String> strings = new ArrayList<>(joins.size());
         for (SqlJoinExpression join : joins)
         {
@@ -28,6 +39,7 @@ public class SqlJoinsExpression extends SqlExpression
     @Override
     public String getSql(Config config)
     {
+        if (joins.isEmpty()) return "";
         List<String> strings = new ArrayList<>(joins.size());
         for (SqlJoinExpression join : joins)
         {

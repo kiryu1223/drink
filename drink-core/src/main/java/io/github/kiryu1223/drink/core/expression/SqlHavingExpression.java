@@ -6,22 +6,29 @@ import java.util.List;
 
 public class SqlHavingExpression extends SqlExpression
 {
-    private final SqlConditionsExpression condition;
+    private final SqlConditionsExpression conditions;
 
-    public SqlHavingExpression(SqlConditionsExpression condition)
+    public SqlHavingExpression(SqlConditionsExpression conditions)
     {
-        this.condition = condition;
+        this.conditions = conditions;
+    }
+
+    public void addCond(SqlExpression condition)
+    {
+        conditions.getConditions().add(condition);
     }
 
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return "HAVING " + condition.getSqlAndValue(config, values);
+        if (conditions.isEmpty()) return "";
+        return "HAVING " + conditions.getSqlAndValue(config, values);
     }
 
     @Override
     public String getSql(Config config)
     {
-        return "HAVING " + condition.getSql(config);
+        if (conditions.isEmpty()) return "";
+        return "HAVING " + conditions.getSql(config);
     }
 }
