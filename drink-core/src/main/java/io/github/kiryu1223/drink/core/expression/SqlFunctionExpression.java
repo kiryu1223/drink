@@ -1,18 +1,18 @@
-package io.github.kiryu1223.drink.core.context;
+package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.List;
 
-public class SqlFunctionsContext extends SqlContext
+public class SqlFunctionExpression extends SqlExpression
 {
     private final List<String> functions;
-    private final List<SqlContext> contexts;
+    private final List<SqlExpression> expressions;
 
-    public SqlFunctionsContext(List<String> functions, List<SqlContext> contexts)
+    public SqlFunctionExpression(List<String> functions, List<SqlExpression> expressions)
     {
         this.functions = functions;
-        this.contexts = contexts;
+        this.expressions = expressions;
     }
 
     @Override
@@ -23,10 +23,10 @@ public class SqlFunctionsContext extends SqlContext
         {
             String function = functions.get(i);
             sb.append(function);
-            if (i < contexts.size())
+            if (i < expressions.size())
             {
-                SqlContext context = contexts.get(i);
-                sb.append(context.getSqlAndValue(config, values));
+                SqlExpression expression = expressions.get(i);
+                sb.append(expression.getSqlAndValue(config, values));
             }
         }
         return sb.toString();
@@ -40,10 +40,10 @@ public class SqlFunctionsContext extends SqlContext
         {
             String function = functions.get(i);
             sb.append(function);
-            if (i < contexts.size())
+            if (i < expressions.size())
             {
-                SqlContext context = contexts.get(i);
-                sb.append(context.getSql(config));
+                SqlExpression expression = expressions.get(i);
+                sb.append(expression.getSql(config));
             }
         }
         return sb.toString();

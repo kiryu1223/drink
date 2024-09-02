@@ -2,8 +2,6 @@ package io.github.kiryu1223.drink.api.crud.update;
 
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.visitor.SetVisitor;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action10;
 import io.github.kiryu1223.expressionTree.delegate.Func10;

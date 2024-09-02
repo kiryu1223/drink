@@ -1,8 +1,8 @@
-package io.github.kiryu1223.drink.core.visitor;
+package io.github.kiryu1223.drink.core.visitor.expression;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlGroupContext;
+import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
+import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
@@ -17,22 +17,22 @@ public class GroupByVisitor extends SqlVisitor
     }
 
     @Override
-    public SqlContext visit(NewExpression newExpression)
+    public SqlExpression visit(NewExpression newExpression)
     {
         BlockExpression classBody = newExpression.getClassBody();
         if (classBody == null) throw new IllegalExpressionException(newExpression);
-        LinkedHashMap<String, SqlContext> contextMap = new LinkedHashMap<>();
+        LinkedHashMap<String, SqlExpression> contextMap = new LinkedHashMap<>();
         for (Expression expression : classBody.getExpressions())
         {
             if (expression.getKind() == Kind.Variable)
             {
                 VariableExpression variableExpression = (VariableExpression) expression;
                 String name = variableExpression.getName();
-                SqlContext context = visit(variableExpression.getInit());
-                contextMap.put(name, context);
+                SqlExpression sqlExpression = visit(variableExpression.getInit());
+                contextMap.put(name, sqlExpression);
             }
         }
-        return new SqlGroupContext(contextMap);
+        return factory.groupBy(contextMap);
     }
 
     @Override

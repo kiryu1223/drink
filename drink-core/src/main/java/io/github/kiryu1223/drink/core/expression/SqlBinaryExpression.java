@@ -1,8 +1,6 @@
 package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlOperator;
 
 import java.util.List;
 
@@ -37,12 +35,44 @@ public class SqlBinaryExpression extends SqlExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return left.getSqlAndValue(config, values) + " " + operator.getOperator() + " " + right.getSqlAndValue(config, values);
+        StringBuilder sb = new StringBuilder();
+        sb.append(left.getSqlAndValue(config, values));
+        sb.append(" ");
+        sb.append(operator.getOperator());
+        sb.append(" ");
+        switch (operator)
+        {
+            case IN:
+                sb.append("(");
+                sb.append(right.getSqlAndValue(config, values));
+                sb.append(")");
+                break;
+            default:
+                sb.append(right.getSqlAndValue(config, values));
+                break;
+        }
+        return sb.toString();
     }
 
     @Override
     public String getSql(Config config)
     {
-        return left.getSql(config) + " " + operator.getOperator() + " " + right.getSql(config);
+        StringBuilder sb = new StringBuilder();
+        sb.append(left.getSql(config));
+        sb.append(" ");
+        sb.append(operator.getOperator());
+        sb.append(" ");
+        switch (operator)
+        {
+            case IN:
+                sb.append("(");
+                sb.append(right.getSql(config));
+                sb.append(")");
+                break;
+            default:
+                sb.append(right.getSql(config));
+                break;
+        }
+        return sb.toString();
     }
 }

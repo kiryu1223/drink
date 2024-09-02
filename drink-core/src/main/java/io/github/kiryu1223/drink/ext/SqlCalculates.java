@@ -1,14 +1,8 @@
 package io.github.kiryu1223.drink.ext;
 
-import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
-import io.github.kiryu1223.drink.api.crud.read.LQuery;
-import io.github.kiryu1223.drink.api.crud.read.QueryBase;
-import io.github.kiryu1223.drink.core.context.SqlOperator;
+import io.github.kiryu1223.drink.core.expression.SqlOperator;
 import io.github.kiryu1223.drink.exception.SqlCalculatesInvokeException;
-import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
-
-import java.util.Collection;
 
 public class SqlCalculates
 {

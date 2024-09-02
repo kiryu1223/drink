@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.core.context;
+package io.github.kiryu1223.drink.core.expression;
 
 public enum SqlOperator
 {

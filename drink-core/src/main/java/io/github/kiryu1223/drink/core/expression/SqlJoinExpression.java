@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.JoinType;
 
 import java.util.List;
 
@@ -9,10 +8,10 @@ public class SqlJoinExpression extends SqlExpression
 {
     private final JoinType joinType;
     private final SqlTableExpression joinTable;
-    private final SqlConditionsExpression conditions;
+    private final SqlExpression conditions;
     private final int index;
 
-    public SqlJoinExpression(JoinType joinType, SqlTableExpression joinTable, SqlConditionsExpression conditions, int index)
+    public SqlJoinExpression(JoinType joinType, SqlTableExpression joinTable, SqlExpression conditions, int index)
     {
         this.joinType = joinType;
         this.joinTable = joinTable;

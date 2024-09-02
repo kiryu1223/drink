@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SqlCollectedValueExpression extends SqlExpression
+public class SqlCollectedValueExpression extends SqlValueExpression
 {
     private final Collection<Object> collection;
 

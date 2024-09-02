@@ -1,10 +1,15 @@
-package io.github.kiryu1223.drink.core.visitor;
+package io.github.kiryu1223.drink.core.visitor.expression;
 
 import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.core.expression.SqlOperator;
+import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
+import io.github.kiryu1223.drink.core.expression.SqlExpression;
+import io.github.kiryu1223.drink.core.expression.SqlFunctionExpression;
+import io.github.kiryu1223.drink.core.expression.SqlValueExpression;
+import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
@@ -25,28 +30,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
+import static io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil.*;
 
-public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
+public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
 {
     protected List<ParameterExpression> parameters;
     protected final Config config;
     protected final int offset;
+    protected final SqlExpressionFactory factory;
 
     protected SqlVisitor(Config config)
     {
-        this.config = config;
-        this.offset = 0;
+        this(config, 0);
     }
 
     public SqlVisitor(Config config, int offset)
     {
         this.config = config;
         this.offset = offset;
+        this.factory = config.getSqlExpressionFactory();
     }
 
     @Override
-    public SqlContext visit(LambdaExpression<?> lambda)
+    public SqlExpression visit(LambdaExpression<?> lambda)
     {
         if (parameters == null)
         {
@@ -61,20 +67,20 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     }
 
     @Override
-    public SqlContext visit(AssignExpression assignExpression)
+    public SqlExpression visit(AssignExpression assignExpression)
     {
-        SqlContext left = visit(assignExpression.getLeft());
-        if (left instanceof SqlPropertyContext)
+        SqlExpression left = visit(assignExpression.getLeft());
+        if (left instanceof SqlColumnExpression)
         {
-            SqlPropertyContext sqlPropertyContext = (SqlPropertyContext) left;
-            SqlContext right = visit(assignExpression.getRight());
-            return new SqlSetContext(sqlPropertyContext, right);
+            SqlColumnExpression sqlColumnExpression = (SqlColumnExpression) left;
+            SqlExpression right = visit(assignExpression.getRight());
+            return factory.set(sqlColumnExpression, right);
         }
         throw new RuntimeException("表达式中不能出现非lambda入参为赋值对象的语句");
     }
 
     @Override
-    public SqlContext visit(FieldSelectExpression fieldSelect)
+    public SqlExpression visit(FieldSelectExpression fieldSelect)
     {
         if (isProperty(parameters, fieldSelect))
         {
@@ -82,7 +88,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             int index = parameters.indexOf(parameter) + offset;
             Field field = fieldSelect.getField();
             MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
-            return new SqlPropertyContext(metaData.getPropertyMetaData(field.getName()), index);
+            return factory.column(metaData.getPropertyMetaData(field.getName()), index);
         }
         else
         {
@@ -91,7 +97,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     }
 
     @Override
-    public SqlContext visit(MethodCallExpression methodCall)
+    public SqlExpression visit(MethodCallExpression methodCall)
     {
         if (IAggregation.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
         {
@@ -101,18 +107,25 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 case "count":
                     if (methodCall.getMethod().getParameterCount() == 0)
                     {
-                        return new SqlFuncContext("COUNT(*)", Collections.emptyList());
+                        return factory.function(Collections.singletonList("COUNT(*)"), Collections.emptyList());
                     }
                 case "sum":
                 case "avg":
                 case "max":
                 case "min":
-                    List<SqlContext> args = new ArrayList<>(methodCall.getArgs().size());
+                    List<SqlExpression> args = new ArrayList<>(methodCall.getArgs().size());
                     for (Expression arg : methodCall.getArgs())
                     {
                         args.add(visit(arg));
                     }
-                    return new SqlFuncContext(name.toUpperCase(), args);
+                    List<String> strings = new ArrayList<>(args.size() + 1);
+                    strings.add(name.toUpperCase() + "(");
+                    for (int i = 0; i < args.size() - 1; i++)
+                    {
+                        strings.add(",");
+                    }
+                    strings.add(")");
+                    return factory.function(strings, args);
                 default:
                     throw new IllegalExpressionException(methodCall);
             }
@@ -122,17 +135,17 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             Method sqlFunction = methodCall.getMethod();
             SqlExtensionExpression sqlFuncExt = getSqlFuncExt(sqlFunction.getAnnotationsByType(SqlExtensionExpression.class));
             List<Expression> args = methodCall.getArgs();
-            List<SqlContext> contexts = new ArrayList<>(args.size());
+            List<SqlExpression> expressions = new ArrayList<>(args.size());
 
             if (sqlFuncExt.extension() != BaseSqlExtension.class)
             {
                 for (Expression arg : args)
                 {
-                    contexts.add(visit(arg));
+                    expressions.add(visit(arg));
                 }
                 BaseSqlExtension baseSqlExtension = BaseSqlExtensionCache.get(sqlFuncExt.extension());
-                FunctionBox parse = baseSqlExtension.parse(sqlFunction, contexts);
-                return new SqlFunctionsContext(parse.getFunctions(), parse.getSqlContexts());
+                FunctionBox parse = baseSqlExtension.parse(sqlFunction, expressions);
+                return factory.function(parse.getFunctions(), parse.getSqlExpressions());
             }
             else
             {
@@ -155,7 +168,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                         {
                             while (index < args.size())
                             {
-                                contexts.add(visit(args.get(index)));
+                                expressions.add(visit(args.get(index)));
                                 if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
                                 index++;
                             }
@@ -163,17 +176,17 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                         // 正常情况
                         else
                         {
-                            contexts.add(visit(args.get(index)));
+                            expressions.add(visit(args.get(index)));
                         }
                     }
                 }
-                return new SqlFunctionsContext(strings, contexts);
+                return factory.function(strings, expressions);
             }
 
 
 //            Method method = methodCall.getMethod();
 //            List<Expression> args = methodCall.getArgs();
-//            List<SqlContext> contexts = new ArrayList<>(args.size());
+//            List<SqlExpression> contexts = new ArrayList<>(args.size());
 //            SqlExtensionExpression[] sqlExtensionExpressions = method.getAnnotationsByType(SqlExtensionExpression.class);
 //            if (sqlExtensionExpressions.length == 0)
 //            {
@@ -277,10 +290,10 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             Method method = methodCall.getMethod();
             if (method.getName().equals("contains"))
             {
-                SqlContext left = visit(methodCall.getArgs().get(0));
-                SqlContext right = visit(methodCall.getExpr());
+                SqlExpression left = visit(methodCall.getArgs().get(0));
+                SqlExpression right = visit(methodCall.getExpr());
 
-                return new SqlBinaryContext(SqlOperator.IN, left, new SqlParensContext(right));
+                return factory.binary(SqlOperator.IN, left, right);
             }
             else
             {
@@ -294,24 +307,24 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             {
                 case "contains":
                 {
-                    SqlContext left = visit(methodCall.getExpr());
-                    SqlContext right = visit(methodCall.getArgs().get(0));
-                    SqlFunctionsContext functionsContext = new SqlFunctionsContext(Arrays.asList("CONCAT('%',", ",'%')"), Collections.singletonList(right));
-                    return new SqlBinaryContext(SqlOperator.LIKE, left, functionsContext);
+                    SqlExpression left = visit(methodCall.getExpr());
+                    SqlExpression right = visit(methodCall.getArgs().get(0));
+                    SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT('%',", ",'%')"), Collections.singletonList(right));
+                    return factory.binary(SqlOperator.LIKE, left, function);
                 }
                 case "startsWith":
                 {
-                    SqlContext left = visit(methodCall.getExpr());
-                    SqlContext right = visit(methodCall.getArgs().get(0));
-                    SqlFunctionsContext functionsContext = new SqlFunctionsContext(Arrays.asList("CONCAT(", ",'%')"), Collections.singletonList(right));
-                    return new SqlBinaryContext(SqlOperator.LIKE, left, functionsContext);
+                    SqlExpression left = visit(methodCall.getExpr());
+                    SqlExpression right = visit(methodCall.getArgs().get(0));
+                    SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT(", ",'%')"), Collections.singletonList(right));
+                    return factory.binary(SqlOperator.LIKE, left, function);
                 }
                 case "endsWith":
                 {
-                    SqlContext left = visit(methodCall.getExpr());
-                    SqlContext right = visit(methodCall.getArgs().get(0));
-                    SqlFunctionsContext functionsContext = new SqlFunctionsContext(Arrays.asList("CONCAT('%',", ")"), Collections.singletonList(right));
-                    return new SqlBinaryContext(SqlOperator.LIKE, left, functionsContext);
+                    SqlExpression left = visit(methodCall.getExpr());
+                    SqlExpression right = visit(methodCall.getArgs().get(0));
+                    SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT('%',", ")"), Collections.singletonList(right));
+                    return factory.binary(SqlOperator.LIKE, left, function);
                 }
                 default:
                     return checkAndReturnValue(methodCall);
@@ -324,21 +337,21 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             {
                 case "isAfter":
                 {
-                    SqlContext left = visit(methodCall.getExpr());
-                    SqlContext right = visit(methodCall.getArgs().get(0));
-                    return new SqlBinaryContext(SqlOperator.GT, left, right);
+                    SqlExpression left = visit(methodCall.getExpr());
+                    SqlExpression right = visit(methodCall.getArgs().get(0));
+                    return factory.binary(SqlOperator.GT, left, right);
                 }
                 case "isBefore":
                 {
-                    SqlContext left = visit(methodCall.getExpr());
-                    SqlContext right = visit(methodCall.getArgs().get(0));
-                    return new SqlBinaryContext(SqlOperator.LT, left, right);
+                    SqlExpression left = visit(methodCall.getExpr());
+                    SqlExpression right = visit(methodCall.getArgs().get(0));
+                    return factory.binary(SqlOperator.LT, left, right);
                 }
                 case "isEqual":
                 {
-                    SqlContext left = visit(methodCall.getExpr());
-                    SqlContext right = visit(methodCall.getArgs().get(0));
-                    return new SqlBinaryContext(SqlOperator.EQ, left, right);
+                    SqlExpression left = visit(methodCall.getExpr());
+                    SqlExpression right = visit(methodCall.getArgs().get(0));
+                    return factory.binary(SqlOperator.EQ, left, right);
                 }
                 default:
                     return checkAndReturnValue(methodCall);
@@ -352,27 +365,19 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
             SqlOperator operator = operatorMethod.value();
             if (operator == SqlOperator.BETWEEN)
             {
-                SqlContext min = visit(args.get(1));
-                SqlContext max = visit(args.get(2));
-                SqlBinaryContext and = new SqlBinaryContext(SqlOperator.AND, min, max);
-                return new SqlBinaryContext(operator, visit(args.get(0)), and);
+                return factory.between(visit(args.get(0)), visit(args.get(1)), visit(args.get(2)));
             }
-//            else if (operator == SqlOperator.EXISTS)
-//            {
-//                QueryBase query = (QueryBase)args.get(0).getValue();
-//                return new SqlUnaryContext(operator,new SqlParensContext(new SqlVirtualTableContext(query.getSqlBuilder())));
-//            }
             else
             {
                 if (operator.isLeft() || operator == SqlOperator.POSTINC || operator == SqlOperator.POSTDEC)
                 {
-                    return new SqlUnaryContext(operator, visit(methodCall.getArgs().get(0)));
+                    return factory.unary(operator, visit(args.get(0)));
                 }
                 else
                 {
-                    SqlContext left = visit(methodCall.getArgs().get(0));
-                    SqlContext right = visit(methodCall.getArgs().get(1));
-                    return new SqlBinaryContext(operator, left, right);
+                    SqlExpression left = visit(methodCall.getArgs().get(0));
+                    SqlExpression right = visit(methodCall.getArgs().get(1));
+                    return factory.binary(operator, left, right);
                 }
             }
         }
@@ -384,7 +389,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 int index = parameters.indexOf(parameter) + offset;
                 Method getter = methodCall.getMethod();
                 MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
-                return new SqlPropertyContext(metaData.getPropertyMetaDataByGetter(getter), index);
+                return factory.column(metaData.getPropertyMetaDataByGetter(getter), index);
             }
             else if (isSetter(methodCall.getMethod()))
             {
@@ -392,9 +397,9 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
                 int index = parameters.indexOf(parameter) + offset;
                 Method setter = methodCall.getMethod();
                 MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
-                SqlPropertyContext propertyContext = new SqlPropertyContext(metaData.getPropertyMetaDataBySetter(setter), index);
-                SqlContext context = visit(methodCall.getArgs().get(0));
-                return new SqlSetContext(propertyContext, context);
+                SqlColumnExpression columnExpression = factory.column(metaData.getPropertyMetaDataBySetter(setter), index);
+                SqlExpression value = visit(methodCall.getArgs().get(0));
+                return factory.set(columnExpression, value);
             }
             else
             {
@@ -408,11 +413,11 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     }
 
     @Override
-    public SqlContext visit(BinaryExpression binary)
+    public SqlExpression visit(BinaryExpression binary)
     {
         Expression left = binary.getLeft();
         Expression right = binary.getRight();
-        return new SqlBinaryContext(
+        return factory.binary(
                 SqlOperator.valueOf(binary.getOperatorType().name()),
                 visit(left),
                 visit(right)
@@ -420,56 +425,54 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
     }
 
     @Override
-    public SqlContext visit(UnaryExpression unary)
+    public SqlExpression visit(UnaryExpression unary)
     {
-        return new SqlUnaryContext(
+        return factory.unary(
                 SqlOperator.valueOf(unary.getOperatorType().name()),
-                isNotAndHasntParens(unary)
-                        ? new SqlParensContext(visit(unary.getOperand()))
-                        : visit(unary.getOperand())
+                visit(unary.getOperand())
         );
     }
 
     @Override
-    public SqlContext visit(ParensExpression parens)
+    public SqlExpression visit(ParensExpression parens)
     {
-        return new SqlParensContext(visit(parens.getExpr()));
+        return factory.parens(visit(parens.getExpr()));
     }
 
     @Override
-    public SqlContext visit(StaticClassExpression staticClass)
+    public SqlExpression visit(StaticClassExpression staticClass)
     {
-        return new SqlTypeContext(staticClass.getType());
+        return factory.type(staticClass.getType());
     }
 
     @Override
-    public SqlContext visit(ConstantExpression constant)
+    public SqlExpression visit(ConstantExpression constant)
     {
-        return new SqlValueContext(constant.getValue());
+        return factory.value(constant.getValue());
     }
 
     @Override
-    public SqlContext visit(ReferenceExpression reference)
+    public SqlExpression visit(ReferenceExpression reference)
     {
-        return new SqlValueContext(reference.getValue());
+        return factory.AnyValue(reference.getValue());
     }
 
     protected abstract SqlVisitor getSelf();
 
-    protected SqlValueContext checkAndReturnValue(MethodCallExpression expression)
+    protected SqlValueExpression checkAndReturnValue(MethodCallExpression expression)
     {
         Method method = expression.getMethod();
         if (isVoid(method.getReturnType()) || hasParameter(expression))
         {
             throw new IllegalExpressionException(expression);
         }
-        return new SqlValueContext(expression.getValue());
+        return factory.AnyValue(expression.getValue());
     }
 
-    protected SqlValueContext checkAndReturnValue(FieldSelectExpression expression)
+    protected SqlValueExpression checkAndReturnValue(FieldSelectExpression expression)
     {
         if (hasParameter(expression)) throw new IllegalExpressionException(expression);
-        return new SqlValueContext(expression.getValue());
+        return factory.AnyValue(expression.getValue());
     }
 
     protected boolean hasParameter(Expression expression)
@@ -541,10 +544,5 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlContext>
         if (input.endsWith("}")) remainder.add("");
 
         return paramMatcher;
-    }
-
-    private boolean isNotAndHasntParens(UnaryExpression unary)
-    {
-        return unary.getOperatorType() == OperatorType.NOT && unary.getOperand().getKind() != Kind.Parens;
     }
 }

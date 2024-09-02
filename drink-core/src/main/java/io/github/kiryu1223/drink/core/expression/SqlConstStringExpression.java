@@ -1,14 +1,14 @@
-package io.github.kiryu1223.drink.core.context;
+package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.List;
 
-public class SqlConstString extends SqlContext
+public class SqlConstStringExpression extends SqlExpression
 {
     private final String string;
 
-    public SqlConstString(String string)
+    public SqlConstStringExpression(String string)
     {
         this.string = string;
     }

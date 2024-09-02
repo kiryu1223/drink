@@ -3,20 +3,26 @@ package io.github.kiryu1223.drink.core.expression;
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class SqlGroupByExpression extends SqlExpression
 {
-    private final List<SqlColumnExpression> columns;
+    private LinkedHashMap<String, SqlExpression> columns;
 
-    public SqlGroupByExpression(List<SqlColumnExpression> columns)
+    public SqlGroupByExpression(LinkedHashMap<String, SqlExpression> columns)
     {
         this.columns = columns;
     }
 
-    public void addColumn(SqlColumnExpression column)
+    public void setColumns(LinkedHashMap<String, SqlExpression> columns)
     {
-        columns.add(column);
+        this.columns = columns;
+    }
+
+    public LinkedHashMap<String, SqlExpression> getColumns()
+    {
+        return columns;
     }
 
     @Override
@@ -24,7 +30,7 @@ public class SqlGroupByExpression extends SqlExpression
     {
         if (columns.isEmpty()) return "";
         List<String> strings = new ArrayList<>();
-        for (SqlColumnExpression column : columns)
+        for (SqlExpression column : columns.values())
         {
             strings.add(column.getSqlAndValue(config, values));
         }
@@ -36,7 +42,7 @@ public class SqlGroupByExpression extends SqlExpression
     {
         if (columns.isEmpty()) return "";
         List<String> strings = new ArrayList<>();
-        for (SqlColumnExpression column : columns)
+        for (SqlExpression column : columns.values())
         {
             strings.add(column.getSql(config));
         }

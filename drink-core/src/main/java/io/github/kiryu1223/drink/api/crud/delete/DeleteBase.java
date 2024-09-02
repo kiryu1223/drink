@@ -8,7 +8,6 @@ import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.context.SqlRealTableContext;
 import io.github.kiryu1223.drink.core.context.SqlTableContext;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

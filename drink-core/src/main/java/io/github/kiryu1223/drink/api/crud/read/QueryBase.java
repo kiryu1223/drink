@@ -6,17 +6,16 @@ import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.builder.IncludeSet;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
-import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.core.expression.*;
+import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
-import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
-import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
+import io.github.kiryu1223.drink.core.visitor.expression.NormalVisitor;
+import io.github.kiryu1223.drink.core.visitor.expression.SelectVisitor;
 import io.github.kiryu1223.drink.ext.IMappingTable;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -26,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,7 +43,7 @@ public abstract class QueryBase extends CRUD
 
     public QueryBase(QuerySqlBuilder sqlBuilder)
     {
-        this.sqlBuilder = new QuerySqlBuilder(sqlBuilder.getConfig(),sqlBuilder.getQueryable());
+        this.sqlBuilder = sqlBuilder;
     }
 
     protected QuerySqlBuilder getSqlBuilder()
@@ -146,7 +146,7 @@ public abstract class QueryBase extends CRUD
 
     protected boolean select(LambdaExpression<?> lambda)
     {
-        SelectVisitor selectVisitor = new SelectVisitor(getSqlBuilder().getGroupBy(), getConfig());
+        SelectVisitor selectVisitor = new SelectVisitor(sqlBuilder.getQueryable().getGroupBy(), getConfig());
         SqlContext context = selectVisitor.visit(lambda);
         boolean isSingle = !(context instanceof SqlSelectorContext);
         getSqlBuilder().setSelect(context, lambda.getReturnType());
@@ -192,67 +192,70 @@ public abstract class QueryBase extends CRUD
 
     protected void join(JoinType joinType, Class<?> target, ExprTree<?> expr)
     {
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext onContext = normalVisitor.visit(expr.getTree());
-        SqlTableContext tableContext = new SqlRealTableContext(target);
-        sqlBuilder.addJoin(joinType, tableContext, onContext);
+        SqlExpression on = normalVisitor.visit(expr.getTree());
+        sqlBuilder.addJoin(joinType, factory.table(target), on);
     }
 
     protected void join(JoinType joinType, QueryBase target, ExprTree<?> expr)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext onContext = normalVisitor.visit(expr.getTree());
-        SqlTableContext tableContext = new SqlVirtualTableContext(target.getSqlBuilder());
-        getSqlBuilder().addJoin(joinType, tableContext, onContext);
+        SqlExpression on = normalVisitor.visit(expr.getTree());
+        sqlBuilder.addJoin(joinType, target.getSqlBuilder().getQueryable(), on);
     }
 
     protected void where(LambdaExpression<?> lambda)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext where = normalVisitor.visit(lambda);
-        getSqlBuilder().addWhere(where);
+        SqlExpression where = normalVisitor.visit(lambda);
+        sqlBuilder.addWhere(where);
     }
 
     protected void orWhere(LambdaExpression<?> lambda)
     {
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext right = normalVisitor.visit(lambda);
-        getSqlBuilder().addOrWhere(right);
+        SqlExpression where = normalVisitor.visit(lambda);
+        sqlBuilder.addWhere(factory.unary(SqlOperator.OR, where));
     }
 
     protected void exists(Class<?> table, LambdaExpression<?> lambda, boolean not)
     {
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext where = normalVisitor.visit(lambda);
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), new SqlRealTableContext(table), sqlBuilder.getOrderedClass().size());
-        querySqlBuilder.setSelect(new SqlConstString("1"), table);
+        SqlExpression where = normalVisitor.visit(lambda);
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), table, sqlBuilder.getQueryable().getNextIndex());
+        querySqlBuilder.setSelect(factory.select(Collections.singletonList(factory.constString("1")), table, true));
         querySqlBuilder.addWhere(where);
-        SqlUnaryContext exists = new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder)));
+        SqlUnaryExpression exists = factory.unary(SqlOperator.EXISTS, querySqlBuilder.getQueryable());
         if (not)
         {
-            getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.NOT, exists));
+            sqlBuilder.addWhere(factory.unary(SqlOperator.NOT, exists));
         }
         else
         {
-            getSqlBuilder().addWhere(exists);
+            sqlBuilder.addWhere(exists);
         }
     }
 
     protected void exists(QueryBase queryBase, LambdaExpression<?> lambda, boolean not)
     {
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext where = normalVisitor.visit(lambda);
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), new SqlVirtualTableContext(queryBase.getSqlBuilder()), sqlBuilder.getOrderedClass().size());
-        querySqlBuilder.setSelect(new SqlConstString("1"), queryBase.getSqlBuilder().getTargetClass());
+        SqlExpression where = normalVisitor.visit(lambda);
+        SqlQueryableExpression queryable = queryBase.getSqlBuilder().getQueryable();
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(),queryable, sqlBuilder.getQueryable().getNextIndex());
+        querySqlBuilder.setSelect(factory.select(Collections.singletonList(factory.constString("1")), queryable.getTableClass(), true));
         querySqlBuilder.addWhere(where);
-        SqlUnaryContext exists = new SqlUnaryContext(SqlOperator.EXISTS, new SqlParensContext(new SqlVirtualTableContext(querySqlBuilder)));
+        SqlUnaryExpression exists = factory.unary(SqlOperator.EXISTS, querySqlBuilder.getQueryable());
         if (not)
         {
-            getSqlBuilder().addWhere(new SqlUnaryContext(SqlOperator.NOT, exists));
+            sqlBuilder.addWhere(factory.unary(SqlOperator.NOT, exists));
         }
         else
         {
-            getSqlBuilder().addWhere(exists);
+            sqlBuilder.addWhere(exists);
         }
     }
 

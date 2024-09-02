@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.annotation;
 
-import io.github.kiryu1223.drink.core.context.SqlOperator;
+import io.github.kiryu1223.drink.core.expression.SqlOperator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

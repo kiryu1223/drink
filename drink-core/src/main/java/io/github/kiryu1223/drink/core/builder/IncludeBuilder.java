@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.core.builder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.core.expression.SqlOperator;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
@@ -16,7 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
+import static io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil.cast;
 
 public class IncludeBuilder<T>
 {

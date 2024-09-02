@@ -1,10 +1,8 @@
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.JoinType;
 import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
-import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 import java.util.List;
 
@@ -14,18 +12,26 @@ public class QuerySqlBuilder implements ISqlBuilder
     private final SqlQueryableExpression queryable;
     private boolean isChanged;
 
+    public QuerySqlBuilder(Config config, Class<?> target, int offset)
+    {
+        this(config, config.getSqlExpressionFactory().table(target), offset);
+    }
+
     public QuerySqlBuilder(Config config, Class<?> target)
     {
-        this.config = config;
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        queryable = factory.queryable(target);
+        this(config, config.getSqlExpressionFactory().table(target), 0);
     }
 
     public QuerySqlBuilder(Config config, SqlTableExpression target)
     {
+        this(config, target, 0);
+    }
+
+    public QuerySqlBuilder(Config config, SqlTableExpression target, int offset)
+    {
         this.config = config;
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        queryable = factory.queryable(factory.from(target));
+        queryable = factory.queryable(factory.from(target, offset));
     }
 
     public void addWhere(SqlExpression cond)
@@ -34,17 +40,17 @@ public class QuerySqlBuilder implements ISqlBuilder
         change();
     }
 
-    public void addJoin(JoinType joinType, Class<?> target, SqlConditionsExpression conditions)
+    public void addJoin(JoinType joinType, SqlTableExpression table, SqlExpression conditions)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        SqlJoinExpression join = factory.join(joinType, factory.table(target), conditions, queryable.getNextIndex());
+        SqlJoinExpression join = factory.join(joinType, table, conditions, queryable.getNextIndex());
         queryable.addJoin(join);
         change();
     }
 
-    public void addGroup(SqlColumnExpression column)
+    public void addGroup(SqlGroupByExpression group)
     {
-        queryable.addGroup(column);
+        queryable.setGroup(group);
         change();
     }
 
@@ -60,15 +66,15 @@ public class QuerySqlBuilder implements ISqlBuilder
         change();
     }
 
-    public void setSelect(List<SqlExpression> columns, Class<?> target, boolean isSingle)
+    public void setSelect(SqlSelectExpression select)
     {
-        queryable.setSelect(columns, target, isSingle);
+        queryable.setSelect(select);
         change();
     }
 
     public void setLimit(long offset, long rows)
     {
-        queryable.setLimit(offset,rows);
+        queryable.setLimit(offset, rows);
         change();
     }
 
@@ -171,7 +177,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 //        }
 //        else
 //        {
-//            this.from = new SqlAsTableNameContext(startIndex, new SqlParensContext(tableContext));
+//            this.from = new SqlAsTableNameContext(startIndex, new SqlParensExpression(tableContext));
 //        }
 //        orderedClass.add(tableContext.getTableClass());
 //        this.targetClass = tableContext.getTableClass();
@@ -267,7 +273,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 ////    public void addFrom(QuerySqlBuilder sqlBuilder)
 ////    {
 ////        SqlTableContext sqlTableContext = new SqlVirtualTableContext(sqlBuilder);
-////        SqlParensContext sqlParensContext = new SqlParensContext(sqlTableContext);
+////        SqlParensExpression sqlParensContext = new SqlParensExpression(sqlTableContext);
 ////        from.add(new SqlAsTableNameContext(from.size() + moveCount, sqlParensContext));
 ////        orderedClass.addAll(sqlBuilder.orderedClass);
 ////        if (targetClass == null)
@@ -291,7 +297,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 //                new SqlAsTableNameContext(startIndex + 1 + joins.size(),
 //                        tableContext instanceof SqlRealTableContext
 //                                ? tableContext :
-//                                new SqlParensContext(tableContext)),
+//                                new SqlParensExpression(tableContext)),
 //                onContext
 //        );
 //        joins.add(joinContext);
@@ -388,12 +394,12 @@ public class QuerySqlBuilder implements ISqlBuilder
 //        else if (context instanceof SqlAsTableNameContext)
 //        {
 //            SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
-//            return unbox(sqlAsTableNameContext.getContext());
+//            return unbox(sqlAsTableNameContext.getExpression());
 //        }
-//        else if (context instanceof SqlParensContext)
+//        else if (context instanceof SqlParensExpression)
 //        {
-//            SqlParensContext parensContext = (SqlParensContext) context;
-//            return unbox(parensContext.getContext());
+//            SqlParensExpression parensContext = (SqlParensExpression) context;
+//            return unbox(parensContext.getExpression());
 //        }
 //        else
 //        {

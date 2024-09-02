@@ -1,10 +1,6 @@
 package io.github.kiryu1223.drink.core.expression;
 
-import io.github.kiryu1223.drink.api.crud.create.SqlValue;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlPropertyContext;
-import io.github.kiryu1223.drink.core.context.SqlValueContext;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
 import java.util.List;
@@ -25,10 +21,10 @@ public class SqlSetExpression extends SqlExpression
     {
         String set = column.getSqlAndValue(config, values) + " = ";
         PropertyMetaData propertyMetaData = column.getPropertyMetaData();
-        if (propertyMetaData.hasConverter() && value instanceof SqlValueExpression)
+        if (propertyMetaData.hasConverter() && value instanceof SqlSingleValueExpression)
         {
-            SqlValueExpression sqlValueExpression = (SqlValueExpression) value;
-            return set + sqlValueExpression.getSqlAndValue(config, values, propertyMetaData.getConverter(), propertyMetaData);
+            SqlSingleValueExpression sqlSingleValueExpression = (SqlSingleValueExpression) value;
+            return set + sqlSingleValueExpression.getSqlAndValue(config, values, propertyMetaData.getConverter(), propertyMetaData);
         }
         else
         {

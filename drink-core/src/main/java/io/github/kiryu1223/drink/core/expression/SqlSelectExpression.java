@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
@@ -16,7 +17,6 @@ public class SqlSelectExpression extends SqlExpression
 
     public SqlSelectExpression(Class<?> target)
     {
-        this.columns = getColumnByClass(target);
         this.target = target;
         this.isSingle = false;
     }
@@ -45,6 +45,11 @@ public class SqlSelectExpression extends SqlExpression
         return isSingle;
     }
 
+    public Class<?> getTarget()
+    {
+        return target;
+    }
+
     public void setColumns(List<SqlExpression> columns)
     {
         this.columns = columns;
@@ -63,6 +68,7 @@ public class SqlSelectExpression extends SqlExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
+        getColumnByClass(config);
         List<String> strings = new ArrayList<>(columns.size());
         for (SqlExpression sqlExpression : columns)
         {
@@ -74,6 +80,7 @@ public class SqlSelectExpression extends SqlExpression
     @Override
     public String getSql(Config config)
     {
+        getColumnByClass(config);
         List<String> strings = new ArrayList<>(columns.size());
         for (SqlExpression sqlExpression : columns)
         {
@@ -82,14 +89,18 @@ public class SqlSelectExpression extends SqlExpression
         return "SELECT " + String.join(",", strings);
     }
 
-    private static List<SqlExpression> getColumnByClass(Class<?> target)
+    private void getColumnByClass(Config config)
     {
-        MetaData metaData = MetaDataCache.getMetaData(target);
-        List<SqlExpression> sqlExpressions = new ArrayList<>();
-        for (PropertyMetaData data : metaData.getNotIgnorePropertys())
+        if (columns == null)
         {
-            sqlExpressions.add(new SqlColumnExpression(data, 0));
+            SqlExpressionFactory factory = config.getSqlExpressionFactory();
+            MetaData metaData = MetaDataCache.getMetaData(target);
+            List<PropertyMetaData> property = metaData.getNotIgnorePropertys();
+            columns = new ArrayList<>(property.size());
+            for (PropertyMetaData data : property)
+            {
+                columns.add(factory.column(data, 0));
+            }
         }
-        return sqlExpressions;
     }
 }

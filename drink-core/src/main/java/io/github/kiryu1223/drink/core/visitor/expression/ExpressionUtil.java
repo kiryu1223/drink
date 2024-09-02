@@ -1,12 +1,8 @@
-package io.github.kiryu1223.drink.core.visitor;
+package io.github.kiryu1223.drink.core.visitor.expression;
 
 import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IGroup;
-import io.github.kiryu1223.drink.core.context.SqlAsNameContext;
-import io.github.kiryu1223.drink.core.context.SqlAsTableNameContext;
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlParensContext;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -94,25 +90,25 @@ public class ExpressionUtil
         return original;
     }
 
-    public static SqlContext unBox(SqlContext context)
-    {
-        if (context instanceof SqlAsNameContext)
-        {
-            SqlAsNameContext sqlAsNameContext = (SqlAsNameContext) context;
-            return unBox(sqlAsNameContext.getContext());
-        }
-        else if (context instanceof SqlAsTableNameContext)
-        {
-            SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
-            return unBox(sqlAsTableNameContext.getContext());
-        }
-        else if (context instanceof SqlParensContext)
-        {
-            SqlParensContext sqlParensContext = (SqlParensContext) context;
-            return unBox(sqlParensContext.getContext());
-        }
-        return context;
-    }
+//    public static SqlContext unBox(SqlContext context)
+//    {
+//        if (context instanceof SqlAsNameContext)
+//        {
+//            SqlAsNameContext sqlAsNameContext = (SqlAsNameContext) context;
+//            return unBox(sqlAsNameContext.getContext());
+//        }
+//        else if (context instanceof SqlAsTableNameContext)
+//        {
+//            SqlAsTableNameContext sqlAsTableNameContext = (SqlAsTableNameContext) context;
+//            return unBox(sqlAsTableNameContext.getContext());
+//        }
+//        else if (context instanceof SqlParensContext)
+//        {
+//            SqlParensContext sqlParensContext = (SqlParensContext) context;
+//            return unBox(sqlParensContext.getContext());
+//        }
+//        return context;
+//    }
 
     public static <R> R cast(Object o)
     {

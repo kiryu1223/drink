@@ -1,7 +1,6 @@
-package io.github.kiryu1223.drink.core.visitor;
+package io.github.kiryu1223.drink.core.visitor.expression;
 
 import io.github.kiryu1223.drink.config.Config;
-
 
 public class NormalVisitor extends SqlVisitor
 {

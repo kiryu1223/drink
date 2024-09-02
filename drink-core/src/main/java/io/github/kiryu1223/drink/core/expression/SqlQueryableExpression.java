@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class SqlQueryableExpression extends SqlTableExpression
@@ -24,9 +25,9 @@ public class SqlQueryableExpression extends SqlTableExpression
         SqlExpressionFactory sqlExpressionFactory = config.getSqlExpressionFactory();
         this.select = sqlExpressionFactory.select(getTableClass());
         this.joins = sqlExpressionFactory.Joins(new ArrayList<>());
-        this.where = sqlExpressionFactory.where(sqlExpressionFactory.Condition(new ArrayList<>()));
-        this.groupBy = sqlExpressionFactory.groupBy(new ArrayList<>());
-        this.having = sqlExpressionFactory.having(sqlExpressionFactory.Condition(new ArrayList<>()));
+        this.where = sqlExpressionFactory.where(sqlExpressionFactory.condition(new ArrayList<>()));
+        this.groupBy = sqlExpressionFactory.groupBy(new LinkedHashMap<>());
+        this.having = sqlExpressionFactory.having(sqlExpressionFactory.condition(new ArrayList<>()));
         this.orderBy = sqlExpressionFactory.orderBy(new ArrayList<>());
         this.limit = sqlExpressionFactory.limit();
     }
@@ -85,9 +86,9 @@ public class SqlQueryableExpression extends SqlTableExpression
         joins.addJoin(join);
     }
 
-    public void addGroup(SqlColumnExpression column)
+    public void setGroup(SqlGroupByExpression group)
     {
-        groupBy.addColumn(column);
+        groupBy.setColumns(group.getColumns());
     }
 
     public void addHaving(SqlExpression cond)
@@ -100,11 +101,11 @@ public class SqlQueryableExpression extends SqlTableExpression
         orderBy.addOrder(order);
     }
 
-    public void setSelect(List<SqlExpression> columns, Class<?> target, boolean isSingle)
+    public void setSelect(SqlSelectExpression newSelect)
     {
-        select.setColumns(columns);
-        select.setTarget(target);
-        select.setSingle(isSingle);
+        select.setColumns(newSelect.getColumns());
+        select.setTarget(newSelect.getTarget());
+        select.setSingle(newSelect.isSingle());
     }
 
     public void setLimit(long offset, long rows)
@@ -131,5 +132,15 @@ public class SqlQueryableExpression extends SqlTableExpression
     public int getNextIndex()
     {
         return 1 + joins.getJoins().size();
+    }
+
+    public SqlWhereExpression getWhere()
+    {
+        return where;
+    }
+
+    public SqlGroupByExpression getGroupBy()
+    {
+        return groupBy;
     }
 }
