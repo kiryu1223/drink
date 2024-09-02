@@ -143,4 +143,9 @@ public class SqlQueryableExpression extends SqlTableExpression
     {
         return groupBy;
     }
+
+    public SqlJoinsExpression getJoins()
+    {
+        return joins;
+    }
 }

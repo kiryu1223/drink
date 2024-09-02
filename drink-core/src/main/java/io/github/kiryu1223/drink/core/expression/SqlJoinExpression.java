@@ -19,6 +19,11 @@ public class SqlJoinExpression extends SqlExpression
         this.index = index;
     }
 
+    public SqlTableExpression getJoinTable()
+    {
+        return joinTable;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
