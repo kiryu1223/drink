@@ -10,7 +10,7 @@ public class SqlCollectedValueExpression extends SqlValueExpression
 {
     private final Collection<Object> collection;
 
-    public SqlCollectedValueExpression(Collection<Object> collection)
+    SqlCollectedValueExpression(Collection<Object> collection)
     {
         this.collection = collection;
     }

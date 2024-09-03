@@ -10,7 +10,7 @@ public class SqlSetExpression extends SqlExpression
     private final SqlColumnExpression column;
     private final SqlExpression value;
 
-    public SqlSetExpression(SqlColumnExpression column, SqlExpression value)
+    SqlSetExpression(SqlColumnExpression column, SqlExpression value)
     {
         this.column = column;
         this.value = value;

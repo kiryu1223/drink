@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil.cast;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
 public abstract class InsertBase extends CRUD
 {

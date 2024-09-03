@@ -1,7 +1,6 @@
-package io.github.kiryu1223.drink.core.expression.ext;
+package io.github.kiryu1223.drink.core.expression.ext.oracle;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlFromExpression;
 import io.github.kiryu1223.drink.core.expression.SqlRealTableExpression;
 import io.github.kiryu1223.drink.core.expression.SqlTableExpression;

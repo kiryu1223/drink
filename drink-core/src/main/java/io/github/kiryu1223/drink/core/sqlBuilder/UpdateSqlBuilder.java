@@ -2,52 +2,59 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.dialect.IDialect;
+import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.core.context.*;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
+import io.github.kiryu1223.drink.core.visitor.SetVisitor;
+import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class UpdateSqlBuilder implements ISqlBuilder
 {
     private final Config config;
-    private final List<SqlJoinContext> joins = new ArrayList<>();
-    private final List<SqlContext> sets = new ArrayList<>();
-    private final List<SqlContext> wheres = new ArrayList<>();
-    private Class<?> mainTable;
+    private final SqlJoinsExpression joins;
+    private final SqlSetsExpression sets;
+    private final SqlWhereExpression wheres;
+    private final Class<?> target;
+    private final SqlExpressionFactory factory;
 
-    public UpdateSqlBuilder(Config config)
+    public UpdateSqlBuilder(Config config, Class<?> target)
     {
         this.config = config;
+        this.target = target;
+        factory = config.getSqlExpressionFactory();
+        joins = factory.Joins();
+        sets = factory.sets();
+        wheres = factory.where(factory.condition());
     }
 
-    public void setMainTable(Class<?> mainTable)
+    public void addJoin(Class<?> target, JoinType joinType, SqlTableExpression table, SqlExpression on)
     {
-        this.mainTable = mainTable;
-    }
-
-    public void addJoin(Class<?> target, JoinType joinType, SqlTableContext tableContext, SqlContext onContext)
-    {
-        SqlJoinContext joinContext = new SqlJoinContext(
+        SqlJoinExpression join = factory.join(
                 joinType,
-                new SqlAsTableNameContext(1 + joins.size(),
-                        tableContext instanceof SqlRealTableContext
-                                ? tableContext :
-                                new SqlParensContext(tableContext)),
-                onContext
+                table,
+                on, 1 + joins.getJoins().size()
         );
-        joins.add(joinContext);
+        joins.addJoin(join);
     }
 
-    public void addSet(SqlContext set)
+    public void addSet(SqlSetsExpression set)
     {
-        sets.add(set);
+        sets.addSet(set.getSets());
     }
 
-    public void addWhere(SqlContext where)
+    public void addSet(SqlSetExpression set)
     {
-        wheres.add(where);
+        sets.addSet(set);
+    }
+
+    public void addWhere(SqlExpression where)
+    {
+        wheres.addCond(where);
     }
 
     public boolean hasWhere()
@@ -58,13 +65,13 @@ public class UpdateSqlBuilder implements ISqlBuilder
     @Override
     public String getSql()
     {
-        return makeUpdate() + makeJoin() + makeSet() + makeWhere();
+        return makeUpdate();
     }
 
     @Override
     public String getSqlAndValue(List<Object> values)
     {
-        return makeUpdate() + makeJoin(values) + makeSet(values) + makeWhere(values);
+        return makeUpdate();
     }
 
     public Config getConfig()
@@ -74,72 +81,45 @@ public class UpdateSqlBuilder implements ISqlBuilder
 
     private String makeUpdate()
     {
-        MetaData metaData = MetaDataCache.getMetaData(mainTable);
+        MetaData metaData = MetaDataCache.getMetaData(target);
         IDialect dbConfig = config.getDisambiguation();
-        return "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
+        String sql = "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
+        StringBuilder sb = new StringBuilder();
+        sb.append(sql);
+        String joinsSqlAndValue = joins.getSql(config);
+        if (!joinsSqlAndValue.isEmpty())
+        {
+            sb.append(" ").append(joinsSqlAndValue);
+        }
+        String setsSqlAndValue = sets.getSql(config);
+        sb.append(" ").append(setsSqlAndValue);
+        String wheresSqlAndValue = wheres.getSql(config);
+        if (!wheresSqlAndValue.isEmpty())
+        {
+            sb.append(" ").append(wheresSqlAndValue);
+        }
+        return sb.toString();
     }
 
-    private String makeJoin(List<Object> values)
+    private String makeUpdate(List<Object> values)
     {
-        if (joins.isEmpty()) return "";
-        List<String> joinStr = new ArrayList<>(joins.size());
-        for (SqlContext context : joins)
+        MetaData metaData = MetaDataCache.getMetaData(target);
+        IDialect dbConfig = config.getDisambiguation();
+        String sql = "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
+        List<String> sb = new ArrayList<>();
+        sb.add(sql);
+        String joinsSqlAndValue = joins.getSqlAndValue(config, values);
+        if (!joinsSqlAndValue.isEmpty())
         {
-            joinStr.add(context.getSqlAndValue(config, values));
+            sb.add(joinsSqlAndValue);
         }
-        return " " + String.join(",", joinStr);
-    }
-
-    private String makeJoin()
-    {
-        if (joins.isEmpty()) return "";
-        List<String> joinStr = new ArrayList<>(joins.size());
-        for (SqlContext context : joins)
+        String setsSqlAndValue = sets.getSqlAndValue(config, values);
+        sb.add(setsSqlAndValue);
+        String wheresSqlAndValue = wheres.getSqlAndValue(config, values);
+        if (!wheresSqlAndValue.isEmpty())
         {
-            joinStr.add(context.getSql(config));
+            sb.add(wheresSqlAndValue);
         }
-        return " " + String.join(",", joinStr);
-    }
-
-    private String makeSet()
-    {
-        List<String> strings = new ArrayList<>();
-        for (SqlContext set : sets)
-        {
-            strings.add(set.getSql(config));
-        }
-        return " SET " + String.join(",", strings);
-    }
-
-    private String makeSet(List<Object> values)
-    {
-        List<String> strings = new ArrayList<>();
-        for (SqlContext set : sets)
-        {
-            strings.add(set.getSqlAndValue(config, values));
-        }
-        return " SET " + String.join(",", strings);
-    }
-
-    private String makeWhere()
-    {
-        if (wheres.isEmpty()) return "";
-        List<String> whereStr = new ArrayList<>(wheres.size());
-        for (SqlContext context : wheres)
-        {
-            whereStr.add(context.getSql(config));
-        }
-        return " WHERE " + String.join(" AND ", whereStr);
-    }
-
-    private String makeWhere(List<Object> values)
-    {
-        if (wheres.isEmpty()) return "";
-        List<String> whereStr = new ArrayList<>(wheres.size());
-        for (SqlContext context : wheres)
-        {
-            whereStr.add(context.getSqlAndValue(config, values));
-        }
-        return " WHERE " + String.join(" AND ", whereStr);
+        return String.join(" ", sb);
     }
 }

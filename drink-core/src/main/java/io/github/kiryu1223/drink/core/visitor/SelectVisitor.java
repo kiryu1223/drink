@@ -1,9 +1,9 @@
-package io.github.kiryu1223.drink.core.visitor.expression;
+package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.core.expression.SqlGroupByExpression;
+import io.github.kiryu1223.drink.core.expression.SqlQueryableExpression;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
@@ -14,17 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil.isGroupKey;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isGroupKey;
 
 public class SelectVisitor extends SqlVisitor
 {
-    private ParameterExpression cur;
-    private final SqlGroupByExpression group;
+    private final SqlQueryableExpression queryable;
 
-    public SelectVisitor(SqlGroupByExpression group, Config config)
+    public SelectVisitor(Config config, SqlQueryableExpression queryable)
     {
         super(config);
-        this.group = group;
+        this.queryable = queryable;
     }
 
     @Override
@@ -40,9 +39,12 @@ public class SelectVisitor extends SqlVisitor
                 VariableExpression variable = (VariableExpression) expression;
                 String name = variable.getName();
                 MetaData metaData = MetaDataCache.getMetaData(newExpression.getType());
-                //propertyMetaData.add(metaData.getPropertyMetaData(name));
-                SqlExpression context = visit(variable.getInit());
-                setAs(expressions, context, name);
+                Expression init = variable.getInit();
+                if (init != null)
+                {
+                    SqlExpression context = visit(variable.getInit());
+                    setAs(expressions, context, name);
+                }
             }
         }
         return factory.select(expressions, newExpression.getType());
@@ -88,11 +90,11 @@ public class SelectVisitor extends SqlVisitor
     {
         if (isGroupKey(parameters, fieldSelect)) // g.key
         {
-            return group;
+            return queryable.getGroupBy().getColumns().get("key");
         }
         else if (isGroupKey(parameters, fieldSelect.getExpr())) // g.key.xxx
         {
-            Map<String, SqlExpression> columns = group.getColumns();
+            Map<String, SqlExpression> columns = queryable.getGroupBy().getColumns();
             return columns.get(fieldSelect.getField().getName());
         }
         else
@@ -104,7 +106,7 @@ public class SelectVisitor extends SqlVisitor
     @Override
     protected SqlVisitor getSelf()
     {
-        return new SelectVisitor(group, config);
+        return new SelectVisitor(config, queryable);
     }
 
     @Override

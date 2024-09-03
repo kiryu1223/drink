@@ -1,9 +1,9 @@
-package io.github.kiryu1223.drink.core.expression.ext;
+package io.github.kiryu1223.drink.core.expression.ext.oracle;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlFromExpression;
 import io.github.kiryu1223.drink.core.expression.SqlTableExpression;
-import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 
 public class OracleSqlExpressionFactory extends SqlExpressionFactory
 {

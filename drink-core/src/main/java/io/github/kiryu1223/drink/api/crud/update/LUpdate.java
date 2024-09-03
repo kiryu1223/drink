@@ -2,8 +2,12 @@ package io.github.kiryu1223.drink.api.crud.update;
 
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.expression.JoinType;
+import io.github.kiryu1223.drink.core.expression.SqlExpression;
+import io.github.kiryu1223.drink.core.expression.SqlSetExpression;
+import io.github.kiryu1223.drink.core.expression.SqlSetsExpression;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
+import io.github.kiryu1223.drink.core.visitor.SetVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
@@ -16,8 +20,7 @@ public class LUpdate<T> extends UpdateBase
     // region [INIT]
     public LUpdate(Config config, Class<T> t)
     {
-        super(config);
-        getSqlBuilder().setMainTable(t);
+        super(config, t);
     }
     // endregion
 
@@ -64,9 +67,7 @@ public class LUpdate<T> extends UpdateBase
 
     public LUpdate<T> set(ExprTree<Action1<T>> expr)
     {
-        SetVisitor setVisitor = new SetVisitor(getConfig());
-        SqlContext context = setVisitor.visit(expr.getTree());
-        getSqlBuilder().addSet(context);
+        set(expr.getTree());
         return this;
     }
     //endregion
@@ -80,9 +81,7 @@ public class LUpdate<T> extends UpdateBase
 
     public LUpdate<T> where(ExprTree<Func1<T, Boolean>> expr)
     {
-        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext context = normalVisitor.visit(expr.getTree());
-        getSqlBuilder().addWhere(context);
+        where(expr.getTree());
         return this;
     }
 

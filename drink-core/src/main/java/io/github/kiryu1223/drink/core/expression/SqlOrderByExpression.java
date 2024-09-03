@@ -7,16 +7,25 @@ import java.util.List;
 
 public class SqlOrderByExpression extends SqlExpression
 {
-    private final List<SqlOrderExpression> sqlOrders;
+    protected final List<SqlOrderExpression> sqlOrders = new ArrayList<>();
 
-    public SqlOrderByExpression(List<SqlOrderExpression> sqlOrders)
+    SqlOrderByExpression()
     {
-        this.sqlOrders = sqlOrders;
     }
 
     public void addOrder(SqlOrderExpression sqlOrder)
     {
         sqlOrders.add(sqlOrder);
+    }
+
+    public List<SqlOrderExpression> getSqlOrders()
+    {
+        return sqlOrders;
+    }
+
+    public boolean isEmpty()
+    {
+        return sqlOrders.isEmpty();
     }
 
     @Override

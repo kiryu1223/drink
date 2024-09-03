@@ -1,11 +1,14 @@
 package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SqlQueryableExpression extends SqlTableExpression
 {
@@ -19,16 +22,16 @@ public class SqlQueryableExpression extends SqlTableExpression
     private final SqlLimitExpression limit;
     private boolean distinct = false;
 
-    public SqlQueryableExpression(Config config, SqlFromExpression from)
+    SqlQueryableExpression(Config config, SqlFromExpression from)
     {
         this.from = from;
         SqlExpressionFactory sqlExpressionFactory = config.getSqlExpressionFactory();
         this.select = sqlExpressionFactory.select(getTableClass());
-        this.joins = sqlExpressionFactory.Joins(new ArrayList<>());
-        this.where = sqlExpressionFactory.where(sqlExpressionFactory.condition(new ArrayList<>()));
+        this.joins = sqlExpressionFactory.Joins();
+        this.where = sqlExpressionFactory.where(sqlExpressionFactory.condition());
         this.groupBy = sqlExpressionFactory.groupBy(new LinkedHashMap<>());
-        this.having = sqlExpressionFactory.having(sqlExpressionFactory.condition(new ArrayList<>()));
-        this.orderBy = sqlExpressionFactory.orderBy(new ArrayList<>());
+        this.having = sqlExpressionFactory.having(sqlExpressionFactory.condition());
+        this.orderBy = sqlExpressionFactory.orderBy();
         this.limit = sqlExpressionFactory.limit();
     }
 
@@ -42,12 +45,18 @@ public class SqlQueryableExpression extends SqlTableExpression
             strings.add("DISTINCT");
         }
         strings.add(from.getSqlAndValue(config, values));
-        strings.add(joins.getSqlAndValue(config, values));
-        strings.add(where.getSqlAndValue(config, values));
-        strings.add(groupBy.getSqlAndValue(config, values));
-        strings.add(having.getSqlAndValue(config, values));
-        strings.add(orderBy.getSqlAndValue(config, values));
-        strings.add(limit.getSqlAndValue(config, values));
+        String joinsSqlAndValue = joins.getSqlAndValue(config, values);
+        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
+        String whereSqlAndValue = where.getSqlAndValue(config, values);
+        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
+        String groupBySqlAndValue = groupBy.getSqlAndValue(config, values);
+        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
+        String havingSqlAndValue = having.getSqlAndValue(config, values);
+        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
+        String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
+        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
+        String limitSqlAndValue = limit.getSqlAndValue(config, values);
+        if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
         return String.join(" ", strings);
     }
 
@@ -61,12 +70,18 @@ public class SqlQueryableExpression extends SqlTableExpression
             strings.add("DISTINCT");
         }
         strings.add(from.getSql(config));
-        strings.add(joins.getSql(config));
-        strings.add(where.getSql(config));
-        strings.add(groupBy.getSql(config));
-        strings.add(having.getSql(config));
-        strings.add(orderBy.getSql(config));
-        strings.add(limit.getSql(config));
+        String joinsSqlAndValue = joins.getSql(config);
+        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
+        String whereSqlAndValue = where.getSql(config);
+        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
+        String groupBySqlAndValue = groupBy.getSql(config);
+        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
+        String havingSqlAndValue = having.getSql(config);
+        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
+        String orderBySqlAndValue = orderBy.getSql(config);
+        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
+        String limitSqlAndValue = limit.getSql(config);
+        if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
         return String.join(" ", strings);
     }
 
@@ -129,7 +144,7 @@ public class SqlQueryableExpression extends SqlTableExpression
         return from;
     }
 
-    public int getNextIndex()
+    public int getOrderedCount()
     {
         return 1 + joins.getJoins().size();
     }
@@ -147,5 +162,60 @@ public class SqlQueryableExpression extends SqlTableExpression
     public SqlJoinsExpression getJoins()
     {
         return joins;
+    }
+
+    public SqlSelectExpression getSelect()
+    {
+        return select;
+    }
+
+    public SqlOrderByExpression getOrderBy()
+    {
+        return orderBy;
+    }
+
+    public SqlLimitExpression getLimit()
+    {
+        return limit;
+    }
+
+    public List<Class<?>> getOrderedClass()
+    {
+        Class<?> tableClass = getTableClass();
+        List<Class<?>> collect = joins.getJoins().stream().map(j -> j.getJoinTable().getTableClass()).collect(Collectors.toList());
+        collect.add(0, tableClass);
+        return collect;
+    }
+
+    public List<PropertyMetaData> getMappingData(Config config)
+    {
+        List<Class<?>> orderedClass = getOrderedClass();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        Class<?> target = select.getTarget();
+        MetaData metaData = MetaDataCache.getMetaData(target);
+        if (orderedClass.contains(target))
+        {
+            return metaData.getNotIgnorePropertys();
+        }
+        else
+        {
+            List<PropertyMetaData> propertyMetaDataList = new ArrayList<>();
+            for (PropertyMetaData sel : metaData.getNotIgnorePropertys())
+            {
+                GOTO:
+                for (MetaData data : MetaDataCache.getMetaData(getOrderedClass()))
+                {
+                    for (PropertyMetaData noi : data.getNotIgnorePropertys())
+                    {
+                        if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType()))
+                        {
+                            propertyMetaDataList.add(sel);
+                            break GOTO;
+                        }
+                    }
+                }
+            }
+            return propertyMetaDataList;
+        }
     }
 }

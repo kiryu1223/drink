@@ -6,13 +6,13 @@ import java.util.List;
 
 public class SqlOrderExpression extends SqlExpression
 {
-    private final boolean asc;
     private final SqlExpression expression;
+    private final boolean asc;
 
-    public SqlOrderExpression(boolean asc, SqlExpression expression)
+    SqlOrderExpression(SqlExpression expression, boolean asc)
     {
-        this.asc = asc;
         this.expression = expression;
+        this.asc = asc;
     }
 
     @Override

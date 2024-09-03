@@ -3,15 +3,30 @@ package io.github.kiryu1223.drink.core.expression;
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class SqlSetsExpression extends SqlExpression
 {
-    private final List<SqlSetExpression> sets;
+    private final List<SqlSetExpression> sets=new ArrayList<>();
 
-    public SqlSetsExpression(List<SqlSetExpression> sets)
+    SqlSetsExpression()
     {
-        this.sets = sets;
+    }
+
+    public List<SqlSetExpression> getSets()
+    {
+        return sets;
+    }
+
+    public void addSet(SqlSetExpression set)
+    {
+        sets.add(set);
+    }
+
+    public void addSet(Collection<SqlSetExpression> set)
+    {
+        sets.addAll(set);
     }
 
     @Override

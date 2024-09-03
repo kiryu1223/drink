@@ -1,8 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
+import io.github.kiryu1223.drink.core.expression.JoinType;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
-import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action3;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
@@ -60,9 +59,7 @@ public class LUpdate3<T1, T2, T3> extends UpdateBase
 
     public LUpdate3<T1, T2, T3> set(ExprTree<Action3<T1, T2, T3>> expr)
     {
-        SetVisitor setVisitor = new SetVisitor(getConfig());
-        SqlContext context = setVisitor.visit(expr.getTree());
-        getSqlBuilder().addSet(context);
+        set(expr.getTree());
         return this;
     }
     //endregion
@@ -75,9 +72,7 @@ public class LUpdate3<T1, T2, T3> extends UpdateBase
 
     public LUpdate3<T1, T2, T3> where(ExprTree<Func3<T1, T2, T3, Boolean>> expr)
     {
-        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext context = normalVisitor.visit(expr.getTree());
-        getSqlBuilder().addWhere(context);
+        where(expr.getTree());
         return this;
     }
     //endregion

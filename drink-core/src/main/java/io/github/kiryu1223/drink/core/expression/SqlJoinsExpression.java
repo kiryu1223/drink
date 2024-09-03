@@ -7,11 +7,11 @@ import java.util.List;
 
 public class SqlJoinsExpression extends SqlExpression
 {
-    private final List<SqlJoinExpression> joins;
+    private final List<SqlJoinExpression> joins=new ArrayList<>();
 
-    public SqlJoinsExpression(List<SqlJoinExpression> joins)
+    SqlJoinsExpression()
     {
-        this.joins = joins;
+
     }
 
     public void addJoin(SqlJoinExpression join)
@@ -22,6 +22,11 @@ public class SqlJoinsExpression extends SqlExpression
     public List<SqlJoinExpression> getJoins()
     {
         return joins;
+    }
+
+    public boolean isEmpty()
+    {
+        return joins.isEmpty();
     }
 
     @Override

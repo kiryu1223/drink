@@ -72,7 +72,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "UTC_TIMESTAMP()")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "UTC_TIMESTAMP()")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(SYSTIMESTAMP AT TIME ZONE 'UTC')")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SYS_EXTRACT_UTC(SYSTIMESTAMP)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GETUTCDATE()")
     public static LocalDateTime utcNow()
     {
@@ -393,6 +393,26 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - TO_DATE({t2},'YYYY-MM-DD hh:mi:ss'),'DAY')) ELSE 0 END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
     public static int dateTimeDiff(SqlTimeUnit unit, String t1, String t2)
+    {
+        boom();
+        return 0;
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    public static int dateTimeDiff(SqlTimeUnit unit, String t1, LocalDate t2)
+    {
+        boom();
+        return 0;
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) / 365) WHEN 'MONTH' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) / 30) WHEN 'WEEK' THEN FLOOR(EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) WHEN 'HOUR' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 24 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 1440 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 60 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) WHEN 'SECOND' THEN EXTRACT(DAY FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 86400 + EXTRACT(HOUR FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 3600 + EXTRACT(MINUTE FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) * 60 + EXTRACT(SECOND FROM NUMTODSINTERVAL(TO_DATE({t1},'YYYY-MM-DD hh:mi:ss') - {t2},'DAY')) ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    public static int dateTimeDiff(SqlTimeUnit unit, String t1, LocalDateTime t2)
     {
         boom();
         return 0;

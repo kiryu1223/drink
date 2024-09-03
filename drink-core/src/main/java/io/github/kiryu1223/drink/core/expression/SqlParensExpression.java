@@ -8,7 +8,7 @@ public class SqlParensExpression extends SqlExpression
 {
     private final SqlExpression expression;
 
-    public SqlParensExpression(SqlExpression expression)
+    SqlParensExpression(SqlExpression expression)
     {
         this.expression = expression;
     }

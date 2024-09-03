@@ -8,7 +8,7 @@ public class SqlConstStringExpression extends SqlExpression
 {
     private final String string;
 
-    public SqlConstStringExpression(String string)
+    SqlConstStringExpression(String string)
     {
         this.string = string;
     }

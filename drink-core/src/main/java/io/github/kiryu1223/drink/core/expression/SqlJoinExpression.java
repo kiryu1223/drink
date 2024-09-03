@@ -11,7 +11,7 @@ public class SqlJoinExpression extends SqlExpression
     private final SqlExpression conditions;
     private final int index;
 
-    public SqlJoinExpression(JoinType joinType, SqlTableExpression joinTable, SqlExpression conditions, int index)
+    SqlJoinExpression(JoinType joinType, SqlTableExpression joinTable, SqlExpression conditions, int index)
     {
         this.joinType = joinType;
         this.joinTable = joinTable;

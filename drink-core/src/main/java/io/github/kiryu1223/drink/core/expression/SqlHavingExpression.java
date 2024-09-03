@@ -8,7 +8,7 @@ public class SqlHavingExpression extends SqlExpression
 {
     private final SqlConditionsExpression conditions;
 
-    public SqlHavingExpression(SqlConditionsExpression conditions)
+    SqlHavingExpression(SqlConditionsExpression conditions)
     {
         this.conditions = conditions;
     }

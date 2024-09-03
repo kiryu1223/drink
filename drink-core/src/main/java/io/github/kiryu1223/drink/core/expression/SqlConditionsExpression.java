@@ -7,11 +7,10 @@ import java.util.List;
 
 public class SqlConditionsExpression extends SqlExpression
 {
-    private final List<SqlExpression> conditions;
+    private final List<SqlExpression> conditions=new ArrayList<>();
 
-    public SqlConditionsExpression(List<SqlExpression> conditions)
+    SqlConditionsExpression()
     {
-        this.conditions = conditions;
     }
 
     public List<SqlExpression> getConditions()

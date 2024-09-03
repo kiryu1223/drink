@@ -8,7 +8,7 @@ public class SqlWhereExpression extends SqlExpression
 {
     private final SqlConditionsExpression conditions;
 
-    public SqlWhereExpression(SqlConditionsExpression conditions)
+    SqlWhereExpression(SqlConditionsExpression conditions)
     {
         this.conditions = conditions;
     }
@@ -16,6 +16,16 @@ public class SqlWhereExpression extends SqlExpression
     public void addCond(SqlExpression condition)
     {
         conditions.getConditions().add(condition);
+    }
+
+    public boolean isEmpty()
+    {
+        return conditions.isEmpty();
+    }
+
+    public SqlConditionsExpression getConditions()
+    {
+        return conditions;
     }
 
     @Override

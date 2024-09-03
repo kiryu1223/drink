@@ -6,13 +6,13 @@ import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.util.List;
 
-import static io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil.cast;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
 public class SqlSingleValueExpression extends SqlValueExpression
 {
     private final Object value;
 
-    public SqlSingleValueExpression(Object value)
+    SqlSingleValueExpression(Object value)
     {
         this.value = value;
     }

@@ -3,8 +3,11 @@ package io.github.kiryu1223.drink.config;
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.dialect.*;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.expression.ext.OracleSqlExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.ext.h2.H2ExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.ext.mysql.MySqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.ext.oracle.OracleSqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.ext.sqlserver.SqlServerExpressionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
 
@@ -26,11 +29,11 @@ public class Config
         {
             case MySQL:
                 disambiguation = new MySQLDialect();
-                sqlExpressionFactory = new SqlExpressionFactory(this);
+                sqlExpressionFactory = new MySqlExpressionFactory(this);
                 break;
             case SqlServer:
                 disambiguation = new SqlServerDialect();
-                sqlExpressionFactory = new SqlExpressionFactory(this);
+                sqlExpressionFactory = new SqlServerExpressionFactory(this);
                 break;
             case Oracle:
                 disambiguation = new OracleDialect();
@@ -39,7 +42,7 @@ public class Config
             case H2:
             default:
                 disambiguation = new DefaultDialect();
-                sqlExpressionFactory = new SqlExpressionFactory(this);
+                sqlExpressionFactory = new H2ExpressionFactory(this);
                 break;
         }
         this.transactionManager = transactionManager;

@@ -1,16 +1,20 @@
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.builder.IncludeSet;
 import io.github.kiryu1223.drink.core.expression.*;
-import io.github.kiryu1223.drink.core.expression.factory.SqlExpressionFactory;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class QuerySqlBuilder implements ISqlBuilder
 {
     private final Config config;
     private final SqlQueryableExpression queryable;
+    private final List<IncludeSet> includeSets = new ArrayList<>();
     private boolean isChanged;
 
     public QuerySqlBuilder(Config config, Class<?> target, int offset)
@@ -44,7 +48,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     public void addJoin(JoinType joinType, SqlTableExpression table, SqlExpression conditions)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        SqlJoinExpression join = factory.join(joinType, table, conditions, queryable.getNextIndex());
+        SqlJoinExpression join = factory.join(joinType, table, conditions, queryable.getOrderedCount());
         queryable.addJoin(join);
         change();
     }
@@ -70,6 +74,44 @@ public class QuerySqlBuilder implements ISqlBuilder
     public void setSelect(SqlSelectExpression select)
     {
         queryable.setSelect(select);
+        change();
+    }
+
+    public void setSelect(Class<?> c)
+    {
+        List<Class<?>> orderedClass = getOrderedClass();
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+        MetaData metaData = MetaDataCache.getMetaData(c);
+        List<SqlExpression> expressions = new ArrayList<>();
+        if (orderedClass.contains(c))
+        {
+            int index = orderedClass.indexOf(c);
+            for (PropertyMetaData notIgnoreProperty : metaData.getNotIgnorePropertys())
+            {
+                expressions.add(factory.column(notIgnoreProperty, index));
+            }
+        }
+        else
+        {
+            for (PropertyMetaData sel : metaData.getNotIgnorePropertys())
+            {
+                int index = 0;
+                GOTO:
+                for (MetaData data : MetaDataCache.getMetaData(getOrderedClass()))
+                {
+                    for (PropertyMetaData noi : data.getNotIgnorePropertys())
+                    {
+                        if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType()))
+                        {
+                            expressions.add(factory.column(sel, index));
+                            break GOTO;
+                        }
+                    }
+                    index++;
+                }
+            }
+        }
+        queryable.setSelect(factory.select(expressions, c));
         change();
     }
 
@@ -100,11 +142,6 @@ public class QuerySqlBuilder implements ISqlBuilder
     public Config getConfig()
     {
         return config;
-    }
-
-    public SqlQueryableExpression getQueryable()
-    {
-        return queryable;
     }
 
     @Override
@@ -145,9 +182,31 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public List<Class<?>> getOrderedClass()
     {
-        Class<?> tableClass = queryable.getFrom().getSqlTableExpression().getTableClass();
-        List<Class<?>> collect = queryable.getJoins().getJoins().stream().map(j -> j.getJoinTable().getTableClass()).collect(Collectors.toList());
-        collect.add(0, tableClass);
-        return collect;
+        return queryable.getOrderedClass();
+    }
+
+    public List<PropertyMetaData> getMappingData()
+    {
+        return queryable.getMappingData(config);
+    }
+
+    public boolean isSingle()
+    {
+        return queryable.getSelect().isSingle();
+    }
+
+    public Class<?> getTargetClass()
+    {
+        return queryable.getSelect().getTarget();
+    }
+
+    public SqlQueryableExpression getQueryable()
+    {
+        return queryable;
+    }
+
+    public List<IncludeSet> getIncludeSets()
+    {
+        return includeSets;
     }
 }

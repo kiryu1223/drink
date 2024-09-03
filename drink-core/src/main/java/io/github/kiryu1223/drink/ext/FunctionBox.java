@@ -1,8 +1,6 @@
 package io.github.kiryu1223.drink.ext;
 
-import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.expressionTree.expressions.Expression;
 
 import java.util.ArrayList;
 import java.util.List;

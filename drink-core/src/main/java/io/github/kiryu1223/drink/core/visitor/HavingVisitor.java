@@ -1,22 +1,23 @@
-package io.github.kiryu1223.drink.core.visitor.expression;
+package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlGroupByExpression;
+import io.github.kiryu1223.drink.core.expression.SqlQueryableExpression;
 import io.github.kiryu1223.expressionTree.expressions.FieldSelectExpression;
 
 import java.util.Map;
 
-import static io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil.isGroupKey;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isGroupKey;
 
 public class HavingVisitor extends SqlVisitor
 {
-    private final SqlGroupByExpression group;
+    private final SqlQueryableExpression queryable;
 
-    public HavingVisitor(SqlGroupByExpression group, Config config)
+    public HavingVisitor(Config config, SqlQueryableExpression queryable)
     {
         super(config);
-        this.group = group;
+        this.queryable = queryable;
     }
 
     @Override
@@ -24,11 +25,12 @@ public class HavingVisitor extends SqlVisitor
     {
         if (isGroupKey(parameters, fieldSelect)) // g.key
         {
-            return group;
+            SqlGroupByExpression groupBy = queryable.getGroupBy();
+            return groupBy.getColumns().get("key");
         }
         else if (isGroupKey(parameters, fieldSelect.getExpr())) // g.key.xxx
         {
-            Map<String, SqlExpression> columns = group.getColumns();
+            Map<String, SqlExpression> columns = queryable.getGroupBy().getColumns();
             return columns.get(fieldSelect.getField().getName());
         }
         else
@@ -40,6 +42,6 @@ public class HavingVisitor extends SqlVisitor
     @Override
     protected SqlVisitor getSelf()
     {
-        return new HavingVisitor(group, config);
+        return new HavingVisitor(config, queryable);
     }
 }

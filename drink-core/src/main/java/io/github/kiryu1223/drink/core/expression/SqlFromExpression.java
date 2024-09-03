@@ -9,7 +9,7 @@ public class SqlFromExpression extends SqlExpression
     protected final SqlTableExpression sqlTableExpression;
     protected final int index;
 
-    public SqlFromExpression(SqlTableExpression sqlTableExpression, int index)
+    protected SqlFromExpression(SqlTableExpression sqlTableExpression, int index)
     {
         this.sqlTableExpression = sqlTableExpression;
         this.index = index;

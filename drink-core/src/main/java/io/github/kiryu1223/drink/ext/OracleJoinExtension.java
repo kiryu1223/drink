@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.ext;
 
-import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 
 import java.lang.reflect.Method;

@@ -27,8 +27,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.github.kiryu1223.drink.ext.SqlCalculates.between;
-import static io.github.kiryu1223.drink.ext.SqlFunctions.addDate;
+import static io.github.kiryu1223.drink.ext.SqlCalculates.*;
+import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
+import static io.github.kiryu1223.drink.ext.SqlTimeUnit.*;
 
 @SuppressWarnings("all")
 public class SQLTest
@@ -261,8 +262,8 @@ public class SQLTest
     public void m9()
     {
         String sql = client.query(Topic.class)
-                .where(a -> SqlFunctions.convert(a.getId(), int.class) > 50)
-                .endSelect(s -> SqlFunctions.count(s.getId()))
+                .where(a -> convert(a.getId(), int.class) > 50)
+                .endSelect(s -> count(s.getId()))
                 .toSql();
 
         System.out.println(sql);
@@ -272,8 +273,8 @@ public class SQLTest
     public void m10()
     {
         String sql = client.query(Topic.class)
-                .where(a -> SqlFunctions.convert(a.getId(), int.class) > 50)
-                .endSelect(s -> SqlFunctions.join("-", s.getId(), s.getTitle()))
+                .where(a -> convert(a.getId(), int.class) > 50)
+                .endSelect(s -> join("-", s.getId(), s.getTitle()))
                 .toSql();
 
         System.out.println(sql);
@@ -285,14 +286,14 @@ public class SQLTest
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
         String sql1 = client.query(Topic.class)
                 .where(a -> list.contains(a.getStars()))
-                .endSelect(s -> SqlFunctions.join("-", s.getId(), s.getTitle()))
+                .endSelect(s -> join("-", s.getId(), s.getTitle()))
                 .toSql();
 
         System.out.println(sql1);
 
         String sql2 = client.query(Topic.class)
                 .where(a -> "aabb".contains(a.getTitle()) || "aabb".startsWith(a.getTitle()) || "aabb".endsWith(a.getTitle()))
-                .endSelect(s -> SqlFunctions.join("-", s.getId(), s.getTitle()))
+                .endSelect(s -> join("-", s.getId(), s.getTitle()))
                 .toSql();
         System.out.println(sql2);
     }
@@ -301,7 +302,7 @@ public class SQLTest
     public void m12()
     {
         String sql1 = client.query(Topic.class)
-                .endSelect(s -> addDate(s.getCreateTime(), SqlTimeUnit.DAY, 500))
+                .endSelect(s -> addDate(s.getCreateTime(), DAY, 500))
                 .toSql();
 
         System.out.println(sql1);
@@ -324,8 +325,8 @@ public class SQLTest
         //exists(client.query(Top.class).where(t1 -> t1.getTitle() == t0.getTitle()).endSelect(s -> 1))
         String sql1 = client.query(Topic.class)
                 .leftJoin(Topic.class, (a, b) -> a.getId() == b.getId())
-                .exists(Top.class, (a, b, c) -> a.getTitle() == SqlFunctions.asciiToStr(c.getStars()))
-                .exists(Top.class, (a, b, c) -> b.getTitle() == SqlFunctions.asciiToStr(c.getStars()))
+                .exists(Top.class, (a, b, c) -> a.getTitle() == asciiToStr(c.getStars()))
+                .exists(Top.class, (a, b, c) -> b.getTitle() == asciiToStr(c.getStars()))
                 .endSelect((s1, s2) -> 1)
                 .toSql();
 
@@ -425,5 +426,15 @@ public class SQLTest
                 .where(u -> u.getId() == 1)
                 .toList();
 
+    }
+
+    @Test
+    public void m21()
+    {
+        DrinkClient linq = client;
+
+        List<String> list = linq.query(Dual.class)
+                .endSelect(s -> concat("没有女朋友的第", cast(dateTimeDiff(DAY, "1996-10-27", now()), String.class), "天"))
+                .toList();
     }
 }

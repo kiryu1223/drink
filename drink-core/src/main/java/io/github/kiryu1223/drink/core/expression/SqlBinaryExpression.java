@@ -10,7 +10,7 @@ public class SqlBinaryExpression extends SqlExpression
     private final SqlExpression left;
     private final SqlExpression right;
 
-    public SqlBinaryExpression(SqlOperator operator, SqlExpression left, SqlExpression right)
+    SqlBinaryExpression(SqlOperator operator, SqlExpression left, SqlExpression right)
     {
         this.operator = operator;
         this.left = left;

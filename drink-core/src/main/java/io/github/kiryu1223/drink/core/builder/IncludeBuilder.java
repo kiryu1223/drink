@@ -1,13 +1,12 @@
 package io.github.kiryu1223.drink.core.builder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlOperator;
+import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.ext.IMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil.cast;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
 public class IncludeBuilder<T>
 {
@@ -25,30 +24,33 @@ public class IncludeBuilder<T>
     private final Class<T> targetClass;
     private final Collection<T> sources;
     private final List<IncludeSet> includes;
-    private final QuerySqlBuilder mainSqlBuilder;
+    private final SqlQueryableExpression queryable;
+    private final SqlExpressionFactory factory;
+    private final SqlSession session;
 
-    public IncludeBuilder(Config config, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, QuerySqlBuilder mainSqlBuilder)
+    public IncludeBuilder(Config config, SqlSession session, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, SqlQueryableExpression queryable)
     {
         this.config = config;
         this.targetClass = targetClass;
         this.sources = sources;
         this.includes = includes;
-        this.mainSqlBuilder = mainSqlBuilder;
+        this.queryable = queryable;
+        this.factory = config.getSqlExpressionFactory();
+        this.session = session;
     }
 
     public void include() throws InvocationTargetException, IllegalAccessException
     {
         MetaData targetClassMetaData = MetaDataCache.getMetaData(targetClass);
-        SqlSession session = config.getSqlSessionFactory().getSession();
         Map<PropertyMetaData, Map<Object, List<T>>> cache = new HashMap<>();
 
         for (IncludeSet include : includes)
         {
-            NavigateData navigateData = include.getPropertyContext().getPropertyMetaData().getNavigateData();
+            NavigateData navigateData = include.getColumnExpression().getPropertyMetaData().getNavigateData();
             Class<?> navigateTargetType = navigateData.getNavigateTargetType();
             PropertyMetaData selfPropertyMetaData = targetClassMetaData.getPropertyMetaData(navigateData.getSelfPropertyName());
             PropertyMetaData targetPropertyMetaData = MetaDataCache.getMetaData(navigateTargetType).getPropertyMetaData(navigateData.getTargetPropertyName());
-            PropertyMetaData includePropertyMetaData = include.getPropertyContext().getPropertyMetaData();
+            PropertyMetaData includePropertyMetaData = include.getColumnExpression().getPropertyMetaData();
 
             Map<Object, List<T>> sourcesMapList = cache.get(selfPropertyMetaData);
             if (sourcesMapList == null)
@@ -60,55 +62,54 @@ public class IncludeBuilder<T>
             switch (navigateData.getRelationType())
             {
                 case OneToOne:
-                    oneToOne(sourcesMapList, session, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    oneToOne(sourcesMapList, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
                 case OneToMany:
-                    oneToMany(sourcesMapList, session, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    oneToMany(sourcesMapList, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
                 case ManyToOne:
-                    manyToOne(sourcesMapList, session, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    manyToOne(sourcesMapList, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
                 case ManyToMany:
-                    manyToMany(sourcesMapList, session, include, navigateData, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    manyToMany(sourcesMapList, include, navigateData, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
             }
         }
     }
 
-    private void oneToOne(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    private void oneToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         // 查询目标表
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
+        SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // 包一层，并选择字段
-        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
+        SqlQueryableExpression warpQueryable = factory.queryable(queryable);
+        warpQueryable.setSelect(factory.select(Collections.singletonList(factory.column(selfPropertyMetaData, 0)), selfPropertyMetaData.getType(), true));
+        tempQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(targetPropertyMetaData, 0), warpQueryable));
 
         // 如果有额外条件就加入
         if (include.hasCond())
         {
-            SqlContext cond = include.getCond();
+            SqlExpression cond = include.getCond();
             // 复杂条件
-            if (cond instanceof SqlVirtualTableContext)
+            if (cond instanceof SqlQueryableExpression)
             {
-                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                SqlQueryableExpression queryableExpression = (SqlQueryableExpression) cond;
                 // 替换
-                querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
+                tempQueryable = warpItQueryable(tempQueryable, targetPropertyMetaData, navigateTargetType, queryableExpression);
             }
             // 简易条件
             else
             {
-                querySqlBuilder.addWhere(new SqlParensContext(cond));
+                tempQueryable.addWhere(factory.parens(cond));
             }
         }
 
         List<Object> values = new ArrayList<>();
-        String sql = querySqlBuilder.getSqlAndValue(values);
+        String sql = tempQueryable.getSqlAndValue(config, values);
 
         tryPrint(sql);
 
-        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         // 获取从表的map
         Map<Object, Object> objectMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
@@ -125,44 +126,41 @@ public class IncludeBuilder<T>
                 includePropertyMetaData.getSetter().invoke(t, value);
             }
         }
-        round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
+        round(include, navigateTargetType, objectMap.values(), tempQueryable);
     }
 
-    private void oneToMany(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    private void oneToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         // 查询目标表
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
-        // querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mainSqlBuilder.getTargetClass()), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(selfPropertyMetaData, 1)));
+        SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // 包一层，并选择字段
-        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
-
+        SqlQueryableExpression warpQueryable = factory.queryable(queryable);
+        warpQueryable.setSelect(factory.select(Collections.singletonList(factory.column(selfPropertyMetaData, 0)), selfPropertyMetaData.getType(), true));
+        tempQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(targetPropertyMetaData, 0), warpQueryable));
         // 如果有额外条件就加入
         if (include.hasCond())
         {
-            SqlContext cond = include.getCond();
+            SqlExpression cond = include.getCond();
             // 复杂条件
-            if (cond instanceof SqlVirtualTableContext)
+            if (cond instanceof SqlQueryableExpression)
             {
-                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                SqlQueryableExpression queryableExpression = (SqlQueryableExpression) cond;
                 // 替换
-                querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
+                tempQueryable = warpItQueryable(tempQueryable, targetPropertyMetaData, navigateTargetType, queryableExpression);
             }
             // 简易条件
             else
             {
-                querySqlBuilder.addWhere(new SqlParensContext(cond));
+                tempQueryable.addWhere(factory.parens(cond));
             }
         }
 
         List<Object> values = new ArrayList<>();
-        String sql = querySqlBuilder.getSqlAndValue(values);
+        String sql = tempQueryable.getSqlAndValue(config, values);
 
         tryPrint(sql);
 
-        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         // 查询从表数据，按key进行list归类的map构建
         Map<Object, List<Object>> targetMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapList(targetPropertyMetaData.getColumn()),
@@ -179,43 +177,41 @@ public class IncludeBuilder<T>
                 includePropertyMetaData.getSetter().invoke(t, value);
             }
         }
-        round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
+        round(include, navigateTargetType, targetMap.values(), tempQueryable);
     }
 
-    private void manyToOne(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    private void manyToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         // 查询目标表
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
+        SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // 包一层，并选择字段
-        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlParensContext(new SqlVirtualTableContext(warp))));
-
+        SqlQueryableExpression warpQueryable = factory.queryable(queryable);
+        warpQueryable.setSelect(factory.select(Collections.singletonList(factory.column(selfPropertyMetaData, 0)), selfPropertyMetaData.getType(), true));
+        tempQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(targetPropertyMetaData, 0), warpQueryable));
         // 如果有额外条件就加入
         if (include.hasCond())
         {
-            SqlContext cond = include.getCond();
+            SqlExpression cond = include.getCond();
             // 复杂条件
-            if (cond instanceof SqlVirtualTableContext)
+            if (cond instanceof SqlQueryableExpression)
             {
-                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                SqlQueryableExpression queryableExpression = (SqlQueryableExpression) cond;
                 // 替换
-                querySqlBuilder = warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext);
+                tempQueryable = warpItQueryable(tempQueryable, targetPropertyMetaData, navigateTargetType, queryableExpression);
             }
             // 简易条件
             else
             {
-                querySqlBuilder.addWhere(new SqlParensContext(cond));
+                tempQueryable.addWhere(factory.parens(cond));
             }
         }
 
         List<Object> values = new ArrayList<>();
-        String sql = querySqlBuilder.getSqlAndValue(values);
+        String sql = tempQueryable.getSqlAndValue(config, values);
 
         tryPrint(sql);
 
-        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         // 获取目标表的map
         Map<Object, Object> objectMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
@@ -233,10 +229,10 @@ public class IncludeBuilder<T>
                 includePropertyMetaData.getSetter().invoke(t, value);
             }
         }
-        round(include, navigateTargetType, objectMap.values(), querySqlBuilder);
+        round(include, navigateTargetType, objectMap.values(), tempQueryable);
     }
 
-    private void manyToMany(Map<Object, List<T>> sourcesMapList, SqlSession session, IncludeSet include, NavigateData navigateData, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    private void manyToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
         MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
@@ -245,45 +241,42 @@ public class IncludeBuilder<T>
         String targetMappingPropertyName = navigateData.getTargetMappingPropertyName();
         PropertyMetaData targetMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(targetMappingPropertyName);
         // 查询目标表
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, new SqlRealTableContext(navigateTargetType));
+        SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // join中间表
-        querySqlBuilder.addJoin(JoinType.LEFT, new SqlRealTableContext(mappingTableType), new SqlBinaryContext(SqlOperator.EQ, new SqlPropertyContext(targetPropertyMetaData, 0), new SqlPropertyContext(targetMappingPropertyMetaData, 1)));
+        tempQueryable.addJoin(factory.join(JoinType.LEFT, factory.table(mappingTableType), factory.binary(SqlOperator.EQ, factory.column(targetPropertyMetaData, 0), factory.column(targetMappingPropertyMetaData, 1)), 1));
         // 包一层，并选择字段
-        QuerySqlBuilder warp = new QuerySqlBuilder(config, new SqlVirtualTableContext(mainSqlBuilder));
-        warp.setSelect(new SqlPropertyContext(selfPropertyMetaData, 0), mainSqlBuilder.getTargetClass());
-
-        querySqlBuilder.addWhere(new SqlBinaryContext(SqlOperator.IN, new SqlPropertyContext(selfMappingPropertyMetaData, 1), new SqlParensContext(new SqlVirtualTableContext(warp))));
+        SqlQueryableExpression warpQueryable = factory.queryable(queryable);
+        warpQueryable.setSelect(factory.select(Collections.singletonList(factory.column(selfPropertyMetaData, 0)), selfPropertyMetaData.getType(), true));
+        tempQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(selfMappingPropertyMetaData, 1), warpQueryable));
 
         // 增加上额外用于排序的字段
-        SqlSelectorContext select = (SqlSelectorContext) querySqlBuilder.getSelect();
-        querySqlBuilder.setSelect(select, navigateTargetType);
-        select.getSqlContexts().add(new SqlPropertyContext(selfMappingPropertyMetaData, 1));
+        tempQueryable.getSelect().getColumns().add(factory.column(selfMappingPropertyMetaData, 1));
 
         // 如果有额外条件就加入
         if (include.hasCond())
         {
-            SqlContext cond = include.getCond();
+            SqlExpression cond = include.getCond();
             // 复杂条件
-            if (cond instanceof SqlVirtualTableContext)
+            if (cond instanceof SqlQueryableExpression)
             {
-                SqlVirtualTableContext virtualTableContext = (SqlVirtualTableContext) cond;
+                SqlQueryableExpression queryableExpression = (SqlQueryableExpression) cond;
                 // 替换
-                querySqlBuilder = warp(querySqlBuilder, selfMappingPropertyMetaData, navigateTargetType, virtualTableContext, new SqlPropertyContext(selfMappingPropertyMetaData, 0));
+                tempQueryable = warpItQueryable(tempQueryable, selfMappingPropertyMetaData, navigateTargetType, queryableExpression, factory.column(selfMappingPropertyMetaData, 0));
             }
             // 简易条件
             else
             {
-                querySqlBuilder.addWhere(new SqlParensContext(cond));
+                tempQueryable.addWhere(factory.parens(cond));
             }
         }
 
 
         List<Object> values = new ArrayList<>();
-        String sql = querySqlBuilder.getSqlAndValue(values);
+        String sql = tempQueryable.getSqlAndValue(config, values);
 
         tryPrint(sql);
 
-        List<PropertyMetaData> mappingData = querySqlBuilder.getMappingData(null);
+        List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         Map<Object, List<Object>> targetMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData.getColumn()),
                 sql,
@@ -309,7 +302,7 @@ public class IncludeBuilder<T>
 //                includePropertyMetaData.getSetter().invoke(t, targetValues);
 //            }
 //        }
-        round(include, navigateTargetType, targetMap.values(), querySqlBuilder);
+        round(include, navigateTargetType, targetMap.values(), tempQueryable);
     }
 
     private <K> Map<K, T> getMap(PropertyMetaData propertyMetaData) throws InvocationTargetException, IllegalAccessException
@@ -343,72 +336,71 @@ public class IncludeBuilder<T>
         return sourcesMapList;
     }
 
-    private QuerySqlBuilder warp(QuerySqlBuilder querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlVirtualTableContext virtualTableContext)
+    private SqlQueryableExpression warpItQueryable(SqlQueryableExpression querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlQueryableExpression virtualTableContext)
     {
-        return warp(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext, null);
+        return warpItQueryable(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext, null);
     }
 
-    private QuerySqlBuilder warp(QuerySqlBuilder querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlVirtualTableContext virtualTableContext, SqlPropertyContext another)
+    private SqlQueryableExpression warpItQueryable(SqlQueryableExpression querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlQueryableExpression virtualTableContext, SqlColumnExpression another)
     {
-        List<SqlContext> orderBys = virtualTableContext.getSqlBuilder().getOrderBys();
-        List<SqlContext> wheres = virtualTableContext.getSqlBuilder().getWheres();
-        SqlLimitContext limit = virtualTableContext.getSqlBuilder().getLimit();
-        if (!wheres.isEmpty())
+        SqlOrderByExpression orderBy = virtualTableContext.getOrderBy();
+        SqlWhereExpression where = virtualTableContext.getWhere();
+        SqlLimitExpression limit = virtualTableContext.getLimit();
+        if (!where.isEmpty())
         {
-            querySqlBuilder.addWhere(new SqlParensContext(new SqlConditionsContext(wheres)));
+            for (SqlExpression condition : where.getConditions().getConditions())
+            {
+                querySqlBuilder.addWhere(condition);
+            }
         }
         // 包装一下窗口查询
-        QuerySqlBuilder window = new QuerySqlBuilder(config, new SqlVirtualTableContext(querySqlBuilder));
-        List<SqlContext> selects = new ArrayList<>(2);
-        selects.add(new SqlConstString("*"));
+        SqlQueryableExpression window = factory.queryable(querySqlBuilder);
+        List<SqlExpression> selects = new ArrayList<>(2);
+        selects.add(factory.constString("*"));
         List<String> orderStr = new ArrayList<>();
         orderStr.add("ROW_NUMBER() OVER ( PARTITION BY ");
-        List<SqlContext> newOrder = new ArrayList<>(orderBys);
-        newOrder.add(0, new SqlPropertyContext(targetPropertyMetaData, 0));
-        if (!orderBys.isEmpty())
+        List<SqlOrderExpression> newOrder = new ArrayList<>(orderBy.getSqlOrders());
+        newOrder.add(0, factory.order(factory.column(targetPropertyMetaData, 0)));
+        if (!orderBy.isEmpty())
         {
             orderStr.add(" ORDER BY ");
-            for (int i = 0; i < orderBys.size(); i++)
+            List<SqlOrderExpression> sqlOrders = orderBy.getSqlOrders();
+            for (int i = 0; i < sqlOrders.size(); i++)
             {
-                if (i < orderBys.size() - 1) orderStr.add(",");
+                if (i < sqlOrders.size() - 1) orderStr.add(",");
             }
         }
         orderStr.add(")");
         String rank = "-rank-";
-        selects.add(new SqlAsNameContext(rank, new SqlFunctionsContext(orderStr, newOrder)));
-        window.setSelect(new SqlSelectorContext(selects), navigateTargetType);
+        selects.add(factory.as(factory.function(orderStr, newOrder), rank));
+        window.setSelect(factory.select(selects, int.class));
         // 最外层
-        QuerySqlBuilder window2 = new QuerySqlBuilder(config, new SqlVirtualTableContext(window));
+        SqlQueryableExpression window2 = factory.queryable(window);
+        window2.setSelect(querySqlBuilder.getSelect());
         if (another != null)
         {
-            window2.setSelect(navigateTargetType);
-            SqlSelectorContext selectorContext = (SqlSelectorContext) window2.getSelect();
-            selectorContext.getSqlContexts().add(another);
-        }
-        else
-        {
-            window2.setSelect(querySqlBuilder.getSelect(), navigateTargetType);
+            window2.getSelect().getColumns().add(another);
         }
         if (limit != null)
         {
             long offset = limit.getOffset();
             long rows = limit.getRows();
-            SqlConstString _rank_ = new SqlConstString(config.getDisambiguation().disambiguation(rank));
-            SqlBinaryContext skip = null;
-            SqlBinaryContext take;
+            SqlConstStringExpression _rank_ = factory.constString(config.getDisambiguation().disambiguation(rank));
+            SqlBinaryExpression skip = null;
+            SqlBinaryExpression take;
             if (offset > 0)
             {
-                skip = new SqlBinaryContext(SqlOperator.GT, _rank_, new SqlValueContext(offset));
-                take = new SqlBinaryContext(SqlOperator.LE, _rank_, new SqlValueContext(offset + rows));
+                skip = factory.binary(SqlOperator.GT, _rank_, factory.value(offset));
+                take = factory.binary(SqlOperator.LE, _rank_, factory.value(offset + rows));
             }
             else
             {
-                take = new SqlBinaryContext(SqlOperator.LE, _rank_, new SqlValueContext(rows));
+                take = factory.binary(SqlOperator.LE, _rank_, factory.value(rows));
             }
-            SqlContext limitCond;
+            SqlExpression limitCond;
             if (skip != null)
             {
-                limitCond = new SqlBinaryContext(SqlOperator.AND, skip, take);
+                limitCond = factory.binary(SqlOperator.AND, skip, take);
             }
             else
             {
@@ -419,20 +411,21 @@ public class IncludeBuilder<T>
         return window2;
     }
 
-    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<?> sources, QuerySqlBuilder main, Object... os) throws InvocationTargetException, IllegalAccessException
+    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<?> sources, SqlQueryableExpression main, Object... os) throws InvocationTargetException, IllegalAccessException
     {
         if (!include.getIncludeSets().isEmpty())
         {
-            new IncludeBuilder<>(config, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
+            new IncludeBuilder<>(config, session, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
         }
     }
 
-    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<List<Object>> sources, QuerySqlBuilder main) throws InvocationTargetException, IllegalAccessException
+    private void round(IncludeSet include, Class<?> navigateTargetType, Collection<List<Object>> sources, SqlQueryableExpression main) throws InvocationTargetException, IllegalAccessException
     {
         if (!include.getIncludeSets().isEmpty())
         {
             List<Object> collect = sources.stream().flatMap(o -> o.stream()).collect(Collectors.toList());
-            new IncludeBuilder<>(config, cast(navigateTargetType), collect, include.getIncludeSets(), main).include();
+            IncludeBuilder<Object> objectIncludeBuilder = new IncludeBuilder<>(config, session, cast(navigateTargetType), collect, include.getIncludeSets(), main);
+            objectIncludeBuilder.include();
         }
     }
 

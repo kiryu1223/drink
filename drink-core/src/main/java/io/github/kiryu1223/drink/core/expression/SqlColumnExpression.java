@@ -11,7 +11,7 @@ public class SqlColumnExpression extends SqlExpression
     private final PropertyMetaData propertyMetaData;
     private final int tableIndex;
 
-    public SqlColumnExpression(PropertyMetaData propertyMetaData, int tableIndex)
+    SqlColumnExpression(PropertyMetaData propertyMetaData, int tableIndex)
     {
         this.propertyMetaData = propertyMetaData;
         this.tableIndex = tableIndex;

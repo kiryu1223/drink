@@ -1,14 +1,14 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
 import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlRealTableContext;
-import io.github.kiryu1223.drink.core.context.SqlTableContext;
 import io.github.kiryu1223.drink.core.session.SqlSession;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
+import io.github.kiryu1223.drink.core.visitor.SetVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +21,9 @@ public class UpdateBase extends CRUD
 
     private final UpdateSqlBuilder sqlBuilder;
 
-    public UpdateBase(Config config)
+    public UpdateBase(Config config,Class<?> target)
     {
-        this.sqlBuilder = new UpdateSqlBuilder(config);
+        this.sqlBuilder = new UpdateSqlBuilder(config,target);
     }
 
     public UpdateBase(UpdateSqlBuilder sqlBuilder)
@@ -69,9 +69,33 @@ public class UpdateBase extends CRUD
 
     protected void join(JoinType joinType, Class<?> target, ExprTree<?> expr)
     {
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext onContext = normalVisitor.visit(expr.getTree());
-        SqlTableContext tableContext = new SqlRealTableContext(target);
-        getSqlBuilder().addJoin(target, joinType, tableContext, onContext);
+        SqlExpression on = normalVisitor.visit(expr.getTree());
+        SqlTableExpression table = factory.table(target);
+        getSqlBuilder().addJoin(target, joinType, table, on);
+    }
+
+    protected void set(LambdaExpression<?> lambda)
+    {
+        SetVisitor setVisitor = new SetVisitor(getConfig());
+        SqlExpression expression = setVisitor.visit(lambda);
+        if (expression instanceof SqlSetsExpression)
+        {
+            SqlSetsExpression sqlSetsExpression = (SqlSetsExpression) expression;
+            sqlBuilder.addSet(sqlSetsExpression);
+        }
+        else if (expression instanceof SqlSetExpression)
+        {
+            SqlSetExpression sqlSetExpression = (SqlSetExpression) expression;
+            sqlBuilder.addSet(sqlSetExpression);
+        }
+    }
+
+    protected void where(LambdaExpression<?> lambda)
+    {
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlExpression expression = normalVisitor.visit(lambda);
+        sqlBuilder.addWhere(expression);
     }
 }

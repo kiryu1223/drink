@@ -11,7 +11,7 @@ public class SqlRealTableExpression extends SqlTableExpression
 {
     private final Class<?> tableClass;
 
-    public SqlRealTableExpression(Class<?> tableClass)
+    SqlRealTableExpression(Class<?> tableClass)
     {
         this.tableClass = tableClass;
     }

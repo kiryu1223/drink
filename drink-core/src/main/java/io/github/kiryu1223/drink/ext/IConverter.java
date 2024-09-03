@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.ext;
 
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.core.visitor.expression.ExpressionUtil;
+import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 
 import java.lang.reflect.Type;
 

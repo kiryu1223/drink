@@ -7,9 +7,9 @@ import java.util.List;
 public class SqlFunctionExpression extends SqlExpression
 {
     private final List<String> functions;
-    private final List<SqlExpression> expressions;
+    private final List<? extends SqlExpression> expressions;
 
-    public SqlFunctionExpression(List<String> functions, List<SqlExpression> expressions)
+    SqlFunctionExpression(List<String> functions, List<? extends SqlExpression> expressions)
     {
         this.functions = functions;
         this.expressions = expressions;

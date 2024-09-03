@@ -9,7 +9,7 @@ public class SqlUnaryExpression extends SqlExpression
     private final SqlOperator operator;
     private final SqlExpression expression;
 
-    public SqlUnaryExpression(SqlOperator operator, SqlExpression expression)
+    SqlUnaryExpression(SqlOperator operator, SqlExpression expression)
     {
         this.operator = operator;
         this.expression = expression;

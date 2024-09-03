@@ -1,34 +1,35 @@
 package io.github.kiryu1223.drink.core.builder;
 
-import io.github.kiryu1223.drink.core.context.SqlContext;
-import io.github.kiryu1223.drink.core.context.SqlPropertyContext;
+
+import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
+import io.github.kiryu1223.drink.core.expression.SqlExpression;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class IncludeSet
 {
-    private final SqlPropertyContext propertyContext;
-    private final SqlContext cond;
+    private final SqlColumnExpression columnExpression;
+    private final SqlExpression cond;
     private final List<IncludeSet> includeSets = new ArrayList<>();
 
-    public IncludeSet(SqlPropertyContext propertyContext, SqlContext cond)
+    public IncludeSet(SqlColumnExpression columnExpression, SqlExpression cond)
     {
-        this.propertyContext = propertyContext;
+        this.columnExpression = columnExpression;
         this.cond = cond;
     }
 
-    public IncludeSet(SqlPropertyContext propertyContext)
+    public IncludeSet(SqlColumnExpression columnExpression)
     {
-        this(propertyContext, null);
+        this(columnExpression,null);
     }
 
-    public SqlPropertyContext getPropertyContext()
+    public SqlColumnExpression getColumnExpression()
     {
-        return propertyContext;
+        return columnExpression;
     }
 
-    public SqlContext getCond()
+    public SqlExpression getCond()
     {
         return cond;
     }

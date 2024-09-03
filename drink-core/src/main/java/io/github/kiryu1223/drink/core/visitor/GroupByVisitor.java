@@ -1,7 +1,6 @@
-package io.github.kiryu1223.drink.core.visitor.expression;
+package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.expressionTree.expressions.*;

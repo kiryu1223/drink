@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.core.visitor.expression;
+package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;

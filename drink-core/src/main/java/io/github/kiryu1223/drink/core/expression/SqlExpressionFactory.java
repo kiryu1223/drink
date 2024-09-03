@@ -1,14 +1,16 @@
-package io.github.kiryu1223.drink.core.expression.factory;
+package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.*;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class SqlExpressionFactory
+public abstract class SqlExpressionFactory
 {
     protected final Config config;
 
@@ -27,9 +29,9 @@ public class SqlExpressionFactory
         return new SqlColumnExpression(propertyMetaData, tableIndex);
     }
 
-    public SqlConditionsExpression condition(List<SqlExpression> conditions)
+    public SqlConditionsExpression condition()
     {
-        return new SqlConditionsExpression(conditions);
+        return new SqlConditionsExpression();
     }
 
     public SqlFromExpression from(SqlTableExpression sqlTable)
@@ -57,9 +59,9 @@ public class SqlExpressionFactory
         return new SqlJoinExpression(joinType, joinTable, conditions, index);
     }
 
-    public SqlJoinsExpression Joins(List<SqlJoinExpression> joins)
+    public SqlJoinsExpression Joins()
     {
-        return new SqlJoinsExpression(joins);
+        return new SqlJoinsExpression();
     }
 
     public SqlLimitExpression limit(long offset, long rows)
@@ -77,9 +79,19 @@ public class SqlExpressionFactory
         return new SqlLimitExpression(rows);
     }
 
-    public SqlOrderByExpression orderBy(List<SqlOrderExpression> sqlOrders)
+    public SqlOrderByExpression orderBy()
     {
-        return new SqlOrderByExpression(sqlOrders);
+        return new SqlOrderByExpression();
+    }
+
+    public SqlOrderExpression order(SqlExpression expression)
+    {
+        return order(expression, true);
+    }
+
+    public SqlOrderExpression order(SqlExpression expression, boolean asc)
+    {
+        return new SqlOrderExpression(expression, asc);
     }
 
     public SqlQueryableExpression queryable(Class<?> target)
@@ -97,6 +109,11 @@ public class SqlExpressionFactory
         return new SqlQueryableExpression(config, from);
     }
 
+    public SqlQueryableExpression queryable(SqlQueryableExpression queryable)
+    {
+        return queryable(from(queryable));
+    }
+
     public SqlRealTableExpression table(Class<?> tableClass)
     {
         return new SqlRealTableExpression(tableClass);
@@ -104,12 +121,12 @@ public class SqlExpressionFactory
 
     public SqlSelectExpression select(Class<?> target)
     {
-        return new SqlSelectExpression(target);
+        return select(getColumnByClass(target), target, false);
     }
 
     public SqlSelectExpression select(List<SqlExpression> column, Class<?> target)
     {
-        return new SqlSelectExpression(column, target);
+        return select(column, target, false);
     }
 
     public SqlSelectExpression select(List<SqlExpression> column, Class<?> target, boolean isSingle)
@@ -150,7 +167,7 @@ public class SqlExpressionFactory
         return new SqlCollectedValueExpression(value);
     }
 
-    public SqlFunctionExpression function(List<String> functions, List<SqlExpression> expressions)
+    public SqlFunctionExpression function(List<String> functions, List<? extends SqlExpression> expressions)
     {
         return new SqlFunctionExpression(functions, expressions);
     }
@@ -185,4 +202,21 @@ public class SqlExpressionFactory
         return new SqlConstStringExpression(s);
     }
 
+    public SqlSetsExpression sets()
+    {
+        return new SqlSetsExpression();
+    }
+
+    private List<SqlExpression> getColumnByClass(Class<?> target)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        MetaData metaData = MetaDataCache.getMetaData(target);
+        List<PropertyMetaData> property = metaData.getNotIgnorePropertys();
+        List<SqlExpression> columns = new ArrayList<>(property.size());
+        for (PropertyMetaData data : property)
+        {
+            columns.add(factory.column(data, 0));
+        }
+        return columns;
+    }
 }

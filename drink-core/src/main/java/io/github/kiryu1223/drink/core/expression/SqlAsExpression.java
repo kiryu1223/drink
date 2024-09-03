@@ -9,7 +9,7 @@ public class SqlAsExpression extends SqlExpression
     private final SqlExpression expression;
     private final String asName;
 
-    public SqlAsExpression(SqlExpression expression, String asName)
+    SqlAsExpression(SqlExpression expression, String asName)
     {
         this.expression = expression;
         this.asName = asName;

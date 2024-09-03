@@ -10,7 +10,7 @@ public class SqlGroupByExpression extends SqlExpression
 {
     private LinkedHashMap<String, SqlExpression> columns;
 
-    public SqlGroupByExpression(LinkedHashMap<String, SqlExpression> columns)
+    SqlGroupByExpression(LinkedHashMap<String, SqlExpression> columns)
     {
         this.columns = columns;
     }

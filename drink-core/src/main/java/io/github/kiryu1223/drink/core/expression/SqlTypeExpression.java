@@ -9,7 +9,7 @@ public class SqlTypeExpression extends SqlExpression
 {
     private final Class<?> type;
 
-    public SqlTypeExpression(Class<?> type)
+    SqlTypeExpression(Class<?> type)
     {
         this.type = type;
     }
