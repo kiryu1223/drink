@@ -250,14 +250,14 @@ public class LQuery<T> extends QueryBase
         return super.select(r);
     }
 
-    public <R> LQuery<? extends R> select(@Expr Func1<T, ? extends R> expr)
-    {
-        throw new NotCompiledException();
-    }
-
     public LQuery<T> select()
     {
         return new LQuery<>(boxedQuerySqlBuilder());
+    }
+
+    public <R> LQuery<? extends R> select(@Expr Func1<T, ? extends R> expr)
+    {
+        throw new NotCompiledException();
     }
 
     public <R> LQuery<? extends R> select(ExprTree<Func1<T, ? extends R>> expr)

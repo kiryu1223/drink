@@ -111,4 +111,19 @@ public class PropertyMetaData
     {
         return Objects.hash(property, column, getter, setter, field, converter, ignoreColumn, navigateData);
     }
+
+    @Override
+    public String toString()
+    {
+        return "PropertyMetaData{" +
+                "property='" + property + '\'' +
+                ", column='" + column + '\'' +
+                ", getter=" + getter +
+                ", setter=" + setter +
+                ", field=" + field +
+                ", converter=" + converter +
+                ", ignoreColumn=" + ignoreColumn +
+                ", navigateData=" + navigateData +
+                '}';
+    }
 }

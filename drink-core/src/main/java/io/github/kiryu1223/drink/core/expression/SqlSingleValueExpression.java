@@ -3,6 +3,8 @@ package io.github.kiryu1223.drink.core.expression;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.ext.IConverter;
+import io.github.kiryu1223.drink.ext.ISqlKeywords;
+import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 
 import java.util.List;
 
@@ -28,6 +30,10 @@ public class SqlSingleValueExpression extends SqlValueExpression
         if (value == null)
         {
             return "NULL";
+        }
+        else if (value instanceof ISqlKeywords)
+        {
+            return value.toString();
         }
         else
         {

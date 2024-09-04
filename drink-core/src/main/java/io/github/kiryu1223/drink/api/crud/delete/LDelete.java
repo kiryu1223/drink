@@ -1,8 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.context.JoinType;
-import io.github.kiryu1223.drink.core.context.SqlContext;
+import io.github.kiryu1223.drink.core.expression.JoinType;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
@@ -13,8 +12,7 @@ public class LDelete<T> extends DeleteBase
 {
     public LDelete(Config config, Class<T> c)
     {
-        super(config);
-        getSqlBuilder().setFromTable(c);
+        super(config, c);
     }
 
     //region [JOIN]
@@ -60,9 +58,7 @@ public class LDelete<T> extends DeleteBase
 
     public LDelete<T> where(ExprTree<Func1<T, Boolean>> expr)
     {
-        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext context = normalVisitor.visit(expr.getTree());
-        getSqlBuilder().addWhere(context);
+        where(expr.getTree());
         return this;
     }
 

@@ -3,9 +3,10 @@ package io.github.kiryu1223.drink.api.client;
 
 import io.github.kiryu1223.drink.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.api.crud.delete.LDelete;
+import io.github.kiryu1223.drink.api.crud.read.EmptyQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
-import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.api.crud.update.LUpdate;
+import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.config.Config;
 
 import java.util.Collection;
@@ -44,6 +45,11 @@ public class DrinkClient
         return new LQuery<>(config, c);
     }
 
+    public EmptyQuery queryEmptyTable()
+    {
+        return new EmptyQuery(config);
+    }
+
     public <T> ObjectInsert<T> insert(T t)
     {
         ObjectInsert<T> objectInsert = new ObjectInsert<>(config, (Class<T>) t.getClass());
@@ -75,7 +81,8 @@ public class DrinkClient
         throw new RuntimeException();
     }
 
-    public Config getConfig() {
+    public Config getConfig()
+    {
         return config;
     }
 }

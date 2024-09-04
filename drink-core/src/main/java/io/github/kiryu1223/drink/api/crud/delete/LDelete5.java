@@ -1,8 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
-import io.github.kiryu1223.drink.core.context.SqlContext;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
-import io.github.kiryu1223.drink.core.context.JoinType;
+import io.github.kiryu1223.drink.core.expression.JoinType;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
 import io.github.kiryu1223.expressionTree.delegate.Func6;
@@ -59,9 +58,7 @@ public class LDelete5<T1, T2, T3, T4, T5> extends DeleteBase
 
     public LDelete5<T1, T2, T3, T4, T5> where(ExprTree<Func5<T1, T2, T3, T4, T5, Boolean>> expr)
     {
-        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext context = normalVisitor.visit(expr.getTree());
-        getSqlBuilder().addWhere(context);
+        where(expr.getTree());
         return this;
     }
     // endregion

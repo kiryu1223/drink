@@ -25,14 +25,14 @@ public class SqlQueryableExpression extends SqlTableExpression
     SqlQueryableExpression(Config config, SqlFromExpression from)
     {
         this.from = from;
-        SqlExpressionFactory sqlExpressionFactory = config.getSqlExpressionFactory();
-        this.select = sqlExpressionFactory.select(getTableClass());
-        this.joins = sqlExpressionFactory.Joins();
-        this.where = sqlExpressionFactory.where(sqlExpressionFactory.condition());
-        this.groupBy = sqlExpressionFactory.groupBy(new LinkedHashMap<>());
-        this.having = sqlExpressionFactory.having(sqlExpressionFactory.condition());
-        this.orderBy = sqlExpressionFactory.orderBy();
-        this.limit = sqlExpressionFactory.limit();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        this.select = factory.select(from.getSqlTableExpression().getTableClass());
+        this.joins = factory.Joins();
+        this.where = factory.where();
+        this.groupBy = factory.groupBy(new LinkedHashMap<>());
+        this.having = factory.having(factory.condition());
+        this.orderBy = factory.orderBy();
+        this.limit = factory.limit();
     }
 
     @Override
@@ -44,7 +44,8 @@ public class SqlQueryableExpression extends SqlTableExpression
         {
             strings.add("DISTINCT");
         }
-        strings.add(from.getSqlAndValue(config, values));
+        String fromSqlAndValue = from.getSqlAndValue(config, values);
+        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
         String joinsSqlAndValue = joins.getSqlAndValue(config, values);
         if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
         String whereSqlAndValue = where.getSqlAndValue(config, values);
@@ -69,7 +70,8 @@ public class SqlQueryableExpression extends SqlTableExpression
         {
             strings.add("DISTINCT");
         }
-        strings.add(from.getSql(config));
+        String fromSqlAndValue = from.getSql(config);
+        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
         String joinsSqlAndValue = joins.getSql(config);
         if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
         String whereSqlAndValue = where.getSql(config);
@@ -88,7 +90,7 @@ public class SqlQueryableExpression extends SqlTableExpression
     @Override
     public Class<?> getTableClass()
     {
-        return from.getSqlTableExpression().getTableClass();
+        return select.getTarget();
     }
 
     public void addWhere(SqlExpression cond)

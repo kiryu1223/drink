@@ -235,14 +235,18 @@ public class QueryTest extends BaseTest
 
         List<Employee> list = client
                 .query(Employee.class)
-                .limit(10000)
+                .limit(10)
                 .includes(e -> e.getDepartments())
                 .thenIncludes(d -> d.getDeptManager())
                 .toList();
 
         for (Employee deptManager : list)
         {
-            System.out.println(deptManager);
+            for (Department department : deptManager.getDepartments())
+            {
+                System.out.println(department.getName());
+                System.out.println(department.getDeptManager());
+            }
         }
     }
 

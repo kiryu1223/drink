@@ -36,6 +36,15 @@ public class SqlUnaryExpression extends SqlExpression
     public String getSql(Config config)
     {
         String temp = expression.getSql(config);
-        return operator.isLeft() ? operator.getOperator() + " " + temp : temp + " " + operator.getOperator();
+        String res;
+        if (operator.isLeft())
+        {
+            res = operator.getOperator() + " " + temp;
+        }
+        else
+        {
+            res = temp + " " + operator.getOperator();
+        }
+        return res;
     }
 }

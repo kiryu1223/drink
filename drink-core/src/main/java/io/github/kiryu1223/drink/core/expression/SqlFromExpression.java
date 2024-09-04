@@ -1,6 +1,8 @@
 package io.github.kiryu1223.drink.core.expression;
 
+import io.github.kiryu1223.drink.api.crud.read.Empty;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.ext.DbType;
 
 import java.util.List;
 
@@ -28,6 +30,10 @@ public class SqlFromExpression extends SqlExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
+        if (checkIsEmptyTable() && config.getDbType() != DbType.Oracle)
+        {
+            return "";
+        }
         if (sqlTableExpression instanceof SqlRealTableExpression)
         {
             return getSql(config);
@@ -41,6 +47,10 @@ public class SqlFromExpression extends SqlExpression
     @Override
     public String getSql(Config config)
     {
+        if (checkIsEmptyTable() && config.getDbType() != DbType.Oracle)
+        {
+            return "";
+        }
         String sql;
         if (sqlTableExpression instanceof SqlRealTableExpression)
         {
@@ -50,6 +60,11 @@ public class SqlFromExpression extends SqlExpression
         {
             sql = "(" + sqlTableExpression.getSql(config) + ")";
         }
-        return "FROM "+ sql + " AS t" + index;
+        return "FROM " + sql + " AS t" + index;
+    }
+
+    private boolean checkIsEmptyTable()
+    {
+        return sqlTableExpression.getTableClass() == Empty.class;
     }
 }

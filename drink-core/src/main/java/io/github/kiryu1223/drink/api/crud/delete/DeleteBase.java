@@ -1,10 +1,15 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
 import io.github.kiryu1223.drink.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.expression.JoinType;
+import io.github.kiryu1223.drink.core.expression.SqlExpression;
+import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.session.SqlSession;
+import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +22,9 @@ public abstract class DeleteBase extends CRUD
 
     private final DeleteSqlBuilder sqlBuilder;
 
-    public DeleteBase(Config config)
+    public DeleteBase(Config config,Class<?> target)
     {
-        this.sqlBuilder = new DeleteSqlBuilder(config);
+        this.sqlBuilder = new DeleteSqlBuilder(config,target);
     }
 
     public DeleteBase(DeleteSqlBuilder sqlBuilder)
@@ -35,11 +40,6 @@ public abstract class DeleteBase extends CRUD
     public Config getConfig()
     {
         return sqlBuilder.getConfig();
-    }
-
-    protected void setDeleteTable(Class<?> c)
-    {
-        sqlBuilder.setFromTable(c);
     }
 
     public long executeRows()
@@ -70,14 +70,21 @@ public abstract class DeleteBase extends CRUD
 
     protected void join(JoinType joinType, Class<?> target, ExprTree<?> expr)
     {
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlContext onContext = normalVisitor.visit(expr.getTree());
-        SqlTableContext tableContext = new SqlRealTableContext(target);
-        getSqlBuilder().addJoin(target, joinType, tableContext, onContext);
+        SqlExpression on = normalVisitor.visit(expr.getTree());
+        getSqlBuilder().addJoin(target, joinType, factory.table(target), on);
     }
 
     protected void selectDeleteTable(Class<?> c)
     {
         getSqlBuilder().addExclude(c);
+    }
+
+    protected void where(LambdaExpression<?> lambda)
+    {
+        NormalVisitor normalVisitor = new NormalVisitor(getConfig());
+        SqlExpression expression = normalVisitor.visit(lambda);
+        sqlBuilder.addWhere(expression);
     }
 }

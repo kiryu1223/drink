@@ -29,7 +29,7 @@ public class UpdateSqlBuilder implements ISqlBuilder
         factory = config.getSqlExpressionFactory();
         joins = factory.Joins();
         sets = factory.sets();
-        wheres = factory.where(factory.condition());
+        wheres = factory.where();
     }
 
     public void addJoin(Class<?> target, JoinType joinType, SqlTableExpression table, SqlExpression on)
@@ -37,7 +37,8 @@ public class UpdateSqlBuilder implements ISqlBuilder
         SqlJoinExpression join = factory.join(
                 joinType,
                 table,
-                on, 1 + joins.getJoins().size()
+                on,
+                1 + joins.getJoins().size()
         );
         joins.addJoin(join);
     }

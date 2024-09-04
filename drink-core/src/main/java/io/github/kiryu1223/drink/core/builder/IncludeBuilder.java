@@ -277,8 +277,9 @@ public class IncludeBuilder<T>
         tryPrint(sql);
 
         List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
+        //mappingData.add(selfMappingPropertyMetaData);
         Map<Object, List<Object>> targetMap = session.executeQuery(
-                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData.getColumn()),
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData),
                 sql,
                 values
         );
@@ -358,9 +359,9 @@ public class IncludeBuilder<T>
         List<SqlExpression> selects = new ArrayList<>(2);
         selects.add(factory.constString("*"));
         List<String> orderStr = new ArrayList<>();
-        orderStr.add("ROW_NUMBER() OVER ( PARTITION BY ");
-        List<SqlOrderExpression> newOrder = new ArrayList<>(orderBy.getSqlOrders());
-        newOrder.add(0, factory.order(factory.column(targetPropertyMetaData, 0)));
+        orderStr.add("ROW_NUMBER() OVER (PARTITION BY ");
+        List<SqlExpression> newOrder = new ArrayList<>(orderBy.getSqlOrders());
+        newOrder.add(0, factory.column(targetPropertyMetaData, 0));
         if (!orderBy.isEmpty())
         {
             orderStr.add(" ORDER BY ");
@@ -373,10 +374,9 @@ public class IncludeBuilder<T>
         orderStr.add(")");
         String rank = "-rank-";
         selects.add(factory.as(factory.function(orderStr, newOrder), rank));
-        window.setSelect(factory.select(selects, int.class));
+        window.setSelect(factory.select(selects, navigateTargetType));
         // 最外层
         SqlQueryableExpression window2 = factory.queryable(window);
-        window2.setSelect(querySqlBuilder.getSelect());
         if (another != null)
         {
             window2.getSelect().getColumns().add(another);

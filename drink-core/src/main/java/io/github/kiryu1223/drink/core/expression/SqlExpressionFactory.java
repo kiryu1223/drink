@@ -134,6 +134,11 @@ public abstract class SqlExpressionFactory
         return new SqlSelectExpression(column, target, isSingle);
     }
 
+    public SqlWhereExpression where()
+    {
+        return new SqlWhereExpression(condition());
+    }
+
     public SqlWhereExpression where(SqlConditionsExpression conditions)
     {
         return new SqlWhereExpression(conditions);

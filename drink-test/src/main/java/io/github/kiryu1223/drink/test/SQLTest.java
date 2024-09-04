@@ -128,7 +128,7 @@ public class SQLTest
                 .distinct()
                 .endSelect(r -> r.id0000)
                 .toSql();
-        System.out.println(sql);
+        log.debug(sql);
 //        log.info(sql);
     }
 
@@ -143,7 +143,7 @@ public class SQLTest
                 .distinct()
                 .endSelect(s -> s.getStars())
                 .toSql();
-        System.out.println(sql);
+        log.debug(sql);
 
 //        log.info(sql);
     }
@@ -164,7 +164,7 @@ public class SQLTest
                 })
                 .endSelect(s -> s.id0000)
                 .toSql();
-        System.out.println(sql);
+        log.debug(sql);
 
 //        log.info(sql);
     }
@@ -189,7 +189,7 @@ public class SQLTest
                     String stars0000 = a.key.k2;
                 })
                 .toSql();
-        System.out.println(sql);
+        log.debug(sql);
 
 //        log.info(sql);
     }
@@ -209,7 +209,7 @@ public class SQLTest
                     BigDecimal b00 = a.sum((s, b) -> s.getStars());
                 })
                 .toSql();
-        System.out.println(sql);
+        log.debug(sql);
 
 //        log.info(sql);
     }
@@ -222,7 +222,7 @@ public class SQLTest
                 .where((a, b) -> a.getStars() >= 1000 || b.getTitle() != "123")
                 .select(Top.class)
                 .toSql();
-        System.out.println(sql);
+        log.debug(sql);
 
 //        log.info(sql);
     }
@@ -242,7 +242,7 @@ public class SQLTest
                 .orderBy((a) -> a.key.k1, true)
                 .toSql();
 
-        System.out.println(sql);
+        log.debug(sql);
     }
 
     @Test
@@ -255,7 +255,7 @@ public class SQLTest
                 .orderBy((a) -> a.key, false)
                 .toSql();
 
-        System.out.println(sql);
+        log.debug(sql);
     }
 
     @Test
@@ -266,7 +266,7 @@ public class SQLTest
                 .endSelect(s -> count(s.getId()))
                 .toSql();
 
-        System.out.println(sql);
+        log.debug(sql);
     }
 
     @Test
@@ -277,7 +277,7 @@ public class SQLTest
                 .endSelect(s -> join("-", s.getId(), s.getTitle()))
                 .toSql();
 
-        System.out.println(sql);
+        log.debug(sql);
     }
 
     @Test
@@ -289,13 +289,13 @@ public class SQLTest
                 .endSelect(s -> join("-", s.getId(), s.getTitle()))
                 .toSql();
 
-        System.out.println(sql1);
+        log.debug(sql1);
 
         String sql2 = client.query(Topic.class)
                 .where(a -> "aabb".contains(a.getTitle()) || "aabb".startsWith(a.getTitle()) || "aabb".endsWith(a.getTitle()))
                 .endSelect(s -> join("-", s.getId(), s.getTitle()))
                 .toSql();
-        System.out.println(sql2);
+        log.debug(sql2);
     }
 
     @Test
@@ -305,7 +305,7 @@ public class SQLTest
                 .endSelect(s -> addDate(s.getCreateTime(), DAY, 500))
                 .toSql();
 
-        System.out.println(sql1);
+        log.debug(sql1);
     }
 
     @Test
@@ -316,7 +316,7 @@ public class SQLTest
                 .endSelect(s -> s)
                 .toSql();
 
-        System.out.println(sql1);
+        log.debug(sql1);
     }
 
     @Test
@@ -330,7 +330,7 @@ public class SQLTest
                 .endSelect((s1, s2) -> 1)
                 .toSql();
 
-        System.out.println(sql1);
+        log.debug(sql1);
     }
 
     @Test
@@ -341,7 +341,7 @@ public class SQLTest
                 .endSelect((s1) -> 1)
                 .toSql();
 
-        System.out.println(sql1);
+        log.debug(sql1);
     }
 
     @Test
@@ -353,7 +353,7 @@ public class SQLTest
                 .orWhere(w -> w.getId() == "9")
                 .toSql();
 
-        System.out.println(sql1);
+        log.debug(sql1);
     }
 
     @Test
@@ -364,16 +364,16 @@ public class SQLTest
                 .exists(Top.class, (a, b) -> a.getStars() >= b.getStars())
                 .toSql();
 
-        System.out.println(sql1);
+        log.debug(sql1);
     }
 
-    @Test
-    public void m18()
-    {
-        GenderConverter genderConverter = new GenderConverter();
-        System.out.println(genderConverter.getDbType());
-        System.out.println(genderConverter.getJavaType());
-    }
+//    @Test
+//    public void m18()
+//    {
+//        GenderConverter genderConverter = new GenderConverter();
+//        log.debug(genderConverter.getDbType());
+//        log.debug(genderConverter.getJavaType());
+//    }
 
     @Test
     public void m19()
@@ -395,7 +395,7 @@ public class SQLTest
                     BigDecimal avgSalary = g.avg((de, s, d) -> s.getSalary());
                 }).toSql();
 
-        System.out.println(sql);
+        log.debug(sql);
     }
 
     //@Test
@@ -431,10 +431,10 @@ public class SQLTest
     @Test
     public void m21()
     {
-        DrinkClient linq = client;
-
-        List<String> list = linq.query(Dual.class)
+        String sql = client.query(Dual.class)
                 .endSelect(s -> concat("没有女朋友的第", cast(dateTimeDiff(DAY, "1996-10-27", now()), String.class), "天"))
-                .toList();
+                .toSql();
+        
+        log.debug(sql);
     }
 }

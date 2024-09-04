@@ -45,6 +45,19 @@ public class QuerySqlBuilder implements ISqlBuilder
         change();
     }
 
+    public void addOrWhere(SqlExpression cond)
+    {
+        if (queryable.getWhere().isEmpty())
+        {
+            addWhere(cond);
+        }
+        else
+        {
+            SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+            addWhere(factory.unary(SqlOperator.OR,cond));
+        }
+    }
+
     public void addJoin(JoinType joinType, SqlTableExpression table, SqlExpression conditions)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
@@ -187,7 +200,23 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public List<PropertyMetaData> getMappingData()
     {
-        return queryable.getMappingData(config);
+        if (isChanged)
+        {
+            return queryable.getMappingData(config);
+        }
+        else
+        {
+            SqlTableExpression sqlTableExpression = queryable.getFrom().getSqlTableExpression();
+            if (sqlTableExpression instanceof SqlRealTableExpression)
+            {
+                return queryable.getMappingData(config);
+            }
+            else
+            {
+                SqlQueryableExpression tableExpression = (SqlQueryableExpression) sqlTableExpression;
+                return tableExpression.getMappingData(config);
+            }
+        }
     }
 
     public boolean isSingle()
@@ -208,5 +237,10 @@ public class QuerySqlBuilder implements ISqlBuilder
     public List<IncludeSet> getIncludeSets()
     {
         return includeSets;
+    }
+
+    public IncludeSet getLastIncludeSet()
+    {
+        return includeSets.get(includeSets.size()-1);
     }
 }

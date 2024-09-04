@@ -83,6 +83,4 @@ public enum SqlOperator
     {
         return isLeft || this == EXISTS;
     }
-
-
 }

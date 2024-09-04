@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.ext;
 
-public enum SqlTimeUnit
+public enum SqlTimeUnit implements ISqlKeywords
 {
     YEAR,
     MONTH,

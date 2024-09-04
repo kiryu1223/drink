@@ -90,7 +90,7 @@ public class ObjectBuilder<T>
         return hashMap;
     }
 
-    public <Key> Map<Key, List<T>> createMapListByAnotherKey(String anotherKeyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
+    public <Key> Map<Key, List<T>> createMapListByAnotherKey(PropertyMetaData anotherKeyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
         FastCreator<T> fastCreator = new FastCreator<>(target);
         Supplier<T> creator = fastCreator.getCreator();
@@ -98,31 +98,29 @@ public class ObjectBuilder<T>
         while (resultSet.next())
         {
             T t = creator.get();
-            Key key = null;
+            Key key = resultSet.getObject(anotherKeyColumn.getColumn(),(Class<? extends Key>) anotherKeyColumn.getType());
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
                 Object value = convertValue(metaData);
-                if (anotherKeyColumn.equals(metaData.getColumn()))
-                {
-                    key = (Key) value;
-                }
-                else
-                {
-                    metaData.getSetter().invoke(t, value);
-                }
+                metaData.getSetter().invoke(t, value);
+//                if (anotherKeyColumn.equals(metaData.getColumn()))
+//                {
+//                    key = (Key) value;
+//                }
+//                else
+//                {
+//                    metaData.getSetter().invoke(t, value);
+//                }
             }
-            if (key != null)
+            if (!hashMap.containsKey(key))
             {
-                if (!hashMap.containsKey(key))
-                {
-                    List<T> tempList = new ArrayList<>();
-                    tempList.add(t);
-                    hashMap.put(key, tempList);
-                }
-                else
-                {
-                    hashMap.get(key).add(t);
-                }
+                List<T> tempList = new ArrayList<>();
+                tempList.add(t);
+                hashMap.put(key, tempList);
+            }
+            else
+            {
+                hashMap.get(key).add(t);
             }
         }
         return hashMap;

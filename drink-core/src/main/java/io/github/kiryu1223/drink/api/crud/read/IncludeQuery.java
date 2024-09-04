@@ -15,11 +15,10 @@ public class IncludeQuery<T, TPreviousProperty> extends LQuery<T>
 
     public IncludeQuery(QuerySqlBuilder sqlBuilder)
     {
-        super(sqlBuilder);
-        this.curIncludeSet = sqlBuilder.getLastInclude();
+        this(sqlBuilder, sqlBuilder.getLastIncludeSet());
     }
 
-    public IncludeQuery(QuerySqlBuilder sqlBuilder,IncludeSet includeSet)
+    public IncludeQuery(QuerySqlBuilder sqlBuilder, IncludeSet includeSet)
     {
         super(sqlBuilder);
         this.curIncludeSet = includeSet;

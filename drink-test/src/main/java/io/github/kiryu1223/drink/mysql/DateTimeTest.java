@@ -1,7 +1,8 @@
-package io.github.kiryu1223.drink.oracle;
+package io.github.kiryu1223.drink.mysql;
 
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
+import io.github.kiryu1223.drink.pojos.Dual;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class DateTimeTest extends OracleTest
+public class DateTimeTest extends MySqlTest
 {
     private static final Logger log = LoggerFactory.getLogger(DateTimeTest.class);
 

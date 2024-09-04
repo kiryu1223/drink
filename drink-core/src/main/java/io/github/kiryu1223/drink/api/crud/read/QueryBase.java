@@ -199,7 +199,7 @@ public abstract class QueryBase extends CRUD
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
         SqlExpression where = normalVisitor.visit(lambda);
-        sqlBuilder.addWhere(factory.unary(SqlOperator.OR, where));
+        sqlBuilder.addOrWhere(where);
     }
 
     protected void exists(Class<?> table, LambdaExpression<?> lambda, boolean not)
