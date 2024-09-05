@@ -197,10 +197,7 @@ public abstract class SqlExpressionFactory
         return new SqlParensExpression(expression);
     }
 
-    public SqlTypeExpression type(Class<?> c)
-    {
-        return new SqlTypeExpression(c);
-    }
+    public abstract SqlTypeExpression type(Class<?> c);
 
     public SqlConstStringExpression constString(String s)
     {

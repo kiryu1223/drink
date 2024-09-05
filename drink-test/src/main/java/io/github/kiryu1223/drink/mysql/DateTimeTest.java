@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.mysql;
 
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
-import io.github.kiryu1223.drink.pojos.Dual;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

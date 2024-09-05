@@ -31,8 +31,15 @@ public class SqlRealTableExpression extends SqlTableExpression
     @Override
     public String getSql(Config config)
     {
+        String fullName = "";
         MetaData metaData = MetaDataCache.getMetaData(tableClass);
         IDialect dbConfig = config.getDisambiguation();
-        return dbConfig.disambiguation(metaData.getTableName());
+        String schema = metaData.getSchema();
+        if (!schema.isEmpty())
+        {
+            fullName += dbConfig.disambiguation(schema) + ".";
+        }
+        fullName += dbConfig.disambiguation(metaData.getTableName());
+        return fullName;
     }
 }

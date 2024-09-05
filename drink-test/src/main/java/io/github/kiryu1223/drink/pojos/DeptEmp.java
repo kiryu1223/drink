@@ -19,6 +19,4 @@ public class DeptEmp implements IMappingTable
     private LocalDate from;
     @Column("to_date")
     private LocalDate to;
-
-
 }

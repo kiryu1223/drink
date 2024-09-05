@@ -428,13 +428,5 @@ public class SQLTest
 
     }
 
-    @Test
-    public void m21()
-    {
-        String sql = client.query(Dual.class)
-                .endSelect(s -> concat("没有女朋友的第", cast(dateTimeDiff(DAY, "1996-10-27", now()), String.class), "天"))
-                .toSql();
-        
-        log.debug(sql);
-    }
+
 }

@@ -6,8 +6,9 @@ import lombok.Data;
 
 import java.util.List;
 
-@Table("departments")
+
 @Data
+@Table(value = "departments")
 public class Department
 {
     @Column("dept_no")

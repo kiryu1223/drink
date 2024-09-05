@@ -9,7 +9,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Table("salaries")
+@Table(value = "salaries")
 public class Salary
 {
     @Column("emp_no")

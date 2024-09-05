@@ -17,7 +17,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class MetaData
@@ -25,12 +27,14 @@ public class MetaData
     private final List<PropertyMetaData> propertys = new ArrayList<>();
     private final Class<?> type;
     private final String tableName;
+    private final String schema;
 
     public MetaData(Class<?> type)
     {
         this.type = type;
         Table table = type.getAnnotation(Table.class);
         this.tableName = (table == null || table.value().isEmpty()) ? type.getSimpleName() : table.value();
+        this.schema = table == null ? "" : table.schema();
         for (PropertyDescriptor descriptor : propertyDescriptors(type))
         {
             String property = descriptor.getName();
@@ -52,7 +56,7 @@ public class MetaData
                 else
                 {
                     navigateTargetType = field.getType();
-                    navigateData = new NavigateData(navigate, navigateTargetType,null);
+                    navigateData = new NavigateData(navigate, navigateTargetType, null);
                 }
             }
             boolean ignoreColumn = field.getAnnotation(IgnoreColumn.class) != null || navigateData != null;
@@ -66,7 +70,8 @@ public class MetaData
         {
             BeanInfo beanInfo = Introspector.getBeanInfo(c, Object.class);
             return beanInfo.getPropertyDescriptors();
-        } catch (IntrospectionException e)
+        }
+        catch (IntrospectionException e)
         {
             throw new RuntimeException(e);
         }
@@ -120,5 +125,10 @@ public class MetaData
     public String getTableName()
     {
         return tableName;
+    }
+
+    public String getSchema()
+    {
+        return schema;
     }
 }

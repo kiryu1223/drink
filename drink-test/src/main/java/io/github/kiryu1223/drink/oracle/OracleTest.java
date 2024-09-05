@@ -21,8 +21,10 @@ public abstract class OracleTest
     OracleTest()
     {
         dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:XE");
-        dataSource.setUsername("C##ROOT");
+        dataSource.setJdbcUrl("jdbc:oracle:thin:@localhost:1521/XEPDB1");
+        dataSource.setUsername("TESTUSER");
+//        dataSource.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:XEPDB1");
+//        dataSource.setUsername("TESTUSER");
         dataSource.setPassword("root");
         dataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
         DataSourceManager dataSourceManager = new DefaultDataSourceManager(dataSource);

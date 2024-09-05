@@ -1,10 +1,11 @@
 package io.github.kiryu1223.drink.oracle;
 
 import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.pojos.Dual;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class StringTest extends OracleTest
 {
@@ -13,27 +14,27 @@ public class StringTest extends OracleTest
     @Test
     public void concat()
     {
-        String c1 = client.query(Dual.class)
-                .endSelect(d -> SqlFunctions.concat("aa", "bb"))
-                .toSql();
-        log.debug(c1);
-        String c2 = client.query(Dual.class)
-                .endSelect(d -> SqlFunctions.concat("aa", "bb", "cc", "dd", "ee", "ff", "gg"))
-                .toSql();
-        log.debug(c2);
+        List<String> c1 = client.queryEmptyTable()
+                .endSelect(() -> SqlFunctions.concat("aa", "bb"))
+                .toList();
+        log.info(c1.toString());
+        List<String> c2 = client.queryEmptyTable()
+                .endSelect(() -> SqlFunctions.concat("aa", "bb", "cc", "dd", "ee", "ff", "gg"))
+                .toList();
+        log.info(c2.toString());
     }
 
     @Test
     public void join()
     {
-        String j1 = client.query(Dual.class)
-                .endSelect(d -> SqlFunctions.join("+", "aa", "bb"))
-                .toSql();
-        log.debug(j1);
-        String j2 = client.query(Dual.class)
-                .endSelect(d ->
+        List<String> j1 = client.queryEmptyTable()
+                .endSelect(() -> SqlFunctions.join("+", "aa", "bb"))
+                .toList();
+        log.info(j1.toString());
+        List<String> j2 = client.queryEmptyTable()
+                .endSelect(() ->
                         SqlFunctions.join("|", "aa", "bb", "cc", "dd", "ee", "ff", "gg")
-                ).toSql();
-        log.debug(j2);
+                ).toList();
+        log.info(j2.toString());
     }
 }

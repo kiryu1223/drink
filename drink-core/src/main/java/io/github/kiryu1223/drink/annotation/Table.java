@@ -10,6 +10,10 @@ import java.lang.annotation.Target;
 public @interface Table
 {
     /**
+     * 所属
+     */
+    String schema() default "";
+    /**
      * 数据库表名
      */
     String value() default "";

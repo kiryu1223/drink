@@ -4,7 +4,6 @@ import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.ext.IConverter;
 import io.github.kiryu1223.drink.ext.ISqlKeywords;
-import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 
 import java.util.List;
 
@@ -33,7 +32,8 @@ public class SqlSingleValueExpression extends SqlValueExpression
         }
         else if (value instanceof ISqlKeywords)
         {
-            return value.toString();
+            ISqlKeywords keywords = (ISqlKeywords) value;
+            return keywords.getKeyword(config);
         }
         else
         {
@@ -42,7 +42,7 @@ public class SqlSingleValueExpression extends SqlValueExpression
         }
     }
 
-    public String getSqlAndValue(Config config, List<Object> values, IConverter<?,?> converter, PropertyMetaData propertyMetaData)
+    public String getSqlAndValue(Config config, List<Object> values, IConverter<?, ?> converter, PropertyMetaData propertyMetaData)
     {
         if (value == null)
         {
@@ -50,7 +50,7 @@ public class SqlSingleValueExpression extends SqlValueExpression
         }
         else
         {
-            values.add(converter.toDb(cast(value),propertyMetaData));
+            values.add(converter.toDb(cast(value), propertyMetaData));
             return "?";
         }
     }

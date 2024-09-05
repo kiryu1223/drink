@@ -6,12 +6,12 @@ import java.util.List;
 
 public class SqlJoinExpression extends SqlExpression
 {
-    private final JoinType joinType;
-    private final SqlTableExpression joinTable;
-    private final SqlExpression conditions;
-    private final int index;
+    protected final JoinType joinType;
+    protected final SqlTableExpression joinTable;
+    protected final SqlExpression conditions;
+    protected final int index;
 
-    SqlJoinExpression(JoinType joinType, SqlTableExpression joinTable, SqlExpression conditions, int index)
+    protected SqlJoinExpression(JoinType joinType, SqlTableExpression joinTable, SqlExpression conditions, int index)
     {
         this.joinType = joinType;
         this.joinTable = joinTable;

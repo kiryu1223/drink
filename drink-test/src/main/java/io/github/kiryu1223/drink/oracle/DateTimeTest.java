@@ -23,7 +23,7 @@ public class DateTimeTest extends OracleTest
 
         for (LocalDateTime localDateTime : list)
         {
-            log.debug(localDateTime.toString());
+            log.info(localDateTime.toString());
         }
     }
 
@@ -36,7 +36,7 @@ public class DateTimeTest extends OracleTest
 
         for (int localDateTime : list)
         {
-            log.debug(String.valueOf(localDateTime));
+            log.info(String.valueOf(localDateTime));
         }
     }
 }
