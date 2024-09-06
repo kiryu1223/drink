@@ -30,7 +30,8 @@ public class DefaultSqlSession implements SqlSession
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeQuery(connection, func, sql, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -49,7 +50,8 @@ public class DefaultSqlSession implements SqlSession
                     connection = dataSourceManager.getConnection();
                 }
                 return executeQuery(connection, func, sql, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -65,7 +67,8 @@ public class DefaultSqlSession implements SqlSession
             {
                 return func.invoke(resultSet);
             }
-        } catch (SQLException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e)
+        }
+        catch (SQLException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e)
         {
             throw new RuntimeException(e);
         }
@@ -78,7 +81,8 @@ public class DefaultSqlSession implements SqlSession
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeUpdate(connection, sql, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -97,7 +101,8 @@ public class DefaultSqlSession implements SqlSession
                     connection = dataSourceManager.getConnection();
                 }
                 return executeUpdate(connection, sql, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -111,7 +116,8 @@ public class DefaultSqlSession implements SqlSession
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return executeUpdate(connection, sql, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -130,7 +136,8 @@ public class DefaultSqlSession implements SqlSession
                     connection = dataSourceManager.getConnection();
                 }
                 return executeUpdate(connection, sql, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -144,7 +151,8 @@ public class DefaultSqlSession implements SqlSession
             try (Connection connection = dataSourceManager.getConnection())
             {
                 return batchExecuteUpdate(connection, sql, limit, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -163,7 +171,8 @@ public class DefaultSqlSession implements SqlSession
                     connection = dataSourceManager.getConnection();
                 }
                 return batchExecuteUpdate(connection, sql, limit, values);
-            } catch (SQLException e)
+            }
+            catch (SQLException e)
             {
                 throw new RuntimeException(e);
             }
@@ -176,7 +185,8 @@ public class DefaultSqlSession implements SqlSession
         {
             setObjectsIfNull(preparedStatement, values);
             return preparedStatement.executeUpdate();
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
@@ -188,7 +198,8 @@ public class DefaultSqlSession implements SqlSession
         {
             setObjects(preparedStatement, values);
             return preparedStatement.executeUpdate();
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
@@ -200,7 +211,8 @@ public class DefaultSqlSession implements SqlSession
         {
             batchSetObjects(preparedStatement, limit, values);
             return preparedStatement.executeBatch().length;
-        } catch (SQLException e)
+        }
+        catch (SQLException e)
         {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.pojos;
 
 import io.github.kiryu1223.drink.annotation.*;
-import io.github.kiryu1223.drink.converter.IntConverter;
 import lombok.Data;
 
 import java.util.List;

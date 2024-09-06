@@ -48,7 +48,7 @@ public class ObjectBuilder<T>
                 {
                     key = (Key) value;
                 }
-                metaData.getSetter().invoke(t, value);
+                if (value != null) metaData.getSetter().invoke(t, value);
             }
             if (key != null) hashMap.put(key, t);
         }
@@ -71,7 +71,7 @@ public class ObjectBuilder<T>
                 {
                     key = (Key) value;
                 }
-                metaData.getSetter().invoke(t, value);
+                if (value != null)  metaData.getSetter().invoke(t, value);
             }
             if (key != null)
             {
@@ -98,11 +98,11 @@ public class ObjectBuilder<T>
         while (resultSet.next())
         {
             T t = creator.get();
-            Key key = resultSet.getObject(anotherKeyColumn.getColumn(),(Class<? extends Key>) anotherKeyColumn.getType());
+            Key key = resultSet.getObject(anotherKeyColumn.getColumn(), (Class<? extends Key>) anotherKeyColumn.getType());
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
                 Object value = convertValue(metaData);
-                metaData.getSetter().invoke(t, value);
+                if (value != null) metaData.getSetter().invoke(t, value);
 //                if (anotherKeyColumn.equals(metaData.getColumn()))
 //                {
 //                    key = (Key) value;
@@ -160,7 +160,7 @@ public class ObjectBuilder<T>
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
                 Object value = convertValue(metaData);
-                metaData.getSetter().invoke(t, value);
+                if (value != null) metaData.getSetter().invoke(t, value);
             }
             list.add(t);
         }
@@ -171,15 +171,20 @@ public class ObjectBuilder<T>
     {
         if (!metaData.hasConverter())
         {
-            Class<?> type = metaData.getField().getType();
+            Class<?> type = metaData.getType();
             if (type.isEnum())
             {
                 String Enum = resultSet.getString(metaData.getColumn());
                 return type.getField(Enum).get(null);
             }
+            else if (type == char.class || type == Character.class)
+            {
+                String result = resultSet.getString(metaData.getColumn());
+                return (result != null && !result.isEmpty()) ? result.charAt(0) : null;
+            }
             else
             {
-                return resultSet.getObject(metaData.getColumn(), type);
+                return resultSet.getObject(metaData.getColumn(), upperClass(type));
             }
         }
         else
@@ -208,16 +213,46 @@ public class ObjectBuilder<T>
         return (R) o;
     }
 
-//    private MethodHandles.Lookup tryGetLookUp(Object o)
-//    {
-//        if (o instanceof ILookUp)
-//        {
-//            ILookUp iLookUp = (ILookUp) o;
-//            return iLookUp.lookup();
-//        }
-//        else
-//        {
-//            return MethodHandles.lookup();
-//        }
-//    }
+    private Class<?> upperClass(Class<?> c)
+    {
+        if (c.isPrimitive())
+        {
+            if (c == Byte.TYPE)
+            {
+                return Byte.class;
+            }
+            else if (c == Short.TYPE)
+            {
+                return Short.class;
+            }
+            else if (c == Integer.TYPE)
+            {
+                return Integer.class;
+            }
+            else if (c == Long.TYPE)
+            {
+                return Long.class;
+            }
+            else if (c == Float.TYPE)
+            {
+                return Float.class;
+            }
+            else if (c == Double.TYPE)
+            {
+                return Double.class;
+            }
+            else if (c == Boolean.TYPE)
+            {
+                return Boolean.class;
+            }
+            else
+            {
+                return Void.class;
+            }
+        }
+        else
+        {
+            return c;
+        }
+    }
 }

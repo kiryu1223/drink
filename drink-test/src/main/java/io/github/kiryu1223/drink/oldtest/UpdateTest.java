@@ -1,19 +1,25 @@
-package io.github.kiryu1223.drink.test;
+package io.github.kiryu1223.drink.oldtest;
 
+import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.ext.SqlCalculates;
 import io.github.kiryu1223.drink.pojos.Department;
 import io.github.kiryu1223.drink.pojos.DeptEmp;
-import io.github.kiryu1223.drink.pojos.School;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 
 @SuppressWarnings("all")
 public class UpdateTest extends BaseTest
 {
+    private final DrinkClient client;
+
+    public UpdateTest()
+    {
+        this.client = mysql;
+    }
+
     @Test
     public void u1()
     {

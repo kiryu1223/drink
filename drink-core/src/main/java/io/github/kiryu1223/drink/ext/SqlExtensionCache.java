@@ -4,17 +4,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BaseSqlExtensionCache
+public class SqlExtensionCache
 {
-    private static final Map<Class<? extends BaseSqlExtension>, BaseSqlExtension> baseSqlExtensionCache = new ConcurrentHashMap<>();
+    private static final Map<Class<? extends BaseSqlExtension>, BaseSqlExtension> sqlExtensionCache = new ConcurrentHashMap<>();
 
     public static BaseSqlExtension get(Class<? extends BaseSqlExtension> c)
     {
-        if (!baseSqlExtensionCache.containsKey(c))
+        if (!sqlExtensionCache.containsKey(c))
         {
             try
             {
-                baseSqlExtensionCache.put(c, c.getConstructor().newInstance());
+                sqlExtensionCache.put(c, c.getConstructor().newInstance());
             }
             catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                    NoSuchMethodException e)
@@ -22,6 +22,6 @@ public class BaseSqlExtensionCache
                 throw new RuntimeException(e);
             }
         }
-        return baseSqlExtensionCache.get(c);
+        return sqlExtensionCache.get(c);
     }
 }

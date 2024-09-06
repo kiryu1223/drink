@@ -1,12 +1,18 @@
-package io.github.kiryu1223.drink.test;
+package io.github.kiryu1223.drink.oldtest;
 
+import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.pojos.Department;
 import io.github.kiryu1223.drink.pojos.DeptEmp;
 import org.junit.Test;
 
 @SuppressWarnings("all")
 public class DeleteTest extends BaseTest
-{
+{private final DrinkClient client;
+
+    public DeleteTest()
+    {
+        client = mysql;
+    }
     @Test
     public void d1()
     {

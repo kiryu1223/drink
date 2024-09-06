@@ -1,5 +1,6 @@
-package io.github.kiryu1223.drink.test;
+package io.github.kiryu1223.drink.oldtest;
 
+import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.pojos.Department;
 import org.junit.Test;
@@ -9,7 +10,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class InsertTest extends BaseTest
-{
+{private final DrinkClient client;
+
+    public InsertTest()
+    {
+        client = mysql;
+    }
     @Test
     public void i1() throws InterruptedException
     {

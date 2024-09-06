@@ -1,7 +1,7 @@
-package io.github.kiryu1223.drink.test;
+package io.github.kiryu1223.drink.oldtest;
 
-import io.github.kiryu1223.drink.annotation.Column;
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.pojos.*;
 import org.junit.Test;
@@ -13,7 +13,12 @@ import java.util.List;
 
 public class DepartmentTest extends BaseTest
 {
+    private final DrinkClient client;
 
+    public DepartmentTest()
+    {
+        client = mysql;
+    }
     @Test
     public void q1()
     {

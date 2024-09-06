@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.test;
+package io.github.kiryu1223.drink.oldtest;
 
 import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.Result;
@@ -10,8 +10,6 @@ import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
-import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import io.github.kiryu1223.drink.pojos.*;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -262,7 +260,7 @@ public class SQLTest
     public void m9()
     {
         String sql = client.query(Topic.class)
-                .where(a -> convert(a.getId(), int.class) > 50)
+                .where(a -> cast(a.getId(), int.class) > 50)
                 .endSelect(s -> count(s.getId()))
                 .toSql();
 
@@ -273,7 +271,7 @@ public class SQLTest
     public void m10()
     {
         String sql = client.query(Topic.class)
-                .where(a -> convert(a.getId(), int.class) > 50)
+                .where(a -> cast(a.getId(), int.class) > 50)
                 .endSelect(s -> join("-", s.getId(), s.getTitle()))
                 .toSql();
 

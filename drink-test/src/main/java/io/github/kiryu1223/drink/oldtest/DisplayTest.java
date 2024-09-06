@@ -1,6 +1,7 @@
-package io.github.kiryu1223.drink.test;
+package io.github.kiryu1223.drink.oldtest;
 
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.pojos.*;
@@ -12,7 +13,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DisplayTest extends BaseTest
-{
+{private final DrinkClient client;
+
+    public DisplayTest()
+    {
+        client = mysql;
+    }
     @Test
     public void d1()
     {

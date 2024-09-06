@@ -1,11 +1,14 @@
-package io.github.kiryu1223.drink.test;
+package io.github.kiryu1223.drink.oldtest;
 
 
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.pojos.*;
-import io.github.kiryu1223.expressionTree.delegate.Func1;
+import io.github.kiryu1223.drink.pojos.Department;
+import io.github.kiryu1223.drink.pojos.DeptManager;
+import io.github.kiryu1223.drink.pojos.Employee;
+import io.github.kiryu1223.drink.pojos.Gender;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -14,6 +17,13 @@ import java.util.Map;
 
 public class QueryTest extends BaseTest
 {
+    private final DrinkClient client;
+
+    public QueryTest()
+    {
+        client = mysql;
+    }
+
     @Test
     public void q1()
     {

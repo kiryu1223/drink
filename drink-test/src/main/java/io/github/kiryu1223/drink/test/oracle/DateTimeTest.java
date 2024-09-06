@@ -1,21 +1,23 @@
-package io.github.kiryu1223.drink.mysql;
+package io.github.kiryu1223.drink.test.oracle;
 
+import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
+import io.github.kiryu1223.drink.test.BaseTest;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class DateTimeTest extends MySqlTest
+public class DateTimeTest extends OracleTest
 {
     private static final Logger log = LoggerFactory.getLogger(DateTimeTest.class);
 
     @Test
-    public void now() throws SQLException
+    public void now()
     {
         List<LocalDateTime> list = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.now())
@@ -23,7 +25,7 @@ public class DateTimeTest extends MySqlTest
 
         for (LocalDateTime localDateTime : list)
         {
-            log.debug(localDateTime.toString());
+            log.info(localDateTime.toString());
         }
     }
 
@@ -31,12 +33,12 @@ public class DateTimeTest extends MySqlTest
     public void dateTimeDiff()
     {
         List<Integer> list = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", SqlFunctions.now()))
+                .endSelect(() -> SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
                 .toList();
 
-        for (int localDateTime : list)
+        for (int len : list)
         {
-            log.debug(String.valueOf(localDateTime));
+            Assert.assertEquals(len,1161);
         }
     }
 }

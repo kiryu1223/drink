@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.ext;
 
 import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
+import io.github.kiryu1223.drink.ext.types.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -2293,7 +2294,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CAST({value} AS {targetType})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST({value} AS {targetType})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleCastExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST({value} AS {targetType})")
     public static <T> T cast(Object value, Class<T> targetType)
     {
@@ -2302,14 +2303,24 @@ public class SqlFunctions
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "CAST({value} AS {targetType})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONVERT({targetType},{value})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST({value} AS {targetType})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONVERT({targetType},{value})")
-    public static <T> T convert(Object value, Class<T> targetType)
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST({value} AS {targetType})")
+    public static <T> T cast(Object value, SqlTypes<T> targetType)
     {
         boom();
         return (T) new Object();
     }
+
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "CAST({value} AS {targetType})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONVERT({targetType},{value})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST({value} AS {targetType})")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONVERT({targetType},{value})")
+//    public static <T> T convert(Object value, Class<T> targetType)
+//    {
+//        boom();
+//        return (T) new Object();
+//    }
 
     @SqlExtensionExpression(function = "{t} IS NULL")
     public static <T> boolean isNull(T t)

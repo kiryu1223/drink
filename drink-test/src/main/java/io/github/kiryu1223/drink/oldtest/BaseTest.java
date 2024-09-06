@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.mysql;
+package io.github.kiryu1223.drink.oldtest;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.Drink;
@@ -9,13 +9,14 @@ import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
-import io.github.kiryu1223.drink.ext.DbType;
 
-public abstract class MySqlTest
+public class BaseTest
 {
-    protected final DrinkClient client;
+    protected final DrinkClient mysql;
+//    protected final DrinkClient oracle;
+//    protected final DrinkClient sqlserver;
 
-    MySqlTest()
+    BaseTest()
     {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8");
@@ -25,7 +26,7 @@ public abstract class MySqlTest
         DataSourceManager dataSourceManager = new DefaultDataSourceManager(dataSource);
         TransactionManager transactionManager = new DefaultTransactionManager(dataSourceManager);
         SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
-        client = Drink.bootStrap()
+        mysql = Drink.bootStrap()
                 .setDataSourceManager(dataSourceManager)
                 .setTransactionManager(transactionManager)
                 .setSqlSessionFactory(sqlSessionFactory)

@@ -46,9 +46,13 @@ public class SqlServerTypeExpression extends SqlTypeExpression
         {
             return "SIGNED";
         }
-        else if (type == String.class)
+        else if (isString())
         {
-            return "CHAR";
+            return "NVARCHAR";
+        }
+        else if (isChar())
+        {
+            return "NCHAR(1)";
         }
         throw new UnsupportedOperationException("不支持的Java类型:" + type.getName());
     }

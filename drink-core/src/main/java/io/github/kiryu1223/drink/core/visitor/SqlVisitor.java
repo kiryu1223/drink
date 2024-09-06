@@ -15,7 +15,7 @@ import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
-import io.github.kiryu1223.drink.ext.BaseSqlExtensionCache;
+import io.github.kiryu1223.drink.ext.SqlExtensionCache;
 import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.FunctionBox;
 import io.github.kiryu1223.expressionTree.expressions.*;
@@ -143,7 +143,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 {
                     expressions.add(visit(arg));
                 }
-                BaseSqlExtension baseSqlExtension = BaseSqlExtensionCache.get(sqlFuncExt.extension());
+                BaseSqlExtension baseSqlExtension = SqlExtensionCache.get(sqlFuncExt.extension());
                 FunctionBox parse = baseSqlExtension.parse(sqlFunction, expressions);
                 return factory.function(parse.getFunctions(), parse.getSqlExpressions());
             }
