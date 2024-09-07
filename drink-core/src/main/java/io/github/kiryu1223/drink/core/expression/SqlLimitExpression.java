@@ -8,18 +8,6 @@ public class SqlLimitExpression extends SqlExpression
 {
     private long offset, rows;
 
-    SqlLimitExpression(long rows)
-    {
-        this.offset = 0;
-        this.rows = rows;
-    }
-
-    SqlLimitExpression(long offset, long rows)
-    {
-        this.offset = offset;
-        this.rows = rows;
-    }
-
     public long getOffset()
     {
         return offset;

@@ -22,4 +22,10 @@ public class EndQuery<T> extends QueryBase
     {
         return super.toList();
     }
+
+    @Override
+    public T getOne()
+    {
+        return super.getOne();
+    }
 }

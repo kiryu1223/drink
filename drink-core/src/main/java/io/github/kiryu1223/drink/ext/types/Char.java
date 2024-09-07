@@ -17,7 +17,7 @@ public class Char extends SqlTypes<Character>
         switch (config.getDbType())
         {
             case MySQL:
-                return "CHAR";
+                return "CHAR(1)";
             case SqlServer:
                 return "NCHAR(1)";
         }

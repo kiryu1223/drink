@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.test.mysql;
 
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
-import io.github.kiryu1223.drink.ext.types.Varchar2;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,8 @@ public class LogicTest extends MysqlTest
     @Test
     public void castNumberTest() throws SQLException
     {
-        List<? extends Result> list = client.queryEmptyTable()
-                .endSelect(() -> new Result()
+        Result result = client.queryEmptyTable()
+                .select(() -> new Result()
                 {
                     byte b1 = cast("100", byte.class);
                     short s1 = cast("100", short.class);
@@ -55,24 +54,24 @@ public class LogicTest extends MysqlTest
                     float f1 = cast("100", float.class);
                     double d1 = cast("100", double.class);
                     BigDecimal bd1 = cast("10000.999999999999", BigDecimal.class);
-                }).toList();
+                }).getOne();
 
-        log.info(list.toString());
+        log.info(result.toString());
     }
 
     @Test
     public void castStringTest()
     {
-        List<? extends Result> list = client.queryEmptyTable()
-                .endSelect(() -> new Result()
+        Result one = client.queryEmptyTable()
+                .select(() -> new Result()
                 {
                     String s1 = cast(10000, String.class);
                     String s2 = cast(10000, SqlTypes.varchar2());
                     char c1 = cast("大大大", char.class);
                     char c2 = cast(2, char.class);
                     char c3 = cast("小小小", SqlTypes.Char());
-                }).toList();
+                }).getOne();
 
-        log.info(list.toString());
+        log.info(one.toString());
     }
 }

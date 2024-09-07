@@ -64,19 +64,9 @@ public abstract class SqlExpressionFactory
         return new SqlJoinsExpression();
     }
 
-    public SqlLimitExpression limit(long offset, long rows)
-    {
-        return new SqlLimitExpression(offset, rows);
-    }
-
     public SqlLimitExpression limit()
     {
-        return new SqlLimitExpression(0);
-    }
-
-    public SqlLimitExpression limit(long rows)
-    {
-        return new SqlLimitExpression(rows);
+        return new SqlLimitExpression();
     }
 
     public SqlOrderByExpression orderBy()

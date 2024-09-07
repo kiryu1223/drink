@@ -2,8 +2,6 @@ package io.github.kiryu1223.drink.test.oracle;
 
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
-import io.github.kiryu1223.drink.test.mssql.SqlServerTest;
-import io.github.kiryu1223.drink.test.mysql.MysqlTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

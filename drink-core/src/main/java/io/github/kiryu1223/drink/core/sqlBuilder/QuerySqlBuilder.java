@@ -134,12 +134,6 @@ public class QuerySqlBuilder implements ISqlBuilder
         change();
     }
 
-    public void setLimit(long rows)
-    {
-        queryable.setLimit(rows);
-        change();
-    }
-
     public void setDistinct(boolean distinct)
     {
         queryable.setDistinct(distinct);

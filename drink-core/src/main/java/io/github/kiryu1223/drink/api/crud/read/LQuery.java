@@ -363,6 +363,12 @@ public class LQuery<T> extends QueryBase
         return super.any();
     }
 
+    @Override
+    public T getOne()
+    {
+        return super.getOne();
+    }
+
     public List<T> toList()
     {
         return super.toList();

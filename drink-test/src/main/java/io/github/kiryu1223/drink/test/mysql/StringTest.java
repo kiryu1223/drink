@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.test.mysql;
 
 import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.test.mssql.SqlServerTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -131,11 +131,6 @@ public class SqlQueryableExpression extends SqlTableExpression
         limit.setRows(rows);
     }
 
-    public void setLimit(long rows)
-    {
-        limit.setRows(rows);
-    }
-
     public void setDistinct(boolean distinct)
     {
         this.distinct = distinct;

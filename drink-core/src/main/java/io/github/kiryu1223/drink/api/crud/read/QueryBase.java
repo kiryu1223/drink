@@ -7,7 +7,6 @@ import io.github.kiryu1223.drink.core.builder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.builder.IncludeSet;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
 import io.github.kiryu1223.drink.core.expression.*;
-import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
@@ -122,7 +121,7 @@ public abstract class QueryBase extends CRUD
         {
             try
             {
-                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(),session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable());
+                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable());
                 includeBuilder.include();
             }
             catch (InvocationTargetException | IllegalAccessException e)
@@ -131,6 +130,13 @@ public abstract class QueryBase extends CRUD
             }
         }
         return ts;
+    }
+
+    protected <T> T getOne()
+    {
+        limit0(1);
+        List<T> list = toList();
+        return list.isEmpty() ? null : list.get(0);
     }
 
     protected void distinct0(boolean condition)
@@ -277,7 +283,7 @@ public abstract class QueryBase extends CRUD
 
     protected void limit0(long rows)
     {
-        sqlBuilder.setLimit(rows);
+        limit0(0, rows);
     }
 
     protected void limit0(long offset, long rows)
