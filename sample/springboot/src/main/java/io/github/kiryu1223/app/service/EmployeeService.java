@@ -34,7 +34,7 @@ public class EmployeeService
 
     public Result getEmployeeDataByEmployeeNumber(int empId)
     {
-        List<? extends Result> list = client.query(Employee.class)
+        return client.query(Employee.class)
                 .leftJoin(Titles.class, (a, b) -> a.getNumber() == b.getEmpNumber())
                 .leftJoin(DeptEmp.class, (a, b, c) ->
                         a.getNumber() == c.getEmpNumber()
@@ -42,7 +42,6 @@ public class EmployeeService
                 )
                 .leftJoin(Department.class, (a, b, c, d) -> c.getDeptNumber() == d.getNumber())
                 .where((a, b, c, d) -> a.getNumber() == empId)
-                .limit(1)
                 .select((a, b, c, d) -> new Result()
                 {
                     int empId = a.getNumber();
@@ -55,9 +54,8 @@ public class EmployeeService
                     String title = b.getTitle();
                     LocalDate from = b.getFrom();
                     LocalDate to = b.getTo();
-                }).toList();
+                }).getOne();
 
-        return list.get(0);
     }
 
     // 查询某部门的所有员工及其当前职位
@@ -129,10 +127,9 @@ public class EmployeeService
 
     public Result getDeptManagerEmployeeByDepartmentNumber(String departmentId)
     {
-        List<? extends Result> list = client.query(DeptManager.class)
+        return client.query(DeptManager.class)
                 .innerJoin(Employee.class, (dm, e) -> dm.getEmpNumber() == e.getNumber())
                 .where((dm, e) -> dm.getDeptNumber() == departmentId && dm.getTo() == LocalDate.of(9999, 1, 1))
-                .limit(1)
                 .select((dm, e) -> new Result()
                 {
                     int managerId = dm.getEmpNumber();
@@ -140,9 +137,7 @@ public class EmployeeService
                     String lastName = e.getLastName();
                     LocalDate from = dm.getFrom();
                     LocalDate to = dm.getTo();
-                }).toList();
-
-        return list.get(0);
+                }).getOne();
     }
 
     // 查询员工在公司的总工作年限
@@ -155,18 +150,15 @@ public class EmployeeService
 
     public Result getEmployeeWorkedTimeByEmployeeId(int empId)
     {
-        List<? extends Result> list = client.query(Employee.class)
+        return client.query(Employee.class)
                 .where(e -> e.getNumber() == empId)
-                .limit(1)
                 .select(e -> new Result()
                 {
                     int id = e.getNumber();
                     int totalDaysWorked = SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, SqlFunctions.nowDate(), e.getHireDay());
                     int totalYearsWorked = SqlFunctions.floor(SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, SqlFunctions.nowDate(), e.getHireDay()) / 365);
                 })
-                .toList();
-
-        return list.get(0);
+                .getOne();
     }
 
     // 查询某部门员工的平均薪水
@@ -182,7 +174,7 @@ public class EmployeeService
     {
         LocalDate end = LocalDate.of(9999, 1, 1);
 
-        List<? extends Result> list = client.query(DeptEmp.class)
+        return client.query(DeptEmp.class)
                 .innerJoin(Salary.class, (de, s) -> de.getEmpNumber() == s.getEmpNumber())
                 .innerJoin(Department.class, (de, s, d) -> de.getDeptNumber() == d.getNumber())
                 .where((de, s, d) -> de.getDeptNumber() == departmentId && s.getTo() == end)
@@ -197,8 +189,6 @@ public class EmployeeService
                     String deptName = g.key.name;
                     BigDecimal avgSalary = g.avg((de, s, d) -> s.getSalary());
                 })
-                .toList();
-
-        return list.get(0);
+                .getOne();
     }
 }
