@@ -132,10 +132,12 @@ public abstract class QueryBase extends CRUD
         return ts;
     }
 
-    protected <T> T getOne()
+    protected <T> T frist()
     {
-        limit0(1);
-        List<T> list = toList();
+        QuerySqlBuilder querySqlBuilder = boxedQuerySqlBuilder();
+        querySqlBuilder.setLimit(0,1);
+        LQuery<T> lQuery = new LQuery<>(querySqlBuilder);
+        List<T> list = lQuery.toList();
         return list.isEmpty() ? null : list.get(0);
     }
 

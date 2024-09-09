@@ -54,7 +54,7 @@ public class LogicTest extends MysqlTest
                     float f1 = cast("100", float.class);
                     double d1 = cast("100", double.class);
                     BigDecimal bd1 = cast("10000.999999999999", BigDecimal.class);
-                }).getOne();
+                }).frist();
 
         log.info(result.toString());
     }
@@ -70,7 +70,7 @@ public class LogicTest extends MysqlTest
                     char c1 = cast("大大大", char.class);
                     char c2 = cast(2, char.class);
                     char c3 = cast("小小小", SqlTypes.Char());
-                }).getOne();
+                }).frist();
 
         log.info(one.toString());
     }

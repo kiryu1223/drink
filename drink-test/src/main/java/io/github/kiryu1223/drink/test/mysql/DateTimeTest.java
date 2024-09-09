@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.test.mysql;
 
 import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
 
@@ -33,7 +31,7 @@ public class DateTimeTest extends MysqlTest
                     LocalTime utcNowTime = utcNowTime();
                     LocalDateTime systemNow = systemNow();
                 })
-                .getOne();
+                .frist();
 
         log.info(one.toString());
     }
@@ -43,7 +41,7 @@ public class DateTimeTest extends MysqlTest
     {
         int one = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
-                .getOne();
+                .frist();
 
         Assert.assertEquals(one, 1161);
 
@@ -51,7 +49,7 @@ public class DateTimeTest extends MysqlTest
 
         Integer one1 = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", now))
-                .getOne();
+                .frist();
 
         log.info(one1.toString());
     }

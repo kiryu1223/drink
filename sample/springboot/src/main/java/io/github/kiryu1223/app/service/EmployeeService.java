@@ -54,7 +54,7 @@ public class EmployeeService
                     String title = b.getTitle();
                     LocalDate from = b.getFrom();
                     LocalDate to = b.getTo();
-                }).getOne();
+                }).frist();
 
     }
 
@@ -137,7 +137,7 @@ public class EmployeeService
                     String lastName = e.getLastName();
                     LocalDate from = dm.getFrom();
                     LocalDate to = dm.getTo();
-                }).getOne();
+                }).frist();
     }
 
     // 查询员工在公司的总工作年限
@@ -158,7 +158,7 @@ public class EmployeeService
                     int totalDaysWorked = SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, SqlFunctions.nowDate(), e.getHireDay());
                     int totalYearsWorked = SqlFunctions.floor(SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, SqlFunctions.nowDate(), e.getHireDay()) / 365);
                 })
-                .getOne();
+                .frist();
     }
 
     // 查询某部门员工的平均薪水
@@ -189,6 +189,6 @@ public class EmployeeService
                     String deptName = g.key.name;
                     BigDecimal avgSalary = g.avg((de, s, d) -> s.getSalary());
                 })
-                .getOne();
+                .frist();
     }
 }

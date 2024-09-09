@@ -1,14 +1,10 @@
 package io.github.kiryu1223.drink.test.mssql;
 
 import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.oracle.OracleTest;
-import io.github.kiryu1223.drink.test.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class StringTest extends SqlServerTest
 {
@@ -19,11 +15,11 @@ public class StringTest extends SqlServerTest
     {
         String c1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb"))
-                .getOne();
+                .frist();
         Assert.assertEquals(c1,"aabb");
         String c2 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb", "cc", "dd", "ee", "ff", "gg"))
-                .getOne();
+                .frist();
         Assert.assertEquals(c2,"aabbccddeeffgg");
     }
 
@@ -32,12 +28,12 @@ public class StringTest extends SqlServerTest
     {
         String j1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.join("+", "aa", "bb"))
-                .getOne();
+                .frist();
         Assert.assertEquals(j1,"aa+bb");
         String j2 = client.queryEmptyTable()
                 .endSelect(() ->
                         SqlFunctions.join("|", "aa", "bb", "cc", "dd", "ee", "ff", "gg")
-                ).getOne();
+                ).frist();
         Assert.assertEquals(j2,"aa|bb|cc|dd|ee|ff|gg");
     }
 }

@@ -6,8 +6,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class StringTest extends MysqlTest
 {
     private static final Logger log = LoggerFactory.getLogger(StringTest.class);
@@ -17,11 +15,11 @@ public class StringTest extends MysqlTest
     {
         String c1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb"))
-                .getOne();
+                .frist();
         Assert.assertEquals(c1,"aabb");
         String c2 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb", "cc", "dd", "ee", "ff", "gg"))
-                .getOne();
+                .frist();
         Assert.assertEquals(c2,"aabbccddeeffgg");
     }
 
@@ -30,12 +28,12 @@ public class StringTest extends MysqlTest
     {
         String j1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.join("+", "aa", "bb"))
-                .getOne();
+                .frist();
         Assert.assertEquals(j1,"aa+bb");
         String j2 = client.queryEmptyTable()
                 .endSelect(() ->
                         SqlFunctions.join("|", "aa", "bb", "cc", "dd", "ee", "ff", "gg")
-                ).getOne();
+                ).frist();
         Assert.assertEquals(j2,"aa|bb|cc|dd|ee|ff|gg");
     }
 }

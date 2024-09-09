@@ -12,17 +12,17 @@ import java.util.stream.Collectors;
 
 public class SqlQueryableExpression extends SqlTableExpression
 {
-    private final SqlSelectExpression select;
-    private final SqlFromExpression from;
-    private final SqlJoinsExpression joins;
-    private final SqlWhereExpression where;
-    private final SqlGroupByExpression groupBy;
-    private final SqlHavingExpression having;
-    private final SqlOrderByExpression orderBy;
-    private final SqlLimitExpression limit;
-    private boolean distinct = false;
+    protected final SqlSelectExpression select;
+    protected final SqlFromExpression from;
+    protected final SqlJoinsExpression joins;
+    protected final SqlWhereExpression where;
+    protected final SqlGroupByExpression groupBy;
+    protected final SqlHavingExpression having;
+    protected final SqlOrderByExpression orderBy;
+    protected final SqlLimitExpression limit;
+    protected boolean distinct = false;
 
-    SqlQueryableExpression(Config config, SqlFromExpression from)
+    protected SqlQueryableExpression(Config config, SqlFromExpression from)
     {
         this.from = from;
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

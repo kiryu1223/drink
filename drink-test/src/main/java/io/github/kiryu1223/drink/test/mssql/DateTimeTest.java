@@ -1,44 +1,57 @@
 package io.github.kiryu1223.drink.test.mssql;
 
-import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
-import io.github.kiryu1223.drink.test.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalTime;
+
+import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
+import static io.github.kiryu1223.drink.ext.SqlFunctions.dateTimeDiff;
 
 public class DateTimeTest extends SqlServerTest
 {
     private static final Logger log = LoggerFactory.getLogger(DateTimeTest.class);
 
     @Test
-    public void now()
+    public void nowTest()
     {
-        List<LocalDateTime> list = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.now())
-                .toList();
+        Result one = client.queryEmptyTable()
+                .select(() -> new Result()
+                {
+                    LocalDateTime now = now();
+                    LocalDateTime utcNow = utcNow();
+                    LocalDate nowDate = nowDate();
+                    LocalTime nowTime = nowTime();
+                    LocalDate utcNowDate = utcNowDate();
+                    LocalTime utcNowTime = utcNowTime();
+                    LocalDateTime systemNow = systemNow();
+                })
+                .frist();
 
-        for (LocalDateTime localDateTime : list)
-        {
-            log.info(localDateTime.toString());
-        }
+        log.info(one.toString());
     }
 
     @Test
-    public void dateTimeDiff()
+    public void dateTimeDiffTest()
     {
-        List<Integer> list = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
-                .toList();
+        int one = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
+                .frist();
 
-        for (int len : list)
-        {
-            Assert.assertEquals(len,1161);
-        }
+        Assert.assertEquals(one, 1161);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Integer one1 = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", now))
+                .frist();
+
+        log.info(one1.toString());
     }
 }
