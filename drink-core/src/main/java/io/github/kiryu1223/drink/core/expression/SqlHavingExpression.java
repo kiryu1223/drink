@@ -31,4 +31,11 @@ public class SqlHavingExpression extends SqlExpression
         if (conditions.isEmpty()) return "";
         return "HAVING " + conditions.getSql(config);
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.having(conditions.copy(config));
+    }
 }

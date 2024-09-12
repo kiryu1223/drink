@@ -13,6 +13,11 @@ import java.lang.annotation.Target;
 public @interface Column
 {
     /**
+     * 是否为主键
+     */
+    boolean primaryKey() default false;
+
+    /**
      * 数据库列名
      */
     String value() default "";

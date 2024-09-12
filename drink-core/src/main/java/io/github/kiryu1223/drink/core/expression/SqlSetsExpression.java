@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SqlSetsExpression extends SqlExpression
 {
-    private final List<SqlSetExpression> sets=new ArrayList<>();
+    private final List<SqlSetExpression> sets = new ArrayList<>();
 
     SqlSetsExpression()
     {
@@ -49,5 +49,17 @@ public class SqlSetsExpression extends SqlExpression
             strings.add(expression.getSql(config));
         }
         return "SET " + String.join(",", strings);
+    }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        SqlSetsExpression newSets = factory.sets();
+        for (SqlSetExpression set : sets)
+        {
+            newSets.addSet((SqlSetExpression) set.copy(config));
+        }
+        return (T) newSets;
     }
 }

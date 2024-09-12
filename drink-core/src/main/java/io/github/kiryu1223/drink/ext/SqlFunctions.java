@@ -104,7 +104,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "CURDATE()")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CURDATE()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CURRENT_DATE")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CURRENT_DATE")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST(GETDATE() AS DATE)")
     public static LocalDate nowDate()
     {
         boom();

@@ -52,4 +52,16 @@ public class SqlJoinsExpression extends SqlExpression
         }
         return String.join(" ", strings);
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        SqlJoinsExpression newJoins = factory.Joins();
+        for (SqlJoinExpression join : joins)
+        {
+            newJoins.addJoin(join.copy(config));
+        }
+        return (T) newJoins;
+    }
 }

@@ -1,5 +1,7 @@
 package io.github.kiryu1223.drink.core.expression;
 
+import io.github.kiryu1223.drink.config.Config;
+
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -10,14 +12,21 @@ public abstract class SqlTypeExpression extends SqlExpression
 {
     protected final Class<?> type;
 
+    protected SqlTypeExpression(Class<?> type)
+    {
+        this.type = type;
+    }
+
     public Class<?> getType()
     {
         return type;
     }
 
-    protected SqlTypeExpression(Class<?> type)
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
     {
-        this.type = type;
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.type(type);
     }
 
     protected boolean isBool()

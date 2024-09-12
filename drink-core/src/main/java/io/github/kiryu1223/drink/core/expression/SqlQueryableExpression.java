@@ -6,7 +6,6 @@ import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,19 +19,17 @@ public class SqlQueryableExpression extends SqlTableExpression
     protected final SqlHavingExpression having;
     protected final SqlOrderByExpression orderBy;
     protected final SqlLimitExpression limit;
-    protected boolean distinct = false;
 
-    protected SqlQueryableExpression(Config config, SqlFromExpression from)
+    public SqlQueryableExpression(SqlSelectExpression select, SqlFromExpression from, SqlJoinsExpression joins, SqlWhereExpression where, SqlGroupByExpression groupBy, SqlHavingExpression having, SqlOrderByExpression orderBy, SqlLimitExpression limit)
     {
+        this.select = select;
         this.from = from;
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        this.select = factory.select(from.getSqlTableExpression().getTableClass());
-        this.joins = factory.Joins();
-        this.where = factory.where();
-        this.groupBy = factory.groupBy(new LinkedHashMap<>());
-        this.having = factory.having(factory.condition());
-        this.orderBy = factory.orderBy();
-        this.limit = factory.limit();
+        this.joins = joins;
+        this.where = where;
+        this.groupBy = groupBy;
+        this.having = having;
+        this.orderBy = orderBy;
+        this.limit = limit;
     }
 
     @Override
@@ -40,10 +37,6 @@ public class SqlQueryableExpression extends SqlTableExpression
     {
         List<String> strings = new ArrayList<>();
         strings.add(select.getSqlAndValue(config, values));
-        if (distinct)
-        {
-            strings.add("DISTINCT");
-        }
         String fromSqlAndValue = from.getSqlAndValue(config, values);
         if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
         String joinsSqlAndValue = joins.getSqlAndValue(config, values);
@@ -61,30 +54,53 @@ public class SqlQueryableExpression extends SqlTableExpression
         return String.join(" ", strings);
     }
 
+//    public String getSqlAndValueAndFirst(Config config, List<Object> values)
+//    {
+//        List<String> strings = new ArrayList<>();
+//        strings.add(select.getSqlAndValue(config, values));
+//        String fromSqlAndValue = from.getSqlAndValue(config, values);
+//        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
+//        String joinsSqlAndValue = joins.getSqlAndValue(config, values);
+//        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
+//        String whereSqlAndValue = where.getSqlAndValue(config, values);
+//        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
+//        String groupBySqlAndValue = groupBy.getSqlAndValue(config, values);
+//        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
+//        String havingSqlAndValue = having.getSqlAndValue(config, values);
+//        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
+//        String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
+//        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
+//        strings.add("LIMIT 1");
+//        return String.join(" ", strings);
+//    }
+
     @Override
     public String getSql(Config config)
     {
         List<String> strings = new ArrayList<>();
         strings.add(select.getSql(config));
-        if (distinct)
-        {
-            strings.add("DISTINCT");
-        }
-        String fromSqlAndValue = from.getSql(config);
-        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
-        String joinsSqlAndValue = joins.getSql(config);
-        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
-        String whereSqlAndValue = where.getSql(config);
-        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
-        String groupBySqlAndValue = groupBy.getSql(config);
-        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
-        String havingSqlAndValue = having.getSql(config);
-        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
-        String orderBySqlAndValue = orderBy.getSql(config);
-        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-        String limitSqlAndValue = limit.getSql(config);
-        if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
+        String fromSql = from.getSql(config);
+        if (!fromSql.isEmpty()) strings.add(fromSql);
+        String joinsSql = joins.getSql(config);
+        if (!joinsSql.isEmpty()) strings.add(joinsSql);
+        String whereSql = where.getSql(config);
+        if (!whereSql.isEmpty()) strings.add(whereSql);
+        String groupBySql = groupBy.getSql(config);
+        if (!groupBySql.isEmpty()) strings.add(groupBySql);
+        String havingSql = having.getSql(config);
+        if (!havingSql.isEmpty()) strings.add(havingSql);
+        String orderBySql = orderBy.getSql(config);
+        if (!orderBySql.isEmpty()) strings.add(orderBySql);
+        String limitSql = limit.getSql(config);
+        if (!limitSql.isEmpty()) strings.add(limitSql);
         return String.join(" ", strings);
+    }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.queryable(select.copy(config), from.copy(config), joins.copy(config), where.copy(config), groupBy.copy(config), having.copy(config), orderBy.copy(config), limit.copy(config));
     }
 
     @Override
@@ -133,7 +149,7 @@ public class SqlQueryableExpression extends SqlTableExpression
 
     public void setDistinct(boolean distinct)
     {
-        this.distinct = distinct;
+        this.select.setSingle(distinct);
     }
 
     public SqlFromExpression getFrom()
@@ -214,5 +230,10 @@ public class SqlQueryableExpression extends SqlTableExpression
             }
             return propertyMetaDataList;
         }
+    }
+
+    public SqlHavingExpression getHaving()
+    {
+        return having;
     }
 }

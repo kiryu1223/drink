@@ -29,4 +29,11 @@ public class SqlAsExpression extends SqlExpression
         IDialect dialect = config.getDisambiguation();
         return expression.getSql(config) + " AS " + dialect.disambiguation(asName);
     }
+
+    @Override
+    public SqlAsExpression copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return factory.as(expression.copy(config), asName);
+    }
 }

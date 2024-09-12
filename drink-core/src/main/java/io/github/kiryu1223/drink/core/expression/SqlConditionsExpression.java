@@ -7,7 +7,7 @@ import java.util.List;
 
 public class SqlConditionsExpression extends SqlExpression
 {
-    private final List<SqlExpression> conditions=new ArrayList<>();
+    private final List<SqlExpression> conditions = new ArrayList<>();
 
     SqlConditionsExpression()
     {
@@ -43,5 +43,17 @@ public class SqlConditionsExpression extends SqlExpression
             whereStr.add(expression.getSql(config));
         }
         return String.join(" AND ", whereStr);
+    }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        SqlConditionsExpression newConditions = factory.condition();
+        for (SqlExpression condition : conditions)
+        {
+            newConditions.getConditions().add(condition.copy(config));
+        }
+        return (T) newConditions;
     }
 }

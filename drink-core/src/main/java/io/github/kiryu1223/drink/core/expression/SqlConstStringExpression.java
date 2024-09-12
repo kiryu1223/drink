@@ -24,4 +24,11 @@ public class SqlConstStringExpression extends SqlExpression
     {
         return string;
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.constString(string);
+    }
 }

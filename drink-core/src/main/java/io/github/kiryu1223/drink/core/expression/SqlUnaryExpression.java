@@ -47,4 +47,11 @@ public class SqlUnaryExpression extends SqlExpression
         }
         return res;
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.unary(operator, expression.copy(config));
+    }
 }

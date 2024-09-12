@@ -21,12 +21,14 @@ public class PropertyMetaData
     private final IConverter<?, ?> converter;
     private final boolean ignoreColumn;
     private final NavigateData navigateData;
+    private final boolean isPrimaryKey;
 
-    public PropertyMetaData(String property, String column, Method getter, Method setter, Field field, IConverter<?, ?> converter, boolean ignoreColumn, NavigateData navigateData)
+    public PropertyMetaData(String property, String column, Method getter, Method setter, Field field, IConverter<?, ?> converter, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey)
     {
         this.property = property;
         this.column = column;
         this.ignoreColumn = ignoreColumn;
+        this.isPrimaryKey = isPrimaryKey;
         getter.setAccessible(true);
         this.getter = getter;
         setter.setAccessible(true);
@@ -97,33 +99,23 @@ public class PropertyMetaData
         return field.getType();
     }
 
+    public boolean isPrimaryKey()
+    {
+        return isPrimaryKey;
+    }
+
     @Override
     public boolean equals(Object o)
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PropertyMetaData that = (PropertyMetaData) o;
-        return ignoreColumn == that.ignoreColumn && Objects.equals(property, that.property) && Objects.equals(column, that.column) && Objects.equals(getter, that.getter) && Objects.equals(setter, that.setter) && Objects.equals(field, that.field) && Objects.equals(converter, that.converter) && Objects.equals(navigateData, that.navigateData);
+        return ignoreColumn == that.ignoreColumn && isPrimaryKey == that.isPrimaryKey && Objects.equals(property, that.property) && Objects.equals(column, that.column) && Objects.equals(getter, that.getter) && Objects.equals(setter, that.setter) && Objects.equals(field, that.field) && Objects.equals(converter, that.converter) && Objects.equals(navigateData, that.navigateData);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(property, column, getter, setter, field, converter, ignoreColumn, navigateData);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "PropertyMetaData{" +
-                "property='" + property + '\'' +
-                ", column='" + column + '\'' +
-                ", getter=" + getter +
-                ", setter=" + setter +
-                ", field=" + field +
-                ", converter=" + converter +
-                ", ignoreColumn=" + ignoreColumn +
-                ", navigateData=" + navigateData +
-                '}';
+        return Objects.hash(property, column, getter, setter, field, converter, ignoreColumn, navigateData, isPrimaryKey);
     }
 }

@@ -75,4 +75,11 @@ public class SqlBinaryExpression extends SqlExpression
         }
         return sb.toString();
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.binary(operator, left.copy(config), right.copy(config));
+    }
 }

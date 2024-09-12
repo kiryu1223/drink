@@ -5,19 +5,15 @@ import io.github.kiryu1223.drink.config.Config;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SqlGroupByExpression extends SqlExpression
 {
-    private LinkedHashMap<String, SqlExpression> columns;
-
-    SqlGroupByExpression(LinkedHashMap<String, SqlExpression> columns)
-    {
-        this.columns = columns;
-    }
+    protected final LinkedHashMap<String, SqlExpression> columns = new LinkedHashMap<>();
 
     public void setColumns(LinkedHashMap<String, SqlExpression> columns)
     {
-        this.columns = columns;
+        this.columns.putAll(columns);
     }
 
     public LinkedHashMap<String, SqlExpression> getColumns()
@@ -47,5 +43,17 @@ public class SqlGroupByExpression extends SqlExpression
             strings.add(column.getSql(config));
         }
         return "GROUP BY " + String.join(",", strings);
+    }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        SqlGroupByExpression groupByExpression = factory.groupBy();
+        for (Map.Entry<String, SqlExpression> entry : columns.entrySet())
+        {
+            groupByExpression.getColumns().put(entry.getKey(),entry.getValue().copy(config));
+        }
+        return (T) groupByExpression;
     }
 }

@@ -42,9 +42,29 @@ public class SqlServerTypeExpression extends SqlTypeExpression
         {
             return "DECIMAL(32,16)";
         }
-        else if (type == byte.class || type == short.class || type == int.class || type == long.class || type == Byte.class || type == Short.class || type == Integer.class || type == Long.class)
+        else if (isByte())
         {
-            return "SIGNED";
+            return "TINYINT";
+        }
+        else if (isShort())
+        {
+            return "SMALLINT";
+        }
+        else if (isInt())
+        {
+            return "INT";
+        }
+        else if (isLong())
+        {
+            return "BIGINT";
+        }
+        else if (isFloat() || isDouble())
+        {
+            return "DECIMAL(32,16)";
+        }
+        else if (isDecimal())
+        {
+            return "DECIMAL(36,18)";
         }
         else if (isString())
         {

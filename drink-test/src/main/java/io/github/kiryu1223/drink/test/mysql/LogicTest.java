@@ -8,37 +8,36 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.List;
 
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
 import static io.github.kiryu1223.drink.ext.SqlTimeUnit.DAY;
 
-public class LogicTest extends MysqlTest
+public class LogicTest extends BaseTest
 {
     private static final Logger log = LoggerFactory.getLogger(LogicTest.class);
 
     @Test
     public void noGirlFriendTest()
     {
-        List<String> day1 = client.queryEmptyTable()
+        String day1 = client.queryEmptyTable()
                 .endSelect(() -> concat(
                         "没有女朋友的第",
                         cast(dateTimeDiff(DAY, "1996-10-27", now()), String.class),
                         "天")
                 )
-                .toList();
+                .first();
 
-        log.info(day1.toString());
+        log.info(day1);
 
-        List<String> day2 = client.queryEmptyTable()
+        String day2 = client.queryEmptyTable()
                 .endSelect(() -> concat(
                         "没有女朋友的第",
                         cast(dateTimeDiff(DAY, "1996-10-27", now()), SqlTypes.varchar2()),
                         "天")
                 )
-                .toList();
+                .first();
 
-        log.info(day2.toString());
+        log.info(day2);
     }
 
     @Test
@@ -54,7 +53,7 @@ public class LogicTest extends MysqlTest
                     float f1 = cast("100", float.class);
                     double d1 = cast("100", double.class);
                     BigDecimal bd1 = cast("10000.999999999999", BigDecimal.class);
-                }).frist();
+                }).first();
 
         log.info(result.toString());
     }
@@ -70,7 +69,7 @@ public class LogicTest extends MysqlTest
                     char c1 = cast("大大大", char.class);
                     char c2 = cast(2, char.class);
                     char c3 = cast("小小小", SqlTypes.Char());
-                }).frist();
+                }).first();
 
         log.info(one.toString());
     }

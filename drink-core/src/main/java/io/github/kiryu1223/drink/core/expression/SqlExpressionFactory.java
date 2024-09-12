@@ -24,6 +24,11 @@ public abstract class SqlExpressionFactory
         return new SqlAsExpression(expression, asName);
     }
 
+    public SqlColumnExpression column(PropertyMetaData propertyMetaData)
+    {
+        return column(propertyMetaData, 0);
+    }
+
     public SqlColumnExpression column(PropertyMetaData propertyMetaData, int tableIndex)
     {
         return new SqlColumnExpression(propertyMetaData, tableIndex);
@@ -44,14 +49,26 @@ public abstract class SqlExpressionFactory
         return new SqlFromExpression(sqlTable, index);
     }
 
-    public SqlGroupByExpression groupBy(LinkedHashMap<String, SqlExpression> columns)
+    public SqlGroupByExpression groupBy()
     {
-        return new SqlGroupByExpression(columns);
+        return new SqlGroupByExpression();
     }
 
-    public SqlHavingExpression having(SqlConditionsExpression condition)
+    public SqlGroupByExpression groupBy(LinkedHashMap<String, SqlExpression> columns)
     {
-        return new SqlHavingExpression(condition);
+        SqlGroupByExpression groupByExpression = new SqlGroupByExpression();
+        groupByExpression.setColumns(columns);
+        return groupByExpression;
+    }
+
+    public SqlHavingExpression having(SqlConditionsExpression conditions)
+    {
+        return new SqlHavingExpression(conditions);
+    }
+
+    public SqlHavingExpression having()
+    {
+        return new SqlHavingExpression(condition());
     }
 
     public SqlJoinExpression join(JoinType joinType, SqlTableExpression joinTable, SqlExpression conditions, int index)
@@ -67,6 +84,14 @@ public abstract class SqlExpressionFactory
     public SqlLimitExpression limit()
     {
         return new SqlLimitExpression();
+    }
+
+    public SqlLimitExpression limit(long offset, long rows)
+    {
+        SqlLimitExpression limit = limit();
+        limit.setOffset(offset);
+        limit.setRows(rows);
+        return limit;
     }
 
     public SqlOrderByExpression orderBy()
@@ -96,12 +121,17 @@ public abstract class SqlExpressionFactory
 
     public SqlQueryableExpression queryable(SqlFromExpression from)
     {
-        return new SqlQueryableExpression(config, from);
+        return queryable(select(from.getSqlTableExpression().getTableClass()), from, Joins(), where(), groupBy(), having(), orderBy(), limit());
     }
 
-    public SqlQueryableExpression queryable(SqlQueryableExpression queryable)
+    public SqlQueryableExpression queryable(SqlTableExpression table)
     {
-        return queryable(from(queryable));
+        return queryable(from(table));
+    }
+
+    public SqlQueryableExpression queryable(SqlSelectExpression select, SqlFromExpression from, SqlJoinsExpression joins, SqlWhereExpression where, SqlGroupByExpression groupBy, SqlHavingExpression having, SqlOrderByExpression orderBy, SqlLimitExpression limit)
+    {
+        return new SqlQueryableExpression(select, from, joins, where, groupBy, having, orderBy, limit);
     }
 
     public SqlRealTableExpression table(Class<?> tableClass)

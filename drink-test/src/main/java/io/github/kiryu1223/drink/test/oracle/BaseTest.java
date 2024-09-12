@@ -6,14 +6,13 @@ import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.ext.DbType;
-import io.github.kiryu1223.drink.test.BaseTest;
 
-abstract class OracleTest
+abstract class BaseTest
 {
     protected final DrinkClient client;
     protected HikariDataSource oracleDataSource;
 
-    public OracleTest()
+    public BaseTest()
     {
         this.client = initOracle();
     }

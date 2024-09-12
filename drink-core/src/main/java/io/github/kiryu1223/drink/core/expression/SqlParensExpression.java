@@ -29,4 +29,11 @@ public class SqlParensExpression extends SqlExpression
     {
         return "(" + expression.getSql(config) + ")";
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.parens(expression.copy(config));
+    }
 }

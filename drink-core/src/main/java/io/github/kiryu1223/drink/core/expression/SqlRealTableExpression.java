@@ -42,4 +42,11 @@ public class SqlRealTableExpression extends SqlTableExpression
         fullName += dbConfig.disambiguation(metaData.getTableName());
         return fullName;
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.table(tableClass);
+    }
 }

@@ -22,6 +22,11 @@ public class SqlFromExpression extends SqlExpression
         return sqlTableExpression;
     }
 
+    public boolean isEmptyTable()
+    {
+        return sqlTableExpression.getTableClass() == Empty.class;
+    }
+
     public int getIndex()
     {
         return index;
@@ -61,6 +66,13 @@ public class SqlFromExpression extends SqlExpression
             sql = "(" + sqlTableExpression.getSql(config) + ")";
         }
         return "FROM " + sql + " AS t" + index;
+    }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.from(sqlTableExpression.copy(config), index);
     }
 
     private boolean checkIsEmptyTable()

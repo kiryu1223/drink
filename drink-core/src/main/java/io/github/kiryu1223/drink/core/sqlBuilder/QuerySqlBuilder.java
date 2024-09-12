@@ -39,6 +39,12 @@ public class QuerySqlBuilder implements ISqlBuilder
         queryable = factory.queryable(factory.from(target, offset));
     }
 
+    public QuerySqlBuilder(Config config, SqlQueryableExpression queryable)
+    {
+        this.config = config;
+        this.queryable = queryable;
+    }
+
     public void addWhere(SqlExpression cond)
     {
         queryable.addWhere(cond);
@@ -54,7 +60,7 @@ public class QuerySqlBuilder implements ISqlBuilder
         else
         {
             SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-            addWhere(factory.unary(SqlOperator.OR,cond));
+            addWhere(factory.unary(SqlOperator.OR, cond));
         }
     }
 
@@ -187,6 +193,27 @@ public class QuerySqlBuilder implements ISqlBuilder
         }
     }
 
+//    public String getSqlAndValueAndFirst(List<Object> values)
+//    {
+//        if (isChanged)
+//        {
+//            return queryable.getSqlAndValueAndFirst(config, values);
+//        }
+//        else
+//        {
+//            SqlTableExpression sqlTableExpression = queryable.getFrom().getSqlTableExpression();
+//            if (sqlTableExpression instanceof SqlRealTableExpression)
+//            {
+//                return queryable.getSqlAndValueAndFirst(config, values);
+//            }
+//            else
+//            {
+//                SqlQueryableExpression tableExpression = (SqlQueryableExpression) sqlTableExpression;
+//                return tableExpression.getSqlAndValueAndFirst(config, values);
+//            }
+//        }
+//    }
+
     public List<Class<?>> getOrderedClass()
     {
         return queryable.getOrderedClass();
@@ -235,6 +262,6 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public IncludeSet getLastIncludeSet()
     {
-        return includeSets.get(includeSets.size()-1);
+        return includeSets.get(includeSets.size() - 1);
     }
 }

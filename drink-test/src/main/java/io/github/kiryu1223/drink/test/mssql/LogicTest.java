@@ -8,44 +8,43 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.List;
 
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
 import static io.github.kiryu1223.drink.ext.SqlTimeUnit.DAY;
 
-public class LogicTest extends SqlServerTest
+public class LogicTest extends BaseTest
 {
     private static final Logger log = LoggerFactory.getLogger(LogicTest.class);
 
     @Test
     public void noGirlFriendTest()
     {
-        List<String> day1 = client.queryEmptyTable()
+        String day1 = client.queryEmptyTable()
                 .endSelect(() -> concat(
                         "没有女朋友的第",
                         cast(dateTimeDiff(DAY, "1996-10-27", now()), String.class),
                         "天")
                 )
-                .toList();
+                .first();
 
-        log.info(day1.toString());
+        log.info(day1);
 
-        List<String> day2 = client.queryEmptyTable()
+        String day2 = client.queryEmptyTable()
                 .endSelect(() -> concat(
                         "没有女朋友的第",
                         cast(dateTimeDiff(DAY, "1996-10-27", now()), SqlTypes.varchar2()),
                         "天")
                 )
-                .toList();
+                .first();
 
-        log.info(day2.toString());
+        log.info(day2);
     }
 
     @Test
     public void castNumberTest() throws SQLException
     {
-        List<? extends Result> list = client.queryEmptyTable()
-                .endSelect(() -> new Result()
+        Result result = client.queryEmptyTable()
+                .select(() -> new Result()
                 {
                     byte b1 = cast("100", byte.class);
                     short s1 = cast("100", short.class);
@@ -54,24 +53,24 @@ public class LogicTest extends SqlServerTest
                     float f1 = cast("100", float.class);
                     double d1 = cast("100", double.class);
                     BigDecimal bd1 = cast("10000.999999999999", BigDecimal.class);
-                }).toList();
+                }).first();
 
-        log.info(list.toString());
+        log.info(result.toString());
     }
 
     @Test
     public void castStringTest()
     {
-        List<? extends Result> list = client.queryEmptyTable()
-                .endSelect(() -> new Result()
+        Result one = client.queryEmptyTable()
+                .select(() -> new Result()
                 {
                     String s1 = cast(10000, String.class);
                     String s2 = cast(10000, SqlTypes.varchar2());
                     char c1 = cast("大大大", char.class);
                     char c2 = cast(2, char.class);
                     char c3 = cast("小小小", SqlTypes.Char());
-                }).toList();
+                }).first();
 
-        log.info(list.toString());
+        log.info(one.toString());
     }
 }

@@ -27,4 +27,10 @@ public class OracleSqlExpressionFactory extends SqlExpressionFactory
     {
         return new OracleJoinExpression(joinType, joinTable, conditions, index);
     }
+
+    @Override
+    public SqlQueryableExpression queryable(SqlSelectExpression select, SqlFromExpression from, SqlJoinsExpression joins, SqlWhereExpression where, SqlGroupByExpression groupBy, SqlHavingExpression having, SqlOrderByExpression orderBy, SqlLimitExpression limit)
+    {
+        return new OracleQueryableExpression(select, from, joins, where, groupBy, having, orderBy, limit);
+    }
 }

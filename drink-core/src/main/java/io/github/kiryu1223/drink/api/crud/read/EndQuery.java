@@ -24,8 +24,8 @@ public class EndQuery<T> extends QueryBase
     }
 
     @Override
-    public T frist()
+    public T first()
     {
-        return super.frist();
+        return super.first();
     }
 }

@@ -39,4 +39,11 @@ public class SqlColumnExpression extends SqlExpression
         IDialect dbConfig = config.getDisambiguation();
         return "t" + tableIndex + "." + dbConfig.disambiguation(propertyMetaData.getColumn());
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.column(propertyMetaData,tableIndex);
+    }
 }

@@ -44,6 +44,7 @@ public class MetaData
             IConverter<?, ?> converter = column == null ? ConverterCache.get(NoConverter.class) : ConverterCache.get(column.converter());
             NavigateData navigateData = null;
             Navigate navigate = field.getAnnotation(Navigate.class);
+            boolean isPrimaryKey = column != null && column.primaryKey();
             if (navigate != null)
             {
                 Class<?> navigateTargetType;
@@ -60,7 +61,7 @@ public class MetaData
                 }
             }
             boolean ignoreColumn = field.getAnnotation(IgnoreColumn.class) != null || navigateData != null;
-            propertys.add(new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn, navigateData));
+            propertys.add(new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn, navigateData,isPrimaryKey));
         }
     }
 
@@ -115,6 +116,11 @@ public class MetaData
     public String getColumnNameBySetter(Method setter)
     {
         return propertys.stream().filter(f -> f.getSetter().equals(setter)).findFirst().get().getColumn();
+    }
+
+    public PropertyMetaData getPrimary()
+    {
+        return propertys.stream().filter(f -> f.isPrimaryKey()).findFirst().orElse(null);
     }
 
     public Class<?> getType()

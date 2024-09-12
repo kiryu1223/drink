@@ -364,9 +364,9 @@ public class LQuery<T> extends QueryBase
     }
 
     @Override
-    public T frist()
+    public T first()
     {
-        return super.frist();
+        return super.first();
     }
 
     public List<T> toList()

@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SqlFunctionExpression extends SqlExpression
@@ -47,5 +48,14 @@ public class SqlFunctionExpression extends SqlExpression
             }
         }
         return sb.toString();
+    }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        List<String> newFunctions = new ArrayList<>(functions);
+        List<? extends SqlExpression> newExpressions = new ArrayList<>(expressions);
+        return (T) factory.function(newFunctions, newExpressions);
     }
 }

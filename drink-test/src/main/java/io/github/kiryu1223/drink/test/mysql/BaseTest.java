@@ -10,14 +10,13 @@ import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
-import io.github.kiryu1223.drink.test.BaseTest;
 
-abstract class MysqlTest
+abstract class BaseTest
 {
     protected final DrinkClient client;
     protected HikariDataSource mysqlDataSource;
 
-    public MysqlTest()
+    public BaseTest()
     {
         this.client = initMysql();
     }

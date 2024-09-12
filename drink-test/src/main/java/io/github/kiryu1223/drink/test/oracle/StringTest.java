@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StringTest extends OracleTest
+public class StringTest extends BaseTest
 {
     private static final Logger log = LoggerFactory.getLogger(StringTest.class);
 
@@ -15,11 +15,11 @@ public class StringTest extends OracleTest
     {
         String c1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb"))
-                .frist();
+                .first();
         Assert.assertEquals(c1,"aabb");
         String c2 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb", "cc", "dd", "ee", "ff", "gg"))
-                .frist();
+                .first();
         Assert.assertEquals(c2,"aabbccddeeffgg");
     }
 
@@ -28,12 +28,12 @@ public class StringTest extends OracleTest
     {
         String j1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.join("+", "aa", "bb"))
-                .frist();
+                .first();
         Assert.assertEquals(j1,"aa+bb");
         String j2 = client.queryEmptyTable()
                 .endSelect(() ->
                         SqlFunctions.join("|", "aa", "bb", "cc", "dd", "ee", "ff", "gg")
-                ).frist();
+                ).first();
         Assert.assertEquals(j2,"aa|bb|cc|dd|ee|ff|gg");
     }
 }

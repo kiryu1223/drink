@@ -14,7 +14,7 @@ import java.time.LocalTime;
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
 import static io.github.kiryu1223.drink.ext.SqlFunctions.dateTimeDiff;
 
-public class DateTimeTest extends SqlServerTest
+public class DateTimeTest extends BaseTest
 {
     private static final Logger log = LoggerFactory.getLogger(DateTimeTest.class);
 
@@ -32,7 +32,7 @@ public class DateTimeTest extends SqlServerTest
                     LocalTime utcNowTime = utcNowTime();
                     LocalDateTime systemNow = systemNow();
                 })
-                .frist();
+                .first();
 
         log.info(one.toString());
     }
@@ -42,7 +42,7 @@ public class DateTimeTest extends SqlServerTest
     {
         int one = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
-                .frist();
+                .first();
 
         Assert.assertEquals(one, 1161);
 
@@ -50,7 +50,7 @@ public class DateTimeTest extends SqlServerTest
 
         Integer one1 = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", now))
-                .frist();
+                .first();
 
         log.info(one1.toString());
     }

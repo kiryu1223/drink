@@ -101,6 +101,7 @@ public abstract class QueryBase extends CRUD
 //        return map;
 //    }
 
+
     protected <T> List<T> toList()
     {
         Config config = getConfig();
@@ -132,11 +133,12 @@ public abstract class QueryBase extends CRUD
         return ts;
     }
 
-    protected <T> T frist()
+    protected <T> T first()
     {
-        QuerySqlBuilder querySqlBuilder = boxedQuerySqlBuilder();
-        querySqlBuilder.setLimit(0,1);
+        SqlQueryableExpression queryableCopy = getSqlBuilder().getQueryable().copy(getConfig());
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), queryableCopy);
         LQuery<T> lQuery = new LQuery<>(querySqlBuilder);
+        lQuery.limit(0,1);
         List<T> list = lQuery.toList();
         return list.isEmpty() ? null : list.get(0);
     }

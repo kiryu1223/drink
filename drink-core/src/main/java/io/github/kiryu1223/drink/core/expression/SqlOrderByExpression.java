@@ -51,4 +51,16 @@ public class SqlOrderByExpression extends SqlExpression
         }
         return "ORDER BY " + String.join(",", strings);
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        SqlOrderByExpression sqlOrderByExpression = factory.orderBy();
+        for (SqlOrderExpression sqlOrder : sqlOrders)
+        {
+            sqlOrderByExpression.addOrder(sqlOrder.copy(config));
+        }
+        return (T) sqlOrderByExpression;
+    }
 }

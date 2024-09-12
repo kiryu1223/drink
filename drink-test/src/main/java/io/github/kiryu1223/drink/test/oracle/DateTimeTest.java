@@ -7,16 +7,36 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.*;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
-import static io.github.kiryu1223.drink.ext.SqlFunctions.dateTimeDiff;
 
-public class DateTimeTest extends OracleTest
+public class DateTimeTest extends BaseTest
 {
     private static final Logger log = LoggerFactory.getLogger(DateTimeTest.class);
+
+    @Test
+    public void conn() throws SQLException
+    {
+        try (Connection connection = oracleDataSource.getConnection())
+        {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT CAST(? AS DATE) - TO_DATE('1996-10-27' ,'YYYY-MM-DD hh:mi:ss') FROM DUAL"))
+            {
+                preparedStatement.setObject(1, LocalDateTime.now());
+                try (ResultSet resultSet = preparedStatement.executeQuery())
+                {
+                    resultSet.next();
+                    Object object = resultSet.getObject(1);
+                    System.out.println(object);
+                    System.out.println(object.getClass());
+                }
+            }
+        }
+    }
 
     @Test
     public void nowTest()
@@ -32,7 +52,7 @@ public class DateTimeTest extends OracleTest
                     LocalTime utcNowTime = utcNowTime();
                     LocalDateTime systemNow = systemNow();
                 })
-                .frist();
+                .first();
 
         log.info(one.toString());
     }
@@ -42,16 +62,16 @@ public class DateTimeTest extends OracleTest
     {
         int one = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
-                .frist();
+                .first();
 
         Assert.assertEquals(one, 1161);
 
         LocalDateTime now = LocalDateTime.now();
 
-        Integer one1 = client.queryEmptyTable()
+        int one1 = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", now))
-                .frist();
+                .first();
 
-        log.info(one1.toString());
+        log.info(String.valueOf(one1));
     }
 }

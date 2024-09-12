@@ -67,4 +67,11 @@ public class SqlSingleValueExpression extends SqlValueExpression
             return "?";
         }
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.value(value);
+    }
 }

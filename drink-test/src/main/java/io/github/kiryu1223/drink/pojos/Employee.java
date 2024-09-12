@@ -11,7 +11,7 @@ import java.util.List;
 @Table("employees")
 public class Employee
 {
-    @Column("emp_no")
+    @Column(value = "emp_no",primaryKey = true)
     private int number;
     @Column("birth_date")
     private LocalDate birthDay;

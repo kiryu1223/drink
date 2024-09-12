@@ -37,4 +37,11 @@ public class SqlSetExpression extends SqlExpression
     {
         return column.getSql(config) + " = " + value.getSql(config);
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.set(column.copy(config), value.copy(config));
+    }
 }

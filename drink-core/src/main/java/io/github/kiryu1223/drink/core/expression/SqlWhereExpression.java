@@ -41,4 +41,11 @@ public class SqlWhereExpression extends SqlExpression
         if (conditions.isEmpty()) return "";
         return "WHERE " + conditions.getSql(config);
     }
+
+    @Override
+    public <T extends SqlExpression> T copy(Config config)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return (T) factory.where(conditions.copy(config));
+    }
 }
