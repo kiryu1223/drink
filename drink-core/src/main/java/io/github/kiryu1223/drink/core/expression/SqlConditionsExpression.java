@@ -35,17 +35,6 @@ public class SqlConditionsExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        List<String> whereStr = new ArrayList<>(conditions.size());
-        for (SqlExpression expression : conditions)
-        {
-            whereStr.add(expression.getSql(config));
-        }
-        return String.join(" AND ", whereStr);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

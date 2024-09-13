@@ -20,12 +20,6 @@ public class SqlConstStringExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        return string;
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

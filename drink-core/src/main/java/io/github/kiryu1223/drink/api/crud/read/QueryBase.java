@@ -138,7 +138,7 @@ public abstract class QueryBase extends CRUD
         SqlQueryableExpression queryableCopy = getSqlBuilder().getQueryable().copy(getConfig());
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), queryableCopy);
         LQuery<T> lQuery = new LQuery<>(querySqlBuilder);
-        lQuery.limit(0,1);
+        lQuery.limit(1);
         List<T> list = lQuery.toList();
         return list.isEmpty() ? null : list.get(0);
     }

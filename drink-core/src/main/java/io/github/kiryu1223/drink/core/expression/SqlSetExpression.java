@@ -33,12 +33,6 @@ public class SqlSetExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        return column.getSql(config) + " = " + value.getSql(config);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

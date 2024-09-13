@@ -17,7 +17,7 @@ public class OracleQueryableExpression extends SqlQueryableExpression
     public String getSqlAndValue(Config config, List<Object> values)
     {
         List<String> strings = new ArrayList<>();
-        if (limit.onlyHasRows() || limit.hasRowsAndOffset())
+        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
         {
             strings.add("SELECT * FROM (SELECT t.*,ROWNUM AS \"-ROWNUM-\" FROM (");
         }
@@ -34,45 +34,9 @@ public class OracleQueryableExpression extends SqlQueryableExpression
         if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
         String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
         if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-        if (limit.onlyHasRows() || limit.hasRowsAndOffset())
+        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
         {
             strings.add(") t) WHERE \"-ROWNUM-\"");
-            if (limit.onlyHasRows())
-            {
-                strings.add("<= " + limit.getRows());
-            }
-            else
-            {
-                strings.add(String.format("BETWEEN %d AND %d", limit.getOffset() + 1, limit.getOffset() + limit.getRows()));
-            }
-        }
-        return String.join(" ", strings);
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
-        List<String> strings = new ArrayList<>();
-        if (limit.onlyHasRows() || limit.hasRowsAndOffset())
-        {
-            strings.add("SELECT * FROM ( SELECT t.*,ROWNUM AS \"-ROWNUM-\" FROM (");
-        }
-        strings.add(select.getSql(config));
-        String fromSql = from.getSql(config);
-        if (!fromSql.isEmpty()) strings.add(fromSql);
-        String joinsSql = joins.getSql(config);
-        if (!joinsSql.isEmpty()) strings.add(joinsSql);
-        String whereSql = where.getSql(config);
-        if (!whereSql.isEmpty()) strings.add(whereSql);
-        String groupBySql = groupBy.getSql(config);
-        if (!groupBySql.isEmpty()) strings.add(groupBySql);
-        String havingSql = having.getSql(config);
-        if (!havingSql.isEmpty()) strings.add(havingSql);
-        String orderBySql = orderBy.getSql(config);
-        if (!orderBySql.isEmpty()) strings.add(orderBySql);
-        if (limit.onlyHasRows() || limit.hasRowsAndOffset())
-        {
-            strings.add(") t ) WHERE \"-ROWNUM-\"");
             if (limit.onlyHasRows())
             {
                 strings.add("<= " + limit.getRows());

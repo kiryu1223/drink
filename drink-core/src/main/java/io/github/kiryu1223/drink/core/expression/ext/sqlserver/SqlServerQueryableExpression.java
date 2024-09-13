@@ -36,60 +36,14 @@ public class SqlServerQueryableExpression extends SqlQueryableExpression
         if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
         if (!from.isEmptyTable() && limit.hasRowsAndOffset() && orderBy.isEmpty())
         {
-            addOrder(strings, config);
+            addOrder(strings, values, config);
         }
         String limitSqlAndValue = limit.getSqlAndValue(config, values);
         if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
         return String.join(" ", strings);
     }
 
-//    @Override
-//    public String getSqlAndValueAndFirst(Config config, List<Object> values)
-//    {
-//        List<String> strings = new ArrayList<>();
-//        makeSelectTop1(strings, values, config);
-//        String fromSqlAndValue = from.getSqlAndValue(config, values);
-//        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
-//        String joinsSqlAndValue = joins.getSqlAndValue(config, values);
-//        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
-//        String whereSqlAndValue = where.getSqlAndValue(config, values);
-//        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
-//        String groupBySqlAndValue = groupBy.getSqlAndValue(config, values);
-//        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
-//        String havingSqlAndValue = having.getSqlAndValue(config, values);
-//        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
-//        String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
-//        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-//        return String.join(" ", strings);
-//    }
-
-    @Override
-    public String getSql(Config config)
-    {
-        List<String> strings = new ArrayList<>();
-        makeSelect(strings, null, config);
-        String fromSql = from.getSql(config);
-        if (!fromSql.isEmpty()) strings.add(fromSql);
-        String joinsSql = joins.getSql(config);
-        if (!joinsSql.isEmpty()) strings.add(joinsSql);
-        String whereSql = where.getSql(config);
-        if (!whereSql.isEmpty()) strings.add(whereSql);
-        String groupBySql = groupBy.getSql(config);
-        if (!groupBySql.isEmpty()) strings.add(groupBySql);
-        String havingSql = having.getSql(config);
-        if (!havingSql.isEmpty()) strings.add(havingSql);
-        String orderBySql = orderBy.getSql(config);
-        if (!orderBySql.isEmpty()) strings.add(orderBySql);
-        if (!from.isEmptyTable() && limit.hasRowsAndOffset() && orderBy.isEmpty())
-        {
-            addOrder(strings, config);
-        }
-        String limitSql = limit.getSql(config);
-        if (!limitSql.isEmpty()) strings.add(limitSql);
-        return String.join(" ", strings);
-    }
-
-    private void addOrder(List<String> strings, Config config)
+    private void addOrder(List<String> strings, List<Object> values, Config config)
     {
         MetaData metaData = MetaDataCache.getMetaData(from.getSqlTableExpression().getTableClass());
         PropertyMetaData primary = metaData.getPrimary();
@@ -100,7 +54,7 @@ public class SqlServerQueryableExpression extends SqlQueryableExpression
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         SqlOrderByExpression sqlOrderByExpression = factory.orderBy();
         sqlOrderByExpression.addOrder(factory.order(factory.column(primary)));
-        strings.add(sqlOrderByExpression.getSql(config));
+        strings.add(sqlOrderByExpression.getSqlAndValue(config, values));
     }
 
     private void makeSelect(List<String> strings, List<Object> values, Config config)
@@ -111,25 +65,15 @@ public class SqlServerQueryableExpression extends SqlQueryableExpression
         {
             result.add("DISTINCT");
         }
-        if (limit.onlyHasRows())
+        if (!from.isEmptyTable() && limit.onlyHasRows())
         {
             result.add("TOP(" + limit.getRows() + ")");
         }
         List<SqlExpression> columns = select.getColumns();
         List<String> columnsStr = new ArrayList<>(columns.size());
-        if (values == null)
+        for (SqlExpression sqlExpression : columns)
         {
-            for (SqlExpression sqlExpression : columns)
-            {
-                columnsStr.add(sqlExpression.getSql(config));
-            }
-        }
-        else
-        {
-            for (SqlExpression sqlExpression : columns)
-            {
-                columnsStr.add(sqlExpression.getSqlAndValue(config, values));
-            }
+            columnsStr.add(sqlExpression.getSqlAndValue(config, values));
         }
         result.add(String.join(",", columnsStr));
         strings.add(String.join(" ", result));

@@ -34,18 +34,6 @@ public class SqlGroupByExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        if (columns.isEmpty()) return "";
-        List<String> strings = new ArrayList<>();
-        for (SqlExpression column : columns.values())
-        {
-            strings.add(column.getSql(config));
-        }
-        return "GROUP BY " + String.join(",", strings);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

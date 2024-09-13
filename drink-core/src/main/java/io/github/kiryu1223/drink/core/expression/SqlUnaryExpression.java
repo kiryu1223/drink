@@ -29,13 +29,6 @@ public class SqlUnaryExpression extends SqlExpression
     public String getSqlAndValue(Config config, List<Object> values)
     {
         String temp = expression.getSqlAndValue(config, values);
-        return operator.isLeft() ? operator.getOperator() + " " + temp : temp + " " + operator.getOperator();
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
-        String temp = expression.getSql(config);
         String res;
         if (operator.isLeft())
         {

@@ -13,15 +13,10 @@ import io.github.kiryu1223.drink.ext.DbType;
 
 abstract class BaseTest
 {
-    protected final DrinkClient client;
-    protected HikariDataSource mysqlDataSource;
+    protected static final DrinkClient client;
+    protected static final HikariDataSource mysqlDataSource;
 
-    public BaseTest()
-    {
-        this.client = initMysql();
-    }
-
-    private DrinkClient initMysql()
+    static
     {
         mysqlDataSource = new HikariDataSource();
         mysqlDataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8");
@@ -31,9 +26,30 @@ abstract class BaseTest
         DataSourceManager dataSourceManager = new DefaultDataSourceManager(mysqlDataSource);
         TransactionManager transactionManager = new DefaultTransactionManager(dataSourceManager);
         SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
-        return Drink.bootStrap()
+        client = Drink.bootStrap()
                 .setDataSourceManager(dataSourceManager)
                 .setDbType(DbType.MySQL)
                 .build();
     }
+
+//    public BaseTest()
+//    {
+//        this.client = initMysql();
+//    }
+//
+//    private DrinkClient initMysql()
+//    {
+//        mysqlDataSource = new HikariDataSource();
+//        mysqlDataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8");
+//        mysqlDataSource.setUsername("root");
+//        mysqlDataSource.setPassword("root");
+//        mysqlDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+//        DataSourceManager dataSourceManager = new DefaultDataSourceManager(mysqlDataSource);
+//        TransactionManager transactionManager = new DefaultTransactionManager(dataSourceManager);
+//        SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
+//        return Drink.bootStrap()
+//                .setDataSourceManager(dataSourceManager)
+//                .setDbType(DbType.MySQL)
+//                .build();
+//    }
 }

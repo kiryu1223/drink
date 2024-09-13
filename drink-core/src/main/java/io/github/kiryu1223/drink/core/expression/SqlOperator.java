@@ -50,7 +50,7 @@ public enum SqlOperator
     IN,
     IS,
     BETWEEN,
-    EXISTS,
+    EXISTS(true),
     ;
 
     private final String operator;
@@ -60,6 +60,12 @@ public enum SqlOperator
     {
         this.operator = name();
         this.isLeft = false;
+    }
+
+    SqlOperator(boolean isLeft)
+    {
+        this.operator = name();
+        this.isLeft = isLeft;
     }
 
     SqlOperator(String operator)
@@ -81,6 +87,6 @@ public enum SqlOperator
 
     public boolean isLeft()
     {
-        return isLeft || this == EXISTS;
+        return isLeft;
     }
 }

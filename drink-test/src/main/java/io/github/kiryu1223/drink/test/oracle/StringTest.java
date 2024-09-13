@@ -16,11 +16,11 @@ public class StringTest extends BaseTest
         String c1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb"))
                 .first();
-        Assert.assertEquals(c1,"aabb");
+        Assert.assertEquals("aabb",c1);
         String c2 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.concat("aa", "bb", "cc", "dd", "ee", "ff", "gg"))
                 .first();
-        Assert.assertEquals(c2,"aabbccddeeffgg");
+        Assert.assertEquals("aabbccddeeffgg",c2);
     }
 
     @Test
@@ -29,11 +29,11 @@ public class StringTest extends BaseTest
         String j1 = client.queryEmptyTable()
                 .endSelect(() -> SqlFunctions.join("+", "aa", "bb"))
                 .first();
-        Assert.assertEquals(j1,"aa+bb");
+        Assert.assertEquals("aa+bb",j1);
         String j2 = client.queryEmptyTable()
                 .endSelect(() ->
                         SqlFunctions.join("|", "aa", "bb", "cc", "dd", "ee", "ff", "gg")
                 ).first();
-        Assert.assertEquals(j2,"aa|bb|cc|dd|ee|ff|gg");
+        Assert.assertEquals("aa|bb|cc|dd|ee|ff|gg",j2);
     }
 }

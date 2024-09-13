@@ -17,10 +17,4 @@ public class OracleJoinExpression extends SqlJoinExpression
     {
         return joinType.getJoin() + " " + (joinTable instanceof SqlRealTableExpression ? joinTable.getSqlAndValue(config, values) : "(" + joinTable.getSqlAndValue(config, values) + ")") + " t" + index + " ON " + conditions.getSqlAndValue(config, values);
     }
-
-    @Override
-    public String getSql(Config config)
-    {
-        return joinType.getJoin() + " " + (joinTable instanceof SqlRealTableExpression ? joinTable.getSql(config) : "(" + joinTable.getSql(config) + ")") + " t" + index + " ON " + conditions.getSql(config);
-    }
 }

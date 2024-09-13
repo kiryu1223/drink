@@ -17,28 +17,15 @@ public class OracleSqlFromExpression extends SqlFromExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        if (sqlTableExpression instanceof SqlRealTableExpression)
-        {
-            return getSql(config);
-        }
-        else
-        {
-            return "FROM (" + sqlTableExpression.getSqlAndValue(config, values) + ") t" + index;
-        }
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
         String sql;
         if (sqlTableExpression instanceof SqlRealTableExpression)
         {
-            sql = sqlTableExpression.getSql(config);
+            sql = sqlTableExpression.getSqlAndValue(config, values);
         }
         else
         {
-            sql = "(" + sqlTableExpression.getSql(config) + ")";
+            sql = "(" + sqlTableExpression.getSqlAndValue(config, values) + ")";
         }
-        return "FROM "+ sql + " t" + index;
+        return "FROM " + sql + " t" + index;
     }
 }

@@ -26,13 +26,6 @@ public class SqlHavingExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        if (conditions.isEmpty()) return "";
-        return "HAVING " + conditions.getSql(config);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

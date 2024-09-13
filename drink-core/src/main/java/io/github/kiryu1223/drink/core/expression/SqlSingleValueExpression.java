@@ -37,7 +37,7 @@ public class SqlSingleValueExpression extends SqlValueExpression
         }
         else
         {
-            values.add(value);
+            if (values != null) values.add(value);
             return "?";
         }
     }
@@ -50,20 +50,7 @@ public class SqlSingleValueExpression extends SqlValueExpression
         }
         else
         {
-            values.add(converter.toDb(cast(value), propertyMetaData));
-            return "?";
-        }
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
-        if (value == null)
-        {
-            return "NULL";
-        }
-        else
-        {
+            if (values != null) values.add(converter.toDb(cast(value), propertyMetaData));
             return "?";
         }
     }

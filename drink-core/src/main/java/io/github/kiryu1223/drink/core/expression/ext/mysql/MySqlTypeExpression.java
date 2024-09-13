@@ -15,12 +15,6 @@ public class MySqlTypeExpression extends SqlTypeExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return getSql(config);
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
         if (isTime())
         {
             return "TIME";

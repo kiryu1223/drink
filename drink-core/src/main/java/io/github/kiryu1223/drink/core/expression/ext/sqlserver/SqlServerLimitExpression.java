@@ -3,10 +3,12 @@ package io.github.kiryu1223.drink.core.expression.ext.sqlserver;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlLimitExpression;
 
+import java.util.List;
+
 public class SqlServerLimitExpression extends SqlLimitExpression
 {
     @Override
-    public String getSql(Config config)
+    public String getSqlAndValue(Config config, List<Object> values)
     {
         if (hasRowsAndOffset())
         {

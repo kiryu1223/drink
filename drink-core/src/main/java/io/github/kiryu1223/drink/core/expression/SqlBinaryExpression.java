@@ -55,28 +55,6 @@ public class SqlBinaryExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append(left.getSql(config));
-        sb.append(" ");
-        sb.append(operator.getOperator());
-        sb.append(" ");
-        switch (operator)
-        {
-            case IN:
-                sb.append("(");
-                sb.append(right.getSql(config));
-                sb.append(")");
-                break;
-            default:
-                sb.append(right.getSql(config));
-                break;
-        }
-        return sb.toString();
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

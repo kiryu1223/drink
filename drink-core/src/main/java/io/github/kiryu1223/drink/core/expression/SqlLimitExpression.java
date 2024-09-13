@@ -41,12 +41,6 @@ public class SqlLimitExpression extends SqlExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return getSql(config);
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
         if (rows > 0)
         {
             if (offset > 0)

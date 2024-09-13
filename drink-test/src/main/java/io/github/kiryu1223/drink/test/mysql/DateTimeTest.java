@@ -43,7 +43,7 @@ public class DateTimeTest extends BaseTest
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
                 .first();
 
-        Assert.assertEquals(one, 1161);
+        Assert.assertEquals(1161, one);
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -52,5 +52,17 @@ public class DateTimeTest extends BaseTest
                 .first();
 
         log.info(one1.toString());
+    }
+
+    @Test
+    public void secondDiffTest()
+    {
+        LocalDateTime start = LocalDateTime.of(1996, 10, 27, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2000, 1, 1, 0, 0);
+        int one = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.SECOND, start, end))
+                .first();
+
+        Assert.assertEquals(100310400,one);
     }
 }

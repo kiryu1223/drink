@@ -42,18 +42,6 @@ public class SqlJoinsExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        if (joins.isEmpty()) return "";
-        List<String> strings = new ArrayList<>(joins.size());
-        for (SqlJoinExpression join : joins)
-        {
-            strings.add(join.getSql(config));
-        }
-        return String.join(" ", strings);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

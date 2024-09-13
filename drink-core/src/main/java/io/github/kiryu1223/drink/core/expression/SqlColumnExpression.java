@@ -30,12 +30,6 @@ public class SqlColumnExpression extends SqlExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return getSql(config);
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
         IDialect dbConfig = config.getDisambiguation();
         return "t" + tableIndex + "." + dbConfig.disambiguation(propertyMetaData.getColumn());
     }

@@ -15,12 +15,6 @@ public class OracleTypeExpression extends SqlTypeExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return getSql(config);
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
         if (isBool())
         {
             return "BOOLEAN";

@@ -25,12 +25,6 @@ public class SqlParensExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        return "(" + expression.getSql(config) + ")";
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

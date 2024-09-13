@@ -8,7 +8,10 @@ public abstract class SqlExpression
 {
     public abstract String getSqlAndValue(Config config, List<Object> values);
 
-    public abstract String getSql(Config config);
+    public final String getSql(Config config)
+    {
+        return getSqlAndValue(config, null);
+    }
 
     public abstract <T extends SqlExpression> T copy(Config config);
 }

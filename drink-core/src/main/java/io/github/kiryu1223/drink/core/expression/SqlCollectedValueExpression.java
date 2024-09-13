@@ -2,7 +2,9 @@ package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class SqlCollectedValueExpression extends SqlValueExpression
 {
@@ -20,18 +22,7 @@ public class SqlCollectedValueExpression extends SqlValueExpression
         for (Object obj : collection)
         {
             strings.add("?");
-            values.add(obj);
-        }
-        return String.join(",", strings);
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
-        List<String> strings = new ArrayList<>(collection.size());
-        for (Object obj : collection)
-        {
-            strings.add("?");
+            if (values != null) values.add(obj);
         }
         return String.join(",", strings);
     }

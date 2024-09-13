@@ -31,12 +31,6 @@ public class SqlJoinExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        return joinType.getJoin() + " " + (joinTable instanceof SqlRealTableExpression ? joinTable.getSql(config) : "(" + joinTable.getSql(config) + ")") + " AS t" + index + " ON " + conditions.getSql(config);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

@@ -49,50 +49,11 @@ public class SqlQueryableExpression extends SqlTableExpression
         if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
         String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
         if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-        String limitSqlAndValue = limit.getSqlAndValue(config, values);
-        if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
-        return String.join(" ", strings);
-    }
-
-//    public String getSqlAndValueAndFirst(Config config, List<Object> values)
-//    {
-//        List<String> strings = new ArrayList<>();
-//        strings.add(select.getSqlAndValue(config, values));
-//        String fromSqlAndValue = from.getSqlAndValue(config, values);
-//        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
-//        String joinsSqlAndValue = joins.getSqlAndValue(config, values);
-//        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
-//        String whereSqlAndValue = where.getSqlAndValue(config, values);
-//        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
-//        String groupBySqlAndValue = groupBy.getSqlAndValue(config, values);
-//        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
-//        String havingSqlAndValue = having.getSqlAndValue(config, values);
-//        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
-//        String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
-//        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-//        strings.add("LIMIT 1");
-//        return String.join(" ", strings);
-//    }
-
-    @Override
-    public String getSql(Config config)
-    {
-        List<String> strings = new ArrayList<>();
-        strings.add(select.getSql(config));
-        String fromSql = from.getSql(config);
-        if (!fromSql.isEmpty()) strings.add(fromSql);
-        String joinsSql = joins.getSql(config);
-        if (!joinsSql.isEmpty()) strings.add(joinsSql);
-        String whereSql = where.getSql(config);
-        if (!whereSql.isEmpty()) strings.add(whereSql);
-        String groupBySql = groupBy.getSql(config);
-        if (!groupBySql.isEmpty()) strings.add(groupBySql);
-        String havingSql = having.getSql(config);
-        if (!havingSql.isEmpty()) strings.add(havingSql);
-        String orderBySql = orderBy.getSql(config);
-        if (!orderBySql.isEmpty()) strings.add(orderBySql);
-        String limitSql = limit.getSql(config);
-        if (!limitSql.isEmpty()) strings.add(limitSql);
+        if(!from.isEmptyTable())
+        {
+            String limitSqlAndValue = limit.getSqlAndValue(config, values);
+            if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
+        }
         return String.join(" ", strings);
     }
 

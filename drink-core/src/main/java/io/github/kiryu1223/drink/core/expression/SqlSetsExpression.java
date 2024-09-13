@@ -41,17 +41,6 @@ public class SqlSetsExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        List<String> strings = new ArrayList<>(sets.size());
-        for (SqlSetExpression expression : sets)
-        {
-            strings.add(expression.getSql(config));
-        }
-        return "SET " + String.join(",", strings);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

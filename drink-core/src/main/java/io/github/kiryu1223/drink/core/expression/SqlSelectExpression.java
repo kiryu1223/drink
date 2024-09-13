@@ -79,25 +79,6 @@ public class SqlSelectExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        List<String> strings = new ArrayList<>(columns.size());
-        for (SqlExpression sqlExpression : columns)
-        {
-            strings.add(sqlExpression.getSql(config));
-        }
-        String col = String.join(",", strings);
-        List<String> result = new ArrayList<>();
-        result.add("SELECT");
-        if (distinct)
-        {
-            result.add("DISTINCT");
-        }
-        result.add(col);
-        return String.join(" ", result);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

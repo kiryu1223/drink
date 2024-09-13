@@ -22,12 +22,6 @@ public class SqlOrderExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        return expression.getSql(config) + " " + (asc ? "ASC" : "DESC");
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

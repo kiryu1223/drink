@@ -24,13 +24,6 @@ public class SqlAsExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        IDialect dialect = config.getDisambiguation();
-        return expression.getSql(config) + " AS " + dialect.disambiguation(asName);
-    }
-
-    @Override
     public SqlAsExpression copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

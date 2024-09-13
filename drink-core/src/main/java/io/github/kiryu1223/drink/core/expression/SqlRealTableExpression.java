@@ -25,12 +25,6 @@ public class SqlRealTableExpression extends SqlTableExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return getSql(config);
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
         String fullName = "";
         MetaData metaData = MetaDataCache.getMetaData(tableClass);
         IDialect dbConfig = config.getDisambiguation();

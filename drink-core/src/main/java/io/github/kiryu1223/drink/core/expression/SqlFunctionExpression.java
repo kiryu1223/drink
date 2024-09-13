@@ -34,23 +34,6 @@ public class SqlFunctionExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < functions.size(); i++)
-        {
-            String function = functions.get(i);
-            sb.append(function);
-            if (i < expressions.size())
-            {
-                SqlExpression expression = expressions.get(i);
-                sb.append(expression.getSql(config));
-            }
-        }
-        return sb.toString();
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

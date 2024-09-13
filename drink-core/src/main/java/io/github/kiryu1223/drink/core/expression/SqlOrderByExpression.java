@@ -41,18 +41,6 @@ public class SqlOrderByExpression extends SqlExpression
     }
 
     @Override
-    public String getSql(Config config)
-    {
-        if (sqlOrders.isEmpty()) return "";
-        List<String> strings = new ArrayList<>(sqlOrders.size());
-        for (SqlOrderExpression sqlOrder : sqlOrders)
-        {
-            strings.add(sqlOrder.getSql(config));
-        }
-        return "ORDER BY " + String.join(",", strings);
-    }
-
-    @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

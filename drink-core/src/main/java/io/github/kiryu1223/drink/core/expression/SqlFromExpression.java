@@ -35,35 +35,18 @@ public class SqlFromExpression extends SqlExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        if (checkIsEmptyTable() && config.getDbType() != DbType.Oracle)
-        {
-            return "";
-        }
-        if (sqlTableExpression instanceof SqlRealTableExpression)
-        {
-            return getSql(config);
-        }
-        else
-        {
-            return "FROM (" + sqlTableExpression.getSqlAndValue(config, values) + ") AS t" + index;
-        }
-    }
-
-    @Override
-    public String getSql(Config config)
-    {
-        if (checkIsEmptyTable() && config.getDbType() != DbType.Oracle)
+        if (isEmptyTable() && config.getDbType() != DbType.Oracle)
         {
             return "";
         }
         String sql;
         if (sqlTableExpression instanceof SqlRealTableExpression)
         {
-            sql = sqlTableExpression.getSql(config);
+            sql = sqlTableExpression.getSqlAndValue(config, values);
         }
         else
         {
-            sql = "(" + sqlTableExpression.getSql(config) + ")";
+            sql = "(" + sqlTableExpression.getSqlAndValue(config, values) + ")";
         }
         return "FROM " + sql + " AS t" + index;
     }
@@ -73,10 +56,5 @@ public class SqlFromExpression extends SqlExpression
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         return (T) factory.from(sqlTableExpression.copy(config), index);
-    }
-
-    private boolean checkIsEmptyTable()
-    {
-        return sqlTableExpression.getTableClass() == Empty.class;
     }
 }
