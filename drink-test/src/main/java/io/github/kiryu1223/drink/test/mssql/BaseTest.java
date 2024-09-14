@@ -9,15 +9,10 @@ import io.github.kiryu1223.drink.ext.DbType;
 
 abstract class BaseTest
 {
-    protected final DrinkClient client;
-    protected HikariDataSource sqlserverDataSource;
+    protected static final DrinkClient client;
+    protected static final HikariDataSource sqlserverDataSource;
 
-    public BaseTest()
-    {
-        this.client = initMSSql();
-    }
-
-    private DrinkClient initMSSql()
+    static
     {
         sqlserverDataSource = new HikariDataSource();
         sqlserverDataSource.setJdbcUrl("jdbc:sqlserver://localhost:1433;database=DrinkDb;encrypt=true;trustServerCertificate=true");
@@ -25,9 +20,28 @@ abstract class BaseTest
         sqlserverDataSource.setPassword("root");
         sqlserverDataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         DataSourceManager dataSourceManager = new DefaultDataSourceManager(sqlserverDataSource);
-        return Drink.bootStrap()
+        client = Drink.bootStrap()
                 .setDataSourceManager(dataSourceManager)
                 .setDbType(DbType.SqlServer)
                 .build();
     }
+
+//    public BaseTest()
+//    {
+//        this.client = initMSSql();
+//    }
+//
+//    private DrinkClient initMSSql()
+//    {
+//        sqlserverDataSource = new HikariDataSource();
+//        sqlserverDataSource.setJdbcUrl("jdbc:sqlserver://localhost:1433;database=DrinkDb;encrypt=true;trustServerCertificate=true");
+//        sqlserverDataSource.setUsername("sa");
+//        sqlserverDataSource.setPassword("root");
+//        sqlserverDataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+//        DataSourceManager dataSourceManager = new DefaultDataSourceManager(sqlserverDataSource);
+//        return Drink.bootStrap()
+//                .setDataSourceManager(dataSourceManager)
+//                .setDbType(DbType.SqlServer)
+//                .build();
+//    }
 }

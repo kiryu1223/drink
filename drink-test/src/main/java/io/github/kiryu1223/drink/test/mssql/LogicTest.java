@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.test.mssql;
 
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -72,5 +73,15 @@ public class LogicTest extends BaseTest
                 }).first();
 
         log.info(one.toString());
+    }
+
+    @Test
+    public void singleCharTest()
+    {
+        char da = client.queryEmptyTable()
+                .endSelect(() -> cast("哒哒哒", char.class))
+                .first();
+
+        log.info(String.valueOf(da));
     }
 }

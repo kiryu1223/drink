@@ -17,6 +17,7 @@ public class OracleSqlFromExpression extends SqlFromExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
+        if (isEmptyTable()) return "FROM \"DUAL\"";
         String sql;
         if (sqlTableExpression instanceof SqlRealTableExpression)
         {

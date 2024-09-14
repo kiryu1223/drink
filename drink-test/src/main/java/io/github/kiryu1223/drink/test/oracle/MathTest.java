@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.test.mysql;
+package io.github.kiryu1223.drink.test.oracle;
 
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import org.junit.Assert;

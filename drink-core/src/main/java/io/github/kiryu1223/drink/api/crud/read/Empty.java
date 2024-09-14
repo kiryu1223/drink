@@ -1,8 +1,8 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
-import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.annotation.EmptyTable;
 
-@Table("DUAL")
+@EmptyTable
 public class Empty
 {
 }

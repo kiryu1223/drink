@@ -73,4 +73,14 @@ public class LogicTest extends BaseTest
 
         log.info(one.toString());
     }
+
+    @Test
+    public void singleCharTest()
+    {
+        char da = client.queryEmptyTable()
+                .endSelect(() -> cast("哒哒哒", char.class))
+                .first();
+
+        log.info(String.valueOf(da));
+    }
 }

@@ -9,15 +9,10 @@ import io.github.kiryu1223.drink.ext.DbType;
 
 abstract class BaseTest
 {
-    protected final DrinkClient client;
-    protected HikariDataSource oracleDataSource;
+    protected static final DrinkClient client;
+    protected static final HikariDataSource oracleDataSource;
 
-    public BaseTest()
-    {
-        this.client = initOracle();
-    }
-
-    private DrinkClient initOracle()
+    static
     {
         oracleDataSource = new HikariDataSource();
         oracleDataSource.setJdbcUrl("jdbc:oracle:thin:@localhost:1521/XEPDB1");
@@ -25,9 +20,28 @@ abstract class BaseTest
         oracleDataSource.setPassword("root");
         oracleDataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
         DataSourceManager dataSourceManager = new DefaultDataSourceManager(oracleDataSource);
-        return Drink.bootStrap()
+        client = Drink.bootStrap()
                 .setDataSourceManager(dataSourceManager)
                 .setDbType(DbType.Oracle)
                 .build();
     }
+
+//    public BaseTest()
+//    {
+//        this.client = initOracle();
+//    }
+//
+//    private DrinkClient initOracle()
+//    {
+//        oracleDataSource = new HikariDataSource();
+//        oracleDataSource.setJdbcUrl("jdbc:oracle:thin:@localhost:1521/XEPDB1");
+//        oracleDataSource.setUsername("TESTUSER");
+//        oracleDataSource.setPassword("root");
+//        oracleDataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+//        DataSourceManager dataSourceManager = new DefaultDataSourceManager(oracleDataSource);
+//        return Drink.bootStrap()
+//                .setDataSourceManager(dataSourceManager)
+//                .setDbType(DbType.Oracle)
+//                .build();
+//    }
 }

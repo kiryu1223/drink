@@ -1656,7 +1656,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "COT({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "COT({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "COT({a})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE SIN({a}) WHEN 0 THEN 0 ELSE COS({a}) / SIN({a}) END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "COT({a})")
     public static <T extends Number> double cot(T a)
     {
@@ -1666,7 +1666,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "DEGREES({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DEGREES({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "DEGREES({a})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * (180 / " + Math.PI + "))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DEGREES({a})")
     public static <T extends Number> double degrees(T a)
     {
@@ -1758,7 +1758,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "LOG2({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOG2({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG2({a})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG(2,{a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOG({a},2)")
     public static <T extends Number> double log2(T a)
     {
@@ -1768,7 +1768,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "LOG10({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOG10({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG10({a})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG(10,{a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOG({a},10)")
     public static <T extends Number> double log10(T a)
     {
@@ -1798,7 +1798,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "POW({a},{b})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "POW({a},{b})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "POW({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "POWER({a},{b})")
     public static <T extends Number> double pow(T a, T b)
     {
@@ -1808,7 +1808,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "RADIANS({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RADIANS({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "RADIANS({a})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * (" + Math.PI + " / 180))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "RADIANS({a})")
     public static <T extends Number> double radians(T a)
     {
@@ -1964,7 +1964,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CHAR({t})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CHR({t})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHAR({t})")
-    public static <T extends Number> String asciiToStr(T t)
+    public static String asciiToStr(int t)
     {
         boom();
         return "";

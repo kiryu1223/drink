@@ -1,9 +1,6 @@
 package io.github.kiryu1223.drink.core.metaData;
 
-import io.github.kiryu1223.drink.annotation.Column;
-import io.github.kiryu1223.drink.annotation.IgnoreColumn;
-import io.github.kiryu1223.drink.annotation.Navigate;
-import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.annotation.*;
 import io.github.kiryu1223.drink.core.builder.ConverterCache;
 import io.github.kiryu1223.drink.ext.IConverter;
 import io.github.kiryu1223.drink.ext.NoConverter;
@@ -28,6 +25,7 @@ public class MetaData
     private final Class<?> type;
     private final String tableName;
     private final String schema;
+    private final boolean isEmptyTable;
 
     public MetaData(Class<?> type)
     {
@@ -35,6 +33,7 @@ public class MetaData
         Table table = type.getAnnotation(Table.class);
         this.tableName = (table == null || table.value().isEmpty()) ? type.getSimpleName() : table.value();
         this.schema = table == null ? "" : table.schema();
+        this.isEmptyTable = type.isAnnotationPresent(EmptyTable.class);
         for (PropertyDescriptor descriptor : propertyDescriptors(type))
         {
             String property = descriptor.getName();
@@ -61,7 +60,7 @@ public class MetaData
                 }
             }
             boolean ignoreColumn = field.getAnnotation(IgnoreColumn.class) != null || navigateData != null;
-            propertys.add(new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn, navigateData,isPrimaryKey));
+            propertys.add(new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn, navigateData, isPrimaryKey));
         }
     }
 
@@ -136,5 +135,10 @@ public class MetaData
     public String getSchema()
     {
         return schema;
+    }
+
+    public boolean isEmptyTable()
+    {
+        return isEmptyTable;
     }
 }

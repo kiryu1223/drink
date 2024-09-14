@@ -71,7 +71,7 @@ public class ObjectBuilder<T>
                 {
                     key = (Key) value;
                 }
-                if (value != null)  metaData.getSetter().invoke(t, value);
+                if (value != null) metaData.getSetter().invoke(t, value);
             }
             if (key != null)
             {
@@ -201,6 +201,11 @@ public class ObjectBuilder<T>
         {
             String Enum = resultSet.getString(1);
             return (T) target.getField(Enum).get(null);
+        }
+        else if (target == Character.class)
+        {
+            String result = resultSet.getString(1);
+            return (result != null && !result.isEmpty()) ? cast(result.charAt(0)) : null;
         }
         else
         {
