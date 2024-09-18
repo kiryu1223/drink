@@ -292,4 +292,14 @@ public class DateTimeTest extends BaseTest
 
         Assert.assertEquals(1, weekDay);
     }
+
+    @Test
+    public void getWeekOfYearTest()
+    {
+        int weekOfYear = client.queryEmptyTable()
+                .endSelect(() -> getWeekOfYear("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(44, weekOfYear);
+    }
 }

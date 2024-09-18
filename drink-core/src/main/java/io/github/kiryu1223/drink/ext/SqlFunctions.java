@@ -834,7 +834,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEPART(WEEKDAY,{time}) - 1)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEPART(WEEKDAY,{time}))")
     public static int getDayOfWeek(LocalDateTime time)
     {
         boom();
@@ -844,7 +844,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEPART(WEEKDAY,{time}) - 1)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEPART(WEEKDAY,{time}))")
     public static int getDayOfWeek(LocalDate time)
     {
         boom();
@@ -959,7 +959,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TO_DAYS({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TO_DAYS({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC(TO_DATE({time},'yyyy-mm-dd hh24:mi:ss') - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff') - (TO_TIMESTAMP('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     public static int dateToDays(String time)
     {
@@ -1515,7 +1515,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},1)")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_DATE({time},'YYYY-MM-DD'),'IW'))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'IW'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEK,{time})")
     public static int getWeek(String time)
     {
@@ -1533,8 +1533,8 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE MOD(TO_CHAR({time},'D') - 2,7) END)")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE WHEN DATEPART(WEEKDAY,{time}) > 1 THEN DATEPART(WEEKDAY,{time}) - 2 ELSE 6 END)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR({time},'D')) - 2 END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
     public static int getWeekDay(LocalDate time)
     {
         boom();
@@ -1543,8 +1543,8 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE MOD(TO_CHAR({time},'D') - 2,7) END)")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE WHEN DATEPART(WEEKDAY,{time}) > 1 THEN DATEPART(WEEKDAY,{time}) - 2 ELSE 6 END)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR({time},'D')) - 2 END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
     public static int getWeekDay(LocalDateTime time)
     {
         boom();
@@ -1553,8 +1553,8 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) WHEN 1 THEN 6 ELSE MOD(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D') - 2,7) END)")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE WHEN DATEPART(WEEKDAY,{time}) > 1 THEN DATEPART(WEEKDAY,{time}) - 2 ELSE 6 END)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) - 2 END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
     public static int getWeekDay(String time)
     {
         boom();
@@ -1583,7 +1583,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEKOFYEAR({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKOFYEAR({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_DATE({time}),'IW'))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'IW'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(ISO_WEEK,{time})")
     public static int getWeekOfYear(String time)
     {

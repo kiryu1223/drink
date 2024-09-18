@@ -291,11 +291,15 @@ public class DateTimeTest extends BaseTest
                 .first();
 
         Assert.assertEquals(1, weekDay);
+    }
 
-        int toDay = client.queryEmptyTable()
-                .endSelect(() -> getWeekDay(LocalDate.of(2024,9,18)))
+    @Test
+    public void getWeekOfYearTest()
+    {
+        int weekOfYear = client.queryEmptyTable()
+                .endSelect(() -> getWeekOfYear("2020-10-27"))
                 .first();
 
-        Assert.assertEquals(2, toDay);
+        Assert.assertEquals(44, weekOfYear);
     }
 }
