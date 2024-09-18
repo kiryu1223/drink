@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.test.mysql;
 
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class DateTimeTest extends BaseTest
     @Test
     public void nowTest()
     {
-        Result one = client.queryEmptyTable()
+        Result res = client.queryEmptyTable()
                 .select(() -> new Result()
                 {
                     LocalDateTime now = now();
@@ -33,7 +34,62 @@ public class DateTimeTest extends BaseTest
                 })
                 .first();
 
-        log.info(one.toString());
+        log.info(res.toString());
+
+        LocalDateTime now = client.queryEmptyTable().endSelect(() -> now()).first();
+        log.info(now.toString());
+
+        LocalDateTime utcNow = client.queryEmptyTable().endSelect(() -> utcNow()).first();
+        log.info(utcNow.toString());
+
+        LocalDate nowDate = client.queryEmptyTable().endSelect(() -> nowDate()).first();
+        log.info(nowDate.toString());
+
+        LocalTime nowTime = client.queryEmptyTable().endSelect(() -> nowTime()).first();
+        log.info(nowTime.toString());
+
+        LocalDate utcNowDate = client.queryEmptyTable().endSelect(() -> utcNowDate()).first();
+        log.info(utcNowDate.toString());
+
+        LocalTime utcNowTime = client.queryEmptyTable().endSelect(() -> utcNowTime()).first();
+        log.info(utcNowTime.toString());
+
+        LocalDateTime systemNow = client.queryEmptyTable().endSelect(() -> systemNow()).first();
+        log.info(systemNow.toString());
+    }
+
+    @Test
+    public void addDateTest()
+    {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextDay = client.queryEmptyTable()
+                .endSelect(() -> addDate(now, 1))
+                .first();
+
+        Assert.assertEquals(now.plusDays(1), nextDay);
+
+        LocalDateTime nextHour = client.queryEmptyTable()
+                .endSelect(() -> addDate(now, SqlTimeUnit.HOUR, 1))
+                .first();
+
+        Assert.assertEquals(now.plusHours(1), nextHour);
+    }
+
+    @Test
+    public void subDateTest()
+    {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime subDay = client.queryEmptyTable()
+                .endSelect(() -> subDate(now, 1))
+                .first();
+
+        Assert.assertEquals(now.minusDays(1), subDay);
+
+        LocalDateTime subHour = client.queryEmptyTable()
+                .endSelect(() -> subDate(now, SqlTimeUnit.HOUR, 1))
+                .first();
+
+        Assert.assertEquals(now.minusHours(1), subHour);
     }
 
     @Test
@@ -45,24 +101,195 @@ public class DateTimeTest extends BaseTest
 
         Assert.assertEquals(1161, one);
 
-        LocalDateTime now = LocalDateTime.now();
 
-        Integer one1 = client.queryEmptyTable()
-                .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", now))
+        int one1 = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", LocalDate.of(2020, 5, 5)))
                 .first();
 
-        log.info(one1.toString());
-    }
+        Assert.assertEquals(8591, one1);
 
-    @Test
-    public void secondDiffTest()
-    {
         LocalDateTime start = LocalDateTime.of(1996, 10, 27, 0, 0);
         LocalDateTime end = LocalDateTime.of(2000, 1, 1, 0, 0);
-        int one = client.queryEmptyTable()
+        int second = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.SECOND, start, end))
                 .first();
 
-        Assert.assertEquals(100310400,one);
+        Assert.assertEquals(100310400, second);
+    }
+
+    @Test
+    public void getYearTest()
+    {
+        int year = client.queryEmptyTable()
+                .endSelect(() -> getYear("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(2020, year);
+    }
+
+    @Test
+    public void getMonthTest()
+    {
+        int month = client.queryEmptyTable()
+                .endSelect(() -> getMonth("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(10, month);
+    }
+
+    @Test
+    public void getDayTest()
+    {
+        int strDay = client.queryEmptyTable()
+                .endSelect(() -> getDay("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(27, strDay);
+
+        int timeDay = client.queryEmptyTable()
+                .endSelect(() -> getDay(LocalDate.of(2020, 10, 27)))
+                .first();
+
+        Assert.assertEquals(27, timeDay);
+    }
+
+    @Test
+    public void getDayNameTest()
+    {
+        String dayName = client.queryEmptyTable()
+                .endSelect(() -> getDayName("2020-10-27"))
+                .first();
+
+        log.info(dayName);
+    }
+
+    @Test
+    public void getMonthNameTest()
+    {
+        String mouthName = client.queryEmptyTable()
+                .endSelect(() -> getMonthName("2020-10-27"))
+                .first();
+
+        log.info(mouthName);
+    }
+
+    @Test
+    public void getDayOfWeekTest()
+    {
+        int dayOfWeek = client.queryEmptyTable()
+                .endSelect(() -> getDayOfWeek("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(3, dayOfWeek);
+    }
+
+    @Test
+    public void getDayOfYearTest()
+    {
+        int dayOfYear = client.queryEmptyTable()
+                .endSelect(() -> getDayOfYear("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(301, dayOfYear);
+    }
+
+    @Test
+    public void toDaysTest()
+    {
+        int days = client.queryEmptyTable()
+                .endSelect(() -> SqlFunctions.dateToDays("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(738090, days);
+    }
+
+    @Test
+    public void getHourTest()
+    {
+        int hour = client.queryEmptyTable()
+                .endSelect(() -> getHour("2020-10-27 16:30:21"))
+                .first();
+
+        Assert.assertEquals(16, hour);
+    }
+
+    @Test
+    public void getMinuteTest()
+    {
+        int minute = client.queryEmptyTable()
+                .endSelect(() -> getMinute("2020-10-27 16:30:21"))
+                .first();
+
+        Assert.assertEquals(30, minute);
+    }
+
+    @Test
+    public void getSecondTest()
+    {
+        int second = client.queryEmptyTable()
+                .endSelect(() -> getSecond("2020-10-27 16:30:21"))
+                .first();
+
+        Assert.assertEquals(21, second);
+    }
+
+    @Test
+    public void getMilliSecondTest()
+    {
+        int MilliSecond = client.queryEmptyTable()
+                .endSelect(() -> getMilliSecond(now(3)))
+                .first();
+
+        log.info(String.valueOf(MilliSecond));
+    }
+
+//    @Test
+//    public void getMicroSecondTest()
+//    {
+//        int microSecond = client.queryEmptyTable()
+//                .endSelect(() -> getMicroSecond(now()))
+//                .first();
+//
+//        log.info(String.valueOf(microSecond));
+//    }
+
+    @Test
+    public void getLastDayTest()
+    {
+        LocalDate lastDay = client.queryEmptyTable()
+                .endSelect(() -> getLastDay("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(LocalDate.of(2020, 10, 31), lastDay);
+    }
+
+    @Test
+    public void getQuarterTest()
+    {
+        int quarter = client.queryEmptyTable()
+                .endSelect(() -> getQuarter("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(4, quarter);
+    }
+
+    @Test
+    public void getWeekTest()
+    {
+        int week = client.queryEmptyTable()
+                .endSelect(() -> getWeek("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(44, week);
+    }
+
+    @Test
+    public void getWeekDayTest()
+    {
+        int weekDay = client.queryEmptyTable()
+                .endSelect(() -> getWeekDay("2020-10-27"))
+                .first();
+
+        Assert.assertEquals(1, weekDay);
     }
 }

@@ -11,7 +11,12 @@ import java.lang.annotation.*;
 public @interface SqlExtensionExpression
 {
     DbType dbType() default DbType.Any;
+
     String function();
+
     String separator() default ",";
+
+//    boolean rawValue() default false;
+
     Class<? extends BaseSqlExtension> extension() default BaseSqlExtension.class;
 }

@@ -63,9 +63,19 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "NOW()")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "NOW()")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CURRENT_DATE")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GETDATE()")
     public static LocalDateTime now()
+    {
+        boom();
+        return LocalDateTime.now();
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "NOW({precision})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "NOW({precision})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GETDATE()")
+    public static LocalDateTime now(int precision)
     {
         boom();
         return LocalDateTime.now();
@@ -251,7 +261,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} + INTERVAL '{num}' {unit})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},{num},{time})")
     public static LocalDateTime addDate(LocalDateTime time, SqlTimeUnit unit, int num)
     {
@@ -261,7 +271,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} + INTERVAL '{num}' {unit})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},{num},{time})")
     public static LocalDate addDate(LocalDate time, SqlTimeUnit unit, int num)
     {
@@ -271,7 +281,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} + {days})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,{days},{time})")
     public static LocalDateTime addDate(LocalDateTime time, int days)
     {
@@ -281,7 +291,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} + {days})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,{days},{time})")
     public static LocalDate addDate(LocalDate time, int days)
     {
@@ -291,7 +301,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - INTERVAL '{num}' {unit})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},-({num}),{time})")
     public static LocalDateTime subDate(LocalDateTime time, SqlTimeUnit unit, int num)
     {
@@ -311,7 +321,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {days})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,-({days}),{time})")
     public static LocalDateTime subDate(LocalDateTime time, int days)
     {
@@ -321,7 +331,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {days})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,-({days}),{time})")
     public static LocalDate subDate(LocalDate time, int days)
     {
@@ -783,7 +793,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "DAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAY,{time})")
     public static int getDay(String time)
     {
@@ -813,7 +823,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "DAYNAME({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYNAME({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'DAY')")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'DAY')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATENAME(WEEKDAY,{time})")
     public static String getDayName(String time)
     {
@@ -843,8 +853,8 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYOFWEEK({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEPART(WEEKDAY,{time}) - 1)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D'))")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEKDAY,{time})")
     public static int getDayOfWeek(String time)
     {
         boom();
@@ -873,7 +883,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "DAYOFYEAR({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYOFYEAR({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'DDD'))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'DDD'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAYOFYEAR,{time})")
     public static int getDayOfYear(String time)
     {
@@ -931,7 +941,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TO_DAYS({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({time} - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
-    public static long toDays(LocalDate time)
+    public static int dateToDays(LocalDate time)
     {
         boom();
         return 0;
@@ -941,7 +951,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TO_DAYS({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({time} - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
-    public static long toDays(LocalDateTime time)
+    public static int dateToDays(LocalDateTime time)
     {
         boom();
         return 0;
@@ -951,7 +961,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TO_DAYS({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC(TO_DATE({time},'yyyy-mm-dd hh24:mi:ss') - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
-    public static long toDays(String time)
+    public static int dateToDays(String time)
     {
         boom();
         return 0;
@@ -1009,7 +1019,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "HOUR({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "HOUR({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(HOUR FROM TO_DATE({time}))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(HOUR FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(HOUR,{time})")
     public static int getHour(String time)
     {
@@ -1020,31 +1030,31 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LAST_DAY({time})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAY,EOMONTH({time}))")
-    public static int getLastDay(LocalDateTime time)
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "EOMONTH({time})")
+    public static LocalDate getLastDay(LocalDateTime time)
     {
         boom();
-        return 0;
+        return LocalDate.now();
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LAST_DAY({time})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAY,EOMONTH({time}))")
-    public static int getLastDay(LocalDate time)
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "EOMONTH({time})")
+    public static LocalDate getLastDay(LocalDate time)
     {
         boom();
-        return 0;
+        return LocalDate.now();
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LAST_DAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LAST_DAY(TO_DATE({time}))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAY,EOMONTH({time}))")
-    public static int getLastDay(String time)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LAST_DAY(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "EOMONTH({time})")
+    public static LocalDate getLastDay(String time)
     {
         boom();
-        return 0;
+        return LocalDate.now();
     }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, function = "MAKEDATE({},{})")
@@ -1062,36 +1072,6 @@ public class SqlFunctions
 //        boom();
 //        return 0;
 //    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM {time})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MICROSECOND,{time})")
-    public static int getMicroSecond(LocalTime time)
-    {
-        boom();
-        return 0;
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM {time})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MICROSECOND,{time})")
-    public static int getMicroSecond(LocalDateTime time)
-    {
-        boom();
-        return 0;
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM TO_DATE({time}))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MICROSECOND,{time})")
-    public static int getMicroSecond(String time)
-    {
-        boom();
-        return 0;
-    }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "MINUTE({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MINUTE({time})")
@@ -1115,7 +1095,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "MINUTE({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MINUTE({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MINUTE FROM TO_DATE({time}))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MINUTE FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MINUTE,{time})")
     public static int getMinute(String time)
     {
@@ -1145,7 +1125,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "MONTH({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTH({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM TO_DATE({time}))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MONTH,{time})")
     public static int getMonth(String time)
     {
@@ -1175,7 +1155,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "MONTHNAME({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTHNAME({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR(TO_DATE({time}),'FMMONTH')")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'FMMONTH')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT(CONVERT(DATE,{time}), 'MMMM')")
     public static String getMonthName(String time)
     {
@@ -1205,7 +1185,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "QUARTER({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "QUARTER({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CEIL(EXTRACT(MONTH FROM TO_DATE({time})) / 3)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "CEIL(EXTRACT(MONTH FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff')) / 3)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(QUARTER,{time})")
     public static int getQuarter(String time)
     {
@@ -1235,7 +1215,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SECOND({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SECOND({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(SECOND FROM TO_DATE({time}))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(SECOND FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(SECOND,{time})")
     public static int getSecond(String time)
     {
@@ -1243,6 +1223,87 @@ public class SqlFunctions
         return 0;
     }
 
+    @SqlExtensionExpression(dbType = DbType.H2, function = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(EXTRACT(SECOND FROM {time}) * 1000)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MS,{time})")
+    public static int getMilliSecond(LocalTime time)
+    {
+        boom();
+        return 0;
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(EXTRACT(SECOND FROM {time}) * 1000)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MS,{time})")
+    public static int getMilliSecond(LocalDateTime time)
+    {
+        boom();
+        return 0;
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(EXTRACT(SECOND FROM {time}) * 1000)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MS,{time})")
+    public static int getMilliSecond(String time)
+    {
+        boom();
+        return 0;
+    }
+
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM {time})")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MCS,{time})")
+//    public static int getMicroSecond(LocalTime time)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM {time})")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MCS,{time})")
+//    public static int getMicroSecond(LocalDateTime time)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM TO_DATE({time}))")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MCS,{time})")
+//    public static int getMicroSecond(String time)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(NS,{time})")
+//    public static int getNanoSecond(LocalTime time)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(NS,{time})")
+//    public static int getNanoSecond(LocalDateTime time)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(NS,{time})")
+//    public static int getNanoSecond(String time)
+//    {
+//        boom();
+//        return 0;
+//    }
+//
 //    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({},{})")
 //    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({},{})")
 //    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
@@ -1332,26 +1393,26 @@ public class SqlFunctions
 //        boom();
 //        return LocalTime.now();
 //    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME_FORMAT({time},{format})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME_FORMAT({time},{format})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time}, {format})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time}, {format})")
-    public static String timeFormat(LocalTime time, String format)
-    {
-        boom();
-        return "";
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME_FORMAT({time},{format})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME_FORMAT({time},{format})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time}, {format})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time}, {format})")
-    public static String timeFormat(LocalDateTime time, String format)
-    {
-        boom();
-        return "";
-    }
+//
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME_FORMAT({time},{format})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME_FORMAT({time},{format})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time}, {format})")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time}, {format})")
+//    public static String timeFormat(LocalTime time, String format)
+//    {
+//        boom();
+//        return "";
+//    }
+//
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME_FORMAT({time},{format})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME_FORMAT({time},{format})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time}, {format})")
+//    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time}, {format})")
+//    public static String timeFormat(LocalDateTime time, String format)
+//    {
+//        boom();
+//        return "";
+//    }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
 //    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
@@ -1416,8 +1477,8 @@ public class SqlFunctions
 //        return LocalTime.now();
 //    }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},1)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEK,{time})")
     public static int getWeek(LocalDate time)
@@ -1434,8 +1495,8 @@ public class SqlFunctions
 //        return 0;
 //    }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},1)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEK,{time})")
     public static int getWeek(LocalDateTime time)
@@ -1452,8 +1513,8 @@ public class SqlFunctions
 //        return 0;
 //    }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},1)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_DATE({time},'YYYY-MM-DD'),'IW'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEK,{time})")
     public static int getWeek(String time)
@@ -1472,8 +1533,8 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEKDAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE MOD(TO_CHAR({time},'D') - 2,7) END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE WHEN DATEPART(WEEKDAY,{time}) > 1 THEN DATEPART(WEEKDAY,{time}) - 2 ELSE 6 END)")
     public static int getWeekDay(LocalDate time)
     {
         boom();
@@ -1482,8 +1543,8 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEKDAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE MOD(TO_CHAR({time},'D') - 2,7) END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE WHEN DATEPART(WEEKDAY,{time}) > 1 THEN DATEPART(WEEKDAY,{time}) - 2 ELSE 6 END)")
     public static int getWeekDay(LocalDateTime time)
     {
         boom();
@@ -1492,8 +1553,8 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_DATE({time}),'D'))")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEKDAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) WHEN 1 THEN 6 ELSE MOD(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D') - 2,7) END)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE WHEN DATEPART(WEEKDAY,{time}) > 1 THEN DATEPART(WEEKDAY,{time}) - 2 ELSE 6 END)")
     public static int getWeekDay(String time)
     {
         boom();
@@ -1552,7 +1613,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "YEAR({time})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "YEAR({time})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM TO_DATE({time}))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(YEAR,{time})")
     public static int getYear(String time)
     {

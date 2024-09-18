@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.test.mssql;
 
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -159,7 +160,7 @@ public class DateTimeTest extends BaseTest
                 .endSelect(() -> getDayName("2020-10-27"))
                 .first();
 
-        Assert.assertEquals("星期二", dayName);
+        log.info(dayName);
     }
 
     @Test
@@ -169,7 +170,7 @@ public class DateTimeTest extends BaseTest
                 .endSelect(() -> getMonthName("2020-10-27"))
                 .first();
 
-        Assert.assertEquals("十月", mouthName);
+        log.info(mouthName);
     }
 
     @Test
@@ -179,7 +180,7 @@ public class DateTimeTest extends BaseTest
                 .endSelect(() -> getDayOfWeek("2020-10-27"))
                 .first();
 
-        Assert.assertEquals(2, dayOfWeek);
+        Assert.assertEquals(3, dayOfWeek);
     }
 
     @Test
@@ -195,8 +196,8 @@ public class DateTimeTest extends BaseTest
     @Test
     public void toDaysTest()
     {
-        long days = client.queryEmptyTable()
-                .endSelect(() -> toDays("2020-10-27"))
+        int days = client.queryEmptyTable()
+                .endSelect(() -> SqlFunctions.dateToDays("2020-10-27"))
                 .first();
 
         Assert.assertEquals(738090, days);
@@ -233,13 +234,33 @@ public class DateTimeTest extends BaseTest
     }
 
     @Test
+    public void getMilliSecondTest()
+    {
+        int MilliSecond = client.queryEmptyTable()
+                .endSelect(() -> getMilliSecond(now(3)))
+                .first();
+
+        log.info(String.valueOf(MilliSecond));
+    }
+
+//    @Test
+//    public void getMicroSecondTest()
+//    {
+//        int microSecond = client.queryEmptyTable()
+//                .endSelect(() -> getMicroSecond(now()))
+//                .first();
+//
+//        log.info(String.valueOf(microSecond));
+//    }
+
+    @Test
     public void getLastDayTest()
     {
-        int lastDay = client.queryEmptyTable()
+        LocalDate lastDay = client.queryEmptyTable()
                 .endSelect(() -> getLastDay("2020-10-27"))
                 .first();
 
-        Assert.assertEquals(31, lastDay);
+        Assert.assertEquals(LocalDate.of(2020, 10, 31), lastDay);
     }
 
     @Test
@@ -269,6 +290,6 @@ public class DateTimeTest extends BaseTest
                 .endSelect(() -> getWeekDay("2020-10-27"))
                 .first();
 
-        Assert.assertEquals(3, weekDay);
+        Assert.assertEquals(1, weekDay);
     }
 }

@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.exception;
 
-public abstract class DrinkException extends RuntimeException
+public class DrinkException extends RuntimeException
 {
     public DrinkException()
     {
