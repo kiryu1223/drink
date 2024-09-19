@@ -95,7 +95,7 @@ public class DateTimeTest extends BaseTest
     @Test
     public void dateTimeDiffTest()
     {
-        int one = client.queryEmptyTable()
+        long one = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", "2000-01-01"))
                 .first();
 
