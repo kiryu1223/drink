@@ -3,6 +3,11 @@ package io.github.kiryu1223.drink.ext;
 
 import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
+import io.github.kiryu1223.drink.ext.mysql.MySqlDateTimeDiffExtension;
+import io.github.kiryu1223.drink.ext.oracle.OracleAddOrSubDateExtension;
+import io.github.kiryu1223.drink.ext.oracle.OracleCastExtension;
+import io.github.kiryu1223.drink.ext.oracle.OracleDateTimeDiffExtension;
+import io.github.kiryu1223.drink.ext.oracle.OracleJoinExtension;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
 
 import java.math.BigDecimal;
@@ -261,7 +266,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},{num},{time})")
     public static LocalDateTime addDate(LocalDateTime time, SqlTimeUnit unit, int num)
     {
@@ -271,7 +276,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},{num},{time})")
     public static LocalDate addDate(LocalDate time, SqlTimeUnit unit, int num)
     {
@@ -281,7 +286,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,{days},{time})")
     public static LocalDateTime addDate(LocalDateTime time, int days)
     {
@@ -291,7 +296,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,{days},{time})")
     public static LocalDate addDate(LocalDate time, int days)
     {
@@ -301,7 +306,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},-({num}),{time})")
     public static LocalDateTime subDate(LocalDateTime time, SqlTimeUnit unit, int num)
     {
@@ -321,7 +326,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,-({days}),{time})")
     public static LocalDateTime subDate(LocalDateTime time, int days)
     {
@@ -331,7 +336,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},{days})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "",extension = OracleAddOrSubDateExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,-({days}),{time})")
     public static LocalDate subDate(LocalDate time, int days)
     {
@@ -340,90 +345,90 @@ public class SqlFunctions
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN({t2},{t1}) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN({t2},{t1}) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM {t2} - {t1}) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM {t2} - {t1}) WHEN 'HOUR' THEN EXTRACT(DAY FROM {t2} - {t1}) * 24 + EXTRACT(HOUR FROM {t2} - {t1}) WHEN 'MINUTE' THEN EXTRACT(DAY FROM {t2} - {t1}) * 1440 + EXTRACT(HOUR FROM {t2} - {t1}) * 60 + EXTRACT(MINUTE FROM {t2} - {t1}) WHEN 'SECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1})) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400000 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600000 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60000 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1}),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDateTime t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDateTime t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN({t2},{t1}) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN({t2},{t1}) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM {t2} - {t1}) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM {t2} - {t1}) WHEN 'HOUR' THEN EXTRACT(DAY FROM {t2} - {t1}) * 24 + EXTRACT(HOUR FROM {t2} - {t1}) WHEN 'MINUTE' THEN EXTRACT(DAY FROM {t2} - {t1}) * 1440 + EXTRACT(HOUR FROM {t2} - {t1}) * 60 + EXTRACT(MINUTE FROM {t2} - {t1}) WHEN 'SECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1})) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400000 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600000 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60000 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1}),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDate t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDate t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN(TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff'),{t1}) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN(TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff'),{t1}) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) WHEN 'HOUR' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 24 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) WHEN 'MINUTE' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 1440 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 60 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) WHEN 'SECOND' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 86400 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 3600 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 60 + TRUNC(EXTRACT(SECOND FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1})) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 86400000 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 3600000 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 60000 + TRUNC(EXTRACT(SECOND FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, String t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, String t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN({t2},{t1}) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN({t2},{t1}) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM {t2} - {t1}) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM {t2} - {t1}) WHEN 'HOUR' THEN EXTRACT(DAY FROM {t2} - {t1}) * 24 + EXTRACT(HOUR FROM {t2} - {t1}) WHEN 'MINUTE' THEN EXTRACT(DAY FROM {t2} - {t1}) * 1440 + EXTRACT(HOUR FROM {t2} - {t1}) * 60 + EXTRACT(MINUTE FROM {t2} - {t1}) WHEN 'SECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1})) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400000 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600000 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60000 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1}),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, LocalDate t1, LocalDate t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, LocalDate t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN({t2},{t1}) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN({t2},{t1}) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM {t2} - {t1}) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM {t2} - {t1}) WHEN 'HOUR' THEN EXTRACT(DAY FROM {t2} - {t1}) * 24 + EXTRACT(HOUR FROM {t2} - {t1}) WHEN 'MINUTE' THEN EXTRACT(DAY FROM {t2} - {t1}) * 1440 + EXTRACT(HOUR FROM {t2} - {t1}) * 60 + EXTRACT(MINUTE FROM {t2} - {t1}) WHEN 'SECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1})) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM {t2} - {t1}) * 86400000 + EXTRACT(HOUR FROM {t2} - {t1}) * 3600000 + EXTRACT(MINUTE FROM {t2} - {t1}) * 60000 + TRUNC(EXTRACT(SECOND FROM {t2} - {t1}),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, LocalDate t1, LocalDateTime t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, LocalDateTime t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN(TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff'),{t1}) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN(TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff'),{t1}) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) WHEN 'HOUR' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 24 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) WHEN 'MINUTE' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 1440 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 60 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) WHEN 'SECOND' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 86400 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 3600 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 60 + TRUNC(EXTRACT(SECOND FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1})) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 86400000 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 3600000 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}) * 60000 + TRUNC(EXTRACT(SECOND FROM TO_TIMESTAMP({t2}, 'YYYY-MM-DD hh24:mi:ss:ff') - {t1}),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, LocalDate t1, String t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, String t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle,extension = OracleDateTimeDiffExtension.class, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN(TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff'),TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN(TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff'),TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'HOUR' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 24 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 1440 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'SECOND' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 86400 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 3600 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60 + TRUNC(EXTRACT(SECOND FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff'))) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 86400000 + EXTRACT(HOUR FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 3600000 + EXTRACT(MINUTE FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60000 + TRUNC(EXTRACT(SECOND FROM TO_TIMESTAMP({t2},'YYYY-MM-DD hh24:mi:ss:ff') - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, String t1, String t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, String t1, String t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN({t2},TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN({t2},TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'HOUR' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 24 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 1440 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60 + EXTRACT(MINUTE FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'SECOND' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 86400 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 3600 + EXTRACT(MINUTE FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60 + TRUNC(EXTRACT(SECOND FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff'))) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 86400000 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 3600000 + EXTRACT(MINUTE FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60000 + TRUNC(EXTRACT(SECOND FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, String t1, LocalDate t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, String t1, LocalDate t2)
     {
         boom();
         return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE '{unit}' WHEN 'YEAR' THEN FLOOR(MONTHS_BETWEEN({t2},TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) / 12) WHEN 'MONTH' THEN MONTHS_BETWEEN({t2},TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'WEEK' THEN TRUNC(EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) / 7) WHEN 'DAY' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'HOUR' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 24 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'MINUTE' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 1440 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60 + EXTRACT(MINUTE FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) WHEN 'SECOND' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 86400 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 3600 + EXTRACT(MINUTE FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60 + TRUNC(EXTRACT(SECOND FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff'))) WHEN 'MILLISECOND' THEN EXTRACT(DAY FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 86400000 + EXTRACT(HOUR FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 3600000 + EXTRACT(MINUTE FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')) * 60000 + TRUNC(EXTRACT(SECOND FROM {t2} - TO_TIMESTAMP({t1},'YYYY-MM-DD hh24:mi:ss:ff')),3) * 1000 ELSE 0 END)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
-    public static int dateTimeDiff(SqlTimeUnit unit, String t1, LocalDateTime t2)
+    public static long dateTimeDiff(SqlTimeUnit unit, String t1, LocalDateTime t2)
     {
         boom();
         return 0;

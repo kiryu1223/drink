@@ -102,7 +102,7 @@ public class DateTimeTest extends BaseTest
         Assert.assertEquals(1161, one);
 
 
-        int one1 = client.queryEmptyTable()
+        long one1 = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, "1996-10-27", LocalDate.of(2020, 5, 5)))
                 .first();
 
@@ -110,11 +110,47 @@ public class DateTimeTest extends BaseTest
 
         LocalDateTime start = LocalDateTime.of(1996, 10, 27, 0, 0);
         LocalDateTime end = LocalDateTime.of(2000, 1, 1, 0, 0);
-        int second = client.queryEmptyTable()
+        long second = client.queryEmptyTable()
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.SECOND, start, end))
                 .first();
 
         Assert.assertEquals(100310400, second);
+    }
+
+    @Test
+    public void dateTimeDiff2Test()
+    {
+        LocalDateTime brithDay = LocalDateTime.of(1996, 10, 27, 7, 30, 45);
+        LocalDateTime future = LocalDateTime.of(1997, 3, 7, 16, 30, 15);
+
+        long yearDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.YEAR, brithDay, future))
+                .first();
+        log.info(String.valueOf(yearDiff));
+        long monthDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.MONTH, brithDay, future))
+                .first();
+        log.info(String.valueOf(monthDiff));
+        long weekDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.WEEK, brithDay, future))
+                .first();
+        log.info(String.valueOf(weekDiff));
+        long dayDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.DAY, brithDay, future))
+                .first();
+        log.info(String.valueOf(dayDiff));
+        long hourDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.HOUR, brithDay, future))
+                .first();
+        log.info(String.valueOf(hourDiff));
+        long minuteDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.MINUTE, brithDay, future))
+                .first();
+        log.info(String.valueOf(minuteDiff));
+        long secondDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.SECOND, brithDay, future))
+                .first();
+        log.info(String.valueOf(secondDiff));
     }
 
     @Test
