@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.test.mssql;
+package io.github.kiryu1223.drink.test.mysql;
 
 import io.github.kiryu1223.drink.pojos.Employee;
 import io.github.kiryu1223.drink.pojos.Salary;

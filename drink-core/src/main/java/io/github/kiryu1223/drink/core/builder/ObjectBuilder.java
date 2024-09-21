@@ -98,7 +98,7 @@ public class ObjectBuilder<T>
         while (resultSet.next())
         {
             T t = creator.get();
-            Key key = resultSet.getObject(anotherKeyColumn.getColumn(), (Class<? extends Key>) anotherKeyColumn.getType());
+            Key key = resultSet.getObject(anotherKeyColumn.getColumn(), (Class<? extends Key>) upperClass(anotherKeyColumn.getType()));
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
                 Object value = convertValue(metaData);
