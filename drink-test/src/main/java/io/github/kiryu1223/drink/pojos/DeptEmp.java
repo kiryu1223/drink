@@ -7,6 +7,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+/**
+ * 部门与员工多对多的中间表
+ */
 @Data
 @Table("dept_emp")
 public class DeptEmp implements IMappingTable

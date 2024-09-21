@@ -8,6 +8,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+/**
+ * 部门管理者
+ */
 @Data
 @Table("dept_manager")
 public class DeptManager

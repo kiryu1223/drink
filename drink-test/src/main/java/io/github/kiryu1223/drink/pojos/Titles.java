@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+/**
+ * 职位
+ */
 @Data
 @Table("titles")
 public class Titles

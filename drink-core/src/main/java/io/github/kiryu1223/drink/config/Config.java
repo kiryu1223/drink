@@ -2,11 +2,16 @@ package io.github.kiryu1223.drink.config;
 
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.dialect.*;
+import io.github.kiryu1223.drink.core.builder.IncludeFactory;
+import io.github.kiryu1223.drink.core.builder.h2.H2IncludeFactory;
+import io.github.kiryu1223.drink.core.builder.mysql.MySqlIncludeFactory;
+import io.github.kiryu1223.drink.core.builder.oracle.OracleIncludeFactory;
+import io.github.kiryu1223.drink.core.builder.sqlserver.SqlServerIncludeFactory;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.ext.h2.H2ExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.ext.mysql.MySqlExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.ext.oracle.OracleSqlExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.ext.sqlserver.SqlServerExpressionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
@@ -20,6 +25,7 @@ public class Config
     private final DataSourceManager dataSourceManager;
     private final SqlSessionFactory sqlSessionFactory;
     private final SqlExpressionFactory sqlExpressionFactory;
+    private final IncludeFactory includeFactory;
 
     public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory)
     {
@@ -30,19 +36,23 @@ public class Config
             case MySQL:
                 disambiguation = new MySQLDialect();
                 sqlExpressionFactory = new MySqlExpressionFactory(this);
+                includeFactory = new MySqlIncludeFactory(this);
                 break;
             case SqlServer:
                 disambiguation = new SqlServerDialect();
                 sqlExpressionFactory = new SqlServerExpressionFactory(this);
+                includeFactory = new SqlServerIncludeFactory(this);
                 break;
             case Oracle:
                 disambiguation = new OracleDialect();
                 sqlExpressionFactory = new OracleSqlExpressionFactory(this);
+                includeFactory = new OracleIncludeFactory(this);
                 break;
             case H2:
             default:
                 disambiguation = new DefaultDialect();
                 sqlExpressionFactory = new H2ExpressionFactory(this);
+                includeFactory = new H2IncludeFactory(this);
                 break;
         }
         this.transactionManager = transactionManager;
@@ -103,5 +113,10 @@ public class Config
     public SqlExpressionFactory getSqlExpressionFactory()
     {
         return sqlExpressionFactory;
+    }
+
+    public IncludeFactory getIncludeFactory()
+    {
+        return includeFactory;
     }
 }

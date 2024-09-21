@@ -19,14 +19,14 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
 
 public class IncludeBuilder<T>
 {
-    private static final Logger log = LoggerFactory.getLogger(IncludeBuilder.class);
-    private final Config config;
-    private final Class<T> targetClass;
-    private final Collection<T> sources;
-    private final List<IncludeSet> includes;
-    private final SqlQueryableExpression queryable;
-    private final SqlExpressionFactory factory;
-    private final SqlSession session;
+    protected static final Logger log = LoggerFactory.getLogger(IncludeBuilder.class);
+    protected final Config config;
+    protected final Class<T> targetClass;
+    protected final Collection<T> sources;
+    protected final List<IncludeSet> includes;
+    protected final SqlQueryableExpression queryable;
+    protected final SqlExpressionFactory factory;
+    protected final SqlSession session;
 
     public IncludeBuilder(Config config, SqlSession session, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, SqlQueryableExpression queryable)
     {
@@ -77,7 +77,7 @@ public class IncludeBuilder<T>
         }
     }
 
-    private void oneToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void oneToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         // 查询目标表
         SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
@@ -129,7 +129,7 @@ public class IncludeBuilder<T>
         round(include, navigateTargetType, objectMap.values(), tempQueryable);
     }
 
-    private void oneToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void oneToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         // 查询目标表
         SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
@@ -180,7 +180,7 @@ public class IncludeBuilder<T>
         round(include, navigateTargetType, targetMap.values(), tempQueryable);
     }
 
-    private void manyToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void manyToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         // 查询目标表
         SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
@@ -232,7 +232,7 @@ public class IncludeBuilder<T>
         round(include, navigateTargetType, objectMap.values(), tempQueryable);
     }
 
-    private void manyToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void manyToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
         Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
         MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
@@ -337,12 +337,12 @@ public class IncludeBuilder<T>
         return sourcesMapList;
     }
 
-    private SqlQueryableExpression warpItQueryable(SqlQueryableExpression querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlQueryableExpression virtualTableContext)
+    protected SqlQueryableExpression warpItQueryable(SqlQueryableExpression querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlQueryableExpression virtualTableContext)
     {
         return warpItQueryable(querySqlBuilder, targetPropertyMetaData, navigateTargetType, virtualTableContext, null);
     }
 
-    private SqlQueryableExpression warpItQueryable(SqlQueryableExpression querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlQueryableExpression virtualTableContext, SqlColumnExpression another)
+    protected SqlQueryableExpression warpItQueryable(SqlQueryableExpression querySqlBuilder, PropertyMetaData targetPropertyMetaData, Class<?> navigateTargetType, SqlQueryableExpression virtualTableContext, SqlColumnExpression another)
     {
         SqlOrderByExpression orderBy = virtualTableContext.getOrderBy();
         SqlWhereExpression where = virtualTableContext.getWhere();
@@ -358,22 +358,15 @@ public class IncludeBuilder<T>
         SqlQueryableExpression window = factory.queryable(querySqlBuilder);
         List<SqlExpression> selects = new ArrayList<>(2);
         selects.add(factory.constString("*"));
-        List<String> orderStr = new ArrayList<>();
-        orderStr.add("ROW_NUMBER() OVER (PARTITION BY ");
-        List<SqlExpression> newOrder = new ArrayList<>(orderBy.getSqlOrders());
-        newOrder.add(0, factory.column(targetPropertyMetaData, 0));
-        if (!orderBy.isEmpty())
-        {
-            orderStr.add(" ORDER BY ");
-            List<SqlOrderExpression> sqlOrders = orderBy.getSqlOrders();
-            for (int i = 0; i < sqlOrders.size(); i++)
-            {
-                if (i < sqlOrders.size() - 1) orderStr.add(",");
-            }
-        }
-        orderStr.add(")");
+
+        List<SqlExpression> rowNumberParams = new ArrayList<>();
+        rowNumberParams.add(factory.column(targetPropertyMetaData, 0));
+        rowNumberParams.addAll(orderBy.getSqlOrders());
+        List<String> rowNumberFunction = new ArrayList<>();
+        rowNumber(rowNumberFunction, rowNumberParams);
+
         String rank = "-rank-";
-        selects.add(factory.as(factory.function(orderStr, newOrder), rank));
+        selects.add(factory.as(factory.function(rowNumberFunction, rowNumberParams), rank));
         window.setSelect(factory.select(selects, navigateTargetType));
         // 最外层
         SqlQueryableExpression window2 = factory.queryable(window);
@@ -381,32 +374,40 @@ public class IncludeBuilder<T>
         {
             window2.getSelect().getColumns().add(another);
         }
-        if (limit != null)
+        if (limit.onlyHasRows())
         {
-            long offset = limit.getOffset();
-            long rows = limit.getRows();
+//            long offset = limit.getOffset();
+//            long rows = limit.getRows();
+//
+//            SqlBinaryExpression skip = null;
+//            SqlBinaryExpression take;
+//            if (offset > 0)
+//            {
+//                skip = factory.binary(SqlOperator.GT, _rank_, factory.value(offset));
+//                take = factory.binary(SqlOperator.LE, _rank_, factory.value(offset + rows));
+//            }
+//            else
+//            {
+//                take = factory.binary(SqlOperator.LE, _rank_, factory.value(rows));
+//            }
+//            SqlExpression limitCond;
+//            if (skip != null)
+//            {
+//                limitCond = factory.binary(SqlOperator.AND, skip, take);
+//            }
+//            else
+//            {
+//                limitCond = take;
+//            }
             SqlConstStringExpression _rank_ = factory.constString(config.getDisambiguation().disambiguation(rank));
-            SqlBinaryExpression skip = null;
-            SqlBinaryExpression take;
-            if (offset > 0)
-            {
-                skip = factory.binary(SqlOperator.GT, _rank_, factory.value(offset));
-                take = factory.binary(SqlOperator.LE, _rank_, factory.value(offset + rows));
-            }
-            else
-            {
-                take = factory.binary(SqlOperator.LE, _rank_, factory.value(rows));
-            }
-            SqlExpression limitCond;
-            if (skip != null)
-            {
-                limitCond = factory.binary(SqlOperator.AND, skip, take);
-            }
-            else
-            {
-                limitCond = take;
-            }
-            window2.addWhere(limitCond);
+            window2.addWhere(factory.binary(SqlOperator.LE, _rank_, factory.value(limit.getRows())));
+        }
+        else if (limit.hasRowsAndOffset())
+        {
+            SqlConstStringExpression _rank_ = factory.constString(config.getDisambiguation().disambiguation(rank));
+            SqlBinaryExpression right = factory.binary(SqlOperator.LE, _rank_, factory.value(limit.getOffset() + limit.getRows()));
+            SqlBinaryExpression left = factory.binary(SqlOperator.GT, _rank_, factory.value(limit.getOffset()));
+            window2.addWhere(factory.binary(SqlOperator.AND, left, right));
         }
         return window2;
     }
@@ -415,7 +416,8 @@ public class IncludeBuilder<T>
     {
         if (!include.getIncludeSets().isEmpty())
         {
-            new IncludeBuilder<>(config, session, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
+            IncludeFactory includeFactory = config.getIncludeFactory();
+            includeFactory.getBuilder(session, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
         }
     }
 
@@ -424,8 +426,8 @@ public class IncludeBuilder<T>
         if (!include.getIncludeSets().isEmpty())
         {
             List<Object> collect = sources.stream().flatMap(o -> o.stream()).collect(Collectors.toList());
-            IncludeBuilder<Object> objectIncludeBuilder = new IncludeBuilder<>(config, session, cast(navigateTargetType), collect, include.getIncludeSets(), main);
-            objectIncludeBuilder.include();
+            IncludeFactory includeFactory = config.getIncludeFactory();
+            includeFactory.getBuilder(session, cast(navigateTargetType), collect, include.getIncludeSets(), main).include();
         }
     }
 
@@ -435,5 +437,19 @@ public class IncludeBuilder<T>
         {
             log.info("includeQuery: ==> {}", sql);
         }
+    }
+
+    protected void rowNumber(List<String> rowNumberFunction, List<SqlExpression> rowNumberParams)
+    {
+        rowNumberFunction.add("ROW_NUMBER() OVER (PARTITION BY ");
+        if (rowNumberParams.size() > 1)
+        {
+            rowNumberFunction.add(" ORDER BY ");
+        }
+        for (int i = 0; i < rowNumberParams.size(); i++)
+        {
+            if (i < rowNumberParams.size() - 2) rowNumberFunction.add(",");
+        }
+        rowNumberFunction.add(")");
     }
 }

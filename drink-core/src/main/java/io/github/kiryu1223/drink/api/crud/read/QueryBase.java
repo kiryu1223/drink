@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.api.crud.CRUD;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.builder.IncludeBuilder;
+import io.github.kiryu1223.drink.core.builder.IncludeFactory;
 import io.github.kiryu1223.drink.core.builder.IncludeSet;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
 import io.github.kiryu1223.drink.core.expression.*;
@@ -122,8 +123,8 @@ public abstract class QueryBase extends CRUD
         {
             try
             {
-                IncludeBuilder<T> includeBuilder = new IncludeBuilder<>(getConfig(), session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable());
-                includeBuilder.include();
+                IncludeFactory includeFactory = config.getIncludeFactory();
+                includeFactory.getBuilder(session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
             }
             catch (InvocationTargetException | IllegalAccessException e)
             {
@@ -137,6 +138,7 @@ public abstract class QueryBase extends CRUD
     {
         SqlQueryableExpression queryableCopy = getSqlBuilder().getQueryable().copy(getConfig());
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), queryableCopy);
+        querySqlBuilder.getIncludeSets().addAll(getSqlBuilder().getIncludeSets());
         LQuery<T> lQuery = new LQuery<>(querySqlBuilder);
         lQuery.limit(1);
         List<T> list = lQuery.toList();

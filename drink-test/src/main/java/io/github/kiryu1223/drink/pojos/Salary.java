@@ -8,6 +8,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+/**
+ * 薪水
+ */
 @Data
 @Table(value = "salaries")
 public class Salary

@@ -151,6 +151,10 @@ public class DateTimeTest extends BaseTest
                 .endSelect(() -> dateTimeDiff(SqlTimeUnit.SECOND, brithDay, future))
                 .first();
         log.info(String.valueOf(secondDiff));
+        long milliDiff = client.queryEmptyTable()
+                .endSelect(() -> dateTimeDiff(SqlTimeUnit.MILLISECOND, brithDay, future))
+                .first();
+        log.info(String.valueOf(milliDiff));
     }
 
     @Test

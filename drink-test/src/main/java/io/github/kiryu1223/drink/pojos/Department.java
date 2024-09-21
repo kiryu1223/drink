@@ -5,7 +5,9 @@ import lombok.Data;
 
 import java.util.List;
 
-
+/**
+ * 部门
+ */
 @Data
 @Table(value = "departments")
 public class Department

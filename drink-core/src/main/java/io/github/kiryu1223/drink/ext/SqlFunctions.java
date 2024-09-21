@@ -347,7 +347,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDateTime t2)
     {
         boom();
@@ -357,7 +357,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDate t2)
     {
         boom();
@@ -367,7 +367,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, String t2)
     {
         boom();
@@ -377,7 +377,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, LocalDate t2)
     {
         boom();
@@ -397,7 +397,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, String t2)
     {
         boom();
@@ -407,7 +407,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, String t1, String t2)
     {
         boom();
@@ -417,7 +417,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, String t1, LocalDate t2)
     {
         boom();
@@ -427,7 +427,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
     public static long dateTimeDiff(SqlTimeUnit unit, String t1, LocalDateTime t2)
     {
         boom();

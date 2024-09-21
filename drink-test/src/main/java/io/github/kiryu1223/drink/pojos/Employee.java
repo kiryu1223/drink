@@ -6,7 +6,9 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.List;
 
-
+/**
+ * 员工
+ */
 @Data
 @Table("employees")
 public class Employee
