@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Table(value = "salaries")
 public class Salary
 {
-    @Column("emp_no")
+    @Column(value = "emp_no",primaryKey = true)
     private int empNumber;
     private int salary;
     @Column("from_date")

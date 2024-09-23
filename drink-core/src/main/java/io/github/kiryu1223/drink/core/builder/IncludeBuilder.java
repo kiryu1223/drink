@@ -357,7 +357,7 @@ public class IncludeBuilder<T>
         // 包装一下窗口查询
         SqlQueryableExpression window = factory.queryable(querySqlBuilder);
         List<SqlExpression> selects = new ArrayList<>(2);
-        selects.add(factory.constString("*"));
+        selects.add(factory.constString("t0.*"));
 
         List<SqlExpression> rowNumberParams = new ArrayList<>();
         rowNumberParams.add(factory.column(targetPropertyMetaData, 0));

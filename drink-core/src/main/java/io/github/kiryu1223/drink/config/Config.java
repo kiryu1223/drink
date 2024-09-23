@@ -11,7 +11,7 @@ import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.ext.h2.H2ExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.ext.mysql.MySqlExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.ext.oracle.OracleSqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.ext.oracle.OracleExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.ext.sqlserver.SqlServerExpressionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
@@ -45,7 +45,7 @@ public class Config
                 break;
             case Oracle:
                 disambiguation = new OracleDialect();
-                sqlExpressionFactory = new OracleSqlExpressionFactory(this);
+                sqlExpressionFactory = new OracleExpressionFactory(this);
                 includeFactory = new OracleIncludeFactory(this);
                 break;
             case H2:

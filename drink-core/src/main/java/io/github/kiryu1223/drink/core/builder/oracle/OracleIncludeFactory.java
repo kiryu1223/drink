@@ -20,6 +20,6 @@ public class OracleIncludeFactory extends IncludeFactory
     @Override
     public <T> IncludeBuilder<T> getBuilder(SqlSession session, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, SqlQueryableExpression queryable)
     {
-        return new IncludeBuilder<>(config, session, targetClass, sources, includes, queryable);
+        return new OracleIncludeBuilder<>(config, session, targetClass, sources, includes, queryable);
     }
 }

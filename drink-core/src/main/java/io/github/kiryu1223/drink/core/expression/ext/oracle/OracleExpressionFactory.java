@@ -3,9 +3,9 @@ package io.github.kiryu1223.drink.core.expression.ext.oracle;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.*;
 
-public class OracleSqlExpressionFactory extends SqlExpressionFactory
+public class OracleExpressionFactory extends SqlExpressionFactory
 {
-    public OracleSqlExpressionFactory(Config config)
+    public OracleExpressionFactory(Config config)
     {
         super(config);
     }
@@ -13,7 +13,7 @@ public class OracleSqlExpressionFactory extends SqlExpressionFactory
     @Override
     public SqlFromExpression from(SqlTableExpression sqlTable, int index)
     {
-        return new OracleSqlFromExpression(sqlTable, index);
+        return new OracleFromExpression(sqlTable, index);
     }
 
     @Override
@@ -32,5 +32,11 @@ public class OracleSqlExpressionFactory extends SqlExpressionFactory
     public SqlQueryableExpression queryable(SqlSelectExpression select, SqlFromExpression from, SqlJoinsExpression joins, SqlWhereExpression where, SqlGroupByExpression groupBy, SqlHavingExpression having, SqlOrderByExpression orderBy, SqlLimitExpression limit)
     {
         return new OracleQueryableExpression(select, from, joins, where, groupBy, having, orderBy, limit);
+    }
+
+    @Override
+    public SqlLimitExpression limit()
+    {
+        return new OracleLimitExpression();
     }
 }

@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.core.metaData;
 
 import io.github.kiryu1223.drink.annotation.*;
 import io.github.kiryu1223.drink.core.builder.ConverterCache;
+import io.github.kiryu1223.drink.exception.DrinkNotFoundPropertyException;
 import io.github.kiryu1223.drink.ext.IConverter;
 import io.github.kiryu1223.drink.ext.NoConverter;
 import io.github.kiryu1223.expressionTree.util.ReflectUtil;
@@ -109,12 +110,12 @@ public class MetaData
 
     public String getColumnNameByGetter(Method getter)
     {
-        return propertys.stream().filter(f -> f.getGetter().equals(getter)).findFirst().get().getColumn();
+        return propertys.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new DrinkNotFoundPropertyException(getter)).getColumn();
     }
 
     public String getColumnNameBySetter(Method setter)
     {
-        return propertys.stream().filter(f -> f.getSetter().equals(setter)).findFirst().get().getColumn();
+        return propertys.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new DrinkNotFoundPropertyException(setter)).getColumn();
     }
 
     public PropertyMetaData getPrimary()

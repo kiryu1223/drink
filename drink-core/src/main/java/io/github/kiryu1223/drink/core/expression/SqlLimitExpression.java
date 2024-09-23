@@ -38,6 +38,11 @@ public class SqlLimitExpression extends SqlExpression
         return rows > 0 && offset > 0;
     }
 
+    public boolean hasRowsOrOffset()
+    {
+        return rows > 0 || offset > 0;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {

@@ -2,6 +2,11 @@ package io.github.kiryu1223.drink.core.expression.ext.oracle;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.*;
+import io.github.kiryu1223.drink.core.metaData.MetaData;
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.exception.DrinkLimitNotFoundOrderByException;
+import io.github.kiryu1223.drink.ext.DbType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +22,10 @@ public class OracleQueryableExpression extends SqlQueryableExpression
     public String getSqlAndValue(Config config, List<Object> values)
     {
         List<String> strings = new ArrayList<>();
-        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
-        {
-            strings.add("SELECT * FROM (SELECT t.*,ROWNUM AS \"-ROWNUM-\" FROM (");
-        }
+//        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
+//        {
+//            strings.add("SELECT * FROM (SELECT t.*,ROWNUM AS \"-ROWNUM-\" FROM (");
+//        }
         strings.add(select.getSqlAndValue(config, values));
         String fromSqlAndValue = from.getSqlAndValue(config, values);
         if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
@@ -34,18 +39,38 @@ public class OracleQueryableExpression extends SqlQueryableExpression
         if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
         String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
         if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
-        {
-            strings.add(") t) WHERE \"-ROWNUM-\"");
-            if (limit.onlyHasRows())
-            {
-                strings.add("<= " + limit.getRows());
-            }
-            else
-            {
-                strings.add(String.format("BETWEEN %d AND %d", limit.getOffset() + 1, limit.getOffset() + limit.getRows()));
-            }
-        }
+        limitAndOrderCheck(strings, values, config);
+        String limitSqlAndValue = limit.getSqlAndValue(config, values);
+        if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
+//        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
+//        {
+//            strings.add(") t) WHERE \"-ROWNUM-\"");
+//            if (limit.onlyHasRows())
+//            {
+//                strings.add("<= " + limit.getRows());
+//            }
+//            else
+//            {
+//                strings.add(String.format("BETWEEN %d AND %d", limit.getOffset() + 1, limit.getOffset() + limit.getRows()));
+//            }
+//        }
         return String.join(" ", strings);
+    }
+
+    private void limitAndOrderCheck(List<String> strings, List<Object> values, Config config)
+    {
+        if (limit.hasRowsOrOffset() && orderBy.isEmpty())
+        {
+            MetaData metaData = MetaDataCache.getMetaData(from.getSqlTableExpression().getTableClass());
+            PropertyMetaData primary = metaData.getPrimary();
+            if (primary == null)
+            {
+                throw new DrinkLimitNotFoundOrderByException(DbType.Oracle);
+            }
+            SqlExpressionFactory factory = config.getSqlExpressionFactory();
+            SqlOrderByExpression sqlOrderByExpression = factory.orderBy();
+            sqlOrderByExpression.addOrder(factory.order(factory.column(primary)));
+            strings.add(sqlOrderByExpression.getSqlAndValue(config, values));
+        }
     }
 }

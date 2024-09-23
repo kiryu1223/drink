@@ -7,9 +7,9 @@ import io.github.kiryu1223.drink.core.expression.SqlTableExpression;
 
 import java.util.List;
 
-public class OracleSqlFromExpression extends SqlFromExpression
+public class OracleFromExpression extends SqlFromExpression
 {
-    public OracleSqlFromExpression(SqlTableExpression sqlTableExpression, int index)
+    public OracleFromExpression(SqlTableExpression sqlTableExpression, int index)
     {
         super(sqlTableExpression, index);
     }

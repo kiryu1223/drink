@@ -6,6 +6,8 @@ import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.exception.DrinkInvalidOperationException;
+import io.github.kiryu1223.drink.exception.DrinkLimitNotFoundOrderByException;
+import io.github.kiryu1223.drink.ext.DbType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ public class SqlServerQueryableExpression extends SqlQueryableExpression
         PropertyMetaData primary = metaData.getPrimary();
         if (primary == null)
         {
-            throw new DrinkInvalidOperationException("MSSQL下进行的limit操作需要声明order by字段，或者指定一个主键");
+            throw new DrinkLimitNotFoundOrderByException(DbType.SqlServer);
         }
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         SqlOrderByExpression sqlOrderByExpression = factory.orderBy();
