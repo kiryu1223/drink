@@ -3,7 +3,6 @@ package io.github.kiryu1223.drink.api.crud.read;
 import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.api.crud.CRUD;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.builder.IncludeFactory;
 import io.github.kiryu1223.drink.core.builder.IncludeSet;
 import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
@@ -16,6 +15,7 @@ import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
 import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
 import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
+import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.ext.IMappingTable;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -24,10 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 
 public abstract class QueryBase extends CRUD
@@ -395,25 +392,33 @@ public abstract class QueryBase extends CRUD
             case ManyToOne:
                 if (navigateData.isCollectionWrapper())
                 {
-                    throw new RuntimeException(relationType + "不支持集合");
+                    throw new DrinkException(relationType + "不支持集合");
                 }
                 break;
             case OneToMany:
                 if (!navigateData.isCollectionWrapper())
                 {
-                    throw new RuntimeException(relationType + "只支持集合");
+                    if (!(List.class.isAssignableFrom(navigateData.getCollectionWrapperType()) || Set.class.isAssignableFrom(navigateData.getCollectionWrapperType())))
+                    {
+                        throw new DrinkException(relationType + "只支持List和Set");
+                    }
+                    throw new DrinkException(relationType + "只支持集合");
                 }
                 break;
             case ManyToMany:
-                if (!navigateData.isCollectionWrapper())
-                {
-                    throw new RuntimeException(relationType + "只支持集合");
-                }
                 if (navigateData.getMappingTableType() == IMappingTable.class
                         || navigateData.getSelfMappingPropertyName().isEmpty()
                         || navigateData.getTargetMappingPropertyName().isEmpty())
                 {
-                    throw new RuntimeException(relationType + "下@Navigate注解的midTable和SelfMapping和TargetMapping字段都不能为空");
+                    throw new DrinkException(relationType + "下@Navigate注解的midTable和SelfMapping和TargetMapping字段都不能为空");
+                }
+                if (!navigateData.isCollectionWrapper())
+                {
+                    if (!(List.class.isAssignableFrom(navigateData.getCollectionWrapperType()) || Set.class.isAssignableFrom(navigateData.getCollectionWrapperType())))
+                    {
+                        throw new DrinkException(relationType + "只支持List和Set");
+                    }
+                    throw new RuntimeException(relationType + "只支持集合");
                 }
                 break;
         }

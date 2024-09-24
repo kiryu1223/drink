@@ -71,4 +71,15 @@ public class IncludeTest extends BaseTest
             System.out.println(employee.getDepartments());
         }
     }
+
+    @Test
+    public void deepTest1()
+    {
+        Salary salary = client.query(Salary.class)
+                .include(e -> e.getEmployee())
+                .thenIncludes(s -> s.getSalaries())
+                .first();
+
+        Assert.assertEquals(17, salary.getEmployee().getSalaries().size());
+    }
 }

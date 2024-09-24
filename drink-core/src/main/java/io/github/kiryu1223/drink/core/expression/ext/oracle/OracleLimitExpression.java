@@ -10,7 +10,11 @@ public class OracleLimitExpression extends SqlLimitExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        if (hasRowsOrOffset())
+        if (onlyHasRows())
+        {
+            return String.format("FETCH NEXT %d ROWS ONLY", rows);
+        }
+        else if (hasRowsAndOffset())
         {
             return String.format("OFFSET %d ROWS FETCH NEXT %d ROWS ONLY", offset, rows);
         }

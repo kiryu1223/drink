@@ -7,6 +7,7 @@ import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
+import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.ext.IMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,23 +63,24 @@ public class IncludeBuilder<T>
             switch (navigateData.getRelationType())
             {
                 case OneToOne:
-                    oneToOne(sourcesMapList, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    oneToOne(sourcesMapList, include, navigateData, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
                 case OneToMany:
-                    oneToMany(sourcesMapList, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    oneToMany(sourcesMapList, include, navigateData, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
                 case ManyToOne:
-                    manyToOne(sourcesMapList, include, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    manyToOne(sourcesMapList, include, navigateData, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
                 case ManyToMany:
-                    manyToMany(sourcesMapList, include, navigateData, navigateTargetType, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
+                    manyToMany(sourcesMapList, include, navigateData, selfPropertyMetaData, targetPropertyMetaData, includePropertyMetaData);
                     break;
             }
         }
     }
 
-    protected void oneToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void oneToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
+        Class<?> navigateTargetType = navigateData.getNavigateTargetType();
         // 查询目标表
         SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // 包一层，并选择字段
@@ -129,8 +131,9 @@ public class IncludeBuilder<T>
         round(include, navigateTargetType, objectMap.values(), tempQueryable);
     }
 
-    protected void oneToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void oneToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
+        Class<?> navigateTargetType = navigateData.getNavigateTargetType();
         // 查询目标表
         SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // 包一层，并选择字段
@@ -168,20 +171,29 @@ public class IncludeBuilder<T>
                 values
         );
         // 一对多赋值
+        boolean isSet = Set.class.isAssignableFrom(navigateData.getCollectionWrapperType());
         for (Map.Entry<Object, List<Object>> objectListEntry : targetMap.entrySet())
         {
             Object key = objectListEntry.getKey();
             List<Object> value = objectListEntry.getValue();
             for (T t : sourcesMapList.get(key))
             {
-                includePropertyMetaData.getSetter().invoke(t, value);
+                if(isSet)
+                {
+                    includePropertyMetaData.getSetter().invoke(t, new HashSet<>(value));
+                }
+                else
+                {
+                    includePropertyMetaData.getSetter().invoke(t, value);
+                }
             }
         }
         round(include, navigateTargetType, targetMap.values(), tempQueryable);
     }
 
-    protected void manyToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void manyToOne(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
+        Class<?> navigateTargetType = navigateData.getNavigateTargetType();
         // 查询目标表
         SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // 包一层，并选择字段
@@ -232,8 +244,9 @@ public class IncludeBuilder<T>
         round(include, navigateTargetType, objectMap.values(), tempQueryable);
     }
 
-    protected void manyToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, Class<?> navigateTargetType, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
+    protected void manyToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, PropertyMetaData selfPropertyMetaData, PropertyMetaData targetPropertyMetaData, PropertyMetaData includePropertyMetaData) throws InvocationTargetException, IllegalAccessException
     {
+        Class<?> navigateTargetType = navigateData.getNavigateTargetType();
         Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
         MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
         String selfMappingPropertyName = navigateData.getSelfMappingPropertyName();
@@ -283,6 +296,8 @@ public class IncludeBuilder<T>
                 sql,
                 values
         );
+
+        boolean isSet = Set.class.isAssignableFrom(navigateData.getCollectionWrapperType());
         for (Map.Entry<Object, List<Object>> objectEntry : targetMap.entrySet())
         {
             Object key = objectEntry.getKey();
@@ -290,7 +305,14 @@ public class IncludeBuilder<T>
             List<T> ts = sourcesMapList.get(key);
             for (T t : ts)
             {
-                includePropertyMetaData.getSetter().invoke(t, value);
+                if(isSet)
+                {
+                    includePropertyMetaData.getSetter().invoke(t, new HashSet<>(value));
+                }
+                else
+                {
+                    includePropertyMetaData.getSetter().invoke(t, value);
+                }
             }
         }
 //        for (Map.Entry<Object, List<T>> objectEntry : sourcesMapList.entrySet())
