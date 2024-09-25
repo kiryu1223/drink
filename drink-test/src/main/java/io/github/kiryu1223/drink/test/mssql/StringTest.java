@@ -203,7 +203,7 @@ public class StringTest extends BaseTest
     public void compareTest()
     {
         int res = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.compare("A","B"))
+                .endSelect(() -> SqlFunctions.compare("A", "B"))
                 .first();
 
         Assert.assertEquals(-1, res);
@@ -213,13 +213,13 @@ public class StringTest extends BaseTest
     public void subStringTest()
     {
         String res = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.subString(atoz,6))
+                .endSelect(() -> SqlFunctions.subString(atoz, 6))
                 .first();
 
         Assert.assertEquals("fghijklmnopqrstuvwxyz", res);
 
         String res2 = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.subString(atoz,6,6))
+                .endSelect(() -> SqlFunctions.subString(atoz, 6, 6))
                 .first();
 
         Assert.assertEquals("fghijk", res2);

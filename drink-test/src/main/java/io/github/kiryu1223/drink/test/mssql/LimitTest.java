@@ -42,7 +42,7 @@ public class LimitTest extends BaseTest
         log.info(list1.toString());
 
         List<Salary> list2 = client.query(Salary.class)
-                .orderBy(s->s.getSalary())
+                .orderBy(s -> s.getSalary())
                 .limit(5, 5)
                 .toList();
         log.info(list2.toString());

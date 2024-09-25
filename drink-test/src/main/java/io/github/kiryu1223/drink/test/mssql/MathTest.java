@@ -348,9 +348,9 @@ public class MathTest extends BaseTest
         Assert.assertEquals(100, trunc);
 
         double trunc3 = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.truncate(100.999999,3))
+                .endSelect(() -> SqlFunctions.truncate(100.999999, 3))
                 .first();
 
-        Assert.assertEquals(100.999, trunc3,0);
+        Assert.assertEquals(100.999, trunc3, 0);
     }
 }

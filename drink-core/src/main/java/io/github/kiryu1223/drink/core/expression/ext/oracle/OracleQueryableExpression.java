@@ -39,9 +39,12 @@ public class OracleQueryableExpression extends SqlQueryableExpression
         if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
         String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
         if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-        limitAndOrderCheck(strings, values, config);
-        String limitSqlAndValue = limit.getSqlAndValue(config, values);
-        if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
+        if(!from.isEmptyTable())
+        {
+            limitAndOrderCheck(strings, values, config);
+            String limitSqlAndValue = limit.getSqlAndValue(config, values);
+            if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
+        }
 //        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
 //        {
 //            strings.add(") t) WHERE \"-ROWNUM-\"");

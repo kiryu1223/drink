@@ -1,10 +1,5 @@
 package io.github.kiryu1223.drink.test.oracle;
 
-import org.junit.Test;
-
-import java.sql.*;
-import java.time.LocalDateTime;
-
 public class RawSqlTest extends BaseTest
 {
 //    @Test
