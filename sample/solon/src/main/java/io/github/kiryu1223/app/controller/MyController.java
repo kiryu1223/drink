@@ -1,11 +1,13 @@
 package io.github.kiryu1223.app.controller;
 
+import io.github.kiryu1223.app.service.EmployeeService;
 import io.github.kiryu1223.app.service.MyService;
 import io.github.kiryu1223.drink.api.Result;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
 import org.noear.solon.annotation.Controller;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.annotation.Mapping;
+import org.noear.solon.annotation.Path;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -15,15 +17,6 @@ public class MyController
 {
     @Inject
     MyService myService;
-
-//    @Inject("client2")
-//    DrinkClient client2;
-//
-//    @Inject("client3")
-//    DrinkClient client3;
-//
-//    @Inject("dynamicClient")
-//    DrinkClient dynamicClient;
 
     @Mapping("/test1")
     public long test1()
@@ -47,5 +40,45 @@ public class MyController
     public long test4()
     {
         return myService.dataBaseTest();
+    }
+
+    @Inject
+    EmployeeService employeeService;
+
+    @Mapping("/employeeData/{empId}")
+    public Result employeeData(@Path int empId)
+    {
+        return employeeService.getEmployeeDataByEmployeeNumber(empId);
+    }
+
+    @Mapping("/findEmployee/{departmentId}")
+    public List<? extends Result> findEmployee(@Path String departmentId)
+    {
+        return employeeService.findEmployeesDataByDepartmentNumber(departmentId);
+    }
+
+
+    @Mapping("/employeeSalary/{empId}")
+    public List<? extends Result> employeeSalary(@Path int empId)
+    {
+        return employeeService.findEmployeeSalaryHistoryByEmployeeNumber(empId);
+    }
+
+    @Mapping("/deptManagerEmployee/{departmentId}")
+    public Result deptManagerEmployee(@Path String departmentId)
+    {
+        return employeeService.getDeptManagerEmployeeByDepartmentNumber(departmentId);
+    }
+
+    @Mapping("/employeeWorkedTime/{empId}")
+    public Result employeeWorkedTime(@Path int empId)
+    {
+        return employeeService.getEmployeeWorkedTimeByEmployeeId(empId);
+    }
+
+    @Mapping("/averageSalary/{departmentId}")
+    public Result averageSalary(@Path String departmentId)
+    {
+        return employeeService.getAverageSalaryByDepartmentId(departmentId);
     }
 }

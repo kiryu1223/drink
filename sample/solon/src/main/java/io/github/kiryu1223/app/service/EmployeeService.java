@@ -6,18 +6,16 @@ import io.github.kiryu1223.drink.api.client.DrinkClient;
 import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import io.github.kiryu1223.drink.ext.SqlTimeUnit;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import org.noear.solon.annotation.Component;
+import org.noear.solon.annotation.Inject;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-@Service
-@SuppressWarnings("all")
+@Component
 public class EmployeeService
 {
-    @Autowired
+    @Inject("main")
     DrinkClient client;
 
     // 查询员工的基本信息和当前职位

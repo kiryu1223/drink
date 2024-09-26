@@ -21,9 +21,6 @@ public class MyService
     @Inject("main")
     DrinkClient client;
 
-    @Inject("sub")
-    DrinkClient client2;
-
     public long showCount()
     {
         long aLong = client

@@ -131,23 +131,23 @@ public class SelectVisitor extends SqlVisitor
         }
     }
 
-    protected void setAs(List<SqlExpression> contexts, SqlExpression context, String name)
+    protected void setAs(List<SqlExpression> contexts, SqlExpression expression, String name)
     {
-        if (context instanceof SqlColumnExpression)
+        if (expression instanceof SqlColumnExpression)
         {
-            SqlColumnExpression sqlColumn = (SqlColumnExpression) context;
-            if (!sqlColumn.getPropertyMetaData().getProperty().equals(name))
+            SqlColumnExpression sqlColumn = (SqlColumnExpression) expression;
+            if (!sqlColumn.getPropertyMetaData().getColumn().equals(name))
             {
-                contexts.add(factory.as(context, name));
+                contexts.add(factory.as(expression, name));
             }
             else
             {
-                contexts.add(context);
+                contexts.add(expression);
             }
         }
         else
         {
-            contexts.add(factory.as(context, name));
+            contexts.add(factory.as(expression, name));
         }
     }
 }
