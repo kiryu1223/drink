@@ -8,7 +8,7 @@ import org.noear.solon.annotation.Configuration;
 public class DrinkProperties
 {
     private DbType database = DbType.MySQL;
-    private String datasource = "";
+    private String dsName = "";
     private boolean printSql = true;
     private boolean printUseDs = false;
     private boolean printBatch = false;
@@ -53,14 +53,14 @@ public class DrinkProperties
         this.printBatch = printBatch;
     }
 
-    public String getDatasource()
+    public String getDsName()
     {
-        return datasource;
+        return dsName;
     }
 
-    public void setDatasource(String datasource)
+    public void setDsName(String dsName)
     {
-        this.datasource = datasource;
+        this.dsName = dsName;
     }
 
     public Option bulidOption()
@@ -77,7 +77,7 @@ public class DrinkProperties
     {
         return "DrinkProperties{" +
                 "database=" + database +
-                ", datasource='" + datasource + '\'' +
+                ", dsName='" + dsName + '\'' +
                 ", printSql=" + printSql +
                 ", printUseDs=" + printUseDs +
                 ", printBatch=" + printBatch +

@@ -6,15 +6,19 @@ import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
+import io.github.kiryu1223.plugin.aot.DrinkRuntimeNativeRegistrar;
 import io.github.kiryu1223.plugin.configuration.DrinkProperties;
 import io.github.kiryu1223.plugin.datasource.SolonDataSourceManagerWrap;
 import io.github.kiryu1223.plugin.datasource.SolonDynamicDataSourceManager;
 import io.github.kiryu1223.plugin.datasource.SolonSingleDataSourceManager;
 import io.github.kiryu1223.plugin.transaction.SolonTransactionManager;
+import org.noear.solon.aot.RuntimeNativeRegistrar;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanWrap;
 import org.noear.solon.core.Plugin;
 import org.noear.solon.core.Props;
+import org.noear.solon.core.runtime.NativeDetector;
+import org.noear.solon.core.util.ClassUtil;
 import org.noear.solon.data.dynamicds.DynamicDataSource;
 
 import javax.sql.DataSource;
@@ -30,8 +34,8 @@ public class XPluginImpl implements Plugin
         {
             Props props = entry.getValue();
             DrinkProperties properties = props.getBean(DrinkProperties.class);
-            if (properties.getDatasource().isEmpty()) continue;
-            DataSourceManager dataSourceManager = new SolonDataSourceManagerWrap(properties.getDatasource());
+            if (properties.getDsName().isEmpty()) continue;
+            DataSourceManager dataSourceManager = new SolonDataSourceManagerWrap(properties.getDsName());
             TransactionManager transactionManager = new SolonTransactionManager(dataSourceManager);
             SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
             DrinkClient client = Drink.bootStrap()
@@ -50,11 +54,11 @@ public class XPluginImpl implements Plugin
                 context.beanRegister(wrap, entry.getKey(), false);
             }
         }
-        context.subWrapsOfType(DataSource.class, beanWrap -> register(context, beanWrap));
+        context.subWrapsOfType(DataSource.class, beanWrap -> registerDrink(context, beanWrap));
+        registerAot(context);
     }
 
-
-    private void register(AppContext context, BeanWrap beanWrap)
+    private void registerDrink(AppContext context, BeanWrap beanWrap)
     {
         String name = beanWrap.name();
         for (DrinkClient client : context.getBeansOfType(DrinkClient.class))
@@ -72,6 +76,14 @@ public class XPluginImpl implements Plugin
                 dataSourceManagerWrap.setDataSourceManager(new SolonSingleDataSourceManager(dataSource));
             }
             break;
+        }
+    }
+
+    private void registerAot(AppContext context)
+    {
+        if (NativeDetector.isAotRuntime() && ClassUtil.hasClass(() -> RuntimeNativeRegistrar.class))
+        {
+            context.wrapAndPut(DrinkRuntimeNativeRegistrar.class, new DrinkRuntimeNativeRegistrar());
         }
     }
 }

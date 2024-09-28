@@ -166,7 +166,7 @@ qq群：257911716
      profiles:
        active: dev
      # 最低程度配置下只需要提供一个数据源
-     datasource:
+     dsName:
        type: com.zaxxer.hikari.HikariDataSource
        url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
        username: root
@@ -267,16 +267,16 @@ qq群：257911716
      main:
        database: MySQL
        # 这里需要一个config类中定义的的数据源的bean的别名，下同
-       datasource: normalDs1
+       dsName: normalDs1
      sub:
        database: SqlServer
-       datasource: normalDs2
+       dsName: normalDs2
      readonly:
        database: H2
-       datasource: normalDs3
+       dsName: normalDs3
      dynamic:
        database: H2
-       datasource: dynamicDs
+       dsName: dynamicDs
    ```
 
    ```java
