@@ -44,13 +44,13 @@ drink:
   main:
     database: MySQL
     # 这里需要一个config类中定义的的数据源的bean的别名，下同
-    datasource: normalDs1
+    dsName: normalDs1
   sub:
     database: SqlServer
-    datasource: normalDs2
+    dsName: normalDs2
   readonly:
     database: H2
-    datasource: normalDs3
+    dsName: normalDs3
   dynamic:
     database: H2
-    datasource: dynamicDs
+    dsName: dynamicDs

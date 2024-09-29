@@ -16,7 +16,5 @@ public @interface SqlExtensionExpression
 
     String separator() default ",";
 
-//    boolean rawValue() default false;
-
     Class<? extends BaseSqlExtension> extension() default BaseSqlExtension.class;
 }

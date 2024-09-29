@@ -189,4 +189,12 @@ public class EmployeeService
                 })
                 .first();
     }
+
+    public List<User> abc()
+    {
+        return client.query(User.class)
+                .where(u -> u.getUsername() != null)
+                .limit(100)
+                .toList();
+    }
 }
