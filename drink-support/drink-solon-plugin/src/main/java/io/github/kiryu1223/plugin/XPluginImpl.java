@@ -12,6 +12,7 @@ import io.github.kiryu1223.plugin.datasource.SolonDataSourceManagerWrap;
 import io.github.kiryu1223.plugin.datasource.SolonDynamicDataSourceManager;
 import io.github.kiryu1223.plugin.datasource.SolonSingleDataSourceManager;
 import io.github.kiryu1223.plugin.transaction.SolonTransactionManager;
+import org.noear.solon.Utils;
 import org.noear.solon.aot.RuntimeNativeRegistrar;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanWrap;
