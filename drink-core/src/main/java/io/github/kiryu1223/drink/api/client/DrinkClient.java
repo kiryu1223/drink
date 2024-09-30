@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.api.client;
 
 
+import io.github.kiryu1223.drink.annotation.Recode;
 import io.github.kiryu1223.drink.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.api.crud.read.EmptyQuery;
@@ -40,6 +41,7 @@ public class DrinkClient
         return beginTransaction(null);
     }
 
+    @Recode
     public <T> LQuery<T> query(Class<T> c)
     {
         return new LQuery<>(config, c);
@@ -62,11 +64,13 @@ public class DrinkClient
         return objectInsert.insert(ts);
     }
 
+    @Recode
     public <T> LUpdate<T> update(Class<T> c)
     {
         return new LUpdate<>(config, c);
     }
 
+    @Recode
     public <T> LDelete<T> delete(Class<T> c)
     {
         return new LDelete<>(config, c);
