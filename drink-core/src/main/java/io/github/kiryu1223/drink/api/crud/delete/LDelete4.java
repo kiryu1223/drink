@@ -5,7 +5,7 @@ import io.github.kiryu1223.drink.core.expression.JoinType;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
-import io.github.kiryu1223.expressionTree.expressions.Expr;
+import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class LDelete4<T1,T2,T3,T4> extends DeleteBase

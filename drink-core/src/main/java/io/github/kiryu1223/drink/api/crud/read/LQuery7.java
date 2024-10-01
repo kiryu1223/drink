@@ -6,8 +6,9 @@ import io.github.kiryu1223.drink.core.expression.JoinType;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func7;
 import io.github.kiryu1223.expressionTree.delegate.Func8;
-import io.github.kiryu1223.expressionTree.expressions.Expr;
+import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase
 {
@@ -216,7 +217,7 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase
     // endregion
 
     // region [SELECT]
-    public <R> EndQuery<R> select(Class<R> r)
+    public <R> EndQuery<R> select(@Recode Class<R> r)
     {
         return super.select(r);
     }

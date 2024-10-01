@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.api.client;
 
 
-import io.github.kiryu1223.drink.annotation.Recode;
 import io.github.kiryu1223.drink.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.api.crud.read.EmptyQuery;
@@ -9,6 +8,7 @@ import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.api.transaction.Transaction;
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.util.Collection;
 
@@ -41,8 +41,7 @@ public class DrinkClient
         return beginTransaction(null);
     }
 
-    @Recode
-    public <T> LQuery<T> query(Class<T> c)
+    public <T> LQuery<T> query(@Recode Class<T> c)
     {
         return new LQuery<>(config, c);
     }
@@ -52,26 +51,24 @@ public class DrinkClient
         return new EmptyQuery(config);
     }
 
-    public <T> ObjectInsert<T> insert(T t)
+    public <T> ObjectInsert<T> insert(@Recode T t)
     {
         ObjectInsert<T> objectInsert = new ObjectInsert<>(config, (Class<T>) t.getClass());
         return objectInsert.insert(t);
     }
 
-    public <T> ObjectInsert<T> insert(Collection<T> ts)
+    public <T> ObjectInsert<T> insert(@Recode Collection<T> ts)
     {
         ObjectInsert<T> objectInsert = new ObjectInsert<>(config, getType(ts));
         return objectInsert.insert(ts);
     }
 
-    @Recode
-    public <T> LUpdate<T> update(Class<T> c)
+    public <T> LUpdate<T> update(@Recode Class<T> c)
     {
         return new LUpdate<>(config, c);
     }
 
-    @Recode
-    public <T> LDelete<T> delete(Class<T> c)
+    public <T> LDelete<T> delete(@Recode Class<T> c)
     {
         return new LDelete<>(config, c);
     }

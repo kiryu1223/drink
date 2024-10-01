@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public class FastCreator<T>
 {
-    private static final Unsafe unsafe;
+    protected static final Unsafe unsafe;
 
     static
     {
@@ -26,8 +26,8 @@ public class FastCreator<T>
         }
     }
 
-    private final Class<T> target;
-    private final boolean isAnonymousClass;
+    protected final Class<T> target;
+    protected final boolean isAnonymousClass;
     //private final MethodHandles.Lookup lookup;
 
     public FastCreator(Class<T> target)
@@ -37,42 +37,52 @@ public class FastCreator<T>
         //this.lookup = lookup;
     }
 
+    protected Supplier<T> unsafeCreator()
+    {
+        return () ->
+        {
+            try
+            {
+                return (T) unsafe.allocateInstance(target);
+            }
+            catch (InstantiationException e)
+            {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    protected Supplier<T> methodHandleCreator()
+    {
+        try
+        {
+            MethodType constructorType = MethodType.methodType(void.class);
+            MethodHandles.Lookup caller = MethodHandles.lookup();
+            MethodHandle constructorHandle = caller.findConstructor(target, constructorType);
+
+            CallSite site = LambdaMetafactory.altMetafactory(caller,
+                    "get",
+                    MethodType.methodType(Supplier.class),
+                    constructorHandle.type().generic(),
+                    constructorHandle,
+                    constructorHandle.type(), 1);
+            return (Supplier<T>) site.getTarget().invokeExact();
+        }
+        catch (Throwable e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Supplier<T> getCreator()
     {
         if (isAnonymousClass)
         {
-            return () ->
-            {
-                try
-                {
-                    return (T) unsafe.allocateInstance(target);
-                }
-                catch (InstantiationException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            };
+            return unsafeCreator();
         }
         else
         {
-            try
-            {
-                MethodType constructorType = MethodType.methodType(void.class);
-                MethodHandles.Lookup caller = MethodHandles.lookup();
-                MethodHandle constructorHandle = caller.findConstructor(target, constructorType);
-
-                CallSite site = LambdaMetafactory.altMetafactory(caller,
-                        "get",
-                        MethodType.methodType(Supplier.class),
-                        constructorHandle.type().generic(),
-                        constructorHandle,
-                        constructorHandle.type(), 1);
-                return (Supplier<T>) site.getTarget().invokeExact();
-            }
-            catch (Throwable e)
-            {
-                throw new RuntimeException(e);
-            }
+            return methodHandleCreator();
         }
     }
 

@@ -3,16 +3,11 @@ package io.github.kiryu1223.drink.api.crud.update;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.JoinType;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.core.expression.SqlSetExpression;
-import io.github.kiryu1223.drink.core.expression.SqlSetsExpression;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
-import io.github.kiryu1223.drink.core.visitor.SetVisitor;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
-import io.github.kiryu1223.expressionTree.expressions.Expr;
+import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class LUpdate<T> extends UpdateBase

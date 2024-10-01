@@ -6,7 +6,7 @@ import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action3;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
-import io.github.kiryu1223.expressionTree.expressions.Expr;
+import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class LUpdate3<T1, T2, T3> extends UpdateBase

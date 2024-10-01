@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.core.builder;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.ext.IConverter;
 
@@ -18,23 +19,25 @@ public class ObjectBuilder<T>
     private final Class<T> target;
     private final List<PropertyMetaData> propertyMetaDataList;
     private final boolean isSingle;
+    private final Config config;
 
-    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
+    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle,Config config)
     {
-        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle);
+        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle,config);
     }
 
-    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle)
+    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle, Config config)
     {
         this.resultSet = resultSet;
         this.target = target;
         this.propertyMetaDataList = propertyMetaDataList;
         this.isSingle = isSingle;
+        this.config=config;
     }
 
     public <Key> Map<Key, T> createMap(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = new FastCreator<>(target);
+        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = fastCreator.getCreator();
         Map<Key, T> hashMap = new HashMap<>();
         while (resultSet.next())
@@ -57,7 +60,7 @@ public class ObjectBuilder<T>
 
     public <Key> Map<Key, List<T>> createMapList(String keyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = new FastCreator<>(target);
+        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = fastCreator.getCreator();
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
@@ -92,7 +95,7 @@ public class ObjectBuilder<T>
 
     public <Key> Map<Key, List<T>> createMapListByAnotherKey(PropertyMetaData anotherKeyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = new FastCreator<>(target);
+        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = fastCreator.getCreator();
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
@@ -151,7 +154,7 @@ public class ObjectBuilder<T>
 
     private List<T> getClassList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = new FastCreator<>(target);
+        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = fastCreator.getCreator();
         List<T> list = new ArrayList<>();
         while (resultSet.next())

@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.kiryu1223</groupId>
         <artifactId>drink-all</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.7</version>
     </parent>
 
     <artifactId>drink-support</artifactId>
@@ -14,6 +14,7 @@
     <modules>
         <module>drink-spring-boot-starter</module>
         <module>drink-solon-plugin</module>
+        <module>drink-aot</module>
     </modules>
 
 

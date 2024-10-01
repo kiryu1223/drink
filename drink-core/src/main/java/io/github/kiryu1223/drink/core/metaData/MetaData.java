@@ -11,10 +11,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +21,7 @@ public class MetaData
 {
     private final List<PropertyMetaData> propertys = new ArrayList<>();
     private final Class<?> type;
+    private final Constructor<?> constructor;
     private final String tableName;
     private final String schema;
     private final boolean isEmptyTable;
@@ -31,6 +29,14 @@ public class MetaData
     public MetaData(Class<?> type)
     {
         this.type = type;
+        try
+        {
+            this.constructor = !type.isAnonymousClass() ? type.getConstructor() : null;
+        }
+        catch (NoSuchMethodException e)
+        {
+            throw new RuntimeException(e);
+        }
         Table table = type.getAnnotation(Table.class);
         this.tableName = (table == null || table.value().isEmpty()) ? type.getSimpleName() : table.value();
         this.schema = table == null ? "" : table.schema();
@@ -141,5 +147,10 @@ public class MetaData
     public boolean isEmptyTable()
     {
         return isEmptyTable;
+    }
+
+    public Constructor<?> getConstructor()
+    {
+        return constructor;
     }
 }

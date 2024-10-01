@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.kiryu1223</groupId>
         <artifactId>drink-support</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.7</version>
     </parent>
 
     <artifactId>drink-solon-plugin</artifactId>
@@ -21,9 +21,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.noear</groupId>
-            <artifactId>solon-serialization-snack3</artifactId>
-            <version>${solon.version}</version>
+            <groupId>io.github.kiryu1223</groupId>
+            <artifactId>drink-aot</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.noear</groupId>
@@ -36,29 +36,6 @@
             <artifactId>solon.data.dynamicds</artifactId>
             <version>${solon.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.github.kiryu1223</groupId>
-            <artifactId>drink-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <parameters>true</parameters>
-                    <compilerArguments>
-                        <bootclasspath>
-                            ${java.home}/lib/rt.jar${path.separator}${java.home}/lib/jce.jar${path.separator}${java.home}/../lib/tools.jar
-                        </bootclasspath>
-                    </compilerArguments>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

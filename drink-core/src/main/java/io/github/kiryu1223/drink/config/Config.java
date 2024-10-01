@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.config;
 
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.dialect.*;
+import io.github.kiryu1223.drink.core.builder.FastCreatorFactory;
 import io.github.kiryu1223.drink.core.builder.IncludeFactory;
 import io.github.kiryu1223.drink.core.builder.h2.H2IncludeFactory;
 import io.github.kiryu1223.drink.core.builder.mysql.MySqlIncludeFactory;
@@ -26,11 +27,13 @@ public class Config
     private final SqlSessionFactory sqlSessionFactory;
     private final SqlExpressionFactory sqlExpressionFactory;
     private final IncludeFactory includeFactory;
+    private final FastCreatorFactory fastCreatorFactory;
 
-    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory)
+    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, FastCreatorFactory fastCreatorFactory)
     {
         this.option = option;
         this.dbType = dbType;
+        this.fastCreatorFactory = fastCreatorFactory;
         switch (dbType)
         {
             case MySQL:
@@ -118,5 +121,10 @@ public class Config
     public IncludeFactory getIncludeFactory()
     {
         return includeFactory;
+    }
+
+    public FastCreatorFactory getFastCreatorFactory()
+    {
+        return fastCreatorFactory;
     }
 }

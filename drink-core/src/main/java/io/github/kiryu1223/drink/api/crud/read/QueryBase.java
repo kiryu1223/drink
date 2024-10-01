@@ -112,7 +112,7 @@ public abstract class QueryBase extends CRUD
         Class<T> targetClass = (Class<T>) sqlBuilder.getTargetClass();
         SqlSession session = config.getSqlSessionFactory().getSession();
         List<T> ts = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single).createList(),
+                r -> ObjectBuilder.start(r, targetClass, mappingData, single,config).createList(),
                 sql,
                 values
         );

@@ -7,7 +7,6 @@ import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.ext.IMappingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +113,7 @@ public class IncludeBuilder<T>
         List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         // 获取从表的map
         Map<Object, Object> objectMap = session.executeQuery(
-                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMap(targetPropertyMetaData.getColumn()),
                 sql,
                 values
         );
@@ -166,7 +165,7 @@ public class IncludeBuilder<T>
         List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         // 查询从表数据，按key进行list归类的map构建
         Map<Object, List<Object>> targetMap = session.executeQuery(
-                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapList(targetPropertyMetaData.getColumn()),
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMapList(targetPropertyMetaData.getColumn()),
                 sql,
                 values
         );
@@ -178,7 +177,7 @@ public class IncludeBuilder<T>
             List<Object> value = objectListEntry.getValue();
             for (T t : sourcesMapList.get(key))
             {
-                if(isSet)
+                if (isSet)
                 {
                     includePropertyMetaData.getSetter().invoke(t, new HashSet<>(value));
                 }
@@ -226,7 +225,7 @@ public class IncludeBuilder<T>
         List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         // 获取目标表的map
         Map<Object, Object> objectMap = session.executeQuery(
-                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMap(targetPropertyMetaData.getColumn()),
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMap(targetPropertyMetaData.getColumn()),
                 sql,
                 values
         );
@@ -292,7 +291,7 @@ public class IncludeBuilder<T>
         List<PropertyMetaData> mappingData = tempQueryable.getMappingData(config);
         //mappingData.add(selfMappingPropertyMetaData);
         Map<Object, List<Object>> targetMap = session.executeQuery(
-                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false).createMapListByAnotherKey(selfMappingPropertyMetaData),
+                r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMapListByAnotherKey(selfMappingPropertyMetaData),
                 sql,
                 values
         );
@@ -305,7 +304,7 @@ public class IncludeBuilder<T>
             List<T> ts = sourcesMapList.get(key);
             for (T t : ts)
             {
-                if(isSet)
+                if (isSet)
                 {
                     includePropertyMetaData.getSetter().invoke(t, new HashSet<>(value));
                 }

@@ -6,8 +6,9 @@ import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery4;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
-import io.github.kiryu1223.expressionTree.expressions.Expr;
+import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 public class LQuery4<T1, T2, T3, T4> extends QueryBase
 {
@@ -216,7 +217,7 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase
     // endregion
 
     // region [SELECT]
-    public <R> EndQuery<R> select(Class<R> r)
+    public <R> EndQuery<R> select(@Recode Class<R> r)
     {
         return super.select(r);
     }
@@ -244,84 +245,4 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase
         return new EndQuery<>(getSqlBuilder());
     }
     // endregion
-
-    //region [OTHER]
-
-    public LQuery4<T1, T2, T3, T4> distinct()
-    {
-        distinct0(true);
-        return this;
-    }
-
-    public LQuery4<T1, T2, T3, T4> distinct(boolean condition)
-    {
-        distinct0(condition);
-        return this;
-    }
-//
-//    public void required()
-//    {
-//        clientQueryable.required();
-//    }
-//
-//    public void required(String msg)
-//    {
-//        clientQueryable.required(msg);
-//    }
-//
-//    public void required(String msg, String code)
-//    {
-//        clientQueryable.required(msg, code);
-//    }
-//
-//    public void required(Supplier<RuntimeException> throwFunc)
-//    {
-//        clientQueryable.required(throwFunc);
-//    }
-//
-//    public T1 firstOrNull()
-//    {
-//        return clientQueryable.firstOrNull();
-//    }
-//
-//    public <R> R firstOrNull(Class<R> r)
-//    {
-//        return clientQueryable.firstOrNull(r);
-//    }
-//
-//    public T1 firstNotNull()
-//    {
-//        return clientQueryable.firstNotNull();
-//    }
-//
-//    public T1 firstNotNull(String msg)
-//    {
-//        return clientQueryable.firstNotNull(msg);
-//    }
-//
-//    public T1 firstNotNull(String msg, String code)
-//    {
-//        return clientQueryable.firstNotNull(msg, code);
-//    }
-//
-//    public T1 firstNotNull(Supplier<RuntimeException> throwFunc)
-//    {
-//        return clientQueryable.firstNotNull(throwFunc);
-//    }
-//
-//    public <R> R firstNotNull(Class<R> r)
-//    {
-//        return clientQueryable.firstNotNull(r);
-//    }
-//
-//    public <R> R firstNotNull(Class<R> r, String msg)
-//    {
-//        return clientQueryable.firstNotNull(r, msg);
-//    }
-//
-//    public <R> R firstNotNull(Class<R> r, String msg, String code)
-//    {
-//        return clientQueryable.firstNotNull(r, msg, code);
-//    }
-    //endregion
 }

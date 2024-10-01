@@ -6,8 +6,9 @@ import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
-import io.github.kiryu1223.expressionTree.expressions.Expr;
+import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 
 public class LQuery2<T1, T2> extends QueryBase
@@ -216,7 +217,7 @@ public class LQuery2<T1, T2> extends QueryBase
 
     // region [SELECT]
 
-    public <R> EndQuery<R> select(Class<R> r)
+    public <R> EndQuery<R> select(@Recode Class<R> r)
     {
         return super.select(r);
     }

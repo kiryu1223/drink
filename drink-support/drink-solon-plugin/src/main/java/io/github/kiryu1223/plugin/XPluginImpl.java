@@ -7,12 +7,12 @@ import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.plugin.aot.DrinkRuntimeNativeRegistrar;
+import io.github.kiryu1223.plugin.builder.AotFastCreatorFactory;
 import io.github.kiryu1223.plugin.configuration.DrinkProperties;
 import io.github.kiryu1223.plugin.datasource.SolonDataSourceManagerWrap;
 import io.github.kiryu1223.plugin.datasource.SolonDynamicDataSourceManager;
 import io.github.kiryu1223.plugin.datasource.SolonSingleDataSourceManager;
 import io.github.kiryu1223.plugin.transaction.SolonTransactionManager;
-import org.noear.solon.Utils;
 import org.noear.solon.aot.RuntimeNativeRegistrar;
 import org.noear.solon.core.AppContext;
 import org.noear.solon.core.BeanWrap;
@@ -39,10 +39,12 @@ public class XPluginImpl implements Plugin
             DataSourceManager dataSourceManager = new SolonDataSourceManagerWrap(properties.getDsName());
             TransactionManager transactionManager = new SolonTransactionManager(dataSourceManager);
             SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
+            AotFastCreatorFactory aotFastCreatorFactory = new AotFastCreatorFactory();
             DrinkClient client = Drink.bootStrap()
                     .setDataSourceManager(dataSourceManager)
                     .setTransactionManager(transactionManager)
                     .setSqlSessionFactory(sqlSessionFactory)
+                    .setFastCreatorFactory(aotFastCreatorFactory)
                     .setOption(properties.bulidOption())
                     .build();
             if (drink.size() == 1)
