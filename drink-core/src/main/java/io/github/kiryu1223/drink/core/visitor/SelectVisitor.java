@@ -30,24 +30,30 @@ public class SelectVisitor extends SqlVisitor
     public SqlExpression visit(NewExpression newExpression)
     {
         BlockExpression classBody = newExpression.getClassBody();
-        if (classBody == null) throw new IllegalExpressionException(newExpression);
-        List<SqlExpression> expressions = new ArrayList<>();
-        for (Expression expression : classBody.getExpressions())
+        if (classBody == null)
         {
-            if (expression.getKind() == Kind.Variable)
+            return super.visit(newExpression);
+        }
+        else
+        {
+            List<SqlExpression> expressions = new ArrayList<>();
+            for (Expression expression : classBody.getExpressions())
             {
-                VariableExpression variable = (VariableExpression) expression;
-                String name = variable.getName();
-                MetaData metaData = MetaDataCache.getMetaData(newExpression.getType());
-                Expression init = variable.getInit();
-                if (init != null)
+                if (expression.getKind() == Kind.Variable)
                 {
-                    SqlExpression context = visit(variable.getInit());
-                    setAs(expressions, context, name);
+                    VariableExpression variable = (VariableExpression) expression;
+                    String name = variable.getName();
+                    MetaData metaData = MetaDataCache.getMetaData(newExpression.getType());
+                    Expression init = variable.getInit();
+                    if (init != null)
+                    {
+                        SqlExpression context = visit(variable.getInit());
+                        setAs(expressions, context, name);
+                    }
                 }
             }
+            return factory.select(expressions, newExpression.getType());
         }
-        return factory.select(expressions, newExpression.getType());
     }
 
 //    @Override

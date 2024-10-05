@@ -19,19 +19,25 @@ public class GroupByVisitor extends SqlVisitor
     public SqlExpression visit(NewExpression newExpression)
     {
         BlockExpression classBody = newExpression.getClassBody();
-        if (classBody == null) throw new IllegalExpressionException(newExpression);
-        LinkedHashMap<String, SqlExpression> contextMap = new LinkedHashMap<>();
-        for (Expression expression : classBody.getExpressions())
+        if (classBody == null)
         {
-            if (expression.getKind() == Kind.Variable)
-            {
-                VariableExpression variableExpression = (VariableExpression) expression;
-                String name = variableExpression.getName();
-                SqlExpression sqlExpression = visit(variableExpression.getInit());
-                contextMap.put(name, sqlExpression);
-            }
+            return super.visit(newExpression);
         }
-        return factory.groupBy(contextMap);
+        else
+        {
+            LinkedHashMap<String, SqlExpression> contextMap = new LinkedHashMap<>();
+            for (Expression expression : classBody.getExpressions())
+            {
+                if (expression.getKind() == Kind.Variable)
+                {
+                    VariableExpression variableExpression = (VariableExpression) expression;
+                    String name = variableExpression.getName();
+                    SqlExpression sqlExpression = visit(variableExpression.getInit());
+                    contextMap.put(name, sqlExpression);
+                }
+            }
+            return factory.groupBy(contextMap);
+        }
     }
 
     @Override

@@ -12,6 +12,9 @@ import io.github.kiryu1223.drink.core.expression.SqlValueExpression;
 import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.visitor.methods.MathMethods;
+import io.github.kiryu1223.drink.core.visitor.methods.StringMethods;
+import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
@@ -22,8 +25,15 @@ import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalField;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -76,7 +86,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
             SqlExpression right = visit(assignExpression.getRight());
             return factory.set(sqlColumnExpression, right);
         }
-        throw new RuntimeException("表达式中不能出现非lambda入参为赋值对象的语句");
+        throw new DrinkException("表达式中不能出现非lambda入参为赋值对象的语句");
     }
 
     @Override
@@ -136,7 +146,6 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
             SqlExtensionExpression sqlFuncExt = getSqlFuncExt(sqlFunction.getAnnotationsByType(SqlExtensionExpression.class));
             List<Expression> args = methodCall.getArgs();
             List<SqlExpression> expressions = new ArrayList<>(args.size());
-
             if (sqlFuncExt.extension() != BaseSqlExtension.class)
             {
                 for (Expression arg : args)
@@ -160,7 +169,10 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                     if (i < params.size())
                     {
                         String param = params.get(i);
-                        Parameter targetParam = methodParameters.stream().filter(f -> f.getName().equals(param)).findFirst().get();
+                        Parameter targetParam = methodParameters.stream()
+                                .filter(f -> f.getName().equals(param))
+                                .findFirst()
+                                .orElseThrow(() -> new DrinkException("无法在" + sqlFuncExt.function() + "中找到" + param));
                         int index = methodParameters.indexOf(targetParam);
 
                         // 如果是可变参数
@@ -182,110 +194,8 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 }
                 return factory.function(strings, expressions);
             }
-
-
-//            Method method = methodCall.getMethod();
-//            List<Expression> args = methodCall.getArgs();
-//            List<SqlExpression> contexts = new ArrayList<>(args.size());
-//            SqlExtensionExpression[] sqlExtensionExpressions = method.getAnnotationsByType(SqlExtensionExpression.class);
-//            if (sqlExtensionExpressions.length == 0)
-//            {
-//                List<String> strings = new ArrayList<>();
-//                strings.add(method.getName() + "(");
-//                for (int i = 0; i < args.size(); i++)
-//                {
-//                    Expression arg = args.get(i);
-//                    contexts.add(visit(arg));
-//                    if (i < args.size() - 1) strings.add(",");
-//                }
-//                strings.add(")");
-//                return new SqlFunctionsContext(strings, contexts);
-//            }
-//            else
-//            {
-//                String function = getSqlFuncExt(sqlExtensionExpressions).function();
-//                if (method.getParameterCount() == 0)
-//                {
-//                    return new SqlFunctionsContext(Collections.singletonList(function), Collections.emptyList());
-//                }
-//                else if (function.contains("{}"))
-//                {
-//                    List<String> strings = new ArrayList<>();
-//                    String[] splitFunc = function.split("\\{}");
-//                    for (int i = 0; i < splitFunc.length; i++)
-//                    {
-//                        strings.add(splitFunc[i]);
-//                        // 可变参数情况
-//                        if (i == splitFunc.length - 2
-//                                && args.size() >= splitFunc.length)
-//                        {
-//                            while (i < args.size())
-//                            {
-//                                contexts.add(visit(args.get(i)));
-//                                if (i < args.size() - 1) strings.add(",");
-//                                i++;
-//                            }
-//                            strings.add(splitFunc[splitFunc.length - 1]);
-//                        }
-//                        // 正常情况
-//                        else if (i < args.size()) contexts.add(visit(args.get(i)));
-//                    }
-//                    return new SqlFunctionsContext(strings, contexts);
-//                }
-//                else if (function.contains("{") && function.contains("}"))
-//                {
-//                    List<String> strings = new ArrayList<>();
-//                    List<Parameter> methodParameters = Arrays.stream(methodCall.getMethod().getParameters()).collect(Collectors.toList());
-//                    ParamMatcher match = match(function);
-//                    List<String> functions = match.remainder;
-//                    List<String> params = match.bracesContent;
-//                    for (int i = 0; i < functions.size(); i++)
-//                    {
-//                        strings.add(functions.get(i));
-//                        if (i < params.size())
-//                        {
-//                            String param = params.get(i);
-//                            Parameter targetParam;
-//                            int index;
-//                            if (param.chars().allMatch(s -> Character.isDigit(s)))
-//                            {
-//                                //index形式
-//                                index = Integer.parseInt(param);
-//                                targetParam = methodParameters.get(index);
-//                            }
-//                            else
-//                            {
-//                                //arg名称形式
-//                                targetParam = methodParameters.stream().filter(f -> f.getName().equals(param)).findFirst().get();
-//                                index = methodParameters.indexOf(targetParam);
-//                            }
-//
-//                            // 如果是可变参数
-//                            if (targetParam.isVarArgs())
-//                            {
-//                                while (index < args.size())
-//                                {
-//                                    contexts.add(visit(args.get(index)));
-//                                    if (index < args.size() - 1) strings.add(",");
-//                                    index++;
-//                                }
-//                            }
-//                            // 正常情况
-//                            else
-//                            {
-//                                contexts.add(visit(args.get(index)));
-//                            }
-//                        }
-//                    }
-//                    return new SqlFunctionsContext(strings, contexts);
-//                }
-//                else
-//                {
-//                    throw new IllegalExpressionException(methodCall);
-//                }
-//            }
         }
-        else if (Collection.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        else if (List.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
         {
             Method method = methodCall.getMethod();
             if (method.getName().equals("contains"))
@@ -303,28 +213,277 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
         else if (String.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
         {
             Method method = methodCall.getMethod();
-            switch (method.getName())
+            if (Modifier.isStatic(method.getModifiers())) switch (method.getName())
+            {
+                case "join":
+                {
+                    SqlExpression delimiter = visit(methodCall.getArgs().get(0));
+                    //String.join(CharSequence delimiter, CharSequence... elements)
+                    if (method.isVarArgs())
+                    {
+                        List<SqlExpression> args = new ArrayList<>(methodCall.getArgs().size() - 1);
+                        for (int i = 1; i < methodCall.getArgs().size(); i++)
+                        {
+                            args.add(visit(methodCall.getArgs().get(i)));
+                        }
+                        return StringMethods.joinArray(config, delimiter, args);
+                    }
+                    else
+                    {
+                        SqlExpression elements = visit(methodCall.getArgs().get(1));
+                        return StringMethods.joinList(config, delimiter, elements);
+                    }
+                }
+                default:
+                    return checkAndReturnValue(methodCall);
+            }
+            else switch (method.getName())
             {
                 case "contains":
                 {
                     SqlExpression left = visit(methodCall.getExpr());
                     SqlExpression right = visit(methodCall.getArgs().get(0));
-                    SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT('%',", ",'%')"), Collections.singletonList(right));
-                    return factory.binary(SqlOperator.LIKE, left, function);
+                    return StringMethods.contains(config, left, right);
                 }
                 case "startsWith":
                 {
                     SqlExpression left = visit(methodCall.getExpr());
                     SqlExpression right = visit(methodCall.getArgs().get(0));
-                    SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT(", ",'%')"), Collections.singletonList(right));
-                    return factory.binary(SqlOperator.LIKE, left, function);
+                    return StringMethods.startsWith(config, left, right);
                 }
                 case "endsWith":
                 {
                     SqlExpression left = visit(methodCall.getExpr());
                     SqlExpression right = visit(methodCall.getArgs().get(0));
-                    SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT('%',", ")"), Collections.singletonList(right));
-                    return factory.binary(SqlOperator.LIKE, left, function);
+                    return StringMethods.endsWith(config, left, right);
+                }
+                case "length":
+                {
+                    SqlExpression left = visit(methodCall.getExpr());
+                    return StringMethods.length(config, left);
+                }
+                case "toUpperCase":
+                {
+                    SqlExpression left = visit(methodCall.getExpr());
+                    return StringMethods.toUpperCase(config, left);
+                }
+                case "toLowerCase":
+                {
+                    SqlExpression left = visit(methodCall.getExpr());
+                    return StringMethods.toLowerCase(config, left);
+                }
+                case "concat":
+                {
+                    SqlExpression left = visit(methodCall.getExpr());
+                    SqlExpression right = visit(methodCall.getArgs().get(0));
+                    return StringMethods.concat(config, left, right);
+                }
+                case "trim":
+                {
+                    SqlExpression left = visit(methodCall.getExpr());
+                    return StringMethods.trim(config, left);
+                }
+                case "isEmpty":
+                {
+                    SqlExpression left = visit(methodCall.getExpr());
+                    return StringMethods.isEmpty(config, left);
+                }
+                case "indexOf":
+                {
+                    if (method.getParameterTypes()[0] == String.class)
+                    {
+                        SqlExpression thisStr = visit(methodCall.getExpr());
+                        SqlExpression subStr = visit(methodCall.getArgs().get(0));
+                        if (method.getParameterCount() == 1)
+                        {
+                            return StringMethods.indexOf(config, thisStr, subStr);
+                        }
+                        else
+                        {
+                            SqlExpression fromIndex = visit(methodCall.getArgs().get(1));
+                            return StringMethods.indexOf(config, thisStr, subStr, fromIndex);
+                        }
+                    }
+                }
+                case "replace":
+                {
+                    SqlExpression thisStr = visit(methodCall.getExpr());
+                    SqlExpression oldStr = visit(methodCall.getArgs().get(0));
+                    SqlExpression newStr = visit(methodCall.getArgs().get(1));
+                    return StringMethods.replace(config, thisStr, oldStr, newStr);
+                }
+                case "substring":
+                {
+                    SqlExpression thisStr = visit(methodCall.getExpr());
+                    SqlExpression beginIndex = visit(methodCall.getArgs().get(0));
+                    if (method.getParameterCount() == 1)
+                    {
+                        return StringMethods.substring(config, thisStr, beginIndex);
+                    }
+                    else
+                    {
+                        SqlExpression endIndex = visit(methodCall.getArgs().get(1));
+                        return StringMethods.substring(config, thisStr, beginIndex, endIndex);
+                    }
+                }
+                default:
+                    return checkAndReturnValue(methodCall);
+            }
+        }
+        else if (Math.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        {
+            Method method = methodCall.getMethod();
+            switch (method.getName())
+            {
+                case "abs":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("ABS(", ")"), Collections.singletonList(arg));
+                }
+                case "cos":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("COS(", ")"), Collections.singletonList(arg));
+                }
+                case "acos":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("ACOS(", ")"), Collections.singletonList(arg));
+                }
+                case "sin":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("SIN(", ")"), Collections.singletonList(arg));
+                }
+                case "asin":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("ASIN(", ")"), Collections.singletonList(arg));
+                }
+                case "tan":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("TAN(", ")"), Collections.singletonList(arg));
+                }
+                case "atan":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("ATAN(", ")"), Collections.singletonList(arg));
+                }
+                case "atan2":
+                {
+                    SqlExpression arg1 = visit(methodCall.getArgs().get(0));
+                    SqlExpression arg2 = visit(methodCall.getArgs().get(1));
+                    return MathMethods.atan2(config, arg1, arg2);
+                }
+                case "toDegrees":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return MathMethods.toDegrees(config, arg);
+                }
+                case "toRadians":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return MathMethods.toRadians(config, arg);
+                }
+                case "exp":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("EXP(", ")"), Collections.singletonList(arg));
+                }
+                case "floor":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("FLOOR(", ")"), Collections.singletonList(arg));
+                }
+                case "log":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return MathMethods.log(config, arg);
+                }
+                case "log10":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return MathMethods.log10(config, arg);
+                }
+                case "random":
+                {
+                    return MathMethods.random(config);
+                }
+                case "round":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return MathMethods.round(config, arg);
+                }
+                case "pow":
+                {
+                    SqlExpression arg1 = visit(methodCall.getArgs().get(0));
+                    SqlExpression arg2 = visit(methodCall.getArgs().get(1));
+                    return factory.function(Arrays.asList("POWER(", ",", ")"), Arrays.asList(arg1, arg2));
+                }
+                case "signum":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("SIGN(", ")"), Collections.singletonList(arg));
+                }
+                case "sqrt":
+                {
+                    SqlExpression arg = visit(methodCall.getArgs().get(0));
+                    return factory.function(Arrays.asList("SQRT(", ")"), Collections.singletonList(arg));
+                }
+                default:
+                    return checkAndReturnValue(methodCall);
+            }
+        }
+        else if (BigDecimal.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        {
+            Method method = methodCall.getMethod();
+            switch (method.getName())
+            {
+                case "add":
+                {
+                    if (method.getParameterCount() == 1)
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return factory.binary(SqlOperator.PLUS, left, right);
+                    }
+                }
+                case "subtract":
+                {
+                    if (method.getParameterCount() == 1)
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return factory.binary(SqlOperator.MINUS, left, right);
+                    }
+                }
+                case "multiply":
+                {
+                    if (method.getParameterCount() == 1)
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return factory.binary(SqlOperator.MUL, left, right);
+                    }
+                }
+                case "divide":
+                {
+                    if (method.getParameterCount() == 1)
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return factory.binary(SqlOperator.DIV, left, right);
+                    }
+                }
+                case "remainder":
+                {
+                    if (method.getParameterCount() == 1)
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return factory.binary(SqlOperator.MOD, left, right);
+                    }
                 }
                 default:
                     return checkAndReturnValue(methodCall);
@@ -365,7 +524,10 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
             SqlOperator operator = operatorMethod.value();
             if (operator == SqlOperator.BETWEEN)
             {
-                return factory.between(visit(args.get(0)), visit(args.get(1)), visit(args.get(2)));
+                SqlExpression thiz = visit(args.get(0));
+                SqlExpression min = visit(args.get(1));
+                SqlExpression max = visit(args.get(2));
+                return factory.binary(SqlOperator.BETWEEN, thiz, factory.binary(SqlOperator.AND, min, max));
             }
             else
             {
@@ -457,6 +619,12 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
         return factory.AnyValue(reference.getValue());
     }
 
+    @Override
+    public SqlExpression visit(NewExpression newExpression)
+    {
+        return checkAndReturnValue(newExpression);
+    }
+
     protected abstract SqlVisitor getSelf();
 
     protected SqlValueExpression checkAndReturnValue(MethodCallExpression expression)
@@ -470,6 +638,12 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
     }
 
     protected SqlValueExpression checkAndReturnValue(FieldSelectExpression expression)
+    {
+        if (hasParameter(expression)) throw new IllegalExpressionException(expression);
+        return factory.AnyValue(expression.getValue());
+    }
+
+    protected SqlValueExpression checkAndReturnValue(NewExpression expression)
     {
         if (hasParameter(expression)) throw new IllegalExpressionException(expression);
         return factory.AnyValue(expression.getValue());

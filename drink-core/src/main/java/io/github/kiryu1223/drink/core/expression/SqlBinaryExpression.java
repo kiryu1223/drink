@@ -38,18 +38,27 @@ public class SqlBinaryExpression extends SqlExpression
         StringBuilder sb = new StringBuilder();
         sb.append(left.getSqlAndValue(config, values));
         sb.append(" ");
-        sb.append(operator.getOperator());
-        sb.append(" ");
-        switch (operator)
+        // (= NULL) => (IS NULL)
+        if (operator == SqlOperator.EQ
+                && right instanceof SqlSingleValueExpression
+                && ((SqlSingleValueExpression) right).getValue() == null)
         {
-            case IN:
-                sb.append("(");
-                sb.append(right.getSqlAndValue(config, values));
-                sb.append(")");
-                break;
-            default:
-                sb.append(right.getSqlAndValue(config, values));
-                break;
+            sb.append(SqlOperator.IS.getOperator());
+        }
+        else
+        {
+            sb.append(operator.getOperator());
+        }
+        sb.append(" ");
+        if (operator == SqlOperator.IN)
+        {
+            sb.append("(");
+            sb.append(right.getSqlAndValue(config, values));
+            sb.append(")");
+        }
+        else
+        {
+            sb.append(right.getSqlAndValue(config, values));
         }
         return sb.toString();
     }

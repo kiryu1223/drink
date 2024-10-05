@@ -62,6 +62,26 @@ public class SqlFunctions
         return (T) new Object();
     }
 
+    @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({property})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({property})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LISTAGG({property}) WITHIN GROUP (ORDER BY {property})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "STRING_AGG({property},'')")
+    public static String groupJoin(String property)
+    {
+        boom();
+        return "";
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LISTAGG({property},{delimiter}) WITHIN GROUP (ORDER BY {property})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "STRING_AGG({property},{delimiter})")
+    public static <T> String groupJoin(String delimiter, T property)
+    {
+        boom();
+        return "";
+    }
+
     // endregion
 
     // region [时间]
@@ -1732,7 +1752,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "DEGREES({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DEGREES({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * (180 / " + Math.PI + "))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * 180 / " + Math.PI + ")")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DEGREES({a})")
     public static <T extends Number> double degrees(T a)
     {
@@ -1862,8 +1882,8 @@ public class SqlFunctions
         return 3.14159;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "POW({a},{b})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "POW({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.H2, function = "POWER({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "POWER({a},{b})")
     public static <T extends Number> double pow(T a, T b)
@@ -1874,7 +1894,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "RADIANS({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RADIANS({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * (" + Math.PI + " / 180))")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * " + Math.PI + " / 180)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "RADIANS({a})")
     public static <T extends Number> double radians(T a)
     {
@@ -1906,10 +1926,10 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ROUND({a},0)")
-    public static <T extends Number> T round(T a)
+    public static <T extends Number> int round(T a)
     {
         boom();
-        return (T) new Num();
+        return 0;
     }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ROUND({a},{b})")
@@ -2238,21 +2258,21 @@ public class SqlFunctions
         return 0;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({str},{offset})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{offset})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{offset})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SUBSTRING({str},{offset},LEN({str}) - ({offset} - 1))")
-    public static String subString(String str, int offset)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({str},{beginIndex})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{beginIndex})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{beginIndex})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SUBSTRING({str},{beginIndex},LEN({str}) - ({beginIndex} - 1))")
+    public static String subString(String str, int beginIndex)
     {
         boom();
         return "";
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({str},{offset},{length})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{offset},{length})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{offset},{length})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SUBSTRING({str},{offset},{length})")
-    public static String subString(String str, int offset, int length)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBSTR({str},{beginIndex},{endIndex})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{beginIndex},{endIndex})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{beginIndex},{endIndex})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SUBSTRING({str},{beginIndex},{endIndex})")
+    public static String subString(String str, int beginIndex, int endIndex)
     {
         boom();
         return "";
@@ -2293,27 +2313,6 @@ public class SqlFunctions
 //        boom();
 //        return new byte[]{};
 //    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({property})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({property})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LISTAGG({property}) WITHIN GROUP (ORDER BY {property})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "STRING_AGG({property},'')")
-    public static String groupJoin(String property)
-    {
-        boom();
-        return "";
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LISTAGG({property},{delimiter}) WITHIN GROUP (ORDER BY {property})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "STRING_AGG({property},{delimiter})")
-    public static <T> String groupJoin(String delimiter, T property)
-    {
-        boom();
-        return "";
-    }
-
 //    @SafeVarargs
 //    @SqlExtensionExpression(dbType = DbType.H2, function = "GROUP_CONCAT({properties} SEPARATOR {delimiter})")
 //    @SqlExtensionExpression(dbType = DbType.MySQL, function = "GROUP_CONCAT({properties} SEPARATOR {delimiter})")
@@ -2348,11 +2347,11 @@ public class SqlFunctions
         return (T) new Object();
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "NULLIF({ifNotEq},{t2})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "NULLIF({ifNotEq},{t2})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "NULLIF({ifNotEq},{t2})")
-    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "NULLIF({ifNotEq},{t2})")
-    public static <T> T nullIf(T ifNotEq, T t2)
+    @SqlExtensionExpression(dbType = DbType.H2, function = "NULLIF({t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "NULLIF({t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "NULLIF({t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "NULLIF({t1},{t2})")
+    public static <T> T nullIf(T t1, T t2)
     {
         boom();
         return (T) new Object();

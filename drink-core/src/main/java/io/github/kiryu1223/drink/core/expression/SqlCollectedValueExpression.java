@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.core.expression;
 
 import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.core.visitor.methods.StringMethods;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,10 +10,16 @@ import java.util.List;
 public class SqlCollectedValueExpression extends SqlValueExpression
 {
     private final Collection<Object> collection;
+    private String delimiter = ",";
 
     SqlCollectedValueExpression(Collection<Object> collection)
     {
         this.collection = collection;
+    }
+
+    public void setDelimiter(String delimiter)
+    {
+        this.delimiter = delimiter;
     }
 
     @Override
@@ -24,7 +31,7 @@ public class SqlCollectedValueExpression extends SqlValueExpression
             strings.add("?");
             if (values != null) values.add(obj);
         }
-        return String.join(",", strings);
+        return String.join(delimiter, strings);
     }
 
     @Override

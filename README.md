@@ -350,21 +350,21 @@ qq群：257911716
 
 以下是常用的查询过程的api
 
-| 方法             | 参数                                            | 返回                        | 说明                                                                                                                                                                            |
-|----------------|-----------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `leftJoin`     | 参数1：class对象或者LQuery对象<br/> 参数2：连接条件的lambda表达式 | 当前泛型数量+1的查询过程对象（因为连了一张新表） | 左连接                                                                                                                                                                           |
-| `rightJoin`    | 同leftJoin                                     | 同leftJoin                 | 右连接                                                                                                                                                                           |
-| `innerJoin`    | 同leftJoin                                     | 同leftJoin                 | 内连接                                                                                                                                                                           |
-| `where`        | where条件的lambda表达式                             | this                      | where过滤条件，多个where默认使用and拼接                                                                                                                                                    |
-| `orWhere`      | 同where                                        | this                      | 同where，区别是多个where使用or拼接                                                                                                                                                       |
-| `groupBy`      | 返回单个元素或者包含多个元素的Grouper对象的lambda               | 组查询过程对象                   | 单个元素的group by时，可以直接类似于<br/>`a -> a.getId()`<br/>这样的lambda,多个元素时需要使用 <br/>a -> new Grouper()<br/>{ <br/>int id=a.getId();<br/>String name=a.getName();<br/>...<br/>} 这样的lambda |
-| `having`       | having条件的lambda表达式                            | this                      | having过滤条件，多个having使用and连接                                                                                                                                                    |
-| `orderBy`      | 参数1：需要排序的一个字段<br/>参数2：是否反向排序                  | this                      | 默认正序排序，有多个排序字段的需求时需要调用次orderBy方法                                                                                                                                              |
-| `limit`        | rows或者offset和rows                             | this                      |                                                                                                                                                                               |
-| `distinct`     | 无参或bool                                       | this                      | 无参调用时将distinct设置为true                                                                                                                                                         |
-| `select `      | 无参select()或select(Vo.class)或select(lambda)    | 新查询过程对象                   | select代表一次查询过程的终结，在select之后调用任意条件api（例如where）都将把上一个查询过程视为中间表然后对中间表进行的查询                                                                                                       |
-| `endSelect` | 需要返回的字段与返回类型                                  | 终结查询过程对象                  | 同select,区别是当需要返回单一的元素时（比如说`select(s -> s.getId())`），出于安全考虑强制要求使用endSelect（`endSelect(s -> s.getId())`）而非select                                                          |
-| `toList`       |                                               | 查询返回的结果集                  | 多表查询时必须进行一次select之后才能进行返回结果集操作（因为多表情况下不知道到底要返回什么）                                                                                                                             |
+| 方法          | 参数                                            | 返回                        | 说明                                                                                                                                                                            |
+|-------------|-----------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `leftJoin`  | 参数1：class对象或者LQuery对象<br/> 参数2：连接条件的lambda表达式 | 当前泛型数量+1的查询过程对象（因为连了一张新表） | 左连接                                                                                                                                                                           |
+| `rightJoin` | 同leftJoin                                     | 同leftJoin                 | 右连接                                                                                                                                                                           |
+| `innerJoin` | 同leftJoin                                     | 同leftJoin                 | 内连接                                                                                                                                                                           |
+| `where`     | where条件的lambda表达式                             | this                      | where过滤条件，多个where默认使用and拼接                                                                                                                                                    |
+| `orWhere`   | 同where                                        | this                      | 同where，区别是多个where使用or拼接                                                                                                                                                       |
+| `groupBy`   | 返回单个元素或者包含多个元素的Grouper对象的lambda               | 组查询过程对象                   | 单个元素的group by时，可以直接类似于<br/>`a -> a.getId()`<br/>这样的lambda,多个元素时需要使用 <br/>a -> new Grouper()<br/>{ <br/>int id=a.getId();<br/>String name=a.getName();<br/>...<br/>} 这样的lambda |
+| `having`    | having条件的lambda表达式                            | this                      | having过滤条件，多个having使用and连接                                                                                                                                                    |
+| `orderBy`   | 参数1：需要排序的一个字段<br/>参数2：是否反向排序                  | this                      | 默认正序排序，有多个排序字段的需求时需要调用次orderBy方法                                                                                                                                              |
+| `limit`     | rows或者offset和rows                             | this                      |                                                                                                                                                                               |
+| `distinct`  | 无参或bool                                       | this                      | 无参调用时将distinct设置为true                                                                                                                                                         |
+| `select `   | 无参select()或select(Vo.class)或select(lambda)    | 新查询过程对象                   | select代表一次查询过程的终结，在select之后调用任意条件api（例如where）都将把上一个查询过程视为中间表然后对中间表进行的查询                                                                                                       |
+| `endSelect` | 需要返回的字段与返回类型                                  | 终结查询过程对象                  | 同select,区别是当需要返回单一的元素时（比如说`select(s -> s.getId())`），出于安全考虑强制要求使用endSelect（`endSelect(s -> s.getId())`）而非select                                                                |
+| `toList`    |                                               | 查询返回的结果集                  | 多表查询时必须进行一次select之后才能进行返回结果集操作（因为多表情况下不知道到底要返回什么）                                                                                                                             |
 
 假设我们有一个员工表
 
@@ -687,10 +687,7 @@ public class UpdateTest extends BaseTest
     public void display0()
     {
         long l2 = client.update(Department.class)
-                .set(s ->
-                {
-                    s.setName("newName");
-                })
+                .set(s -> s.setName("newName"))
                 .where(w -> w.getNumber() == "100")
                 .executeRows();
     }
@@ -708,6 +705,8 @@ WHERE t0.`dept_no` = ?
 连表更新
 
 ```java
+
+@SuppressWarnings("all")
 public class UpdateTest extends BaseTest
 {
     long l = client.update(Department.class)
@@ -790,3 +789,291 @@ FROM `departments` AS t0
 WHERE t0.`dept_no` = ?
 ```
 
+## 关联查询 INCLUDE
+
+假设我们有一个工资类和一个员工类，员工类配置了对工资类的关联信息，员工与工资是一对多关系（一个员工有多个工资信息）
+
+```java
+
+@Data
+@Table(value = "salaries")
+public class Salary
+{
+    @Column(value = "emp_no", primaryKey = true)
+    private int empNumber;
+    private int salary;
+    @Column("from_date")
+    private LocalDate from;
+    @Column("to_date")
+    private LocalDate to;
+}
+
+@Data
+@Table("employees")
+public class Employee
+{
+   @Column(value = "emp_no",primaryKey = true)
+   private int number;
+   @Column("birth_date")
+   private LocalDate birthDay;
+   @Column("first_name")
+   private String firstName;
+   @Column("last_name")
+   private String lastName;
+   @Column(converter = GenderConverter.class)
+   private Gender gender;
+   @Column("hire_date")
+   private LocalDate hireDay;
+   // 一对多，self为自身的number字段，target为Salary的empNumber字段
+   @Navigate(value = RelationType.OneToMany, self = "number", target = "empNumber")
+   private List<Salary> salaries;
+}
+```
+
+现在我们就可以填充指定的员工的工资信息
+
+```java
+public class IncludeTest extends BaseTest
+{
+    @Test
+    public void oneManyTest()
+    {
+        //获取编号为10001的员工并且查询出该员工的所有工资信息
+       Employee employee = client.query(Employee.class)
+               .where(e -> e.getNumber() == 10001)
+               .includes(e -> e.getSalaries())
+               .first();
+
+        Assert.assertEquals(17, employee.getSalaries().size());
+    }
+}
+```
+
+我们也可以对这个查询做出限制
+
+```java
+public class IncludeTest extends BaseTest
+{
+   @Test
+   public void oneManyCondTest()
+   {
+      //获取编号为10001的员工并且查询出该员工最后一次调整工资（9999-01-01）以外的历史工资
+      Employee employee = client.query(Employee.class)
+              .where(e -> e.getNumber() == 10001)
+              .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
+              .first();
+
+      Assert.assertEquals(16, employee.getSalaries().size());
+   }
+}
+```
+
+也支持更复杂的限制条件，比方说限制关联查询获取的条目数
+
+```java
+public class IncludeTest extends BaseTest
+{
+   @Test
+   public void oneManyCond2Test()
+   {
+      //获取编号为10001的员工并且查询出该员工最后一次调整工资（9999-01-01）以外的历史工资
+      //同时只获取前10条
+      //并且按工资排序
+      Employee employee = client.query(Employee.class)
+              .includesByCond(e -> e.getSalaries(), query -> query
+                      .orderBy(s -> s.getSalary())
+                      .where(s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
+                      .limit(10)
+              )
+              .first();
+      
+      Assert.assertEquals(10, employee.getSalaries().size());
+   }
+}
+```
+
+## 支持的sql函数
+
+框架内部支持了绝大多数的常用sql函数，具体逻辑可以在SqlFunctions类中查看
+
+`时间相关`
+
+| 函数名            | 参数 | 返回类型                    | 功能                   |
+|----------------|----|-------------------------|----------------------|
+| now            |    | LocalDateTime           | 获取当前的日期时间            |
+| utcNow         |    | LocalDateTime           | 获取当前的utc日期时间         |
+| systemNow      |    | LocalDateTime           | 获取当前的系统日期时间          |
+| nowDate        |    | LocalDate               | 获取当前的日期              |
+| nowTime        |    | LocalTime               | 获取当前的时间              |
+| utcNowDate     |    | LocalDate               | 获取当前的utc日期           |
+| utcNowTime     |    | LocalTime               | 获取当前的utc时间           |
+| addData        |    | LocalDate/LocalDateTime | 日期或日期时间增加指定的单位长度     |
+| subDate        |    | LocalDate/LocalDateTime | 日期或日期时间减去指定的单位长度     |
+| dateTimeDiff   |    | long                    | 获取两个日期或日期时间相差的指定单位的值 |
+| dateFormat     |    | String                  | 格式化日期或日期时间           |
+| getYear        |    | int                     | 提取年份                 |
+| getMonth       |    | int                     | 提取月份                 |
+| getWeek        |    | int                     | 提取周                  |
+| getDay         |    | int                     | 提取日                  |
+| getHour        |    | int                     | 提取小时                 |
+| getMinute      |    | int                     | 提取日                  |
+| getSecond      |    | int                     | 提取秒                  |
+| getMilliSecond |    | int                     | 提取毫秒                 |
+| getDayName     |    | String                  | 获取指定日期在本周周几的全名       |
+| getDayOfWeek   |    | int                     | 获取指定日期在本周周几          |
+| getDayOfYear   |    | int                     | 获取指定日期是当年的第几天        |
+| dateToDays     |    | int                     | 从0000-01-01到指定日期的天数  |
+| getLastDay     |    | LocalDate               | 获取本月最后一天的日期          |
+| getMonthName   |    | String                  | 获取指定日期的月份名称          |
+| getQuarter     |    | int                     | 获取指定日期在第几季度          |
+| getWeekDay     |    | int                     | 获取指定日期在本周周几的索引       |
+| getWeekOfYear  |    | int                     | 获取本周是今年的第几周          |
+
+`数值相关`
+
+| 函数名      | 参数           | 返回类型   | 功能                        |
+|----------|--------------|--------|---------------------------|
+| abs      |              | 同入参    |                           |
+| cos      |              | double |                           |
+| acos     |              | double |                           |
+| sin      |              | double |                           |
+| asin     |              | double |                           |
+| tan      |              | double |                           |
+| atan     |              | double |                           |
+| atan2    |              | double |                           |
+| ceil     |              | int    | 向上取整到最近的整数                |
+| floor    |              | int    | 向下取整到最近的整数                |
+| cot      |              | double | 余切函数                      |
+| degrees  |              | double | 弧度转角度                     |
+| radians  |              | double | 角度转弧度                     |
+| exp      |              | double |                           |
+| big      |              | 同入参    | 获取所有数值中最大的数值              |
+| small    |              | 同入参    | 获取所有数值中最小的数值              |
+| ln       |              | double |                           |
+| log      |              | double |                           |
+| log2     |              | double |                           |
+| log10    |              | double |                           |
+| mod      |              | 同入参    | 取模                        |
+| pi       |              | double | 获取PI                      |
+| pow      |              | double |                           |
+| random   |              | double | 获取0-1的随机小数                |
+| round    | (T a)        | int    | 四舍五入取整                    |
+| round    | (T a, int b) | 同入参    | 指定截取多少位小数四舍五入取整           |
+| sign     |              | int    | 参数为正数、负数和零时分别返回 1, -1 和 0 |
+| sqrt     |              | double | 获取平方根                     |
+| truncate | (T a)        | int    | 截断所有小数位                   |
+| truncate | (T a, int b) | double | 截断指定位数的小数位                |
+
+`字符串相关`
+
+| 函数名          | 参数                                         | 返回类型   | 功能                            |
+|--------------|--------------------------------------------|--------|-------------------------------|
+| strToAscii   |                                            | int    | 第一个字符的ASCII码                  |
+| asciiToStr   |                                            | String | ASCII码转字符串                    |
+| length       |                                            | int    | 字符串的长度                        |
+| byteLength   |                                            | int    | 字符串的字节长度                      |
+| concat       |                                            | String | 拼接字符串                         |
+| join         |                                            | String | 根据插值拼接字符串                     |
+| numberFormat |                                            | String | 格式化数值                         |
+| indexOf      | (String str, String subStr)                | int    | 返回一个字符串中指定子字符串的位置             |
+| indexOf      | (String str, String subStr, int offset)    | int    | 返回一个字符串中指定子字符串的位置,并且指定起始搜索的位置 |
+| toLowerCase  |                                            | String | 转小写                           |
+| toUpperCase  |                                            | String | 转大写                           |
+| left         |                                            | String | 返回具有指定长度的字符串的左边部分             |
+| right        |                                            | String | 返回具有指定长度的字符串的右边部分             |
+| leftPad      |                                            | String | 从左边开始对字符串进行重复填充，直到满足指定的长度     |
+| rightPad     |                                            | String | 从右边开始对字符串进行重复填充，直到满足指定的长度     |
+| trimStart    |                                            | String | 去除字符串左侧的空格                    |
+| trimEnd      |                                            | String | 去除字符串右侧的空格                    |
+| trim         |                                            | String | 去除字符串左侧和右侧的空格                 |
+| replace      |                                            | String | 替换字符串中指定的字符为新字符               |
+| reverse      |                                            | String | 反转字符串                         |
+| compare      |                                            | int    | 比较字符串                         |
+| subString    | (String str, int beginIndex)               | String | 获取子字符串                        |
+| subString    | (String str, int beginIndex, int endIndex) | String | 获取子字符串                        |
+
+`其他`
+
+| 函数名       | 参数                                           | 返回类型 | 功能                                                                      |
+|-----------|----------------------------------------------|------|-------------------------------------------------------------------------|
+| If        | (boolean condition, T truePart, T falsePart) | T    | 如果condition为true则返回truePart，否则返回falsePart                               |
+| ifNull    | (T valueNotNull, T valueIsNull)              | T    | 如果valueNotNull为null则返回valueIsNull，否则返回如果valueNotNull为null则返回valueIsNull |
+| nullIf    | (T t1, T t2)                                 | T    | 如果t1 = t2则返回null，否则返回t1                                                 |
+| cast      | (Object value, Class\<T> targetType)         | T    | 转换到指定类型                                                                 |
+| cast      | (Object value, SqlTypes\<T> targetType)      | T    | 转换到指定类型                                                                 |
+| isNull    | (T t)                                        | T    | isNull的快捷方法                                                             |
+| isNotNull | (T t)                                        | T    | isNotNull的快捷方法                                                          |****
+
+## java函数到sql表达式的映射
+
+> 以下仅列举映射到mysql的情况，实际会根据数据库类型来决定策略
+
+`String类`
+
+| java                                | sql                              |       
+|-------------------------------------|----------------------------------|
+| this.contains(arg)                  | this LIKE CONCAT('%',arg,'%')    |
+| this.startsWith(arg)                | this LIKE CONCAT(arg,'%')        |
+| this.endsWith(arg)                  | this LIKE CONCAT('%',arg)        |
+| this.length()                       | CHAR_LENGTH(this)                |
+| this.toUpperCase()                  | UPPER(this)                      |
+| this.toLowerCase()                  | LOWER(this)                      |
+| this.concat(arg)                    | CONCAT(this,arg)                 |
+| this.trim()                         | TRIM(this)                       |
+| this.isEmpty()                      | (CHAR_LENGTH(this) = 0)          |
+| this.indexOf(subStr)                | INSTR(this,subStr)               |
+| this.indexOf(subStr,fromIndex)      | LOCATE(subStr,this,fromIndex)    |
+| this.replace(oldStr,newStr)         | REPLACE(this,oldStr,newStr)      |
+| this.substring(beginIndex)          | SUBSTR(this,beginIndex)          |
+| this.substring(beginIndex,endIndex) | SUBSTR(this,beginIndex,endIndex) |
+| String.join(delimiter,elements...)  | CONCAT_WS(delimiter,elements...) |
+
+`Math类`
+
+| java                | sql              |
+|---------------------|------------------|
+| Math.abs(arg)       | ABS(arg)         |
+| Math.cos(arg)       | COS(arg)         |
+| Math.acos(arg)      | ACOS(arg)        |
+| Math.sin(arg)       | SIN(arg)         |
+| Math.asin(arg)      | ASIN(arg)        |
+| Math.tab(arg)       | TAN(arg)         |
+| Math.atan(arg)      | ATAN(arg)        |
+| Math.atan2(arg)     | ATAN2(arg)       |
+| Math.toDegrees(arg) | DEGREES(arg)     |
+| Math.toRadians(arg) | RADIANS(arg)     |
+| Math.exp(arg)       | EXP(arg)         |
+| Math.floor(arg)     | FLOOR(arg)       |
+| Math.log(arg)       | LN(arg)          |
+| Math.log10(arg)     | LOG10(arg)       |
+| Math.random()       | RAND()           |
+| Math.round(arg)     | ROUND(arg)       |
+| Math.pow(arg1,arg2) | POWER(arg1,arg2) |
+| Math.signum(arg)    | SIGN(arg)        |
+| Math.sqrt(arg)      | SQRT(arg)        |
+
+`List接口`
+
+| java               | sql             |
+|--------------------|-----------------|
+| this.contains(arg) | arg IN (this,,) |
+
+`BigDecimal类`
+
+| java                | sql        |
+|---------------------|------------|
+| this.add(arg)       | this + arg |
+| this.subtract(arg)  | this - arg |
+| this.multiply(arg)  | this * arg |
+| this.divide(arg)    | this / arg |
+| this.remainder(arg) | this % arg |
+
+`Temporal接口`
+
+> LocalDate,LocalDateTime,LocalTime
+
+| java               | sql        |
+|--------------------|------------|
+| this.isAfter(arg)  | this > arg |
+| this.isBefore(arg) | this < arg |
+| this.isEqual(arg)  | this = arg |

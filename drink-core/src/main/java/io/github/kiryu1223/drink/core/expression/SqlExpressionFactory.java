@@ -202,11 +202,6 @@ public abstract class SqlExpressionFactory
         return new SqlBinaryExpression(operator, left, right);
     }
 
-    public SqlBinaryExpression between(SqlExpression expression, SqlExpression min, SqlExpression max)
-    {
-        return binary(SqlOperator.BETWEEN, expression, binary(SqlOperator.AND, min, max));
-    }
-
     public SqlUnaryExpression unary(SqlOperator operator, SqlExpression expression)
     {
         return new SqlUnaryExpression(operator, expression);
