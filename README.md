@@ -53,18 +53,18 @@ qq群：257911716
                    <artifactId>maven-compiler-plugin</artifactId>
                    <version>3.8.1</version>
                    <configuration>
-                       <!--开启apt的指令-->
+                       <!--开启框架的指令-->
                        <compilerArgs>
                            <arg>-Xplugin:ExpressionTree</arg>
                        </compilerArgs>
                        <annotationProcessorPaths>
-                           <!--apt路径配置-->
+                           <!--路径配置-->
                            <path>
                                <groupId>io.github.kiryu1223</groupId>
                                <artifactId>drink-core</artifactId>
                                <version>${project.version}</version>
                            </path>
-                           <!--你的剩余apt路径配置，假设你的项目中还依赖了lombok等apt的话-->
+                           <!--你的剩余路径配置，假设你的项目中还依赖了lombok的话-->
                            <path>
                                <groupId>org.projectlombok</groupId>
                                <artifactId>lombok</artifactId>
@@ -125,7 +125,7 @@ qq群：257911716
 
 ### 使用SpringBoot
 
-1. 引入starter并且开启apt
+1. 引入starter并且填上开启的指令
 
    ```xml
            <dependency>
@@ -134,6 +134,7 @@ qq群：257911716
                <version>${project.version}</version>
            </dependency>
    ```
+   
    ```xml
       <build>
          <plugins>
@@ -186,7 +187,7 @@ qq群：257911716
 
 ### 使用Solon
 
-1. 引入插件并且开启apt
+1. 引入插件并且填上开启的指令
 
    ```xml
            <dependency>
@@ -325,10 +326,33 @@ qq群：257911716
 
 ## 常用的注解
 
-| 名称       | 参数                    | 说明                                                          |
-|----------|-----------------------|-------------------------------------------------------------|
-| `Column` | 参数1：数据库列名<br/>参数2：转换器 | Column注解用于类型的字段与数据库字段不一致的场合，或者是类型不一致需要转换的场合（java枚举<->数据库枚举） |
-| `Table`  | 参数1：表名                | Table注解用于类名与表名不一致的场合                                        |
+`Table`：用于表示表名的注解
+
+| 字段     | 类型     | 默认值 | 说明               |
+|--------|--------|-----|------------------|
+| schema | String | 无   | 表的所属,为空时表示为默认的所属 |
+| value  | String | 无   | 表名，为空时表示类名等于表名   |
+
+`Column`：用于表示列名的注解
+
+| 字段         | 类型                                  | 默认值               | 说明                                           |
+|------------|-------------------------------------|-------------------|----------------------------------------------|
+| primaryKey | boolean                             | false             | 是否为主键                                        |
+| value      | String                              | 无                 | 字段对应的列名，为空时等于字段名                             |
+| converter  | Class\<? extends IConverter\<?, ?>> | NoConverter.class | 转换器，用于列类型与java类型不一致的情况（比如数据库枚举=>java枚举）,默认为无 |
+
+`Navigate`：用于表示关联关系的注解
+
+| 字段            | 类型                             | 默认值                 | 说明                                      |
+|---------------|--------------------------------|---------------------|-----------------------------------------|
+| value         | RelationType                   | 无                   | 用于表示当前类与目标类的关联关系，有四种关系（一对一，一对多，多对一，多对多） |
+| self          | String                         | 无                   | 自身类的关联关系的java字段名                        |
+| target        | String                         | 无                   | 目标类的关联关系的java字段名                        |
+| mappingTable  | Class<? extends IMappingTable> | IMappingTable.class | 多对多下必填,中间表，需要继承IMappingTable            |
+| selfMapping   | String                         | 无                   | 多对多下必填,自身类对应的mappingTable表java字段名       |
+| targetMapping | String                         | 无                   | 多对多下必填,目标类对应的mappingTable表java字段名       |
+
+`IgnoreColumn`：用于表示字段与表无关的注解
 
 ## CRUD
 
@@ -812,21 +836,21 @@ public class Salary
 @Table("employees")
 public class Employee
 {
-   @Column(value = "emp_no",primaryKey = true)
-   private int number;
-   @Column("birth_date")
-   private LocalDate birthDay;
-   @Column("first_name")
-   private String firstName;
-   @Column("last_name")
-   private String lastName;
-   @Column(converter = GenderConverter.class)
-   private Gender gender;
-   @Column("hire_date")
-   private LocalDate hireDay;
-   // 一对多，self为自身的number字段，target为Salary的empNumber字段
-   @Navigate(value = RelationType.OneToMany, self = "number", target = "empNumber")
-   private List<Salary> salaries;
+    @Column(value = "emp_no", primaryKey = true)
+    private int number;
+    @Column("birth_date")
+    private LocalDate birthDay;
+    @Column("first_name")
+    private String firstName;
+    @Column("last_name")
+    private String lastName;
+    @Column(converter = GenderConverter.class)
+    private Gender gender;
+    @Column("hire_date")
+    private LocalDate hireDay;
+    // 一对多，self为自身的number字段，target为Salary的empNumber字段
+    @Navigate(value = RelationType.OneToMany, self = "number", target = "empNumber")
+    private List<Salary> salaries;
 }
 ```
 
@@ -839,10 +863,10 @@ public class IncludeTest extends BaseTest
     public void oneManyTest()
     {
         //获取编号为10001的员工并且查询出该员工的所有工资信息
-       Employee employee = client.query(Employee.class)
-               .where(e -> e.getNumber() == 10001)
-               .includes(e -> e.getSalaries())
-               .first();
+        Employee employee = client.query(Employee.class)
+                .where(e -> e.getNumber() == 10001)
+                .includes(e -> e.getSalaries())
+                .first();
 
         Assert.assertEquals(17, employee.getSalaries().size());
     }
@@ -854,17 +878,17 @@ public class IncludeTest extends BaseTest
 ```java
 public class IncludeTest extends BaseTest
 {
-   @Test
-   public void oneManyCondTest()
-   {
-      //获取编号为10001的员工并且查询出该员工最后一次调整工资（9999-01-01）以外的历史工资
-      Employee employee = client.query(Employee.class)
-              .where(e -> e.getNumber() == 10001)
-              .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
-              .first();
+    @Test
+    public void oneManyCondTest()
+    {
+        //获取编号为10001的员工并且查询出该员工最后一次调整工资（9999-01-01）以外的历史工资
+        Employee employee = client.query(Employee.class)
+                .where(e -> e.getNumber() == 10001)
+                .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
+                .first();
 
-      Assert.assertEquals(16, employee.getSalaries().size());
-   }
+        Assert.assertEquals(16, employee.getSalaries().size());
+    }
 }
 ```
 
@@ -873,22 +897,22 @@ public class IncludeTest extends BaseTest
 ```java
 public class IncludeTest extends BaseTest
 {
-   @Test
-   public void oneManyCond2Test()
-   {
-      //获取编号为10001的员工并且查询出该员工最后一次调整工资（9999-01-01）以外的历史工资
-      //同时只获取前10条
-      //并且按工资排序
-      Employee employee = client.query(Employee.class)
-              .includesByCond(e -> e.getSalaries(), query -> query
-                      .orderBy(s -> s.getSalary())
-                      .where(s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
-                      .limit(10)
-              )
-              .first();
-      
-      Assert.assertEquals(10, employee.getSalaries().size());
-   }
+    @Test
+    public void oneManyCond2Test()
+    {
+        //获取编号为10001的员工并且查询出该员工最后一次调整工资（9999-01-01）以外的历史工资
+        //同时只获取前10条
+        //并且按工资排序
+        Employee employee = client.query(Employee.class)
+                .includesByCond(e -> e.getSalaries(), query -> query
+                        .orderBy(s -> s.getSalary())
+                        .where(s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
+                        .limit(10)
+                )
+                .first();
+
+        Assert.assertEquals(10, employee.getSalaries().size());
+    }
 }
 ```
 

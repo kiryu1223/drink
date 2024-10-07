@@ -13,8 +13,8 @@
         <module>drink-support</module>
 
         <!-- skip -->
-        <module>drink-test</module>
-        <module>sample</module>
+<!--        <module>drink-test</module>-->
+<!--        <module>sample</module>-->
     </modules>
 
     <properties>
