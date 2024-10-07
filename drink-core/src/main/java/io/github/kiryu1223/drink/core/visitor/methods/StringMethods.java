@@ -87,10 +87,18 @@ public class StringMethods
         return factory.function(functions, Collections.singletonList(thiz));
     }
 
-    public static SqlParensExpression isEmpty(Config config, SqlExpression thiz)
+    public static SqlExpression isEmpty(Config config, SqlExpression thiz)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.parens(factory.binary(SqlOperator.EQ, length(config, thiz), factory.constString("0")));
+        SqlParensExpression parens = factory.parens(factory.binary(SqlOperator.EQ, length(config, thiz), factory.constString("0")));
+        if (config.getDbType() == DbType.SqlServer)
+        {
+            return factory.function(Arrays.asList("IIF(", ",1,0)"), Collections.singletonList(parens));
+        }
+        else
+        {
+            return parens;
+        }
     }
 
     public static SqlFunctionExpression indexOf(Config config, SqlExpression thisStr, SqlExpression subStr)
@@ -201,7 +209,7 @@ public class StringMethods
                 functions.add("||");
                 for (int i = 0; i < sqlExpressions.size(); i++)
                 {
-                    if (i < sqlExpressions.size() - 1) functions.add("||");
+                    if (i < sqlExpressions.size() - 2) functions.add("||");
                 }
                 functions.add(")");
                 break;
@@ -213,7 +221,7 @@ public class StringMethods
                 functions.add(",");
                 for (int i = 0; i < sqlExpressions.size(); i++)
                 {
-                    if (i < sqlExpressions.size() - 1) functions.add(",");
+                    if (i < sqlExpressions.size() - 2) functions.add(",");
                 }
                 functions.add(")");
         }

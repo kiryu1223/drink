@@ -173,7 +173,7 @@ public abstract class SqlExpressionFactory
     {
         if (value instanceof Collection<?>)
         {
-            Collection<?> objects = (Collection<?>) value;
+            Collection<Object> objects = (Collection<Object>) value;
             return value(objects);
         }
         else

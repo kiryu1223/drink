@@ -14,6 +14,7 @@ import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.visitor.methods.MathMethods;
 import io.github.kiryu1223.drink.core.visitor.methods.StringMethods;
+import io.github.kiryu1223.drink.core.visitor.methods.TemporalMethods;
 import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
@@ -498,19 +499,19 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 {
                     SqlExpression left = visit(methodCall.getExpr());
                     SqlExpression right = visit(methodCall.getArgs().get(0));
-                    return factory.binary(SqlOperator.GT, left, right);
+                    return TemporalMethods.isAfter(config, left, right);
                 }
                 case "isBefore":
                 {
                     SqlExpression left = visit(methodCall.getExpr());
                     SqlExpression right = visit(methodCall.getArgs().get(0));
-                    return factory.binary(SqlOperator.LT, left, right);
+                    return TemporalMethods.isBefore(config, left, right);
                 }
                 case "isEqual":
                 {
                     SqlExpression left = visit(methodCall.getExpr());
                     SqlExpression right = visit(methodCall.getArgs().get(0));
-                    return factory.binary(SqlOperator.EQ, left, right);
+                    return TemporalMethods.isEqual(config, left, right);
                 }
                 default:
                     return checkAndReturnValue(methodCall);
