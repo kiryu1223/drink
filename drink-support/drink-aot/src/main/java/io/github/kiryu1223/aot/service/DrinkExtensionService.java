@@ -33,7 +33,7 @@ import java.util.Set;
 
 public class DrinkExtensionService implements IExtensionService
 {
-    private static final String projectVersion = "1.0.7";
+    private static final String projectVersion = "1.0.8";
     private FileObject aotConfig;
     private boolean aotTime;
     private Set<String> AnonymousClassesName = new HashSet<>();
