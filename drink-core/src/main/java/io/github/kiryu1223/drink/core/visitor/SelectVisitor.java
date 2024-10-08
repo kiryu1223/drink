@@ -20,7 +20,7 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isGroupKey;
 public class SelectVisitor extends SqlVisitor
 {
     private final SqlQueryableExpression queryable;
-    private boolean useUnNameClass = false;
+    //private boolean useUnNameClassOrNotFirst = false;
 
     public SelectVisitor(Config config, SqlQueryableExpression queryable)
     {
@@ -38,7 +38,7 @@ public class SelectVisitor extends SqlVisitor
         }
         else
         {
-            useUnNameClass = true;
+            //useUnNameClassOrNotFirst = true;
             List<SqlExpression> expressions = new ArrayList<>();
             for (Expression expression : classBody.getExpressions())
             {
@@ -60,19 +60,35 @@ public class SelectVisitor extends SqlVisitor
         }
     }
 
-    @Override
-    public SqlExpression visit(MethodCallExpression methodCall)
-    {
-        SqlExpression visit = super.visit(methodCall);
-        if (useUnNameClass)
-        {
-            return visit;
-        }
-        else
-        {
-            return boxTheBool(methodCall, visit);
-        }
-    }
+//    @Override
+//    public SqlExpression visit(MethodCallExpression methodCall)
+//    {
+//        SqlExpression visit = super.visit(methodCall);
+//        if (useUnNameClassOrNotFirst)
+//        {
+//            return visit;
+//        }
+//        else
+//        {
+//            useUnNameClassOrNotFirst=true;
+//            return boxTheBool(methodCall, visit);
+//        }
+//    }
+//
+//    @Override
+//    public SqlExpression visit(UnaryExpression unary)
+//    {
+//        SqlExpression visit = super.visit(unary);
+//        if (useUnNameClassOrNotFirst)
+//        {
+//            return visit;
+//        }
+//        else
+//        {
+//            useUnNameClassOrNotFirst=true;
+//            return boxTheBool(unary, visit);
+//        }
+//    }
 
     //    @Override
 //    public SqlExpression visit(BlockExpression blockExpression)
@@ -180,23 +196,27 @@ public class SelectVisitor extends SqlVisitor
         if (init instanceof MethodCallExpression)
         {
             MethodCallExpression methodCall = (MethodCallExpression) init;
-            return boxTheBool(methodCall, result);
+            return boxTheBool(isBool(methodCall.getMethod().getReturnType()), result);
+        }
+        else if (init instanceof UnaryExpression)
+        {
+            UnaryExpression unary = (UnaryExpression) init;
+            return boxTheBool(unary.getOperatorType() == OperatorType.NOT, result);
         }
         return result;
     }
 
-    // 用于包装某些数据库不支持直接返回bool
-    protected SqlExpression boxTheBool(MethodCallExpression methodCall, SqlExpression result)
+
+    protected SqlExpression boxTheBool(boolean condition, SqlExpression result)
     {
-        if (isBool(methodCall.getMethod().getReturnType()))
+        if (!condition) return result;
+        switch (config.getDbType())
         {
-            switch (config.getDbType())
-            {
-                case SqlServer:
-                case Oracle:
-                    return LogicExpression.IfExpression(config, result, factory.constString("1"), factory.constString("0"));
-            }
+            case SqlServer:
+            case Oracle:
+                return LogicExpression.IfExpression(config, result, factory.constString("1"), factory.constString("0"));
+            default:
+                return result;
         }
-        return result;
     }
 }

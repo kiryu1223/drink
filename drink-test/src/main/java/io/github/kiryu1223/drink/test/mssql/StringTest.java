@@ -25,6 +25,12 @@ public class StringTest extends BaseTest
                 .first();
 
         Assert.assertFalse(isNotEmpty);
+
+        boolean isNotEmpty2 = client.queryEmptyTable()
+                .endSelect(() -> !SqlFunctions.isEmpty("abc"))
+                .first();
+
+        Assert.assertTrue(isNotEmpty2);
     }
 
     @Test

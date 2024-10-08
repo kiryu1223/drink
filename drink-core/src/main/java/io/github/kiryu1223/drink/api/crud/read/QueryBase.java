@@ -15,16 +15,20 @@ import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
 import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
 import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
+import io.github.kiryu1223.drink.core.visitor.methods.LogicExpression;
 import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.ext.IMappingTable;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
+import io.github.kiryu1223.expressionTree.expressions.MethodCallExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isBool;
 
 
 public abstract class QueryBase extends CRUD
@@ -165,6 +169,17 @@ public abstract class QueryBase extends CRUD
         else
         {
             SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+            // 用于包装某些数据库不支持直接返回bool
+            if (isBool(lambda.getReturnType()))
+            {
+                Config config = getConfig();
+                switch (config.getDbType())
+                {
+                    case SqlServer:
+                    case Oracle:
+                        expression= LogicExpression.IfExpression(config, expression, factory.constString("1"), factory.constString("0"));
+                }
+            }
             selectExpression = factory.select(Collections.singletonList(expression), lambda.getReturnType(), true);
         }
         sqlBuilder.setSelect(selectExpression);
