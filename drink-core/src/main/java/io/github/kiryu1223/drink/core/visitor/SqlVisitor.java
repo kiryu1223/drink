@@ -4,14 +4,10 @@ import io.github.kiryu1223.drink.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
 import io.github.kiryu1223.drink.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlOperator;
-import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.core.expression.SqlFunctionExpression;
-import io.github.kiryu1223.drink.core.expression.SqlValueExpression;
-import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.visitor.methods.BigDecimalMethods;
 import io.github.kiryu1223.drink.core.visitor.methods.MathMethods;
 import io.github.kiryu1223.drink.core.visitor.methods.StringMethods;
 import io.github.kiryu1223.drink.core.visitor.methods.TemporalMethods;
@@ -19,9 +15,9 @@ import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
-import io.github.kiryu1223.drink.ext.SqlExtensionCache;
 import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.FunctionBox;
+import io.github.kiryu1223.drink.ext.SqlExtensionCache;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -29,12 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.time.temporal.TemporalField;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -214,121 +205,127 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
         else if (String.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
         {
             Method method = methodCall.getMethod();
-            if (Modifier.isStatic(method.getModifiers())) switch (method.getName())
+            if (Modifier.isStatic(method.getModifiers()))
             {
-                case "join":
+                switch (method.getName())
                 {
-                    SqlExpression delimiter = visit(methodCall.getArgs().get(0));
-                    //String.join(CharSequence delimiter, CharSequence... elements)
-                    if (method.isVarArgs())
+                    case "join":
                     {
-                        List<SqlExpression> args = new ArrayList<>(methodCall.getArgs().size() - 1);
-                        for (int i = 1; i < methodCall.getArgs().size(); i++)
+                        SqlExpression delimiter = visit(methodCall.getArgs().get(0));
+                        //String.join(CharSequence delimiter, CharSequence... elements)
+                        if (method.isVarArgs())
                         {
-                            args.add(visit(methodCall.getArgs().get(i)));
-                        }
-                        return StringMethods.joinArray(config, delimiter, args);
-                    }
-                    else
-                    {
-                        SqlExpression elements = visit(methodCall.getArgs().get(1));
-                        return StringMethods.joinList(config, delimiter, elements);
-                    }
-                }
-                default:
-                    return checkAndReturnValue(methodCall);
-            }
-            else switch (method.getName())
-            {
-                case "contains":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    SqlExpression right = visit(methodCall.getArgs().get(0));
-                    return StringMethods.contains(config, left, right);
-                }
-                case "startsWith":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    SqlExpression right = visit(methodCall.getArgs().get(0));
-                    return StringMethods.startsWith(config, left, right);
-                }
-                case "endsWith":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    SqlExpression right = visit(methodCall.getArgs().get(0));
-                    return StringMethods.endsWith(config, left, right);
-                }
-                case "length":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    return StringMethods.length(config, left);
-                }
-                case "toUpperCase":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    return StringMethods.toUpperCase(config, left);
-                }
-                case "toLowerCase":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    return StringMethods.toLowerCase(config, left);
-                }
-                case "concat":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    SqlExpression right = visit(methodCall.getArgs().get(0));
-                    return StringMethods.concat(config, left, right);
-                }
-                case "trim":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    return StringMethods.trim(config, left);
-                }
-                case "isEmpty":
-                {
-                    SqlExpression left = visit(methodCall.getExpr());
-                    return StringMethods.isEmpty(config, left);
-                }
-                case "indexOf":
-                {
-                    if (method.getParameterTypes()[0] == String.class)
-                    {
-                        SqlExpression thisStr = visit(methodCall.getExpr());
-                        SqlExpression subStr = visit(methodCall.getArgs().get(0));
-                        if (method.getParameterCount() == 1)
-                        {
-                            return StringMethods.indexOf(config, thisStr, subStr);
+                            List<SqlExpression> args = new ArrayList<>(methodCall.getArgs().size() - 1);
+                            for (int i = 1; i < methodCall.getArgs().size(); i++)
+                            {
+                                args.add(visit(methodCall.getArgs().get(i)));
+                            }
+                            return StringMethods.joinArray(config, delimiter, args);
                         }
                         else
                         {
-                            SqlExpression fromIndex = visit(methodCall.getArgs().get(1));
-                            return StringMethods.indexOf(config, thisStr, subStr, fromIndex);
+                            SqlExpression elements = visit(methodCall.getArgs().get(1));
+                            return StringMethods.joinList(config, delimiter, elements);
                         }
                     }
+                    default:
+                        return checkAndReturnValue(methodCall);
                 }
-                case "replace":
+            }
+            else
+            {
+                switch (method.getName())
                 {
-                    SqlExpression thisStr = visit(methodCall.getExpr());
-                    SqlExpression oldStr = visit(methodCall.getArgs().get(0));
-                    SqlExpression newStr = visit(methodCall.getArgs().get(1));
-                    return StringMethods.replace(config, thisStr, oldStr, newStr);
-                }
-                case "substring":
-                {
-                    SqlExpression thisStr = visit(methodCall.getExpr());
-                    SqlExpression beginIndex = visit(methodCall.getArgs().get(0));
-                    if (method.getParameterCount() == 1)
+                    case "contains":
                     {
-                        return StringMethods.substring(config, thisStr, beginIndex);
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return StringMethods.contains(config, left, right);
                     }
-                    else
+                    case "startsWith":
                     {
-                        SqlExpression endIndex = visit(methodCall.getArgs().get(1));
-                        return StringMethods.substring(config, thisStr, beginIndex, endIndex);
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return StringMethods.startsWith(config, left, right);
                     }
+                    case "endsWith":
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return StringMethods.endsWith(config, left, right);
+                    }
+                    case "length":
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        return StringMethods.length(config, left);
+                    }
+                    case "toUpperCase":
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        return StringMethods.toUpperCase(config, left);
+                    }
+                    case "toLowerCase":
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        return StringMethods.toLowerCase(config, left);
+                    }
+                    case "concat":
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        SqlExpression right = visit(methodCall.getArgs().get(0));
+                        return StringMethods.concat(config, left, right);
+                    }
+                    case "trim":
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        return StringMethods.trim(config, left);
+                    }
+                    case "isEmpty":
+                    {
+                        SqlExpression left = visit(methodCall.getExpr());
+                        return StringMethods.isEmpty(config, left);
+                    }
+                    case "indexOf":
+                    {
+                        if (method.getParameterTypes()[0] == String.class)
+                        {
+                            SqlExpression thisStr = visit(methodCall.getExpr());
+                            SqlExpression subStr = visit(methodCall.getArgs().get(0));
+                            if (method.getParameterCount() == 1)
+                            {
+                                return StringMethods.indexOf(config, thisStr, subStr);
+                            }
+                            else
+                            {
+                                SqlExpression fromIndex = visit(methodCall.getArgs().get(1));
+                                return StringMethods.indexOf(config, thisStr, subStr, fromIndex);
+                            }
+                        }
+                    }
+                    case "replace":
+                    {
+                        SqlExpression thisStr = visit(methodCall.getExpr());
+                        SqlExpression oldStr = visit(methodCall.getArgs().get(0));
+                        SqlExpression newStr = visit(methodCall.getArgs().get(1));
+                        return StringMethods.replace(config, thisStr, oldStr, newStr);
+                    }
+                    case "substring":
+                    {
+                        SqlExpression thisStr = visit(methodCall.getExpr());
+                        SqlExpression beginIndex = visit(methodCall.getArgs().get(0));
+                        if (method.getParameterCount() == 1)
+                        {
+                            return StringMethods.substring(config, thisStr, beginIndex);
+                        }
+                        else
+                        {
+                            SqlExpression endIndex = visit(methodCall.getArgs().get(1));
+                            return StringMethods.substring(config, thisStr, beginIndex, endIndex);
+                        }
+                    }
+                    default:
+                        return checkAndReturnValue(methodCall);
                 }
-                default:
-                    return checkAndReturnValue(methodCall);
             }
         }
         else if (Math.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
@@ -483,7 +480,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                     {
                         SqlExpression left = visit(methodCall.getExpr());
                         SqlExpression right = visit(methodCall.getArgs().get(0));
-                        return factory.binary(SqlOperator.MOD, left, right);
+                        return BigDecimalMethods.remainder(config, left, right);
                     }
                 }
                 default:

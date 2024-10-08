@@ -22,6 +22,11 @@ public class SqlCollectedValueExpression extends SqlValueExpression
         this.delimiter = delimiter;
     }
 
+    public Collection<Object> getCollection()
+    {
+        return collection;
+    }
+
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {

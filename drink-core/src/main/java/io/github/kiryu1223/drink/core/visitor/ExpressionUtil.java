@@ -125,4 +125,9 @@ public class ExpressionUtil
         }
         throw new RuntimeException(String.format("无法找到%s的第%s个泛型类型", type, index));
     }
+
+    public static boolean isBool(Class<?> type)
+    {
+        return type == boolean.class || type == Boolean.class;
+    }
 }

@@ -12,6 +12,22 @@ public class StringTest extends BaseTest
     private static final String atoz = "abcdefghijklmnopqrstuvwxyz";
 
     @Test
+    public void isEmpty()
+    {
+        boolean isEmpty = client.queryEmptyTable()
+                .endSelect(() -> SqlFunctions.isEmpty(""))
+                .first();
+
+        Assert.assertTrue(isEmpty);
+
+        boolean isNotEmpty = client.queryEmptyTable()
+                .endSelect(() -> SqlFunctions.isEmpty(" "))
+                .first();
+
+        Assert.assertFalse(isNotEmpty);
+    }
+
+    @Test
     public void strToAsciiTest()
     {
         int res = client.queryEmptyTable()

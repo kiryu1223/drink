@@ -1986,6 +1986,16 @@ public class SqlFunctions
 
     // region [字符串]
 
+    @SqlExtensionExpression(dbType = DbType.H2, function = "(CHAR_LENGTH({str}) = 0)")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "(CHAR_LENGTH({str}) = 0)")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "(NVL(LENGTH({str}),0) = 0)")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATALENGTH({str}) = 0)")
+    public static boolean isEmpty(String str)
+    {
+        boom();
+        return true;
+    }
+
     @SqlExtensionExpression(dbType = DbType.H2, function = "ASCII({str})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ASCII({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ASCII({str})")
@@ -1998,7 +2008,7 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "CHAR_LENGTH({str})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CHAR_LENGTH({str})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "LENGTH({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "NVL(LENGTH({str}),0)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LEN({str})")
     public static int length(String str)
     {

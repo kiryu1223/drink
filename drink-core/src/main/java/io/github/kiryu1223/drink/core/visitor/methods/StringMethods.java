@@ -5,7 +5,10 @@ import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.ext.DbType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class StringMethods
 {
@@ -49,7 +52,7 @@ public class StringMethods
                 functions = Arrays.asList("LEN(", ")");
                 break;
             case Oracle:
-                functions = Arrays.asList("LENGTH(", ")");
+                functions = Arrays.asList("NVL(LENGTH(", "),0)");
                 break;
             case MySQL:
             case H2:
@@ -90,15 +93,21 @@ public class StringMethods
     public static SqlExpression isEmpty(Config config, SqlExpression thiz)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        SqlParensExpression parens = factory.parens(factory.binary(SqlOperator.EQ, length(config, thiz), factory.constString("0")));
-        if (config.getDbType() == DbType.SqlServer)
+        switch (config.getDbType())
         {
-            return factory.function(Arrays.asList("IIF(", ",1,0)"), Collections.singletonList(parens));
+            case SqlServer:
+                return factory.parens(factory.binary(SqlOperator.EQ, factory.function(Arrays.asList("DATALENGTH(", ")"), Collections.singletonList(thiz)), factory.constString("0")));
+            default:
+                return factory.parens(factory.binary(SqlOperator.EQ, length(config, thiz), factory.constString("0")));
         }
-        else
-        {
-            return parens;
-        }
+//        if (config.getDbType() == DbType.SqlServer)
+//        {
+//            return factory.function(Arrays.asList("IIF(", ",1,0)"), Collections.singletonList(parens));
+//        }
+//        else
+//        {
+//            return parens;
+//        }
     }
 
     public static SqlFunctionExpression indexOf(Config config, SqlExpression thisStr, SqlExpression subStr)
@@ -200,16 +209,19 @@ public class StringMethods
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions = new ArrayList<>();
         List<SqlExpression> sqlExpressions = new ArrayList<>(1 + elements.size());
-        sqlExpressions.add(delimiter);
-        sqlExpressions.addAll(elements);
         switch (config.getDbType())
         {
             case Oracle:
                 functions.add("(");
-                functions.add("||");
-                for (int i = 0; i < sqlExpressions.size(); i++)
+                for (int i = 0; i < elements.size(); i++)
                 {
-                    if (i < sqlExpressions.size() - 2) functions.add("||");
+                    sqlExpressions.add(elements.get(i));
+                    if (i < elements.size() - 1)
+                    {
+                        functions.add("||");
+                        sqlExpressions.add(delimiter);
+                        functions.add("||");
+                    }
                 }
                 functions.add(")");
                 break;
@@ -217,11 +229,13 @@ public class StringMethods
             case SqlServer:
             case H2:
             default:
+                sqlExpressions.add(delimiter);
+                sqlExpressions.addAll(elements);
                 functions.add("CONCAT_WS(");
                 functions.add(",");
                 for (int i = 0; i < sqlExpressions.size(); i++)
                 {
-                    if (i < sqlExpressions.size() - 2) functions.add(",");
+                    if (i < elements.size() - 1) functions.add(",");
                 }
                 functions.add(")");
         }
@@ -231,26 +245,42 @@ public class StringMethods
     public static SqlFunctionExpression joinList(Config config, SqlExpression delimiter, SqlExpression elements)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        List<String> functions;
+        List<SqlExpression> sqlExpressions;
         if (elements instanceof SqlCollectedValueExpression)
         {
             if (config.getDbType() == DbType.Oracle)
             {
                 SqlCollectedValueExpression expression = (SqlCollectedValueExpression) elements;
-                expression.setDelimiter("||");
+                List<Object> collection = new ArrayList<>(expression.getCollection());
+                functions = new ArrayList<>(collection.size() * 2);
+                sqlExpressions = new ArrayList<>(collection.size() * 2);
+                functions.add("(");
+                for (int i = 0; i < collection.size(); i++)
+                {
+                    sqlExpressions.add(factory.value(collection.get(i)));
+                    if (i < collection.size() - 1)
+                    {
+                        functions.add("||");
+                        sqlExpressions.add(delimiter);
+                        functions.add("||");
+                    }
+                }
+                functions.add(")");
+            }
+            else
+            {
+                functions = new ArrayList<>();
+                sqlExpressions = Arrays.asList(delimiter, elements);
             }
         }
         else
         {
             throw new DrinkException("String.join()的第二个参数必须是java中能获取到的");
         }
-        List<String> functions = new ArrayList<>();
-        List<SqlExpression> sqlExpressions = Arrays.asList(delimiter, elements);
         switch (config.getDbType())
         {
             case Oracle:
-                functions.add("(");
-                functions.add("||");
-                functions.add(")");
                 break;
             case MySQL:
             case SqlServer:

@@ -7,18 +7,20 @@ import io.github.kiryu1223.drink.core.expression.SqlQueryableExpression;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.exception.IllegalExpressionException;
+import io.github.kiryu1223.drink.core.visitor.methods.LogicExpression;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isBool;
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isGroupKey;
 
 public class SelectVisitor extends SqlVisitor
 {
     private final SqlQueryableExpression queryable;
+    private boolean useUnNameClass = false;
 
     public SelectVisitor(Config config, SqlQueryableExpression queryable)
     {
@@ -36,6 +38,7 @@ public class SelectVisitor extends SqlVisitor
         }
         else
         {
+            useUnNameClass = true;
             List<SqlExpression> expressions = new ArrayList<>();
             for (Expression expression : classBody.getExpressions())
             {
@@ -48,6 +51,7 @@ public class SelectVisitor extends SqlVisitor
                     if (init != null)
                     {
                         SqlExpression context = visit(variable.getInit());
+                        context = boxTheBool(variable.getInit(), context);
                         setAs(expressions, context, name);
                     }
                 }
@@ -56,7 +60,21 @@ public class SelectVisitor extends SqlVisitor
         }
     }
 
-//    @Override
+    @Override
+    public SqlExpression visit(MethodCallExpression methodCall)
+    {
+        SqlExpression visit = super.visit(methodCall);
+        if (useUnNameClass)
+        {
+            return visit;
+        }
+        else
+        {
+            return boxTheBool(methodCall, visit);
+        }
+    }
+
+    //    @Override
 //    public SqlExpression visit(BlockExpression blockExpression)
 //    {
 //        List<SqlExpression> expressions = new ArrayList<>();
@@ -155,5 +173,30 @@ public class SelectVisitor extends SqlVisitor
         {
             contexts.add(factory.as(expression, name));
         }
+    }
+
+    protected SqlExpression boxTheBool(Expression init, SqlExpression result)
+    {
+        if (init instanceof MethodCallExpression)
+        {
+            MethodCallExpression methodCall = (MethodCallExpression) init;
+            return boxTheBool(methodCall, result);
+        }
+        return result;
+    }
+
+    // 用于包装某些数据库不支持直接返回bool
+    protected SqlExpression boxTheBool(MethodCallExpression methodCall, SqlExpression result)
+    {
+        if (isBool(methodCall.getMethod().getReturnType()))
+        {
+            switch (config.getDbType())
+            {
+                case SqlServer:
+                case Oracle:
+                    return LogicExpression.IfExpression(config, result, factory.constString("1"), factory.constString("0"));
+            }
+        }
+        return result;
     }
 }

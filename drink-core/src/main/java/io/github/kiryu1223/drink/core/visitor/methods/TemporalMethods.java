@@ -12,36 +12,39 @@ public class TemporalMethods
     public static SqlExpression isAfter(Config config, SqlExpression thiz, SqlExpression that)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        switch (config.getDbType())
-        {
-            case SqlServer:
-                return factory.function(Arrays.asList("IIF((DATEDIFF_BIG(SECOND,", ",", ") <= 0),1,0)"), Arrays.asList(thiz, that));
-            default:
-                return factory.binary(SqlOperator.GT, thiz, that);
-        }
+        return factory.binary(SqlOperator.GT, thiz, that);
+//        switch (config.getDbType())
+//        {
+//            case SqlServer:
+//                return factory.function(Arrays.asList("IIF((DATEDIFF_BIG(SECOND,", ",", ") <= 0),1,0)"), Arrays.asList(thiz, that));
+//            default:
+//                return factory.binary(SqlOperator.GT, thiz, that);
+//        }
     }
 
     public static SqlExpression isBefore(Config config, SqlExpression thiz, SqlExpression that)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        switch (config.getDbType())
-        {
-            case SqlServer:
-                return factory.function(Arrays.asList("IIF((DATEDIFF_BIG(SECOND,", ",", ") >= 0),1,0)"), Arrays.asList(thiz, that));
-            default:
-                return factory.binary(SqlOperator.LT, thiz, that);
-        }
+        return factory.binary(SqlOperator.LT, thiz, that);
+//        switch (config.getDbType())
+//        {
+//            case SqlServer:
+//                return factory.function(Arrays.asList("IIF((DATEDIFF_BIG(SECOND,", ",", ") >= 0),1,0)"), Arrays.asList(thiz, that));
+//            default:
+//                return factory.binary(SqlOperator.LT, thiz, that);
+//        }
     }
 
     public static SqlExpression isEqual(Config config, SqlExpression thiz, SqlExpression that)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        switch (config.getDbType())
-        {
-            case SqlServer:
-                return factory.function(Arrays.asList("IIF((DATEDIFF_BIG(SECOND,", ",", ") = 0),1,0)"), Arrays.asList(thiz, that));
-            default:
-                return factory.binary(SqlOperator.EQ, thiz, that);
-        }
+        return factory.binary(SqlOperator.EQ, thiz, that);
+//        switch (config.getDbType())
+//        {
+//            case SqlServer:
+//                return factory.function(Arrays.asList("IIF((DATEDIFF_BIG(SECOND,", ",", ") = 0),1,0)"), Arrays.asList(thiz, that));
+//            default:
+//                return factory.binary(SqlOperator.EQ, thiz, that);
+//        }
     }
 }
