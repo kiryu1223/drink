@@ -12,13 +12,8 @@ import java.util.List;
 
 public class SqlServerIncludeFactory extends IncludeFactory
 {
-    public SqlServerIncludeFactory(Config config)
-    {
-        super(config);
-    }
-
     @Override
-    public <T> IncludeBuilder<T> getBuilder(SqlSession session, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, SqlQueryableExpression queryable)
+    public <T> IncludeBuilder<T> getBuilder(Config config,SqlSession session, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, SqlQueryableExpression queryable)
     {
         return new SqlServerIncludeBuilder<>(config, session, targetClass, sources, includes, queryable);
     }

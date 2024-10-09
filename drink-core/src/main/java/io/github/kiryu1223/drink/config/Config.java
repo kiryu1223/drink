@@ -1,19 +1,11 @@
 package io.github.kiryu1223.drink.config;
 
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
-import io.github.kiryu1223.drink.config.dialect.*;
+import io.github.kiryu1223.drink.config.dialect.IDialect;
 import io.github.kiryu1223.drink.core.builder.FastCreatorFactory;
 import io.github.kiryu1223.drink.core.builder.IncludeFactory;
-import io.github.kiryu1223.drink.core.builder.h2.H2IncludeFactory;
-import io.github.kiryu1223.drink.core.builder.mysql.MySqlIncludeFactory;
-import io.github.kiryu1223.drink.core.builder.oracle.OracleIncludeFactory;
-import io.github.kiryu1223.drink.core.builder.sqlserver.SqlServerIncludeFactory;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.ext.h2.H2ExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.ext.mysql.MySqlExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.ext.oracle.OracleExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.ext.sqlserver.SqlServerExpressionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.ext.DbType;
 
@@ -34,30 +26,34 @@ public class Config
         this.option = option;
         this.dbType = dbType;
         this.fastCreatorFactory = fastCreatorFactory;
-        switch (dbType)
-        {
-            case MySQL:
-                disambiguation = new MySQLDialect();
-                sqlExpressionFactory = new MySqlExpressionFactory(this);
-                includeFactory = new MySqlIncludeFactory(this);
-                break;
-            case SqlServer:
-                disambiguation = new SqlServerDialect();
-                sqlExpressionFactory = new SqlServerExpressionFactory(this);
-                includeFactory = new SqlServerIncludeFactory(this);
-                break;
-            case Oracle:
-                disambiguation = new OracleDialect();
-                sqlExpressionFactory = new OracleExpressionFactory(this);
-                includeFactory = new OracleIncludeFactory(this);
-                break;
-            case H2:
-            default:
-                disambiguation = new DefaultDialect();
-                sqlExpressionFactory = new H2ExpressionFactory(this);
-                includeFactory = new H2IncludeFactory(this);
-                break;
-        }
+
+        this.disambiguation = dbType.getDialect();
+        this.sqlExpressionFactory = dbType.getSqlExpressionFactory();
+        this.includeFactory = dbType.getIncludeFactory();
+//        switch (dbType)
+//        {
+//            case MySQL:
+//                disambiguation = new MySQLDialect();
+//                sqlExpressionFactory = new MySqlExpressionFactory();
+//                includeFactory = new MySqlIncludeFactory();
+//                break;
+//            case SqlServer:
+//                disambiguation = new SqlServerDialect();
+//                sqlExpressionFactory = new SqlServerExpressionFactory();
+//                includeFactory = new SqlServerIncludeFactory();
+//                break;
+//            case Oracle:
+//                disambiguation = new OracleDialect();
+//                sqlExpressionFactory = new OracleExpressionFactory();
+//                includeFactory = new OracleIncludeFactory();
+//                break;
+//            case H2:
+//            default:
+//                disambiguation = new DefaultDialect();
+//                sqlExpressionFactory = new H2ExpressionFactory();
+//                includeFactory = new H2IncludeFactory();
+//                break;
+//        }
         this.transactionManager = transactionManager;
         this.dataSourceManager = dataSourceManager;
         this.sqlSessionFactory = sqlSessionFactory;

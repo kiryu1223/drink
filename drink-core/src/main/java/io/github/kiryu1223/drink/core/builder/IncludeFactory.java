@@ -9,12 +9,5 @@ import java.util.List;
 
 public abstract class IncludeFactory
 {
-    protected final Config config;
-
-    protected IncludeFactory(Config config)
-    {
-        this.config = config;
-    }
-
-    public abstract  <T> IncludeBuilder<T> getBuilder(SqlSession session, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, SqlQueryableExpression queryable);
+    public abstract  <T> IncludeBuilder<T> getBuilder(Config config,SqlSession session, Class<T> targetClass, Collection<T> sources, List<IncludeSet> includes, SqlQueryableExpression queryable);
 }

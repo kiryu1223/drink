@@ -12,6 +12,11 @@ import java.util.List;
 
 public class MySqlDateTimeDiffExtension extends BaseSqlExtension
 {
+//    static
+//    {
+//        new MySqlDateTimeDiffExtension();
+//    }
+
     @Override
     public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
     {

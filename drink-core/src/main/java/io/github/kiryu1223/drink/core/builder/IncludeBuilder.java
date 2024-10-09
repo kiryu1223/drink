@@ -438,7 +438,7 @@ public class IncludeBuilder<T>
         if (!include.getIncludeSets().isEmpty())
         {
             IncludeFactory includeFactory = config.getIncludeFactory();
-            includeFactory.getBuilder(session, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
+            includeFactory.getBuilder(config, session, cast(navigateTargetType), sources, include.getIncludeSets(), main).include();
         }
     }
 
@@ -448,7 +448,7 @@ public class IncludeBuilder<T>
         {
             List<Object> collect = sources.stream().flatMap(o -> o.stream()).collect(Collectors.toList());
             IncludeFactory includeFactory = config.getIncludeFactory();
-            includeFactory.getBuilder(session, cast(navigateTargetType), collect, include.getIncludeSets(), main).include();
+            includeFactory.getBuilder(config, session, cast(navigateTargetType), collect, include.getIncludeSets(), main).include();
         }
     }
 

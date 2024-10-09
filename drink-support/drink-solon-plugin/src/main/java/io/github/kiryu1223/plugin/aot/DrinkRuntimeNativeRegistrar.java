@@ -56,13 +56,13 @@ public class DrinkRuntimeNativeRegistrar implements RuntimeNativeRegistrar
         metadata.registerReflection(SqlAggregation9.class, MemberCategory.INTROSPECT_PUBLIC_METHODS);
         metadata.registerReflection(SqlAggregation10.class, MemberCategory.INTROSPECT_PUBLIC_METHODS);
         //表达式扩展
-        registerExtension(metadata, Arrays.asList(
-                MySqlDateTimeDiffExtension.class,
-                OracleAddOrSubDateExtension.class,
-                OracleCastExtension.class,
-                OracleDateTimeDiffExtension.class,
-                OracleJoinExtension.class
-        ));
+//        registerExtension(metadata, Arrays.asList(
+//                MySqlDateTimeDiffExtension.class,
+//                OracleAddOrSubDateExtension.class,
+//                OracleCastExtension.class,
+//                OracleDateTimeDiffExtension.class,
+//                OracleJoinExtension.class
+//        ));
         //sql类型
         registerSqlType(metadata, Arrays.asList(
                 Char.class,
@@ -70,13 +70,13 @@ public class DrinkRuntimeNativeRegistrar implements RuntimeNativeRegistrar
         ));
     }
 
-    private void registerExtension(RuntimeNativeMetadata metadata, List<Class<? extends BaseSqlExtension>> extensions)
-    {
-        for (Class<? extends BaseSqlExtension> extension : extensions)
-        {
-            metadata.registerReflection(extension, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS);
-        }
-    }
+//    private void registerExtension(RuntimeNativeMetadata metadata, List<Class<? extends BaseSqlExtension>> extensions)
+//    {
+//        for (Class<? extends BaseSqlExtension> extension : extensions)
+//        {
+//            metadata.registerReflection(extension, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS);
+//        }
+//    }
 
     private void registerSqlType(RuntimeNativeMetadata metadata, List<Class<? extends SqlTypes<?>>> sqlTypes)
     {

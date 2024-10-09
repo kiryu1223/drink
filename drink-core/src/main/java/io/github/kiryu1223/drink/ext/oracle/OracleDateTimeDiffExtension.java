@@ -12,6 +12,11 @@ import java.util.List;
 
 public class OracleDateTimeDiffExtension extends BaseSqlExtension
 {
+//    static
+//    {
+//        new OracleDateTimeDiffExtension();
+//    }
+
     @Override
     public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
     {

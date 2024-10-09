@@ -125,7 +125,7 @@ public abstract class QueryBase extends CRUD
             try
             {
                 IncludeFactory includeFactory = config.getIncludeFactory();
-                includeFactory.getBuilder(session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
+                includeFactory.getBuilder(getConfig(),session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
             }
             catch (InvocationTargetException | IllegalAccessException e)
             {

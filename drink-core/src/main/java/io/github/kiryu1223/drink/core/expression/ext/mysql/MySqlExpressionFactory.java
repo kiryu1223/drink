@@ -6,11 +6,6 @@ import io.github.kiryu1223.drink.core.expression.SqlTypeExpression;
 
 public class MySqlExpressionFactory extends SqlExpressionFactory
 {
-    public MySqlExpressionFactory(Config config)
-    {
-        super(config);
-    }
-
     @Override
     public SqlTypeExpression type(Class<?> c)
     {

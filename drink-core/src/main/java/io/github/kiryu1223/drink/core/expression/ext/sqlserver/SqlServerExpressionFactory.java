@@ -5,11 +5,6 @@ import io.github.kiryu1223.drink.core.expression.*;
 
 public class SqlServerExpressionFactory extends SqlExpressionFactory
 {
-    public SqlServerExpressionFactory(Config config)
-    {
-        super(config);
-    }
-
     @Override
     public SqlTypeExpression type(Class<?> c)
     {

@@ -8,6 +8,8 @@ import io.github.kiryu1223.drink.ext.oracle.OracleAddOrSubDateExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleCastExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleDateTimeDiffExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleJoinExtension;
+import io.github.kiryu1223.drink.ext.sqlite.SqliteAddOrSubDateExtension;
+import io.github.kiryu1223.drink.ext.sqlite.SqliteDateTimeDiffExtension;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
 
 import java.math.BigDecimal;
@@ -90,6 +92,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "NOW()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GETDATE()")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATETIME('now','localtime')")
     public static LocalDateTime now()
     {
         boom();
@@ -100,6 +103,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "NOW({precision})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GETDATE()")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATETIME('now','localtime')")
     public static LocalDateTime now(int precision)
     {
         boom();
@@ -110,6 +114,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "UTC_TIMESTAMP()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST(SYS_EXTRACT_UTC(CURRENT_TIMESTAMP) AS DATE)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GETUTCDATE()")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATETIME('now')")
     public static LocalDateTime utcNow()
     {
         boom();
@@ -130,6 +135,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SYSDATE()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SYSDATE")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SYSDATETIME()")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATETIME('now','localtime')")
     public static LocalDateTime systemNow()
     {
         boom();
@@ -140,6 +146,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CURDATE()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CURRENT_DATE")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST(GETDATE() AS DATE)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATE('now','localtime')")
     public static LocalDate nowDate()
     {
         boom();
@@ -150,6 +157,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CURTIME()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CURRENT_DATE")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST(GETDATE() AS TIME)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "TIME('now','localtime')")
     public static LocalTime nowTime()
     {
         boom();
@@ -160,6 +168,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "UTC_DATE()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST(SYS_EXTRACT_UTC(CURRENT_TIMESTAMP) AS DATE)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST(GETUTCDATE() AS DATE)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATE('now')")
     public static LocalDate utcNowDate()
     {
         boom();
@@ -170,6 +179,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "UTC_TIME()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST(SYS_EXTRACT_UTC(CURRENT_TIMESTAMP) AS DATE)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST(GETUTCDATE() AS TIME)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "TIME('now')")
     public static LocalTime utcNowTime()
     {
         boom();
@@ -288,6 +298,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},{num},{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDateTime addDate(LocalDateTime time, SqlTimeUnit unit, int num)
     {
         boom();
@@ -298,6 +309,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},{num},{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDate addDate(LocalDate time, SqlTimeUnit unit, int num)
     {
         boom();
@@ -308,6 +320,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,{days},{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDateTime addDate(LocalDateTime time, int days)
     {
         boom();
@@ -318,6 +331,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,{days},{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDate addDate(LocalDate time, int days)
     {
         boom();
@@ -328,6 +342,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},-({num}),{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDateTime subDate(LocalDateTime time, SqlTimeUnit unit, int num)
     {
         boom();
@@ -336,8 +351,9 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - INTERVAL '{num}' {unit})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD({unit},-({num}),{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDate subDate(LocalDate time, SqlTimeUnit unit, int num)
     {
         boom();
@@ -348,6 +364,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,-({days}),{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDateTime subDate(LocalDateTime time, int days)
     {
         boom();
@@ -358,6 +375,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEADD(DAY,-({days}),{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteAddOrSubDateExtension.class)
     public static LocalDate subDate(LocalDate time, int days)
     {
         boom();
@@ -366,8 +384,9 @@ public class SqlFunctions
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "TIMESTAMPDIFF({unit},{t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
-    @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDateTime t2)
     {
         boom();
@@ -378,6 +397,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, LocalDate t2)
     {
         boom();
@@ -388,6 +408,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime t1, String t2)
     {
         boom();
@@ -398,6 +419,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, LocalDate t2)
     {
         boom();
@@ -408,6 +430,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, LocalDateTime t2)
     {
         boom();
@@ -418,6 +441,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate t1, String t2)
     {
         boom();
@@ -428,6 +452,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, String t1, String t2)
     {
         boom();
@@ -438,6 +463,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, String t1, LocalDate t2)
     {
         boom();
@@ -448,6 +474,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, extension = OracleDateTimeDiffExtension.class, function = "")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEDIFF_BIG({unit},{t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, String t1, LocalDateTime t2)
     {
         boom();
@@ -800,6 +827,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
     public static int getDay(LocalDateTime time)
     {
         boom();
@@ -810,6 +838,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
     public static int getDay(LocalDate time)
     {
         boom();
@@ -820,6 +849,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(DAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
     public static int getDay(String time)
     {
         boom();
@@ -830,6 +860,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYNAME({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'DAY')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATENAME(WEEKDAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
     public static String getDayName(LocalDateTime time)
     {
         boom();
@@ -840,6 +871,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYNAME({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'DAY')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATENAME(WEEKDAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
     public static String getDayName(LocalDate time)
     {
         boom();
@@ -850,6 +882,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYNAME({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'DAY')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATENAME(WEEKDAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
     public static String getDayName(String time)
     {
         boom();
@@ -860,6 +893,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEPART(WEEKDAY,{time}))")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%w',{time}) + 1)")
     public static int getDayOfWeek(LocalDateTime time)
     {
         boom();
@@ -870,6 +904,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATEPART(WEEKDAY,{time}))")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%w',{time}) + 1)")
     public static int getDayOfWeek(LocalDate time)
     {
         boom();
@@ -880,6 +915,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(WEEKDAY,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%w',{time}) + 1)")
     public static int getDayOfWeek(String time)
     {
         boom();
@@ -1132,6 +1168,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTH({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MINUTE,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
     public static int getMonth(LocalDate time)
     {
         boom();
@@ -1142,6 +1179,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTH({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MONTH,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
     public static int getMonth(LocalDateTime time)
     {
         boom();
@@ -1152,6 +1190,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTH({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(MONTH,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
     public static int getMonth(String time)
     {
         boom();
@@ -1162,6 +1201,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTHNAME({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'FMMONTH')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time}, 'MMMM')")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
     public static String getMonthName(LocalDate time)
     {
         boom();
@@ -1172,6 +1212,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTHNAME({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'FMMONTH')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time}, 'MMMM')")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
     public static String getMonthName(LocalDateTime time)
     {
         boom();
@@ -1182,6 +1223,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MONTHNAME({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'FMMONTH')")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT(CONVERT(DATE,{time}), 'MMMM')")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
     public static String getMonthName(String time)
     {
         boom();
@@ -1620,6 +1662,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "YEAR({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(YEAR,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
     public static int getYear(LocalDateTime time)
     {
         boom();
@@ -1630,6 +1673,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "YEAR({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(YEAR,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
     public static int getYear(LocalTime time)
     {
         boom();
@@ -1640,6 +1684,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "YEAR({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATEPART(YEAR,{time})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
     public static int getYear(String time)
     {
         boom();
@@ -2341,6 +2386,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "IF({condition},{truePart},{falsePart})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE WHEN {condition} THEN {truePart} ELSE {falsePart} END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "IIF({condition},{truePart},{falsePart})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "IIF({condition},{truePart},{falsePart})")
     public static <T> T If(boolean condition, T truePart, T falsePart)
     {
         boom();
@@ -2351,6 +2397,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "IFNULL({valueNotNull},{valueIsNull})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "NVL({valueNotNull},{valueIsNull})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ISNULL({valueNotNull},{valueIsNull})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "IFNULL({valueNotNull},{valueIsNull})")
     public static <T> T ifNull(T valueNotNull, T valueIsNull)
     {
         boom();
@@ -2361,6 +2408,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "NULLIF({t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "NULLIF({t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "NULLIF({t1},{t2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "NULLIF({t1},{t2})")
     public static <T> T nullIf(T t1, T t2)
     {
         boom();
@@ -2371,6 +2419,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleCastExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST({value} AS {targetType})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST({value} AS {targetType})")
     public static <T> T cast(Object value, Class<T> targetType)
     {
         boom();
@@ -2381,6 +2430,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CAST({value} AS {targetType})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST({value} AS {targetType})")
     public static <T> T cast(Object value, SqlTypes<T> targetType)
     {
         boom();

@@ -12,13 +12,6 @@ import java.util.List;
 
 public abstract class SqlExpressionFactory
 {
-    protected final Config config;
-
-    public SqlExpressionFactory(Config config)
-    {
-        this.config = config;
-    }
-
     public SqlAsExpression as(SqlExpression expression, String asName)
     {
         return new SqlAsExpression(expression, asName);
@@ -226,13 +219,13 @@ public abstract class SqlExpressionFactory
 
     private List<SqlExpression> getColumnByClass(Class<?> target)
     {
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        //SqlExpressionFactory factory = config.getSqlExpressionFactory();
         MetaData metaData = MetaDataCache.getMetaData(target);
         List<PropertyMetaData> property = metaData.getNotIgnorePropertys();
         List<SqlExpression> columns = new ArrayList<>(property.size());
         for (PropertyMetaData data : property)
         {
-            columns.add(factory.column(data, 0));
+            columns.add(column(data, 0));
         }
         return columns;
     }

@@ -9,6 +9,11 @@ import java.util.List;
 
 public class OracleJoinExtension extends BaseSqlExtension
 {
+//    static
+//    {
+//        new OracleJoinExtension();
+//    }
+
     @Override
     public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
     {

@@ -10,6 +10,11 @@ import java.util.List;
 
 public class OracleCastExtension extends BaseSqlExtension
 {
+//    static
+//    {
+//        new OracleCastExtension();
+//    }
+
     @Override
     public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
     {

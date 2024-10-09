@@ -5,10 +5,6 @@ import io.github.kiryu1223.drink.core.expression.*;
 
 public class OracleExpressionFactory extends SqlExpressionFactory
 {
-    public OracleExpressionFactory(Config config)
-    {
-        super(config);
-    }
 
     @Override
     public SqlFromExpression from(SqlTableExpression sqlTable, int index)
