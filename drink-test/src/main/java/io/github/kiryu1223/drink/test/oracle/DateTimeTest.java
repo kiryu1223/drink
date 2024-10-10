@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
 
@@ -61,7 +62,7 @@ public class DateTimeTest extends BaseTest
     @Test
     public void addDateTest()
     {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         LocalDateTime nextDay = client.queryEmptyTable()
                 .endSelect(() -> addDate(now, 1))
                 .first();
@@ -78,7 +79,7 @@ public class DateTimeTest extends BaseTest
     @Test
     public void subDateTest()
     {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         LocalDateTime subDay = client.queryEmptyTable()
                 .endSelect(() -> subDate(now, 1))
                 .first();
