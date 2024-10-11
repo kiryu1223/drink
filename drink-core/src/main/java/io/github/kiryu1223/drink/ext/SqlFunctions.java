@@ -10,6 +10,7 @@ import io.github.kiryu1223.drink.ext.oracle.OracleDateTimeDiffExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleJoinExtension;
 import io.github.kiryu1223.drink.ext.sqlite.SqliteAddOrSubDateExtension;
 import io.github.kiryu1223.drink.ext.sqlite.SqliteDateTimeDiffExtension;
+import io.github.kiryu1223.drink.ext.sqlite.SqliteJoinExtension;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
 
 import java.math.BigDecimal;
@@ -2066,6 +2067,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "(CHAR_LENGTH({str}) = 0)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(NVL(LENGTH({str}),0) = 0)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(DATALENGTH({str}) = 0)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(LENGTH({str}) = 0)")
     public static boolean isEmpty(String str)
     {
         boom();
@@ -2076,6 +2078,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ASCII({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ASCII({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ASCII({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "UNICODE({str})")
     public static int strToAscii(String str)
     {
         boom();
@@ -2086,6 +2089,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CHAR_LENGTH({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "NVL(LENGTH({str}),0)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LEN({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LENGTH({str})")
     public static int length(String str)
     {
         boom();
@@ -2096,6 +2100,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONCAT({s1},{s2})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CONCAT({s1},{s2})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONCAT({s1},{s2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "({s1}||{s2})")
     public static String concat(String s1, String s2)
     {
         boom();
@@ -2106,6 +2111,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONCAT({s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "({s1}||{s2}||{ss})", separator = "||")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONCAT({s1},{s2},{ss})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "({s1}||{s2}||{ss})", separator = "||")
     public static String concat(String s1, String s2, String... ss)
     {
         boom();
@@ -2116,6 +2122,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONCAT_WS({separator},{s1},{s2})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "({s1}||{separator}||{s2})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONCAT_WS({separator},{s1},{s2})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "({s1}||{separator}||{s2})")
     public static String join(String separator, String s1, String s2)
     {
         boom();
@@ -2126,6 +2133,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CONCAT_WS({separator},{s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "", extension = OracleJoinExtension.class)
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CONCAT_WS({separator},{s1},{s2},{ss})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "", extension = SqliteJoinExtension.class)
     public static String join(String separator, String s1, String s2, String... ss)
     {
         boom();
@@ -2136,6 +2144,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CHAR({t})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CHR({t})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHAR({t})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CHAR({t})")
     public static String asciiToStr(int t)
     {
         boom();
@@ -2182,6 +2191,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "INSTR({str},{subStr})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHARINDEX({subStr},{str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "INSTR({str},{subStr})")
     public static int indexOf(String str, String subStr)
     {
         boom();
@@ -2192,6 +2202,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOCATE({subStr},{str},{offset})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "INSTR({str},{subStr},{offset})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CHARINDEX({subStr},{str},{offset})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(INSTR(SUBSTR({str},{offset} + 1),{subStr}) + {offset})")
     public static int indexOf(String str, String subStr, int offset)
     {
         boom();
@@ -2202,6 +2213,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOWER({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOWER({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOWER({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LOWER({str})")
     public static String toLowerCase(String str)
     {
         boom();
@@ -2212,6 +2224,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LEFT({str},{length})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},1,{length})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LEFT({str},{length})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "SUBSTR({str},1,{length})")
     public static String left(String str, int length)
     {
         boom();
@@ -2222,6 +2235,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LENGTH({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LENGTHB({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DATALENGTH({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LENGTH(CAST({str} AS BLOB))")
     public static int byteLength(String str)
     {
         boom();
@@ -2232,6 +2246,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LPAD({str},{length},{lpadStr})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LPAD({str},{length},{lpadStr})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "IIF({length} - LEN({str}) <= 0,{str},CONCAT(REPLICATE({lpadStr},{length} - LEN({str})),{str}))")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "IIF({length} - LENGTH({str}) <= 0,{str},(REPLICATE({lpadStr},{length} - LENGTH({str}))||{str}))")
     public static String leftPad(String str, int length, String lpadStr)
     {
         boom();
@@ -2242,6 +2257,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LTRIM({str})")
     public static String trimStart(String str)
     {
         boom();
@@ -2280,6 +2296,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "REPLACE({cur},{subs},{news})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "REPLACE({cur},{subs},{news})")
     public static String replace(String cur, String subs, String news)
     {
         boom();
@@ -2290,6 +2307,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "REVERSE({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "REVERSE({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "REVERSE({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "REVERSE({str})")
     public static String reverse(String str)
     {
         boom();
@@ -2300,6 +2318,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RIGHT({str},{length})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},LENGTH({str}) - ({length} - 1),{length})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "RIGHT({str},{length})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "SUBSTR({str},LENGTH({str}) - ({length} - 1),{length})")
     public static String right(String str, int length)
     {
         boom();
@@ -2310,6 +2329,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RPAD({str},{length},{rpadStr})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "RPAD({str},{length},{rpadStr})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "IIF({length} - LEN({str}) <= 0,{str},CONCAT({str},REPLICATE({rpadStr},{length} - LEN({str}))))")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "IIF({length} - LENGTH({str}) <= 0,{str},({str}||REPLICATE({rpadStr},{length} - LENGTH({str}))))")
     public static String rightPad(String str, int length, String rpadStr)
     {
         boom();
@@ -2320,6 +2340,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "RTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "RTRIM({str})")
     public static String trimEnd(String str)
     {
         boom();
@@ -2338,6 +2359,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "STRCMP({s1},{s2})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     public static int compare(String s1, String s2)
     {
         boom();
@@ -2348,6 +2370,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{beginIndex})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{beginIndex})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SUBSTRING({str},{beginIndex},LEN({str}) - ({beginIndex} - 1))")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "SUBSTR({str},{beginIndex})")
     public static String subString(String str, int beginIndex)
     {
         boom();
@@ -2358,6 +2381,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBSTR({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SUBSTRING({str},{beginIndex},{endIndex})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "SUBSTR({str},{beginIndex},{endIndex})")
     public static String subString(String str, int beginIndex, int endIndex)
     {
         boom();
@@ -2376,6 +2400,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TRIM({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRIM({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "TRIM({str})")
     public static String trim(String str)
     {
         boom();
@@ -2386,6 +2411,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "UPPER({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "UPPER({str})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "UPPER({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "UPPER({str})")
     public static String toUpperCase(String str)
     {
         boom();
