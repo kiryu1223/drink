@@ -130,4 +130,66 @@ public class ExpressionUtil
     {
         return type == boolean.class || type == Boolean.class;
     }
+
+    public static boolean isChar(Class<?> type)
+    {
+        return type == char.class || type == Character.class;
+    }
+
+    public static boolean isByte(Class<?> type)
+    {
+        return type == byte.class || type == Byte.class;
+    }
+
+    public static boolean isShort(Class<?> type)
+    {
+        return type == short.class || type == Short.class;
+    }
+
+    public static Class<?> upperClass(Class<?> c)
+    {
+        if (c.isPrimitive())
+        {
+            if (c == Character.TYPE)
+            {
+                return Character.class;
+            }
+            if (c == Byte.TYPE)
+            {
+                return Byte.class;
+            }
+            else if (c == Short.TYPE)
+            {
+                return Short.class;
+            }
+            else if (c == Integer.TYPE)
+            {
+                return Integer.class;
+            }
+            else if (c == Long.TYPE)
+            {
+                return Long.class;
+            }
+            else if (c == Float.TYPE)
+            {
+                return Float.class;
+            }
+            else if (c == Double.TYPE)
+            {
+                return Double.class;
+            }
+            else if (c == Boolean.TYPE)
+            {
+                return Boolean.class;
+            }
+            else
+            {
+                return Void.class;
+            }
+        }
+        else
+        {
+            return c;
+        }
+    }
 }

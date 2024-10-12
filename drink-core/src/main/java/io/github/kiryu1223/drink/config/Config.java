@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.config;
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.dialect.IDialect;
 import io.github.kiryu1223.drink.core.builder.FastCreatorFactory;
+import io.github.kiryu1223.drink.core.builder.IResultSetValueGetter;
 import io.github.kiryu1223.drink.core.builder.IncludeFactory;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
@@ -20,6 +21,7 @@ public class Config
     private final SqlExpressionFactory sqlExpressionFactory;
     private final IncludeFactory includeFactory;
     private final FastCreatorFactory fastCreatorFactory;
+    private final IResultSetValueGetter valueGetter;
 
     public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, FastCreatorFactory fastCreatorFactory)
     {
@@ -30,6 +32,7 @@ public class Config
         this.disambiguation = dbType.getDialect();
         this.sqlExpressionFactory = dbType.getSqlExpressionFactory();
         this.includeFactory = dbType.getIncludeFactory();
+        this.valueGetter = dbType.getValueGetter();
 //        switch (dbType)
 //        {
 //            case MySQL:
@@ -122,5 +125,10 @@ public class Config
     public FastCreatorFactory getFastCreatorFactory()
     {
         return fastCreatorFactory;
+    }
+
+    public IResultSetValueGetter getValueGetter()
+    {
+        return valueGetter;
     }
 }

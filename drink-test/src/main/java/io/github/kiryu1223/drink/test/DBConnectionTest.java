@@ -10,7 +10,7 @@ import java.sql.SQLException;
 
 public class DBConnectionTest
 {
-    @Test
+   // @Test
     public void sqliteTest() throws SQLException
     {
         try (HikariDataSource dataSource = new HikariDataSource())

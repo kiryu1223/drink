@@ -11,9 +11,6 @@ import java.util.List;
 
 public class MathMethods
 {
-//    {
-//        Math.class.getMethod("", double.class);
-//    }
 
     public static SqlFunctionExpression atan2(Config config, SqlExpression arg1, SqlExpression arg2)
     {

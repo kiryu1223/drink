@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.upperClass;
+
 public class ObjectBuilder<T>
 {
     private final ResultSet resultSet;
@@ -20,10 +22,11 @@ public class ObjectBuilder<T>
     private final List<PropertyMetaData> propertyMetaDataList;
     private final boolean isSingle;
     private final Config config;
+    private final IResultSetValueGetter valueGetter;
 
-    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle,Config config)
+    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle, Config config)
     {
-        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle,config);
+        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle, config);
     }
 
     private ObjectBuilder(ResultSet resultSet, Class<T> target, List<PropertyMetaData> propertyMetaDataList, boolean isSingle, Config config)
@@ -32,7 +35,8 @@ public class ObjectBuilder<T>
         this.target = target;
         this.propertyMetaDataList = propertyMetaDataList;
         this.isSingle = isSingle;
-        this.config=config;
+        this.config = config;
+        this.valueGetter = config.getValueGetter();
     }
 
     public <Key> Map<Key, T> createMap(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
@@ -146,7 +150,7 @@ public class ObjectBuilder<T>
         List<T> list = new ArrayList<>();
         while (resultSet.next())
         {
-            T t = defConvertValue();
+            T t = (T) valueGetter.getFirstValue(resultSet, target);
             list.add(t);
         }
         return list;
@@ -172,95 +176,42 @@ public class ObjectBuilder<T>
 
     private Object convertValue(PropertyMetaData metaData) throws SQLException, NoSuchFieldException, IllegalAccessException
     {
-        if (!metaData.hasConverter())
+        String column = metaData.getColumn();
+        Class<?> type;
+        if (metaData.hasConverter())
         {
-            Class<?> type = metaData.getType();
-            if (type.isEnum())
-            {
-                String Enum = resultSet.getString(metaData.getColumn());
-                return type.getField(Enum).get(null);
-            }
-            else if (type == char.class || type == Character.class)
-            {
-                String result = resultSet.getString(metaData.getColumn());
-                return (result != null && !result.isEmpty()) ? result.charAt(0) : null;
-            }
-            else
-            {
-                return resultSet.getObject(metaData.getColumn(), upperClass(type));
-            }
+            type = metaData.getConverter().getDbType();
+            Object value = valueGetter.getValueByName(resultSet, column, type);
+            IConverter<?, ?> converter = metaData.getConverter();
+            return converter.toJava(cast(value), metaData);
         }
         else
         {
-            IConverter<?, ?> converter = metaData.getConverter();
-            Object temp = resultSet.getObject(metaData.getColumn(), converter.getDbType());
-            return converter.toJava(cast(temp), metaData);
+            type = metaData.getType();
+            return valueGetter.getValueByName(resultSet, column, type);
         }
     }
 
-    private T defConvertValue() throws SQLException, NoSuchFieldException, IllegalAccessException
-    {
-        if (target.isEnum())
-        {
-            String Enum = resultSet.getString(1);
-            return (T) target.getField(Enum).get(null);
-        }
-        else if (target == Character.class)
-        {
-            String result = resultSet.getString(1);
-            return (result != null && !result.isEmpty()) ? cast(result.charAt(0)) : null;
-        }
-        else
-        {
-            return resultSet.getObject(1, target);
-        }
-    }
+//    private T defConvertValue() throws SQLException, NoSuchFieldException, IllegalAccessException
+//    {
+//        if (target.isEnum())
+//        {
+//            String Enum = resultSet.getString(1);
+//            return (T) target.getField(Enum).get(null);
+//        }
+//        else if (target == Character.class)
+//        {
+//            String result = resultSet.getString(1);
+//            return (result != null && !result.isEmpty()) ? cast(result.charAt(0)) : null;
+//        }
+//        else
+//        {
+//            return resultSet.getObject(1, target);
+//        }
+//    }
 
     private <R> R cast(Object o)
     {
         return (R) o;
-    }
-
-    private Class<?> upperClass(Class<?> c)
-    {
-        if (c.isPrimitive())
-        {
-            if (c == Byte.TYPE)
-            {
-                return Byte.class;
-            }
-            else if (c == Short.TYPE)
-            {
-                return Short.class;
-            }
-            else if (c == Integer.TYPE)
-            {
-                return Integer.class;
-            }
-            else if (c == Long.TYPE)
-            {
-                return Long.class;
-            }
-            else if (c == Float.TYPE)
-            {
-                return Float.class;
-            }
-            else if (c == Double.TYPE)
-            {
-                return Double.class;
-            }
-            else if (c == Boolean.TYPE)
-            {
-                return Boolean.class;
-            }
-            else
-            {
-                return Void.class;
-            }
-        }
-        else
-        {
-            return c;
-        }
     }
 }

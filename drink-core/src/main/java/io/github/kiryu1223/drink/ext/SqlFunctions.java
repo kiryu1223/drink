@@ -798,6 +798,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DATE_FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},{format})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time},{format})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "STRFTIME({format},{time})")
     public static String dateFormat(LocalDateTime time, String format)
     {
         boom();
@@ -808,6 +809,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DATE_FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},{format})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time},{format})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "STRFTIME({format},{time})")
     public static String dateFormat(LocalDate time, String format)
     {
         boom();
@@ -818,6 +820,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DATE_FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},{format})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({time},{format})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "STRFTIME({format},{time})")
     public static String dateFormat(String time, String format)
     {
         boom();
@@ -1731,6 +1734,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ABS({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ABS({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ABS({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ABS({a})")
     public static <T extends Number> T abs(T a)
     {
         boom();
@@ -1741,6 +1745,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "COS({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "COS({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "COS({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "COS({a})")
     public static <T extends Number> double cos(T a)
     {
         boom();
@@ -1751,6 +1756,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SIN({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SIN({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SIN({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "SIN({a})")
     public static <T extends Number> double sin(T a)
     {
         boom();
@@ -1761,6 +1767,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TAN({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TAN({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "TAN({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "TAN({a})")
     public static <T extends Number> double tan(T a)
     {
         boom();
@@ -1771,6 +1778,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ACOS({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ACOS({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ACOS({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ACOS({a})")
     public static <T extends Number> double acos(T a)
     {
         boom();
@@ -1781,6 +1789,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ASIN({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ASIN({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ASIN({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ASIN({a})")
     public static <T extends Number> double asin(T a)
     {
         boom();
@@ -1791,6 +1800,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ATAN({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ATAN({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ATAN({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ATAN({a})")
     public static <T extends Number> double atan(T a)
     {
         boom();
@@ -1801,6 +1811,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ATAN2({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ATAN2({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ATN2({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ATAN2({a},{b})")
     public static <T extends Number> double atan2(T a, T b)
     {
         boom();
@@ -1811,6 +1822,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "CEIL({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CEIL({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "CEILING({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CEIL({a})")
     public static <T extends Number> int ceil(T a)
     {
         boom();
@@ -1821,6 +1833,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "COT({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE SIN({a}) WHEN 0 THEN 0 ELSE COS({a}) / SIN({a}) END)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "COT({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "COT({a})")
     public static <T extends Number> double cot(T a)
     {
         boom();
@@ -1831,6 +1844,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "DEGREES({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * 180 / " + Math.PI + ")")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "DEGREES({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DEGREES({a})")
     public static <T extends Number> double degrees(T a)
     {
         boom();
@@ -1841,6 +1855,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "EXP({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXP({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "EXP({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "EXP({a})")
     public static <T extends Number> double exp(T a)
     {
         boom();
@@ -1851,6 +1866,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "FLOOR({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "FLOOR({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FLOOR({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "FLOOR({a})")
     public static <T extends Number> int floor(T a)
     {
         boom();
@@ -1861,6 +1877,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "GREATEST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "GREATEST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GREATEST({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "MAX({a},{b})")
     public static <T extends Number> T big(T a, T b)
     {
         boom();
@@ -1872,6 +1889,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "GREATEST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "GREATEST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "GREATEST({a},{b},{cs})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "MAX({a},{b},{cs})")
     public static <T extends Number> T big(T a, T b, T... cs)
     {
         boom();
@@ -1882,6 +1900,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LEAST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LEAST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LEAST({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "MIN({a},{b})")
     public static <T extends Number> T small(T a, T b)
     {
         boom();
@@ -1893,6 +1912,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LEAST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LEAST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LEAST({a},{b},{cs})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "MIN({a},{b},{cs})")
     public static <T extends Number> T small(T a, T b, T... cs)
     {
         boom();
@@ -1903,6 +1923,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LN({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LN({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOG({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LN({a})")
     public static <T extends Number> double ln(T a)
     {
         boom();
@@ -1913,6 +1934,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOG({base},{a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG({base},{a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOG({a},{base})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LOG({base},{a})")
     public static <T extends Number, B extends Number> double log(T a, B base)
     {
         boom();
@@ -1923,6 +1945,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOG2({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG(2,{a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOG({a},2)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LOG2({a})")
     public static <T extends Number> double log2(T a)
     {
         boom();
@@ -1933,6 +1956,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LOG10({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG(10,{a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "LOG({a},10)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "LOG10({a})")
     public static <T extends Number> double log10(T a)
     {
         boom();
@@ -1943,6 +1967,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "MOD({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "MOD({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "({a} % {b})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "MOD({a},{b})")
     public static <T extends Number> T mod(T a, T b)
     {
         boom();
@@ -1953,6 +1978,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "PI()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(" + Math.PI + ")")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "PI()")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "PI()")
     public static double pi()
     {
         boom();
@@ -1963,6 +1989,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "POWER({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "POWER({a},{b})")
     public static <T extends Number> double pow(T a, T b)
     {
         boom();
@@ -1973,6 +2000,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RADIANS({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * " + Math.PI + " / 180)")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "RADIANS({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "RADIANS({a})")
     public static <T extends Number> double radians(T a)
     {
         boom();
@@ -1983,6 +2011,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RAND()")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "DBMS_RANDOM.VALUE")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "RAND()")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ABS(RANDOM() / 10000000000000000000.0)")
     public static double random()
     {
         boom();
@@ -1993,6 +2022,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "RAND({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "DBMS_RANDOM.VALUE")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "RAND({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ABS(RANDOM() / 10000000000000000000.0)")
     public static double random(int a)
     {
         boom();
@@ -2003,6 +2033,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ROUND({a},0)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ROUND({a})")
     public static <T extends Number> int round(T a)
     {
         boom();
@@ -2013,6 +2044,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ROUND({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ROUND({a},{b})")
     public static <T extends Number> T round(T a, int b)
     {
         boom();
@@ -2023,6 +2055,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SIGN({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SIGN({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SIGN({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "SIGN({a})")
     public static <T extends Number> int sign(T a)
     {
         boom();
@@ -2033,6 +2066,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "SQRT({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SQRT({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "SQRT({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "SQRT({a})")
     public static <T extends Number> double sqrt(T a)
     {
         boom();
@@ -2043,6 +2077,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TRUNCATE({a},{b})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ROUND({a},{b},1)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(SUBSTR({a} * 1.0,1,INSTR({a} * 1.0,'.') + {b}) AS REAL)")
     public static <T extends Number> double truncate(T a, int b)
     {
         boom();
@@ -2053,6 +2088,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "TRUNCATE({a},0)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({a})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "ROUND({a},0,1)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "TRUNC({a})")
     public static <T extends Number> int truncate(T a)
     {
         boom();
@@ -2155,6 +2191,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "FORMAT({t},{format})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({t},{format})")
     @SqlExtensionExpression(dbType = DbType.SqlServer, function = "FORMAT({t},{format})")
+    @SqlExtensionExpression(dbType = DbType.SqlServer, function = "PRINTF({format},{t})")
     public static <T extends Number> String numberFormat(T t, String format)
     {
         boom();

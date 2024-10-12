@@ -16,13 +16,15 @@ public class StringMethods
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
-        if (config.getDbType() == DbType.Oracle)
+        switch (config.getDbType())
         {
-            functions = Arrays.asList("('%'||", "||'%')");
-        }
-        else
-        {
-            functions = Arrays.asList("CONCAT('%',", ",'%')");
+            case Oracle:
+            case SQLite:
+                functions = Arrays.asList("('%'||", "||'%')");
+                break;
+            default:
+                functions = Arrays.asList("CONCAT('%',", ",'%')");
+                break;
         }
         SqlFunctionExpression function = factory.function(functions, Collections.singletonList(right));
         return factory.binary(SqlOperator.LIKE, left, function);
@@ -31,15 +33,35 @@ public class StringMethods
     public static SqlBinaryExpression startsWith(Config config, SqlExpression left, SqlExpression right)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT(", ",'%')"), Collections.singletonList(right));
-        return factory.binary(SqlOperator.LIKE, left, function);
+        List<String> functions;
+        List<SqlExpression> args = Collections.singletonList(right);
+        switch (config.getDbType())
+        {
+            case SQLite:
+                functions = Arrays.asList("(", "||'%')");
+                break;
+            default:
+                functions = Arrays.asList("CONCAT(", ",'%')");
+                break;
+        }
+        return factory.binary(SqlOperator.LIKE, left, factory.function(functions, args));
     }
 
     public static SqlBinaryExpression endsWith(Config config, SqlExpression left, SqlExpression right)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        SqlFunctionExpression function = factory.function(Arrays.asList("CONCAT('%',", ")"), Collections.singletonList(right));
-        return factory.binary(SqlOperator.LIKE, left, function);
+        List<String> functions;
+        List<SqlExpression> args = Collections.singletonList(right);
+        switch (config.getDbType())
+        {
+            case SQLite:
+                functions = Arrays.asList("('%'||", ")");
+                break;
+            default:
+                functions = Arrays.asList("CONCAT('%',", ")");
+                break;
+        }
+        return factory.binary(SqlOperator.LIKE, left, factory.function(functions, args));
     }
 
     public static SqlFunctionExpression length(Config config, SqlExpression thiz)
@@ -53,6 +75,9 @@ public class StringMethods
                 break;
             case Oracle:
                 functions = Arrays.asList("NVL(LENGTH(", "),0)");
+                break;
+            case SQLite:
+                functions = Arrays.asList("LENGTH(", ")");
                 break;
             case MySQL:
             case H2:
@@ -79,7 +104,15 @@ public class StringMethods
     public static SqlFunctionExpression concat(Config config, SqlExpression left, SqlExpression right)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        List<String> functions = Arrays.asList("CONCAT(", ",", ")");
+        List<String> functions;
+        switch (config.getDbType())
+        {
+            case SQLite:
+                functions = Arrays.asList("(", "||", ")");
+                break;
+            default:
+                functions = Arrays.asList("CONCAT(", ",", ")");
+        }
         return factory.function(functions, Arrays.asList(left, right));
     }
 
@@ -121,9 +154,6 @@ public class StringMethods
                 functions = Arrays.asList("CHARINDEX(", ",", ")");
                 sqlExpressions = Arrays.asList(subStr, thisStr);
                 break;
-            case Oracle:
-            case MySQL:
-            case H2:
             default:
                 functions = Arrays.asList("INSTR(", ",", ")");
                 sqlExpressions = Arrays.asList(thisStr, subStr);
@@ -146,8 +176,10 @@ public class StringMethods
                 functions = Arrays.asList("INSTR(", ",", ",", ")");
                 sqlExpressions = Arrays.asList(thisStr, subStr, fromIndex);
                 break;
-            case MySQL:
-            case H2:
+            case SQLite:
+                functions = Arrays.asList("(INSTR(SUBSTR(", ",", " + 1),", ") + ", ")");
+                sqlExpressions = Arrays.asList(thisStr, fromIndex, subStr, fromIndex);
+                break;
             default:
                 functions = Arrays.asList("LOCATE(", ",", ",", ")");
                 sqlExpressions = Arrays.asList(subStr, thisStr, fromIndex);
@@ -174,9 +206,6 @@ public class StringMethods
                 functions = Arrays.asList("SUBSTRING(", ",", ",LEN(", ") - (", " - 1))");
                 sqlExpressions = Arrays.asList(thisStr, beginIndex, thisStr, beginIndex);
                 break;
-            case Oracle:
-            case MySQL:
-            case H2:
             default:
                 functions = Arrays.asList("SUBSTR(", ",", ")");
                 sqlExpressions = Arrays.asList(thisStr, beginIndex);
@@ -195,9 +224,6 @@ public class StringMethods
             case SqlServer:
                 functions = Arrays.asList("SUBSTRING(", ",", ",", ")");
                 break;
-            case Oracle:
-            case MySQL:
-            case H2:
             default:
                 functions = Arrays.asList("SUBSTR(", ",", ",", ")");
         }
@@ -212,6 +238,7 @@ public class StringMethods
         switch (config.getDbType())
         {
             case Oracle:
+            case SQLite:
                 functions.add("(");
                 for (int i = 0; i < elements.size(); i++)
                 {
@@ -225,9 +252,6 @@ public class StringMethods
                 }
                 functions.add(")");
                 break;
-            case MySQL:
-            case SqlServer:
-            case H2:
             default:
                 sqlExpressions.add(delimiter);
                 sqlExpressions.addAll(elements);
@@ -249,7 +273,7 @@ public class StringMethods
         List<SqlExpression> sqlExpressions;
         if (elements instanceof SqlCollectedValueExpression)
         {
-            if (config.getDbType() == DbType.Oracle)
+            if (config.getDbType() == DbType.Oracle || config.getDbType() == DbType.SQLite)
             {
                 SqlCollectedValueExpression expression = (SqlCollectedValueExpression) elements;
                 List<Object> collection = new ArrayList<>(expression.getCollection());
@@ -281,10 +305,8 @@ public class StringMethods
         switch (config.getDbType())
         {
             case Oracle:
+            case SQLite:
                 break;
-            case MySQL:
-            case SqlServer:
-            case H2:
             default:
                 functions.add("CONCAT_WS(");
                 functions.add(",");

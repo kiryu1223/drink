@@ -133,7 +133,7 @@ public class MathTest extends BaseTest
     public void degreesTest()
     {
         double res = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.degrees(1.14514))
+                .endSelect(() -> SqlFunctions.degrees(SqlFunctions.pi()))
                 .first();
 
         log.info(String.valueOf(res));

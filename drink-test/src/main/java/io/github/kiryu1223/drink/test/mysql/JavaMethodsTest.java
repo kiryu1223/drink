@@ -228,11 +228,12 @@ public class JavaMethodsTest extends BaseTest
     public void divideTest()
     {
         BigDecimal b1 = BigDecimal.valueOf(9999);
+        BigDecimal b2 = BigDecimal.valueOf(9.9);
         BigDecimal divide = client.queryEmptyTable()
-                .endSelect(() -> b1.divide(BigDecimal.TEN))
+                .endSelect(() -> b1.divide(b2))
                 .first();
 
-        Assert.assertEquals(999.9, divide.doubleValue(), 0);
+        Assert.assertEquals(1010.0, divide.doubleValue(), 0);
     }
 
     @Test

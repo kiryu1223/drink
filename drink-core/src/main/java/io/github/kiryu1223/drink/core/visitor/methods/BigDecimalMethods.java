@@ -9,18 +9,18 @@ import java.util.List;
 
 public class BigDecimalMethods
 {
-    public static SqlExpression remainder(Config config,SqlExpression left,SqlExpression right)
+    public static SqlExpression remainder(Config config, SqlExpression left, SqlExpression right)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
         List<SqlExpression> sqlExpressions;
         switch (config.getDbType())
         {
-            case SqlServer:
-                function = Arrays.asList("", " % ", "");
+            case Oracle:
+                function = Arrays.asList("MOD(", ",", ")");
                 break;
             default:
-                function = Arrays.asList("MOD(", ",", ")");
+                function = Arrays.asList("(", " % ", ")");
         }
         return factory.function(function, Arrays.asList(left, right));
     }
