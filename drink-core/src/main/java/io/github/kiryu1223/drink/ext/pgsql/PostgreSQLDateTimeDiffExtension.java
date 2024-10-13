@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.ext.sqlite;
+package io.github.kiryu1223.drink.ext.pgsql;
 
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlSingleValueExpression;
@@ -10,7 +10,7 @@ import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class SqliteDateTimeDiffExtension extends BaseSqlExtension
+public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
 {
     @Override
     public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
@@ -28,71 +28,64 @@ public class SqliteDateTimeDiffExtension extends BaseSqlExtension
             switch (timeUnit)
             {
                 case YEAR:
-                    functions.add("(STRFTIME('%Y',");
+                    functions.add("EXTRACT(YEAR FROM AGE(");
                     sqlExpressions.add(to);
-                    functions.add(") - STRFTIME('%Y',");
+                    functions.add(",");
                     sqlExpressions.add(from);
                     functions.add("))");
                     break;
                 case MONTH:
-                    functions.add("((STRFTIME('%Y',");
+                    functions.add("(EXTRACT(YEAR FROM AGE(");
                     sqlExpressions.add(to);
-                    functions.add(") - STRFTIME('%Y',");
+                    functions.add(",");
                     sqlExpressions.add(from);
-                    functions.add(")) * 12 + STRFTIME('%m',");
+                    functions.add(")) * 12 + EXTRACT(MONTH FROM AGE(");
                     sqlExpressions.add(to);
-                    functions.add(") - STRFTIME('%m',");
+                    functions.add(",");
                     sqlExpressions.add(from);
-                    functions.add("))");
+                    functions.add(")))");
                     break;
                 case WEEK:
-                    functions.add("((JULIANDAY(");
+                    functions.add("(EXTRACT(DAY FROM (");
                     sqlExpressions.add(to);
-                    functions.add(") - JULIANDAY(");
+                    functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(")) / 7)");
+                    functions.add(") / 7)");
                     break;
                 case DAY:
-                    functions.add("(JULIANDAY(");
+                    functions.add("EXTRACT(DAY FROM (");
                     sqlExpressions.add(to);
-                    functions.add(") - JULIANDAY(");
+                    functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add("))");
+                    functions.add(")");
                     break;
                 case HOUR:
-                    functions.add("((JULIANDAY(");
+                    functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(") - JULIANDAY(");
+                    functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(")) * 24)");
+                    functions.add(") / 3600)");
                     break;
                 case MINUTE:
-                    functions.add("((JULIANDAY(");
+                    functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(") - JULIANDAY(");
+                    functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(")) * 24 * 60)");
+                    functions.add(") / 60)");
                     break;
                 case SECOND:
-                    functions.add("((JULIANDAY(");
+                    functions.add("EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(") - JULIANDAY(");
+                    functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(")) * 24 * 60 * 60)");
+                    functions.add(")");
                     break;
                 case MILLISECOND:
-                    functions.add("((JULIANDAY(");
+                    functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(") - JULIANDAY(");
+                    functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(")) * 24 * 60 * 60 * 1000)");
-                    break;
-                case MICROSECOND:
-                    functions.add("((JULIANDAY(");
-                    sqlExpressions.add(to);
-                    functions.add(") - JULIANDAY(");
-                    sqlExpressions.add(from);
-                    functions.add(")) * 24 * 60 * 60 * 1000 * 1000)");
+                    functions.add(") * 1000)");
                     break;
             }
         }

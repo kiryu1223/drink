@@ -5,7 +5,6 @@ import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.exception.DrinkInvalidOperationException;
 import io.github.kiryu1223.drink.exception.DrinkLimitNotFoundOrderByException;
 import io.github.kiryu1223.drink.ext.DbType;
 
@@ -51,7 +50,7 @@ public class SqlServerQueryableExpression extends SqlQueryableExpression
         PropertyMetaData primary = metaData.getPrimary();
         if (primary == null)
         {
-            throw new DrinkLimitNotFoundOrderByException(DbType.SqlServer);
+            throw new DrinkLimitNotFoundOrderByException(DbType.SQLServer);
         }
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         SqlOrderByExpression sqlOrderByExpression = factory.orderBy();

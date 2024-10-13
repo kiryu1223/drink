@@ -20,10 +20,11 @@ public enum DbType
 {
     Any(new DefaultDialect(), new MySqlExpressionFactory(), new MySqlIncludeFactory(), new DefaultResultSetValueGetter()),
     MySQL(new MySQLDialect(), new MySqlExpressionFactory(), new MySqlIncludeFactory(), new DefaultResultSetValueGetter()),
-    SqlServer(new SqlServerDialect(), new SqlServerExpressionFactory(), new SqlServerIncludeFactory(), new DefaultResultSetValueGetter()),
+    SQLServer(new SqlServerDialect(), new SqlServerExpressionFactory(), new SqlServerIncludeFactory(), new DefaultResultSetValueGetter()),
     H2(new H2Dialect(), new H2ExpressionFactory(), new H2IncludeFactory(), new DefaultResultSetValueGetter()),
     Oracle(new OracleDialect(), new OracleExpressionFactory(), new OracleIncludeFactory(), new DefaultResultSetValueGetter()),
     SQLite(new SQLiteDialect(), new SqliteExpressionFactory(), new MySqlIncludeFactory(), new SqliteResultSetValueGetter()),
+    PostgreSQL(new PostgreSQLDialect(),new MySqlExpressionFactory(), new MySqlIncludeFactory(), new DefaultResultSetValueGetter()),
     ;
     private final IDialect dialect;
     private final SqlExpressionFactory sqlExpressionFactory;

@@ -18,7 +18,7 @@ public class Varchar2 extends SqlTypes<String>
         {
             case MySQL:
                 return "CHAR";
-            case SqlServer:
+            case SQLServer:
                 return "VARCHAR";
         }
         return String.format("VARCHAR2(%d)", length);

@@ -13,11 +13,6 @@ public abstract class BaseSqlExtension
 
     private static final Map<Class<? extends BaseSqlExtension>, BaseSqlExtension> sqlExtensionCache = new ConcurrentHashMap<>();
 
-    protected BaseSqlExtension()
-    {
-        sqlExtensionCache.put(this.getClass(), this);
-    }
-
     public static BaseSqlExtension getCache(Class<? extends BaseSqlExtension> c)
     {
         BaseSqlExtension baseSqlExtension = sqlExtensionCache.get(c);

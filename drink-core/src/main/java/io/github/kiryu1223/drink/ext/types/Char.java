@@ -18,7 +18,7 @@ public class Char extends SqlTypes<Character>
         {
             case MySQL:
                 return "CHAR(1)";
-            case SqlServer:
+            case SQLServer:
                 return "NCHAR(1)";
         }
         return String.format("CHAR(%d)", length);

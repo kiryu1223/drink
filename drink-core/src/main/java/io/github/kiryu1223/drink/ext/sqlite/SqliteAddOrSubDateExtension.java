@@ -2,10 +2,10 @@ package io.github.kiryu1223.drink.ext.sqlite;
 
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlSingleValueExpression;
-import io.github.kiryu1223.drink.exception.DrinkOracleIntervalException;
+import io.github.kiryu1223.drink.exception.DrinkIntervalException;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
+import io.github.kiryu1223.drink.ext.DbType;
 import io.github.kiryu1223.drink.ext.FunctionBox;
-import io.github.kiryu1223.drink.ext.mysql.MySqlDateTimeDiffExtension;
 
 import java.lang.reflect.Method;
 import java.time.LocalDate;
@@ -44,7 +44,7 @@ public class SqliteAddOrSubDateExtension extends BaseSqlExtension
             }
             else
             {
-                throw new DrinkOracleIntervalException();
+                throw new DrinkIntervalException(DbType.SQLite);
             }
         }
         else
@@ -59,7 +59,7 @@ public class SqliteAddOrSubDateExtension extends BaseSqlExtension
             }
             else
             {
-                throw new DrinkOracleIntervalException();
+                throw new DrinkIntervalException(DbType.SQLite);
             }
         }
         return box;

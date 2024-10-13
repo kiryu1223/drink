@@ -18,7 +18,7 @@ public class MathMethods
         List<String> function;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 function = Arrays.asList("ATN2(", ",", ")");
                 break;
             default:
@@ -33,7 +33,7 @@ public class MathMethods
         List<String> function;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 function = Arrays.asList("CEILING(", ")");
                 break;
             default:
@@ -79,7 +79,7 @@ public class MathMethods
         List<String> function;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 function = Arrays.asList("LOG(", ")");
                 break;
             default:
@@ -95,7 +95,7 @@ public class MathMethods
         List<SqlExpression> sqlExpressions;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 function = Arrays.asList("LOG(", ",10)");
                 break;
             case Oracle:
@@ -117,6 +117,9 @@ public class MathMethods
             case Oracle:
                 function = Collections.singletonList("DBMS_RANDOM.VALUE");
                 break;
+            case SQLite:
+                function = Collections.singletonList("ABS(RANDOM() / 10000000000000000000.0)");
+                break;
             default:
                 function = Collections.singletonList("RAND()");
         }
@@ -130,7 +133,7 @@ public class MathMethods
         List<SqlExpression> sqlExpressions;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 function = Arrays.asList("ROUND(", ",0)");
                 break;
             default:

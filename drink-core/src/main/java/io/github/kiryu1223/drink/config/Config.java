@@ -40,7 +40,7 @@ public class Config
 //                sqlExpressionFactory = new MySqlExpressionFactory();
 //                includeFactory = new MySqlIncludeFactory();
 //                break;
-//            case SqlServer:
+//            case SQLServer:
 //                disambiguation = new SqlServerDialect();
 //                sqlExpressionFactory = new SqlServerExpressionFactory();
 //                includeFactory = new SqlServerIncludeFactory();

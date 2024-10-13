@@ -21,7 +21,6 @@ import io.github.kiryu1223.drink.ext.IMappingTable;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
-import io.github.kiryu1223.expressionTree.expressions.MethodCallExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,7 +174,7 @@ public abstract class QueryBase extends CRUD
                 Config config = getConfig();
                 switch (config.getDbType())
                 {
-                    case SqlServer:
+                    case SQLServer:
                     case Oracle:
                         expression= LogicExpression.IfExpression(config, expression, factory.constString("1"), factory.constString("0"));
                 }

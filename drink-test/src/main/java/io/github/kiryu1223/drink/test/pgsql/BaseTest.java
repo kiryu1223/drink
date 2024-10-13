@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.test.mssql;
+package io.github.kiryu1223.drink.test.pgsql;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.Drink;
@@ -10,19 +10,19 @@ import io.github.kiryu1223.drink.ext.DbType;
 abstract class BaseTest
 {
     protected static final DrinkClient client;
-    protected static final HikariDataSource sqlserverDataSource;
+    protected static final HikariDataSource dataSource;
 
     static
     {
-        sqlserverDataSource = new HikariDataSource();
-        sqlserverDataSource.setJdbcUrl("jdbc:sqlserver://localhost:1433;database=DrinkDb;encrypt=true;trustServerCertificate=true");
-        sqlserverDataSource.setUsername("sa");
-        sqlserverDataSource.setPassword("root");
-        sqlserverDataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        DataSourceManager dataSourceManager = new DefaultDataSourceManager(sqlserverDataSource);
+        dataSource = new HikariDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/");
+        dataSource.setUsername("postgres");
+        dataSource.setPassword("root");
+        DataSourceManager dataSourceManager = new DefaultDataSourceManager(dataSource);
         client = Drink.bootStrap()
                 .setDataSourceManager(dataSourceManager)
-                .setDbType(DbType.SQLServer)
+                .setDbType(DbType.PostgreSQL)
                 .build();
     }
 

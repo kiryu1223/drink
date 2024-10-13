@@ -16,7 +16,8 @@ public class LogicExpression
         List<SqlExpression> args = Arrays.asList(cond, truePart, falsePart);
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
+            case SQLite:
                 function = Arrays.asList("IIF(", ",", ",", ")");
                 break;
             case Oracle:

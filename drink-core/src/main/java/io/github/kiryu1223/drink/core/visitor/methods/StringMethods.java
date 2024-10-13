@@ -70,7 +70,7 @@ public class StringMethods
         List<String> functions;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 functions = Arrays.asList("LEN(", ")");
                 break;
             case Oracle:
@@ -128,12 +128,12 @@ public class StringMethods
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 return factory.parens(factory.binary(SqlOperator.EQ, factory.function(Arrays.asList("DATALENGTH(", ")"), Collections.singletonList(thiz)), factory.constString("0")));
             default:
                 return factory.parens(factory.binary(SqlOperator.EQ, length(config, thiz), factory.constString("0")));
         }
-//        if (config.getDbType() == DbType.SqlServer)
+//        if (config.getDbType() == DbType.SQLServer)
 //        {
 //            return factory.function(Arrays.asList("IIF(", ",1,0)"), Collections.singletonList(parens));
 //        }
@@ -150,7 +150,7 @@ public class StringMethods
         List<SqlExpression> sqlExpressions;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 functions = Arrays.asList("CHARINDEX(", ",", ")");
                 sqlExpressions = Arrays.asList(subStr, thisStr);
                 break;
@@ -168,7 +168,7 @@ public class StringMethods
         List<SqlExpression> sqlExpressions;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 functions = Arrays.asList("CHARINDEX(", ",", ",", ")");
                 sqlExpressions = Arrays.asList(subStr, thisStr, fromIndex);
                 break;
@@ -202,7 +202,7 @@ public class StringMethods
         List<SqlExpression> sqlExpressions;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 functions = Arrays.asList("SUBSTRING(", ",", ",LEN(", ") - (", " - 1))");
                 sqlExpressions = Arrays.asList(thisStr, beginIndex, thisStr, beginIndex);
                 break;
@@ -221,7 +221,7 @@ public class StringMethods
         List<SqlExpression> sqlExpressions = Arrays.asList(thisStr, beginIndex, endIndex);
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
                 functions = Arrays.asList("SUBSTRING(", ",", ",", ")");
                 break;
             default:

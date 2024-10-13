@@ -212,7 +212,7 @@ public class SelectVisitor extends SqlVisitor
         if (!condition) return result;
         switch (config.getDbType())
         {
-            case SqlServer:
+            case SQLServer:
             case Oracle:
                 return LogicExpression.IfExpression(config, result, factory.constString("1"), factory.constString("0"));
             default:
