@@ -552,7 +552,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(DAY,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DAY FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DAY FROM {time})::INT")
     public static int getDay(LocalDateTime time)
     {
         boom();
@@ -564,7 +564,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(DAY,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DAY FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DAY FROM {time})::INT")
     public static int getDay(LocalDate time)
     {
         boom();
@@ -576,7 +576,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(DAY,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DAY FROM {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DAY FROM {time}::TIMESTAMP)::INT")
     public static int getDay(String time)
     {
         boom();
@@ -588,6 +588,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'DAY')")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATENAME(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRIM(TO_CHAR({time},'Day'))")
     public static String getDayName(LocalDateTime time)
     {
         boom();
@@ -599,6 +600,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'DAY')")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATENAME(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRIM(TO_CHAR({time},'Day'))")
     public static String getDayName(LocalDate time)
     {
         boom();
@@ -610,6 +612,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'DAY')")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATENAME(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRIM(TO_CHAR({time}::TIMESTAMP,'Day'))")
     public static String getDayName(String time)
     {
         boom();
@@ -621,6 +624,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(DATEPART(WEEKDAY,{time}))")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%w',{time}) + 1)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(DOW FROM {time}) + 1)::INT")
     public static int getDayOfWeek(LocalDateTime time)
     {
         boom();
@@ -632,6 +636,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'D'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(DATEPART(WEEKDAY,{time}))")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%w',{time}) + 1)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(DOW FROM {time}) + 1)::INT")
     public static int getDayOfWeek(LocalDate time)
     {
         boom();
@@ -643,6 +648,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%w',{time}) + 1)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(DOW FROM {time}::TIMESTAMP) + 1)::INT")
     public static int getDayOfWeek(String time)
     {
         boom();
@@ -654,6 +660,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'DDD'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(DAYOFYEAR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DOY FROM {time})::INT")
     public static int getDayOfYear(LocalDateTime time)
     {
         boom();
@@ -665,6 +672,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'DDD'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(DAYOFYEAR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DOY FROM {time})::INT")
     public static int getDayOfYear(LocalDate time)
     {
         boom();
@@ -676,6 +684,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'DDD'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(DAYOFYEAR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(DOY FROM {time}::TIMESTAMP)::INT")
     public static int getDayOfYear(String time)
     {
         boom();
@@ -733,6 +742,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({time} - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(EPOCH FROM {time})::INT / 86400 + 719528)")
     public static int dateToDays(LocalDate time)
     {
         boom();
@@ -744,6 +754,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({time} - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(EPOCH FROM {time})::INT / 86400 + 719528)")
     public static int dateToDays(LocalDateTime time)
     {
         boom();
@@ -755,6 +766,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM (TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff') - (TO_TIMESTAMP('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - INTERVAL '2' DAY))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(EPOCH FROM {time}::TIMESTAMP)::INT / 86400 + 719528)")
     public static int dateToDays(String time)
     {
         boom();
@@ -796,7 +808,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(HOUR FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(HOUR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(HOUR FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(HOUR FROM {time})::INT")
     public static int getHour(LocalDateTime time)
     {
         boom();
@@ -808,7 +820,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(HOUR FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(HOUR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(HOUR FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(HOUR FROM {time})::INT")
     public static int getHour(LocalDate time)
     {
         boom();
@@ -820,7 +832,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(HOUR FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(HOUR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(HOUR FROM {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(HOUR FROM {time}::TIMESTAMP)::INT")
     public static int getHour(String time)
     {
         boom();
@@ -831,7 +843,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "EOMONTH({time})")
-    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATE('now','start of month','+1 month','-1 day')")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATE({time},'start of month','+1 month','-1 day')")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(DATE_TRUNC('MONTH',{time}) + INTERVAL '1' MONTH - INTERVAL '1' DAY)::DATE")
     public static LocalDate getLastDay(LocalDateTime time)
     {
         boom();
@@ -842,7 +855,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "EOMONTH({time})")
-    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATE('now','start of month','+1 month','-1 day')")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATE({time},'start of month','+1 month','-1 day')")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(DATE_TRUNC('MONTH',{time}) + INTERVAL '1' MONTH - INTERVAL '1' DAY)::DATE")
     public static LocalDate getLastDay(LocalDate time)
     {
         boom();
@@ -854,6 +868,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LAST_DAY(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "EOMONTH({time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "DATE({time},'start of month','+1 month','-1 day')")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(DATE_TRUNC('MONTH',{time}::TIMESTAMP) + INTERVAL '1' MONTH - INTERVAL '1' DAY)::DATE")
     public static LocalDate getLastDay(String time)
     {
         boom();
@@ -881,7 +896,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MINUTE FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MINUTE FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MINUTE FROM {time})::INT")
     public static int getMinute(LocalTime time)
     {
         boom();
@@ -893,7 +908,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MINUTE FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MINUTE FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MINUTE FROM {time})::INT")
     public static int getMinute(LocalDateTime time)
     {
         boom();
@@ -905,7 +920,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MINUTE FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MINUTE FROM {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MINUTE FROM {time}::TIMESTAMP)::INT")
     public static int getMinute(String time)
     {
         boom();
@@ -917,7 +932,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MONTH FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MONTH FROM {time})::INT")
     public static int getMonth(LocalDate time)
     {
         boom();
@@ -929,7 +944,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MONTH,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MONTH FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MONTH FROM {time})::INT")
     public static int getMonth(LocalDateTime time)
     {
         boom();
@@ -941,7 +956,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MONTH FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MONTH,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MONTH FROM {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MONTH FROM {time}::TIMESTAMP)::INT")
     public static int getMonth(String time)
     {
         boom();
@@ -953,6 +968,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'FMMONTH')")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "FORMAT({time}, 'MMMM')")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRIM(TO_CHAR({time},'Month'))")
     public static String getMonthName(LocalDate time)
     {
         boom();
@@ -964,6 +980,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time},'FMMONTH')")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "FORMAT({time}, 'MMMM')")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRIM(TO_CHAR({time},'Month'))")
     public static String getMonthName(LocalDateTime time)
     {
         boom();
@@ -975,6 +992,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'FMMONTH')")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "FORMAT(CONVERT(DATE,{time}), 'MMMM')")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRIM(TO_CHAR({time}::TIMESTAMP,'Month'))")
     public static String getMonthName(String time)
     {
         boom();
@@ -986,6 +1004,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CEIL(EXTRACT(MONTH FROM {time}) / 3)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(QUARTER,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "((strftime('%m',{time}) + 2) / 3)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(QUARTER FROM {time})::INT")
     public static int getQuarter(LocalDate time)
     {
         boom();
@@ -997,6 +1016,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CEIL(EXTRACT(MONTH FROM {time}) / 3)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(QUARTER,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "((strftime('%m',{time}) + 2) / 3)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(QUARTER FROM {time})::INT")
     public static int getQuarter(LocalDateTime time)
     {
         boom();
@@ -1008,6 +1028,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CEIL(EXTRACT(MONTH FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff')) / 3)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(QUARTER,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "((strftime('%m',{time}) + 2) / 3)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(QUARTER FROM {time}::TIMESTAMP)::INT")
     public static int getQuarter(String time)
     {
         boom();
@@ -1019,7 +1040,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(SECOND FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(SECOND,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(SECOND FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(SECOND FROM {time})::INT")
     public static int getSecond(LocalTime time)
     {
         boom();
@@ -1031,7 +1052,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(SECOND FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(SECOND,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(SECOND FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(SECOND FROM {time})::INT")
     public static int getSecond(LocalDateTime time)
     {
         boom();
@@ -1043,7 +1064,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(SECOND FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(SECOND,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(SECOND FROM {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(SECOND FROM {time}::TIMESTAMP)::INT")
     public static int getSecond(String time)
     {
         boom();
@@ -1055,7 +1076,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(EXTRACT(SECOND FROM {time}) * 1000)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MS,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%f',{time}) * 1000)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MILLISECOND from {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MILLISECOND from {time})::INT")
     public static int getMilliSecond(LocalTime time)
     {
         boom();
@@ -1067,7 +1088,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(EXTRACT(SECOND FROM {time}) * 1000)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MS,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%f',{time}) * 1000)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MILLISECOND from {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MILLISECOND from {time})::INT")
     public static int getMilliSecond(LocalDateTime time)
     {
         boom();
@@ -1079,283 +1100,43 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(EXTRACT(SECOND FROM {time}) * 1000)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MS,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%f',{time}) * 1000)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MILLISECOND from {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(MILLISECOND from {time}::TIMESTAMP)::INT")
     public static int getMilliSecond(String time)
     {
         boom();
         return 0;
     }
 
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM {time})")
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MCS,{time})")
-//    public static int getMicroSecond(LocalTime time)
-//    {
-//        boom();
-//        return 0;
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM {time})")
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MCS,{time})")
-//    public static int getMicroSecond(LocalDateTime time)
-//    {
-//        boom();
-//        return 0;
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "MICROSECOND({time})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "MICROSECOND({time})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(MICROSECOND FROM TO_DATE({time}))")
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(MCS,{time})")
-//    public static int getMicroSecond(String time)
-//    {
-//        boom();
-//        return 0;
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(NS,{time})")
-//    public static int getNanoSecond(LocalTime time)
-//    {
-//        boom();
-//        return 0;
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(NS,{time})")
-//    public static int getNanoSecond(LocalDateTime time)
-//    {
-//        boom();
-//        return 0;
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(NS,{time})")
-//    public static int getNanoSecond(String time)
-//    {
-//        boom();
-//        return 0;
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
-//    public static LocalDateTime subDate(LocalDateTime time, LocalDateTime subtime)
-//    {
-//        boom();
-//        return LocalDateTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBDATE({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBDATE({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
-//    public static LocalDate subDate(LocalDate time, LocalDate subtime)
-//    {
-//        boom();
-//        return LocalDate.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
-//    public static LocalDateTime subTime(LocalDateTime time, LocalTime subtime)
-//    {
-//        boom();
-//        return LocalDateTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
-//    public static LocalDateTime subTime(LocalDateTime time, String subtime)
-//    {
-//        boom();
-//        return LocalDateTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
-//    public static LocalTime subTime(LocalTime time, LocalTime subtime)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
-//    public static LocalDateTime subTime(String time, LocalTime subtime)
-//    {
-//        boom();
-//        return LocalDateTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "SUBTIME({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({time} - {subtime})")
-//    public static LocalDateTime subTime(String time, String subtime)
-//    {
-//        boom();
-//        return LocalDateTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME({time})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME({time})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_DATE(TO_CHAR({time},'HH24:MI:SS'))")
-//    public static LocalTime getTime(LocalDateTime time)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME({time})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME({time})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_DATE(TO_CHAR({time},'HH24:MI:SS'))")
-//    public static LocalTime getTime(LocalTime time)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME({})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME({})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_DATE(TO_CHAR(TO_DATE({time}),'HH24:MI:SS'))")
-//    public static LocalTime getTime(String time)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME_FORMAT({time},{format})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME_FORMAT({time},{format})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time}, {format})")
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "FORMAT({time}, {format})")
-//    public static String timeFormat(LocalTime time, String format)
-//    {
-//        boom();
-//        return "";
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIME_FORMAT({time},{format})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIME_FORMAT({time},{format})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_CHAR({time}, {format})")
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "FORMAT({time}, {format})")
-//    public static String timeFormat(LocalDateTime time, String format)
-//    {
-//        boom();
-//        return "";
-//    }
-
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({t1} - {t2})")
-//    public static LocalTime timeDiff(LocalDateTime t1, LocalDateTime t2)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({t1} - {t2})")
-//    public static LocalTime timeDiff(LocalDateTime t1, LocalTime t2)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({t1} - {t2})")
-//    public static LocalTime timeDiff(LocalDateTime t1, String t2)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({t1} - {t2})")
-//    public static LocalTime timeDiff(LocalTime t1, LocalTime t2)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({t1} - {t2})")
-//    public static LocalTime timeDiff(LocalTime t1, LocalDateTime t2)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({t1} - {t2})")
-//    public static LocalTime timeDiff(LocalTime t1, String t2)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TIMEDIFF({},{})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "({t1} - {t2})")
-//    public static LocalTime timeDiff(String t1, String t2)
-//    {
-//        boom();
-//        return LocalTime.now();
-//    }
-
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(WEEK,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%W',{time}) + 1)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK from {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK from {time})::INT")
     public static int getWeek(LocalDate time)
     {
         boom();
         return 0;
     }
 
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},{firstDayofweek})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},{firstDayofweek})")
-//    public static int getWeek(LocalDate time, int firstDayofweek)
-//    {
-//        boom();
-//        return 0;
-//    }
-
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(WEEK,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%W',{time}) + 1)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK from {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK from {time})::INT")
     public static int getWeek(LocalDateTime time)
     {
         boom();
         return 0;
     }
 
-//    @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},{firstDayofweek})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},{firstDayofweek})")
-//    public static int getWeek(LocalDateTime time, int firstDayofweek)
-//    {
-//        boom();
-//        return 0;
-//    }
-
     @SqlExtensionExpression(dbType = DbType.H2, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'IW'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(WEEK,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%W',{time}) + 1)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK from {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK from {time}::TIMESTAMP)::INT")
     public static int getWeek(String time)
     {
         boom();
@@ -1374,6 +1155,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR({time},'D')) - 2 END)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "((EXTRACT(DOW FROM {time}) + 6) % 7)::INT")
     public static int getWeekDay(LocalDate time)
     {
         boom();
@@ -1384,6 +1167,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR({time},'D')) - 2 END)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "((EXTRACT(DOW FROM {time}) + 6) % 7)::INT")
     public static int getWeekDay(LocalDateTime time)
     {
         boom();
@@ -1394,7 +1179,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) - 2 END)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
-    @SqlExtensionExpression(dbType = DbType.SQLite, function = "CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "((EXTRACT(DOW FROM {time}::TIMESTAMP) + 6) % 7)::INT")
     public static int getWeekDay(String time)
     {
         boom();
@@ -1406,6 +1192,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(ISO_WEEK,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%W',{time}) + 1)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK FROM {time})::INT")
     public static int getWeekOfYear(LocalDate time)
     {
         boom();
@@ -1417,6 +1204,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(ISO_WEEK,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%W',{time}) + 1)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK FROM {time})::INT")
     public static int getWeekOfYear(LocalDateTime time)
     {
         boom();
@@ -1428,6 +1216,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'IW'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(ISO_WEEK,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(STRFTIME('%W',{time}) + 1)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(WEEK FROM {time}::TIMESTAMP)::INT")
     public static int getWeekOfYear(String time)
     {
         boom();
@@ -1439,7 +1228,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(YEAR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(YEAR FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(YEAR FROM {time})::INT")
     public static int getYear(LocalDateTime time)
     {
         boom();
@@ -1451,7 +1240,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM {time})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(YEAR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(YEAR FROM {time})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(YEAR FROM {time})::INT")
     public static int getYear(LocalTime time)
     {
         boom();
@@ -1463,7 +1252,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(YEAR FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DATEPART(YEAR,{time})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(YEAR FROM {time}::TIMESTAMP)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXTRACT(YEAR FROM {time}::TIMESTAMP)::INT")
     public static int getYear(String time)
     {
         boom();
@@ -1479,6 +1268,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ABS({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ABS({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ABS({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "ABS({a})")
     public static <T extends Number> T abs(T a)
     {
         boom();
@@ -1490,6 +1280,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "COS({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "COS({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "COS({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "COS({a})")
     public static <T extends Number> double cos(T a)
     {
         boom();
@@ -1501,6 +1292,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SIN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "SIN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "SIN({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "SIN({a})")
     public static <T extends Number> double sin(T a)
     {
         boom();
@@ -1512,6 +1304,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TAN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "TAN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "TAN({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TAN({a})")
     public static <T extends Number> double tan(T a)
     {
         boom();
@@ -1523,6 +1316,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ACOS({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ACOS({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ACOS({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "ACOS({a})")
     public static <T extends Number> double acos(T a)
     {
         boom();
@@ -1534,6 +1328,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ASIN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ASIN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ASIN({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "ASIN({a})")
     public static <T extends Number> double asin(T a)
     {
         boom();
@@ -1545,6 +1340,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ATAN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ATAN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ATAN({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "ATAN({a})")
     public static <T extends Number> double atan(T a)
     {
         boom();
@@ -1556,6 +1352,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ATAN2({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ATN2({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ATAN2({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "ATAN2({a},{b})")
     public static <T extends Number> double atan2(T a, T b)
     {
         boom();
@@ -1567,7 +1364,20 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "CEIL({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "CEILING({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CEIL({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "CEIL({a})::INT")
     public static <T extends Number> int ceil(T a)
+    {
+        boom();
+        return 0;
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "FLOOR({a})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "FLOOR({a})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "FLOOR({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "FLOOR({a})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "FLOOR({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "FLOOR({a})::INT")
+    public static <T extends Number> int floor(T a)
     {
         boom();
         return 0;
@@ -1578,6 +1388,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE SIN({a}) WHEN 0 THEN 0 ELSE COS({a}) / SIN({a}) END)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "COT({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "COT({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "COT({a})")
     public static <T extends Number> double cot(T a)
     {
         boom();
@@ -1589,6 +1400,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * 180 / " + Math.PI + ")")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "DEGREES({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "DEGREES({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "DEGREES({a})")
     public static <T extends Number> double degrees(T a)
     {
         boom();
@@ -1600,18 +1412,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXP({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "EXP({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "EXP({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "EXP({a})")
     public static <T extends Number> double exp(T a)
-    {
-        boom();
-        return 0;
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "FLOOR({a})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "FLOOR({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "FLOOR({a})")
-    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "FLOOR({a})")
-    @SqlExtensionExpression(dbType = DbType.SQLite, function = "FLOOR({a})")
-    public static <T extends Number> int floor(T a)
     {
         boom();
         return 0;
@@ -1622,6 +1424,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "GREATEST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "GREATEST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "MAX({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "GREATEST({a},{b})")
     public static <T extends Number> T big(T a, T b)
     {
         boom();
@@ -1634,6 +1437,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "GREATEST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "GREATEST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "MAX({a},{b},{cs})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "GREATEST({a},{b},{cs})")
     public static <T extends Number> T big(T a, T b, T... cs)
     {
         boom();
@@ -1645,6 +1449,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LEAST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "LEAST({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "MIN({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "LEAST({a},{b})")
     public static <T extends Number> T small(T a, T b)
     {
         boom();
@@ -1657,6 +1462,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LEAST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "LEAST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "MIN({a},{b},{cs})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "LEAST({a},{b},{cs})")
     public static <T extends Number> T small(T a, T b, T... cs)
     {
         boom();
@@ -1668,6 +1474,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "LOG({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "LN({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "LN({a})")
     public static <T extends Number> double ln(T a)
     {
         boom();
@@ -1679,7 +1486,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG({base},{a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "LOG({a},{base})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "LOG({base},{a})")
-    public static <T extends Number, B extends Number> double log(T a, B base)
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "LOG({base},{a})::FLOAT8")
+    public static <T extends Number, Base extends Number> double log(T a, Base base)
     {
         boom();
         return 0;
@@ -1690,6 +1498,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG(2,{a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "LOG({a},2)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "LOG2({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "LOG(2,{a})::FLOAT8")
     public static <T extends Number> double log2(T a)
     {
         boom();
@@ -1701,6 +1510,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LOG(10,{a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "LOG({a},10)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "LOG10({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "LOG10({a})::FLOAT8")
     public static <T extends Number> double log10(T a)
     {
         boom();
@@ -1712,6 +1522,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "MOD({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "({a} % {b})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "MOD({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "MOD({a},{b})")
     public static <T extends Number> T mod(T a, T b)
     {
         boom();
@@ -1723,6 +1534,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(" + Math.PI + ")")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "PI()")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "PI()")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "PI()")
     public static double pi()
     {
         boom();
@@ -1734,6 +1546,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "POWER({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "POWER({a},{b})")
     public static <T extends Number> double pow(T a, T b)
     {
         boom();
@@ -1745,6 +1558,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "({a} * " + Math.PI + " / 180)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "RADIANS({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "RADIANS({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "RADIANS({a})")
     public static <T extends Number> double radians(T a)
     {
         boom();
@@ -1756,28 +1570,30 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "DBMS_RANDOM.VALUE")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "RAND()")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ABS(RANDOM() / 10000000000000000000.0)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "RANDOM()")
     public static double random()
     {
         boom();
         return 0;
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, function = "RAND({a})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RAND({a})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "DBMS_RANDOM.VALUE")
-    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "RAND({a})")
-    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ABS(RANDOM() / 10000000000000000000.0)")
-    public static double random(int a)
-    {
-        boom();
-        return 0;
-    }
+//    @SqlExtensionExpression(dbType = DbType.H2, function = "RAND({a})")
+//    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RAND({a})")
+//    @SqlExtensionExpression(dbType = DbType.Oracle, function = "DBMS_RANDOM.VALUE")
+//    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "RAND({a})")
+//    @SqlExtensionExpression(dbType = DbType.SQLite, function = "ABS(RANDOM() / 10000000000000000000.0)")
+//    public static double random(int a)
+//    {
+//        boom();
+//        return 0;
+//    }
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ROUND({a},0)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ROUND({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "ROUND({a})::INT")
     public static <T extends Number> int round(T a)
     {
         boom();
@@ -1789,6 +1605,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "ROUND({a},{b})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "ROUND({a}::NUMERIC,{b})::FLOAT8")
     public static <T extends Number> T round(T a, int b)
     {
         boom();
@@ -1800,6 +1617,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SIGN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "SIGN({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "SIGN({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "SIGN({a})::INT")
     public static <T extends Number> int sign(T a)
     {
         boom();
@@ -1811,6 +1629,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SQRT({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "SQRT({a})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "SQRT({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "SQRT({a})")
     public static <T extends Number> double sqrt(T a)
     {
         boom();
@@ -1822,6 +1641,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({a},{b})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ROUND({a},{b},1)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "CAST(SUBSTR({a} * 1.0,1,INSTR({a} * 1.0,'.') + {b}) AS REAL)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRUNC({a}::NUMERIC,{b})::FLOAT8")
     public static <T extends Number> double truncate(T a, int b)
     {
         boom();
@@ -1833,6 +1653,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRUNC({a})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "ROUND({a},0,1)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "TRUNC({a})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRUNC({a})::INT")
     public static <T extends Number> int truncate(T a)
     {
         boom();
@@ -2060,12 +1881,37 @@ public class SqlFunctions
         return "";
     }
 
+    @SqlExtensionExpression(dbType = DbType.H2, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "TRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "TRIM({str})")
+    public static String trim(String str)
+    {
+        boom();
+        return "";
+    }
+
     @SqlExtensionExpression(dbType = DbType.H2, function = "LTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "LTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "LTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "LTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "LTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "LTRIM({str})")
     public static String trimStart(String str)
+    {
+        boom();
+        return "";
+    }
+
+    @SqlExtensionExpression(dbType = DbType.H2, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.Oracle, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.SQLite, function = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "RTRIM({str})")
+    public static String trimEnd(String str)
     {
         boom();
         return "";
@@ -2076,6 +1922,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "REPLACE({cur},{subs},{news})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "REPLACE({cur},{subs},{news})")
     public static String replace(String cur, String subs, String news)
     {
         boom();
@@ -2087,18 +1934,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "REVERSE({str})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "REVERSE({str})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "REVERSE({str})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "REVERSE({str})")
     public static String reverse(String str)
-    {
-        boom();
-        return "";
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "RTRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "RTRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "RTRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "RTRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.SQLite, function = "RTRIM({str})")
-    public static String trimEnd(String str)
     {
         boom();
         return "";
@@ -2109,6 +1946,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     public static int compare(String s1, String s2)
     {
         boom();
@@ -2120,6 +1958,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{beginIndex})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "SUBSTRING({str},{beginIndex},LEN({str}) - ({beginIndex} - 1))")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "SUBSTR({str},{beginIndex})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "SUBSTR({str},{beginIndex})")
     public static String subString(String str, int beginIndex)
     {
         boom();
@@ -2131,18 +1970,8 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "SUBSTR({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "SUBSTRING({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "SUBSTR({str},{beginIndex},{endIndex})")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "SUBSTR({str},{beginIndex},{endIndex})")
     public static String subString(String str, int beginIndex, int endIndex)
-    {
-        boom();
-        return "";
-    }
-
-    @SqlExtensionExpression(dbType = DbType.H2, function = "TRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, function = "TRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.Oracle, function = "TRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.SQLServer, function = "TRIM({str})")
-    @SqlExtensionExpression(dbType = DbType.SQLite, function = "TRIM({str})")
-    public static String trim(String str)
     {
         boom();
         return "";
@@ -2151,6 +1980,44 @@ public class SqlFunctions
     // endregion
 
     // region [控制流程]
+
+    @SqlExtensionExpression(function = "CASE {when} END")
+    public static <R> R Case(When<R> when)
+    {
+        boom();
+        return (R) new Object();
+    }
+
+    @SafeVarargs
+    @SqlExtensionExpression(function = "CASE {when} {rs} END")
+    public static <R> R Case(When<R> when, When<R>... rs)
+    {
+        boom();
+        return (R) new Object();
+    }
+
+    @SqlExtensionExpression(function = "CASE {when} ELSE {elsePart} END")
+    public static <R> R Case(R elsePart, When<R> when)
+    {
+        boom();
+        return (R) new Object();
+    }
+
+    @SafeVarargs
+    @SqlExtensionExpression(function = "CASE {when} {rs} ELSE {elsePart} END", separator = " ")
+    public static <R> R Case(R elsePart, When<R> when, When<R>... rs)
+    {
+        boom();
+        return (R) new Object();
+    }
+
+    @SqlExtensionExpression(function = "WHEN {condition} THEN {then}")
+    public static <R> When<R> when(boolean condition, R then)
+    {
+        boom();
+        return new When<>();
+    }
+
 
     @SqlExtensionExpression(dbType = DbType.H2, function = "IF({condition},{truePart},{falsePart})")
     @SqlExtensionExpression(dbType = DbType.MySQL, function = "IF({condition},{truePart},{falsePart})")
@@ -2277,5 +2144,9 @@ public class SqlFunctions
         {
             return 0;
         }
+    }
+
+    public static class When<R>
+    {
     }
 }

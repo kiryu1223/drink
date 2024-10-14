@@ -271,12 +271,6 @@ public class MathTest extends BaseTest
                 .first();
 
         log.info(String.valueOf(random));
-
-        double random5 = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.random(5))
-                .first();
-
-        log.info(String.valueOf(random5));
     }
 
 

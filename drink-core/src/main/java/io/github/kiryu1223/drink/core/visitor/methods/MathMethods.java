@@ -120,6 +120,9 @@ public class MathMethods
             case SQLite:
                 function = Collections.singletonList("ABS(RANDOM() / 10000000000000000000.0)");
                 break;
+            case PostgreSQL:
+                function = Collections.singletonList("RANDOM()");
+                break;
             default:
                 function = Collections.singletonList("RAND()");
         }

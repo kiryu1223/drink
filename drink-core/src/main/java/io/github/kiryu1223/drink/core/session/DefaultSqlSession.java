@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.core.session;
 import io.github.kiryu1223.drink.api.crud.create.SqlValue;
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.ext.types.Char;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
@@ -223,7 +224,11 @@ public class DefaultSqlSession implements SqlSession
         int index = 1;
         for (Object value : values)
         {
-            if (value.getClass().isEnum())
+            if (value instanceof Enum)
+            {
+                preparedStatement.setString(index++, value.toString());
+            }
+            else if(value instanceof Character)
             {
                 preparedStatement.setString(index++, value.toString());
             }

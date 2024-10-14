@@ -48,8 +48,12 @@ public class DBConnectionTest
             dataSource.setPassword("root");
             try (Connection connection = dataSource.getConnection())
             {
-                try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT AGE('2000-10-27'::TIMESTAMP, '1996-10-20'::TIMESTAMP)"))
+                try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT AGE(?::TIMESTAMP,?::TIMESTAMP)"))
                 {
+                    String to = "2000-10-27";
+                    String from = "1996-10-20";
+                    preparedStatement.setObject(1, to);
+                    preparedStatement.setObject(2, from);
                     try (ResultSet resultSet = preparedStatement.executeQuery())
                     {
                         resultSet.next();

@@ -77,6 +77,7 @@ public class StringMethods
                 functions = Arrays.asList("NVL(LENGTH(", "),0)");
                 break;
             case SQLite:
+            case PostgreSQL:
                 functions = Arrays.asList("LENGTH(", ")");
                 break;
             case MySQL:
@@ -154,6 +155,10 @@ public class StringMethods
                 functions = Arrays.asList("CHARINDEX(", ",", ")");
                 sqlExpressions = Arrays.asList(subStr, thisStr);
                 break;
+            case PostgreSQL:
+                functions = Arrays.asList("STRPOS(", ",", ")");
+                sqlExpressions = Arrays.asList(thisStr, subStr);
+                break;
             default:
                 functions = Arrays.asList("INSTR(", ",", ")");
                 sqlExpressions = Arrays.asList(thisStr, subStr);
@@ -178,6 +183,10 @@ public class StringMethods
                 break;
             case SQLite:
                 functions = Arrays.asList("(INSTR(SUBSTR(", ",", " + 1),", ") + ", ")");
+                sqlExpressions = Arrays.asList(thisStr, fromIndex, subStr, fromIndex);
+                break;
+            case PostgreSQL:
+                functions = Arrays.asList("(STRPOS(SUBSTR(", ",", " + 1),", ") + ", ")");
                 sqlExpressions = Arrays.asList(thisStr, fromIndex, subStr, fromIndex);
                 break;
             default:

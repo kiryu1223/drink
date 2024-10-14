@@ -21,6 +21,7 @@ public class LogicExpression
                 function = Arrays.asList("IIF(", ",", ",", ")");
                 break;
             case Oracle:
+            case PostgreSQL:
                 function = Arrays.asList("(CASE WHEN ", " THEN ", " ELSE ", " END)");
                 break;
             default:

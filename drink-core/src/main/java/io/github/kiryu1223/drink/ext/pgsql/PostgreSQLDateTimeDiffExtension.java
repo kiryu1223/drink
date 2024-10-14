@@ -32,7 +32,7 @@ public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
                     sqlExpressions.add(to);
                     functions.add(",");
                     sqlExpressions.add(from);
-                    functions.add("))");
+                    functions.add("))::INT8");
                     break;
                 case MONTH:
                     functions.add("(EXTRACT(YEAR FROM AGE(");
@@ -43,49 +43,49 @@ public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
                     sqlExpressions.add(to);
                     functions.add(",");
                     sqlExpressions.add(from);
-                    functions.add(")))");
+                    functions.add(")))::INT8");
                     break;
                 case WEEK:
                     functions.add("(EXTRACT(DAY FROM (");
                     sqlExpressions.add(to);
                     functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(") / 7)");
+                    functions.add(")) / 7)::INT8");
                     break;
                 case DAY:
                     functions.add("EXTRACT(DAY FROM (");
                     sqlExpressions.add(to);
                     functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(")");
+                    functions.add("))::INT8");
                     break;
                 case HOUR:
                     functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
                     functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(") / 3600)");
+                    functions.add(") / 3600)::INT8");
                     break;
                 case MINUTE:
                     functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
                     functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(") / 60)");
+                    functions.add(") / 60)::INT8");
                     break;
                 case SECOND:
                     functions.add("EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
                     functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(")");
+                    functions.add(")::INT8");
                     break;
                 case MILLISECOND:
                     functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
                     functions.add(" - ");
                     sqlExpressions.add(from);
-                    functions.add(") * 1000)");
+                    functions.add(") * 1000)::INT8");
                     break;
             }
         }

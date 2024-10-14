@@ -3,10 +3,17 @@ package io.github.kiryu1223.drink.test.mssql;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static io.github.kiryu1223.drink.ext.SqlFunctions.Case;
+import static io.github.kiryu1223.drink.ext.SqlFunctions.when;
 
 @SuppressWarnings("all")
 public class ControlTest extends BaseTest
 {
+    private static final Logger log = LoggerFactory.getLogger(ControlTest.class);
+
     @Test
     public void ifTest()
     {
@@ -47,5 +54,21 @@ public class ControlTest extends BaseTest
                 .first();
 
         Assert.assertEquals("我们不一样", notEq);
+    }
+
+    @Test
+    public void caseTest()
+    {
+        char a = 'a';
+        char b = 'b';
+        int cmp = client.queryEmptyTable()
+                .endSelect(() -> Case(
+                        0,
+                        when(a > b, 1),
+                        when(a < b, -1)
+                ))
+                .first();
+
+        log.info(String.valueOf(cmp));
     }
 }
