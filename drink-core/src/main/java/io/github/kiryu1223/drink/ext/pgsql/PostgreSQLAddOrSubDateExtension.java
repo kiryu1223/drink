@@ -54,7 +54,7 @@ public class PostgreSQLAddOrSubDateExtension extends BaseSqlExtension
                 SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
                 functions.add(",INTERVAL '" + valueExpression.getValue() + "' ");
                 sqlExpressions.add(args.get(1));
-                functions.add("')");
+                functions.add(")");
             }
             else
             {

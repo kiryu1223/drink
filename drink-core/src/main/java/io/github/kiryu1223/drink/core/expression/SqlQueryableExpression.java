@@ -110,7 +110,7 @@ public class SqlQueryableExpression extends SqlTableExpression
 
     public void setDistinct(boolean distinct)
     {
-        this.select.setSingle(distinct);
+        select.setDistinct(distinct);
     }
 
     public SqlFromExpression getFrom()

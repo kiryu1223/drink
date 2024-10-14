@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ExpressionUtil
@@ -139,6 +141,11 @@ public class ExpressionUtil
     public static boolean isByte(Class<?> type)
     {
         return type == byte.class || type == Byte.class;
+    }
+
+    public static boolean isDateTime(Class<?> type)
+    {
+        return type == java.util.Date.class || type == LocalDateTime.class || type == Timestamp.class;
     }
 
     public static boolean isShort(Class<?> type)

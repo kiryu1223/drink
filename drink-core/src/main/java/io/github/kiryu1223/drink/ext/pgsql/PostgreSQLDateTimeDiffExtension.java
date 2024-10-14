@@ -21,6 +21,11 @@ public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
         SqlExpression unit = args.get(0);
         SqlExpression from = args.get(1);
         SqlExpression to = args.get(2);
+        Class<?>[] parameterTypes = sqlFunc.getParameterTypes();
+        boolean isToIsString = parameterTypes[2] == String.class;
+        boolean isFromIsString = parameterTypes[1] == String.class;
+        String toString = isToIsString ? "::TIMESTAMP" : "";
+        String fromString = isFromIsString ? "::TIMESTAMP" : "";
         if (unit instanceof SqlSingleValueExpression)
         {
             SqlSingleValueExpression sqlSingleValueExpression = (SqlSingleValueExpression) unit;
@@ -30,62 +35,62 @@ public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
                 case YEAR:
                     functions.add("EXTRACT(YEAR FROM AGE(");
                     sqlExpressions.add(to);
-                    functions.add(",");
+                    functions.add(toString + ",");
                     sqlExpressions.add(from);
-                    functions.add("))::INT8");
+                    functions.add(fromString + "))::INT8");
                     break;
                 case MONTH:
                     functions.add("(EXTRACT(YEAR FROM AGE(");
                     sqlExpressions.add(to);
-                    functions.add(",");
+                    functions.add(toString + ",");
                     sqlExpressions.add(from);
-                    functions.add(")) * 12 + EXTRACT(MONTH FROM AGE(");
+                    functions.add(fromString + ")) * 12 + EXTRACT(MONTH FROM AGE(");
                     sqlExpressions.add(to);
-                    functions.add(",");
+                    functions.add(toString + ",");
                     sqlExpressions.add(from);
-                    functions.add(")))::INT8");
+                    functions.add(fromString + ")))::INT8");
                     break;
                 case WEEK:
                     functions.add("(EXTRACT(DAY FROM (");
                     sqlExpressions.add(to);
-                    functions.add(" - ");
+                    functions.add(toString + " - ");
                     sqlExpressions.add(from);
-                    functions.add(")) / 7)::INT8");
+                    functions.add(fromString + ")) / 7)::INT8");
                     break;
                 case DAY:
                     functions.add("EXTRACT(DAY FROM (");
                     sqlExpressions.add(to);
-                    functions.add(" - ");
+                    functions.add(toString + " - ");
                     sqlExpressions.add(from);
-                    functions.add("))::INT8");
+                    functions.add(fromString + "))::INT8");
                     break;
                 case HOUR:
                     functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(" - ");
+                    functions.add(toString + " - ");
                     sqlExpressions.add(from);
-                    functions.add(") / 3600)::INT8");
+                    functions.add(fromString + ") / 3600)::INT8");
                     break;
                 case MINUTE:
                     functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(" - ");
+                    functions.add(toString + " - ");
                     sqlExpressions.add(from);
-                    functions.add(") / 60)::INT8");
+                    functions.add(fromString + ") / 60)::INT8");
                     break;
                 case SECOND:
                     functions.add("EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(" - ");
+                    functions.add(toString + " - ");
                     sqlExpressions.add(from);
-                    functions.add(")::INT8");
+                    functions.add(fromString + ")::INT8");
                     break;
                 case MILLISECOND:
                     functions.add("(EXTRACT(EPOCH FROM ");
                     sqlExpressions.add(to);
-                    functions.add(" - ");
+                    functions.add(toString + " - ");
                     sqlExpressions.add(from);
-                    functions.add(") * 1000)::INT8");
+                    functions.add(fromString + ") * 1000)::INT8");
                     break;
             }
         }

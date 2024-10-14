@@ -4,9 +4,11 @@ import io.github.kiryu1223.drink.config.Config;
 
 import java.math.BigDecimal;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
 
 public abstract class SqlTypeExpression extends SqlExpression
 {
@@ -56,7 +58,7 @@ public abstract class SqlTypeExpression extends SqlExpression
 
     protected boolean isDatetime()
     {
-        return type == java.util.Date.class || type == LocalDateTime.class;
+        return type == java.util.Date.class || type == LocalDateTime.class || type == Timestamp.class;
     }
 
     protected boolean isDecimal()
