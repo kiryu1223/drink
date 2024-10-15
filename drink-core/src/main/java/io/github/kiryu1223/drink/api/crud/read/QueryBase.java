@@ -109,22 +109,30 @@ public abstract class QueryBase extends CRUD
         boolean single = sqlBuilder.isSingle();
         List<PropertyMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
         List<Object> values = new ArrayList<>();
+
+        //long start = System.nanoTime();
         String sql = sqlBuilder.getSqlAndValue(values);
+        //System.out.println("本次toSql耗时" + (System.nanoTime() - start));
+
         tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
         tryPrintSql(log, sql);
         Class<T> targetClass = (Class<T>) sqlBuilder.getTargetClass();
         SqlSession session = config.getSqlSessionFactory().getSession();
+
+        //long start2 = System.nanoTime();
         List<T> ts = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single,config).createList(),
+                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config).createList(),
                 sql,
                 values
         );
+        //System.out.println("本次toBean耗时" + (System.nanoTime() - start2));
+
         if (!sqlBuilder.getIncludeSets().isEmpty())
         {
             try
             {
                 IncludeFactory includeFactory = config.getIncludeFactory();
-                includeFactory.getBuilder(getConfig(),session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
+                includeFactory.getBuilder(getConfig(), session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
             }
             catch (InvocationTargetException | IllegalAccessException e)
             {
@@ -176,7 +184,7 @@ public abstract class QueryBase extends CRUD
                 {
                     case SQLServer:
                     case Oracle:
-                        expression= LogicExpression.IfExpression(config, expression, factory.constString("1"), factory.constString("0"));
+                        expression = LogicExpression.IfExpression(config, expression, factory.constString("1"), factory.constString("0"));
                 }
             }
             selectExpression = factory.select(Collections.singletonList(expression), lambda.getReturnType(), true);

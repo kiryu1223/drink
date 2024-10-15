@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.core.builder;
 
 import io.github.kiryu1223.drink.ext.IConverter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,18 +16,20 @@ public class ConverterCache
 
     public static IConverter<?, ?> get(Class<? extends IConverter<?, ?>> c)
     {
-        if (!converterCache.containsKey(c))
+        IConverter<?, ?> converter = converterCache.get(c);
+        if (converter == null)
         {
             try
             {
-                converterCache.put(c, c.getConstructor().newInstance());
+                converter = c.newInstance();
+                converterCache.put(c, converter);
             }
-            catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                   NoSuchMethodException e)
+            catch (InstantiationException | IllegalAccessException e)
             {
                 throw new RuntimeException(e);
             }
+
         }
-        return converterCache.get(c);
+        return converter;
     }
 }

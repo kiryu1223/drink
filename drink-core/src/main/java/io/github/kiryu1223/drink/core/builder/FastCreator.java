@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 public class FastCreator<T>
 {
     protected static final Unsafe unsafe;
+    protected final Supplier<T> supplier;
 
     static
     {
@@ -34,7 +35,7 @@ public class FastCreator<T>
     {
         this.target = target;
         this.isAnonymousClass = target.isAnonymousClass();
-        //this.lookup = lookup;
+        this.supplier = getCreator();
     }
 
     protected Supplier<T> unsafeCreator()
@@ -74,8 +75,9 @@ public class FastCreator<T>
         }
     }
 
-    public Supplier<T> getCreator()
+    protected Supplier<T> getCreator()
     {
+        if (supplier != null) return supplier;
         if (isAnonymousClass)
         {
             return unsafeCreator();

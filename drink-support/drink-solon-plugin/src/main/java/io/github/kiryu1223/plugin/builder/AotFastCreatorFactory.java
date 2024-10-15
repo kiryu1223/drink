@@ -6,7 +6,7 @@ import io.github.kiryu1223.drink.core.builder.FastCreatorFactory;
 public class AotFastCreatorFactory extends FastCreatorFactory
 {
     @Override
-    public <T> FastCreator<T> get(Class<T> target)
+    public <T> FastCreator<T> create(Class<T> target)
     {
         return new AotFastCreator<>(target);
     }

@@ -16,6 +16,7 @@ public class LimitTest extends BaseTest
     public void firstTest()
     {
         Employee first = client.query(Employee.class).first();
+
         log.info(first.toString());
     }
 

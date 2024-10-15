@@ -17,8 +17,9 @@ public class AotFastCreator<T> extends FastCreator<T>
     }
 
     @Override
-    public Supplier<T> getCreator()
+    protected Supplier<T> getCreator()
     {
+        if (supplier != null) return supplier;
         if (isAnonymousClass)
         {
             return unsafeCreator();
