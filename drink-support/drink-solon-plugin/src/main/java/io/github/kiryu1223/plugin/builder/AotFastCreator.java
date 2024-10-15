@@ -1,6 +1,6 @@
 package io.github.kiryu1223.plugin.builder;
 
-import io.github.kiryu1223.drink.core.builder.FastCreator;
+import io.github.kiryu1223.drink.core.builder.DefaultBeanCreator;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import org.noear.solon.core.runtime.NativeDetector;
@@ -9,7 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Supplier;
 
-public class AotFastCreator<T> extends FastCreator<T>
+public class AotFastCreator<T> extends DefaultBeanCreator<T>
 {
     public AotFastCreator(Class<T> target)
     {
@@ -17,12 +17,11 @@ public class AotFastCreator<T> extends FastCreator<T>
     }
 
     @Override
-    protected Supplier<T> getCreator()
+    public Supplier<T> initBeanCreator(Class<T> target)
     {
-        if (supplier != null) return supplier;
-        if (isAnonymousClass)
+        if (target.isAnonymousClass())
         {
-            return unsafeCreator();
+            return unsafeCreator(target);
         }
         else
         {
@@ -45,7 +44,7 @@ public class AotFastCreator<T> extends FastCreator<T>
             }
             else
             {
-                return methodHandleCreator();
+                return methodHandleCreator(target);
             }
         }
     }

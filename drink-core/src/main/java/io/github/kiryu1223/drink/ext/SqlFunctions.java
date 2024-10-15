@@ -766,7 +766,7 @@ public class SqlFunctions
     @SqlExtensionExpression(dbType = DbType.Oracle, function = "EXTRACT(DAY FROM (TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff') - (TO_TIMESTAMP('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - INTERVAL '2' DAY))")
     @SqlExtensionExpression(dbType = DbType.SQLServer, function = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     @SqlExtensionExpression(dbType = DbType.SQLite, function = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(EPOCH FROM {time}::TIMESTAMP)::INT8 / 86400 + 719528)")
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, function = "(EXTRACT(EPOCH FROM {time}::TIMESTAMP)::INT4 / 86400 + 719528)")
     public static int dateToDays(String time)
     {
         boom();

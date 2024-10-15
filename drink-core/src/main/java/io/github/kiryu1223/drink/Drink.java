@@ -5,7 +5,7 @@ import io.github.kiryu1223.drink.api.transaction.DefaultTransactionManager;
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.config.Option;
-import io.github.kiryu1223.drink.core.builder.FastCreatorFactory;
+import io.github.kiryu1223.drink.core.builder.BeanCreatorFactory;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
@@ -22,7 +22,7 @@ public class Drink
     private DataSourceManager dataSourceManager;
     private TransactionManager transactionManager;
     private SqlSessionFactory sqlSessionFactory;
-    private FastCreatorFactory fastCreatorFactory;
+    private BeanCreatorFactory beanCreatorFactory;
 
     public DrinkClient build()
     {
@@ -38,11 +38,11 @@ public class Drink
         {
             sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
         }
-        if (fastCreatorFactory == null)
+        if (beanCreatorFactory == null)
         {
-            fastCreatorFactory = new FastCreatorFactory();
+            beanCreatorFactory = new BeanCreatorFactory();
         }
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, fastCreatorFactory);
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory);
         return new DrinkClient(config);
     }
 
@@ -81,9 +81,9 @@ public class Drink
         return this;
     }
 
-    public Drink setFastCreatorFactory(FastCreatorFactory fastCreatorFactory)
+    public Drink setFastCreatorFactory(BeanCreatorFactory beanCreatorFactory)
     {
-        this.fastCreatorFactory = fastCreatorFactory;
+        this.beanCreatorFactory = beanCreatorFactory;
         return this;
     }
 }

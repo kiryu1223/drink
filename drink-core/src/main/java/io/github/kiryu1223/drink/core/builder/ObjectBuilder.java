@@ -41,8 +41,8 @@ public class ObjectBuilder<T>
 
     public <Key> Map<Key, T> createMap(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
-        Supplier<T> creator = fastCreator.getCreator();
+        AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
+        Supplier<T> creator = beanCreator.getBeanCreator();
         Map<Key, T> hashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -64,8 +64,8 @@ public class ObjectBuilder<T>
 
     public <Key> Map<Key, List<T>> createMapList(String keyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
-        Supplier<T> creator = fastCreator.getCreator();
+        AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
+        Supplier<T> creator = beanCreator.getBeanCreator();
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -99,8 +99,8 @@ public class ObjectBuilder<T>
 
     public <Key> Map<Key, List<T>> createMapListByAnotherKey(PropertyMetaData anotherKeyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
-        Supplier<T> creator = fastCreator.getCreator();
+        AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
+        Supplier<T> creator = beanCreator.getBeanCreator();
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -158,8 +158,8 @@ public class ObjectBuilder<T>
 
     private List<T> getClassList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        FastCreator<T> fastCreator = config.getFastCreatorFactory().get(target);
-        Supplier<T> creator = fastCreator.getCreator();
+        AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
+        Supplier<T> creator = beanCreator.getBeanCreator();
         List<T> list = new ArrayList<>();
         while (resultSet.next())
         {

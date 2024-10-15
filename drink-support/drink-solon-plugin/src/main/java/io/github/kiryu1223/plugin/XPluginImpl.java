@@ -7,7 +7,7 @@ import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
 import io.github.kiryu1223.plugin.aot.DrinkRuntimeNativeRegistrar;
-import io.github.kiryu1223.plugin.builder.AotFastCreatorFactory;
+import io.github.kiryu1223.plugin.builder.AotBeanCreatorFactory;
 import io.github.kiryu1223.plugin.configuration.DrinkProperties;
 import io.github.kiryu1223.plugin.datasource.SolonDataSourceManagerWrap;
 import io.github.kiryu1223.plugin.datasource.SolonDynamicDataSourceManager;
@@ -39,7 +39,7 @@ public class XPluginImpl implements Plugin
             DataSourceManager dataSourceManager = new SolonDataSourceManagerWrap(properties.getDsName());
             TransactionManager transactionManager = new SolonTransactionManager(dataSourceManager);
             SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
-            AotFastCreatorFactory aotFastCreatorFactory = new AotFastCreatorFactory();
+            AotBeanCreatorFactory aotFastCreatorFactory = new AotBeanCreatorFactory();
             DrinkClient client = Drink.bootStrap()
                     .setDataSourceManager(dataSourceManager)
                     .setTransactionManager(transactionManager)

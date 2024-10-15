@@ -2,7 +2,7 @@ package io.github.kiryu1223.drink.config;
 
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.config.dialect.IDialect;
-import io.github.kiryu1223.drink.core.builder.FastCreatorFactory;
+import io.github.kiryu1223.drink.core.builder.BeanCreatorFactory;
 import io.github.kiryu1223.drink.core.builder.IResultSetValueGetter;
 import io.github.kiryu1223.drink.core.builder.IncludeFactory;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
@@ -20,14 +20,14 @@ public class Config
     private final SqlSessionFactory sqlSessionFactory;
     private final SqlExpressionFactory sqlExpressionFactory;
     private final IncludeFactory includeFactory;
-    private final FastCreatorFactory fastCreatorFactory;
+    private final BeanCreatorFactory beanCreatorFactory;
     private final IResultSetValueGetter valueGetter;
 
-    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, FastCreatorFactory fastCreatorFactory)
+    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory)
     {
         this.option = option;
         this.dbType = dbType;
-        this.fastCreatorFactory = fastCreatorFactory;
+        this.beanCreatorFactory = beanCreatorFactory;
 
         this.disambiguation = dbType.getDialect();
         this.sqlExpressionFactory = dbType.getSqlExpressionFactory();
@@ -122,9 +122,9 @@ public class Config
         return includeFactory;
     }
 
-    public FastCreatorFactory getFastCreatorFactory()
+    public BeanCreatorFactory getFastCreatorFactory()
     {
-        return fastCreatorFactory;
+        return beanCreatorFactory;
     }
 
     public IResultSetValueGetter getValueGetter()
