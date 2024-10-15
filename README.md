@@ -324,6 +324,16 @@ qq群：257911716
 
 3. 启动！
 
+## 数据库支持
+
++ h2
++ mysql
++ oracle
++ sqlserver
++ sqlite
++ pgsql
++ ...
+
 ## 常用的注解
 
 `Table`：用于表示表名的注解
