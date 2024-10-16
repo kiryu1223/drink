@@ -6,6 +6,7 @@ import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ public class ObjectBuilder<T>
     {
         AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
+        Map<String, Integer> indexMap = getIndexMap();
         Map<Key, T> hashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -50,7 +52,7 @@ public class ObjectBuilder<T>
             Key key = null;
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
-                Object value = convertValue(metaData);
+                Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
                 if (column.equals(metaData.getColumn()))
                 {
                     key = (Key) value;
@@ -66,6 +68,8 @@ public class ObjectBuilder<T>
     {
         AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
+        Map<String, Integer> indexMap = getIndexMap();
+       // System.out.println(indexMap);
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -73,7 +77,9 @@ public class ObjectBuilder<T>
             Key key = null;
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
-                Object value = convertValue(metaData);
+                String column = metaData.getColumn();
+                //System.out.println(column);
+                Object value = convertValue(metaData, indexMap.get(column));
                 if (keyColumn.equals(metaData.getColumn()))
                 {
                     key = (Key) value;
@@ -101,6 +107,7 @@ public class ObjectBuilder<T>
     {
         AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
+        Map<String, Integer> indexMap = getIndexMap();
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -108,7 +115,7 @@ public class ObjectBuilder<T>
             Key key = resultSet.getObject(anotherKeyColumn.getColumn(), (Class<? extends Key>) upperClass(anotherKeyColumn.getType()));
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
-                Object value = convertValue(metaData);
+                Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
                 if (value != null) metaData.getSetter().invoke(t, value);
 //                if (anotherKeyColumn.equals(metaData.getColumn()))
 //                {
@@ -150,7 +157,7 @@ public class ObjectBuilder<T>
         List<T> list = new ArrayList<>();
         while (resultSet.next())
         {
-            T t = (T) valueGetter.getFirstValue(resultSet, target);
+            T t = (T) valueGetter.getValueByIndex(resultSet, 1, target);
             list.add(t);
         }
         return list;
@@ -160,35 +167,53 @@ public class ObjectBuilder<T>
     {
         AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
+        Map<String, Integer> indexMap = getIndexMap();
         List<T> list = new ArrayList<>();
         while (resultSet.next())
         {
             T t = creator.get();
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
-                Object value = convertValue(metaData);
-                if (value != null) metaData.getSetter().invoke(t, value);
+                Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
+                if (value != null)
+                {
+                    ISetterCaller<T> beanSetter = beanCreator.getBeanSetter(metaData.getProperty());
+                    beanSetter.call(t, value);
+                    //metaData.getSetter().invoke(t, value);
+                }
             }
             list.add(t);
         }
+
         return list;
     }
 
-    private Object convertValue(PropertyMetaData metaData) throws SQLException, NoSuchFieldException, IllegalAccessException
+    private Map<String, Integer> getIndexMap() throws SQLException
     {
-        String column = metaData.getColumn();
+        Map<String, Integer> indexMap = new HashMap<>();
+        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+        for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++)
+        {
+            String columnLabel = resultSetMetaData.getColumnLabel(i);
+            indexMap.put(columnLabel, i);
+        }
+        return indexMap;
+    }
+
+    private Object convertValue(PropertyMetaData metaData, int index) throws SQLException, NoSuchFieldException, IllegalAccessException
+    {
         Class<?> type;
         if (metaData.hasConverter())
         {
             type = metaData.getConverter().getDbType();
-            Object value = valueGetter.getValueByName(resultSet, column, type);
+            Object value = valueGetter.getValueByIndex(resultSet, index, type);
             IConverter<?, ?> converter = metaData.getConverter();
             return converter.toJava(cast(value), metaData);
         }
         else
         {
             type = metaData.getType();
-            return valueGetter.getValueByName(resultSet, column, type);
+            return valueGetter.getValueByIndex(resultSet, index, type);
         }
     }
 

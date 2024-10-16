@@ -1,9 +1,9 @@
 package io.github.kiryu1223.drink.core.session;
 
+import io.github.kiryu1223.drink.api.StopWatch;
 import io.github.kiryu1223.drink.api.crud.create.SqlValue;
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.ext.types.Char;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
@@ -228,7 +228,15 @@ public class DefaultSqlSession implements SqlSession
             {
                 preparedStatement.setString(index++, value.toString());
             }
-            else if(value instanceof Character)
+            else if (value instanceof Character)
+            {
+                preparedStatement.setString(index++, value.toString());
+            }
+            else if (value instanceof Integer)
+            {
+                preparedStatement.setInt(index++, (int) value);
+            }
+            else if (value instanceof String)
             {
                 preparedStatement.setString(index++, value.toString());
             }

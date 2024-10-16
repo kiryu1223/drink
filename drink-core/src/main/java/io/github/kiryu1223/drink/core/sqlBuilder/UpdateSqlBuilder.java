@@ -84,7 +84,7 @@ public class UpdateSqlBuilder implements ISqlBuilder
     {
         MetaData metaData = MetaDataCache.getMetaData(target);
         IDialect dbConfig = config.getDisambiguation();
-        String sql = "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
+        String sql = "UPDATE " + dbConfig.disambiguationTableName(metaData.getTableName()) + " AS t0";
         StringBuilder sb = new StringBuilder();
         sb.append(sql);
         String joinsSqlAndValue = joins.getSql(config);
@@ -106,7 +106,7 @@ public class UpdateSqlBuilder implements ISqlBuilder
     {
         MetaData metaData = MetaDataCache.getMetaData(target);
         IDialect dbConfig = config.getDisambiguation();
-        String sql = "UPDATE " + dbConfig.disambiguation(metaData.getTableName()) + " AS t0";
+        String sql = "UPDATE " + dbConfig.disambiguationTableName(metaData.getTableName()) + " AS t0";
         List<String> sb = new ArrayList<>();
         sb.add(sql);
         String joinsSqlAndValue = joins.getSqlAndValue(config, values);

@@ -47,7 +47,7 @@ public class MetaData
             Field field = ReflectUtil.getField(type, property);
             Column column = field.getAnnotation(Column.class);
             String columnStr = (column == null || column.value().isEmpty()) ? property : column.value();
-            IConverter<?, ?> converter = column == null ? ConverterCache.get(NoConverter.class) : ConverterCache.get(column.converter());
+            IConverter<?, ?> converter = column == null ? null : ConverterCache.get(column.converter());
             NavigateData navigateData = null;
             Navigate navigate = field.getAnnotation(Navigate.class);
             boolean isPrimaryKey = column != null && column.primaryKey();
@@ -67,7 +67,7 @@ public class MetaData
                 }
             }
             boolean ignoreColumn = field.getAnnotation(IgnoreColumn.class) != null || navigateData != null;
-            propertys.add(new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter, ignoreColumn, navigateData, isPrimaryKey));
+            propertys.add(new PropertyMetaData(property, columnStr, descriptor.getReadMethod(), descriptor.getWriteMethod(), field, converter instanceof NoConverter ? null : converter, ignoreColumn, navigateData, isPrimaryKey));
         }
     }
 
@@ -94,14 +94,14 @@ public class MetaData
         return propertys.stream().filter(f -> !f.isIgnoreColumn()).collect(Collectors.toList());
     }
 
-    public PropertyMetaData getPropertyMetaData(String key)
+    public PropertyMetaData getPropertyMetaDataByFieldName(String key)
     {
-        return propertys.stream().filter(f -> f.getProperty().equals(key)).findFirst().get();
+        return propertys.stream().filter(f -> f.getProperty().equals(key)).findFirst().orElseThrow(() -> new DrinkNotFoundPropertyException(key));
     }
 
     public PropertyMetaData getPropertyMetaDataByColumnName(String asName)
     {
-        return propertys.stream().filter(f -> f.getColumn().equals(asName)).findFirst().get();
+        return propertys.stream().filter(f -> f.getColumn().equals(asName)).findFirst().orElseThrow(() -> new DrinkNotFoundPropertyException(asName));
     }
 
     public PropertyMetaData getPropertyMetaDataByGetter(Method getter)

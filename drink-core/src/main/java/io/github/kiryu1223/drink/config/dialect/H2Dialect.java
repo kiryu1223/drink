@@ -5,6 +5,6 @@ public class H2Dialect implements IDialect
     @Override
     public String disambiguation(String property)
     {
-        return "`" + property + "`";
+        return "\"" + property + "\"";
     }
 }

@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -138,6 +139,16 @@ public class ExpressionUtil
         return type == char.class || type == Character.class;
     }
 
+    public static boolean isString(Class<?> type)
+    {
+        return type == String.class;
+    }
+
+    public static boolean isInt(Class<?> type)
+    {
+        return type == int.class || type == Integer.class;
+    }
+
     public static boolean isByte(Class<?> type)
     {
         return type == byte.class || type == Byte.class;
@@ -146,6 +157,11 @@ public class ExpressionUtil
     public static boolean isDateTime(Class<?> type)
     {
         return type == java.util.Date.class || type == LocalDateTime.class || type == Timestamp.class;
+    }
+
+    public static boolean isDate(Class<?> type)
+    {
+        return type == java.sql.Date.class || type == LocalDate.class;
     }
 
     public static boolean isShort(Class<?> type)

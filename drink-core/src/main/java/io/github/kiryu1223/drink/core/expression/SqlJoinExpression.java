@@ -27,7 +27,8 @@ public class SqlJoinExpression extends SqlExpression
     @Override
     public String getSqlAndValue(Config config, List<Object> values)
     {
-        return joinType.getJoin() + " " + (joinTable instanceof SqlRealTableExpression ? joinTable.getSqlAndValue(config, values) : "(" + joinTable.getSqlAndValue(config, values) + ")") + " AS t" + index + " ON " + conditions.getSqlAndValue(config, values);
+        String t = "t" + index;
+        return joinType.getJoin() + " " + (joinTable instanceof SqlRealTableExpression ? joinTable.getSqlAndValue(config, values) : "(" + joinTable.getSqlAndValue(config, values) + ")") + " AS " + config.getDisambiguation().disambiguation(t) + " ON " + conditions.getSqlAndValue(config, values);
     }
 
     @Override

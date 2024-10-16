@@ -89,7 +89,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
             int index = parameters.indexOf(parameter) + offset;
             Field field = fieldSelect.getField();
             MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
-            return factory.column(metaData.getPropertyMetaData(field.getName()), index);
+            return factory.column(metaData.getPropertyMetaDataByFieldName(field.getName()), index);
         }
         else
         {

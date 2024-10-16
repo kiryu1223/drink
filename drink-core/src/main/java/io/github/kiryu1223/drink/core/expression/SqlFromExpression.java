@@ -3,7 +3,6 @@ package io.github.kiryu1223.drink.core.expression;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.ext.DbType;
 
 import java.util.List;
 
@@ -48,7 +47,8 @@ public class SqlFromExpression extends SqlExpression
         {
             sql = "(" + sqlTableExpression.getSqlAndValue(config, values) + ")";
         }
-        return "FROM " + sql + " AS t" + index;
+        String t = "t" + index;
+        return "FROM " + sql + " AS " + config.getDisambiguation().disambiguation(t);
     }
 
     @Override

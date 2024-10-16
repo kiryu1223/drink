@@ -71,7 +71,7 @@ public class PropertyMetaData
 
     public boolean hasConverter()
     {
-        return converter != null && !(converter instanceof NoConverter);
+        return converter != null;
     }
 
     public boolean isIgnoreColumn()

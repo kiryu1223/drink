@@ -50,44 +50,44 @@ public class PostgreSQLResultSetValueGetter extends DefaultResultSetValueGetter
     }
 
     @Override
-    public Object getFirstValue(ResultSet resultSet, Class<?> type) throws NoSuchFieldException, IllegalAccessException, SQLException
+    public Object getValueByIndex(ResultSet resultSet,int index, Class<?> type) throws NoSuchFieldException, IllegalAccessException, SQLException
     {
         if (type.isEnum())
         {
-            String Enum = resultSet.getString(1);
+            String Enum = resultSet.getString(index);
             return type.getField(Enum).get(null);
         }
         else if (isChar(type))
         {
-            String result = resultSet.getString(1);
+            String result = resultSet.getString(index);
             return (result != null && !result.isEmpty()) ? result.charAt(0) : null;
         }
         else if (isShort(type))
         {
-            return resultSet.getShort(1);
+            return resultSet.getShort(index);
         }
         else if (isByte(type))
         {
-            return resultSet.getByte(1);
+            return resultSet.getByte(index);
         }
         else if (type == LocalDateTime.class)
         {
-            Timestamp timestamp = resultSet.getTimestamp(1);
+            Timestamp timestamp = resultSet.getTimestamp(index);
             return timestamp.toLocalDateTime();
         }
         else if (type == LocalDate.class)
         {
-            Date date = resultSet.getDate(1);
+            Date date = resultSet.getDate(index);
             return date.toLocalDate();
         }
         else if (type == LocalTime.class)
         {
-            Time time = resultSet.getTime(1);
+            Time time = resultSet.getTime(index);
             return time.toLocalTime();
         }
         else
         {
-            return resultSet.getObject(1, upperClass(type));
+            return resultSet.getObject(index, upperClass(type));
         }
     }
 }

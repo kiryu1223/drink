@@ -1,9 +1,14 @@
 package io.github.kiryu1223.drink.core.builder;
 
+import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
+import io.github.kiryu1223.drink.exception.DrinkException;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 public class DefaultBeanCreator<T> extends AbsBeanCreator<T>
@@ -76,6 +81,61 @@ public class DefaultBeanCreator<T> extends AbsBeanCreator<T>
         catch (Throwable e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    protected ISetterCaller<T> initBeanSetter(String property)
+    {
+        if (target.isAnonymousClass())
+        {
+            return methodBeanSetter(property);
+        }
+        else
+        {
+            return methodHandleBeanSetter(property);
+        }
+    }
+
+    protected ISetterCaller<T> methodBeanSetter(String property)
+    {
+        PropertyMetaData propertyMetaData = MetaDataCache.getMetaData(target).getPropertyMetaDataByFieldName(property);
+        Method setter = propertyMetaData.getSetter();
+        return (t, v) -> setter.invoke(t, v);
+    }
+
+    protected ISetterCaller<T> methodHandleBeanSetter(String property)
+    {
+        PropertyMetaData propertyMetaData = MetaDataCache.getMetaData(target).getPropertyMetaDataByFieldName(property);
+        Class<?> propertyType = propertyMetaData.getType();
+
+        MethodHandles.Lookup caller = MethodHandles.lookup();
+        Method writeMethod = propertyMetaData.getSetter();
+        MethodType setter = MethodType.methodType(writeMethod.getReturnType(), propertyType);
+
+        Class<?> lambdaPropertyType = ExpressionUtil.upperClass(propertyType);
+        String getFunName = writeMethod.getName();
+        try
+        {
+
+            //()->{bean.setxxx(propertyType)}
+            MethodType instantiatedMethodType = MethodType.methodType(void.class, target, lambdaPropertyType);
+            MethodHandle targetHandle = caller.findVirtual(target, getFunName, setter);
+            MethodType samMethodType = MethodType.methodType(void.class, Object.class, Object.class);
+            CallSite site = LambdaMetafactory.metafactory(
+                    caller,
+                    "apply",
+                    MethodType.methodType(IVoidSetter.class),
+                    samMethodType,
+                    targetHandle,
+                    instantiatedMethodType
+            );
+
+            IVoidSetter<Object, Object> objectPropertyVoidSetter = (IVoidSetter<Object, Object>) site.getTarget().invokeExact();
+            return objectPropertyVoidSetter::apply;
+        }
+        catch (Throwable e)
+        {
+            throw new DrinkException(e);
         }
     }
 }

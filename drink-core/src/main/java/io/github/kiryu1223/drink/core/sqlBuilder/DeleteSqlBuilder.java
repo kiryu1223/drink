@@ -120,6 +120,6 @@ public class DeleteSqlBuilder implements ISqlBuilder
         }
         IDialect dbConfig = config.getDisambiguation();
         MetaData metaData = MetaDataCache.getMetaData(target);
-        return builder.append(" FROM ").append(dbConfig.disambiguation(metaData.getTableName())).append(" AS t0").toString();
+        return builder.append(" FROM ").append(dbConfig.disambiguationTableName(metaData.getTableName())).append(" AS t0").toString();
     }
 }

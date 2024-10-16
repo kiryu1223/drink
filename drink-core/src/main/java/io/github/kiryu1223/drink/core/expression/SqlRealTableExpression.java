@@ -31,9 +31,9 @@ public class SqlRealTableExpression extends SqlTableExpression
         String schema = metaData.getSchema();
         if (!schema.isEmpty())
         {
-            fullName += dbConfig.disambiguation(schema) + ".";
+            fullName += dbConfig.disambiguationTableName(schema) + ".";
         }
-        fullName += dbConfig.disambiguation(metaData.getTableName());
+        fullName += dbConfig.disambiguationTableName(metaData.getTableName());
         return fullName;
     }
 

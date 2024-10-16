@@ -116,7 +116,7 @@ public class SelectVisitor extends SqlVisitor
 //                {
 //                    MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
 //                    String name = metaData.getColumnNameBySetter(method);
-//                    //propertyMetaData.add(metaData.getPropertyMetaData(name));
+//                    //propertyMetaData.add(metaData.getPropertyMetaDataByFieldName(name));
 //                    SqlExpression expr = visit(methodCall.getArgs().get(0));
 //                    setAs(expressions, expr, name);
 //                }

@@ -31,13 +31,14 @@ public class SqlColumnExpression extends SqlExpression
     public String getSqlAndValue(Config config, List<Object> values)
     {
         IDialect dbConfig = config.getDisambiguation();
-        return "t" + tableIndex + "." + dbConfig.disambiguation(propertyMetaData.getColumn());
+        String t = "t" + tableIndex;
+        return dbConfig.disambiguation(t) + "." + dbConfig.disambiguation(propertyMetaData.getColumn());
     }
 
     @Override
     public <T extends SqlExpression> T copy(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return (T) factory.column(propertyMetaData,tableIndex);
+        return (T) factory.column(propertyMetaData, tableIndex);
     }
 }

@@ -48,8 +48,8 @@ public class IncludeBuilder<T>
         {
             NavigateData navigateData = include.getColumnExpression().getPropertyMetaData().getNavigateData();
             Class<?> navigateTargetType = navigateData.getNavigateTargetType();
-            PropertyMetaData selfPropertyMetaData = targetClassMetaData.getPropertyMetaData(navigateData.getSelfPropertyName());
-            PropertyMetaData targetPropertyMetaData = MetaDataCache.getMetaData(navigateTargetType).getPropertyMetaData(navigateData.getTargetPropertyName());
+            PropertyMetaData selfPropertyMetaData = targetClassMetaData.getPropertyMetaDataByFieldName(navigateData.getSelfPropertyName());
+            PropertyMetaData targetPropertyMetaData = MetaDataCache.getMetaData(navigateTargetType).getPropertyMetaDataByFieldName(navigateData.getTargetPropertyName());
             PropertyMetaData includePropertyMetaData = include.getColumnExpression().getPropertyMetaData();
 
             Map<Object, List<T>> sourcesMapList = cache.get(selfPropertyMetaData);
@@ -249,9 +249,9 @@ public class IncludeBuilder<T>
         Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
         MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
         String selfMappingPropertyName = navigateData.getSelfMappingPropertyName();
-        PropertyMetaData selfMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(selfMappingPropertyName);
+        PropertyMetaData selfMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaDataByFieldName(selfMappingPropertyName);
         String targetMappingPropertyName = navigateData.getTargetMappingPropertyName();
-        PropertyMetaData targetMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaData(targetMappingPropertyName);
+        PropertyMetaData targetMappingPropertyMetaData = mappingTableMetadata.getPropertyMetaDataByFieldName(targetMappingPropertyName);
         // 查询目标表
         SqlQueryableExpression tempQueryable = factory.queryable(navigateTargetType);
         // join中间表

@@ -146,7 +146,7 @@ public abstract class InsertBase extends CRUD
 
         }
         IDialect dialect = getSqlBuilder().getConfig().getDisambiguation();
-        return "INSERT INTO " + dialect.disambiguation(metaData.getTableName()) + "(" + String.join(",", tableFields)
+        return "INSERT INTO " + dialect.disambiguationTableName(metaData.getTableName()) + "(" + String.join(",", tableFields)
                 + ") VALUES(" + String.join(",", tableValues) + ")";
     }
 }

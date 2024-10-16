@@ -37,25 +37,25 @@ public class SqliteResultSetValueGetter extends DefaultResultSetValueGetter
     }
 
     @Override
-    public Object getFirstValue(ResultSet resultSet, Class<?> type) throws NoSuchFieldException, IllegalAccessException, SQLException
+    public Object getValueByIndex(ResultSet resultSet,int index, Class<?> type) throws NoSuchFieldException, IllegalAccessException, SQLException
     {
         if (type.isEnum())
         {
-            String Enum = resultSet.getString(1);
+            String Enum = resultSet.getString(index);
             return type.getField(Enum).get(null);
         }
         else if (isChar(type))
         {
-            String result = resultSet.getString(1);
+            String result = resultSet.getString(index);
             return (result != null && !result.isEmpty()) ? result.charAt(0) : null;
         }
         else if (isShort(type))
         {
-            return resultSet.getShort(1);
+            return resultSet.getShort(index);
         }
         else
         {
-            return resultSet.getObject(1, upperClass(type));
+            return resultSet.getObject(index, upperClass(type));
         }
     }
 }

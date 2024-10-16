@@ -8,4 +8,9 @@ public class DrinkNotFoundPropertyException extends DrinkException
     {
         super(method.toGenericString());
     }
+
+    public DrinkNotFoundPropertyException(String name)
+    {
+        super(name);
+    }
 }
