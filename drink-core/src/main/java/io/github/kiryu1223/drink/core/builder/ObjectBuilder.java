@@ -69,7 +69,7 @@ public class ObjectBuilder<T>
         AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
-       // System.out.println(indexMap);
+        // System.out.println(indexMap);
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
         {
@@ -108,11 +108,13 @@ public class ObjectBuilder<T>
         AbsBeanCreator<T> beanCreator = config.getFastCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
+        int anotherKeyIndex = indexMap.get(anotherKeyColumn.getColumn());
         Map<Key, List<T>> hashMap = new HashMap<>();
         while (resultSet.next())
         {
             T t = creator.get();
-            Key key = resultSet.getObject(anotherKeyColumn.getColumn(), (Class<? extends Key>) upperClass(anotherKeyColumn.getType()));
+            //Key key = resultSet.getObject(anotherKeyColumn.getColumn(), (Class<? extends Key>) upperClass(anotherKeyColumn.getType()));
+            Key key = (Key) convertValue(anotherKeyColumn, anotherKeyIndex);
             for (PropertyMetaData metaData : propertyMetaDataList)
             {
                 Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
