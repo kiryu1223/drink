@@ -26,11 +26,6 @@ public class DefaultDataSourceManager implements DataSourceManager
         return getDataSource().getConnection();
     }
 
-    public void addDataSource(String key, DataSource dataSource)
-    {
-        dataSourceMap.put(key, dataSource);
-    }
-
     public DataSource getDataSource()
     {
         String key = getDsKey();

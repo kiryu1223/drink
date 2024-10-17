@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class EmployeeService
 {
-    @Inject("main")
+    @Inject
     DrinkClient client;
 
     // 查询员工的基本信息和当前职位

@@ -11,8 +11,6 @@ public interface DataSourceManager
 
     DataSource getDataSource();
 
-    void addDataSource(String key, DataSource dataSource);
-
     void useDs(String key);
 
     void useDefDs();

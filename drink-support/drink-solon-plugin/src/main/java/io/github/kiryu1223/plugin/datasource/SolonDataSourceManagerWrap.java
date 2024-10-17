@@ -8,13 +8,7 @@ import java.sql.SQLException;
 
 public class SolonDataSourceManagerWrap implements DataSourceManager
 {
-    private SolonDataSourceManager dataSourceManager;
-    private final String dsName;
-
-    public SolonDataSourceManagerWrap(String dsName)
-    {
-        this.dsName = dsName;
-    }
+    private DataSourceManager dataSourceManager;
 
     @Override
     public Connection getConnection() throws SQLException
@@ -26,12 +20,6 @@ public class SolonDataSourceManagerWrap implements DataSourceManager
     public DataSource getDataSource()
     {
         return dataSourceManager.getDataSource();
-    }
-
-    @Override
-    public void addDataSource(String key, DataSource dataSource)
-    {
-        dataSourceManager.addDataSource(key, dataSource);
     }
 
     @Override
@@ -52,12 +40,7 @@ public class SolonDataSourceManagerWrap implements DataSourceManager
         return dataSourceManager.getDsKey();
     }
 
-    public String getDsName()
-    {
-        return dsName;
-    }
-
-    public void setDataSourceManager(SolonDataSourceManager dataSourceManager)
+    public void setDataSourceManager(DataSourceManager dataSourceManager)
     {
         if (hasDataSource())
         {

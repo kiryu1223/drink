@@ -1,6 +1,7 @@
 package io.github.kiryu1223.plugin.builder;
 
 import io.github.kiryu1223.drink.core.builder.DefaultBeanCreator;
+import io.github.kiryu1223.drink.core.builder.ISetterCaller;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import org.noear.solon.core.runtime.NativeDetector;
@@ -45,6 +46,27 @@ public class AotFastCreator<T> extends DefaultBeanCreator<T>
             else
             {
                 return methodHandleCreator(target);
+            }
+        }
+    }
+
+    @Override
+    protected ISetterCaller<T> initBeanSetter(String property)
+    {
+        if (target.isAnonymousClass())
+        {
+            return methodBeanSetter(property);
+        }
+        else
+        {
+            // aot下我们不能使用方法句柄
+            if (NativeDetector.inNativeImage())
+            {
+                return methodBeanSetter(property);
+            }
+            else
+            {
+                return methodHandleBeanSetter(property);
             }
         }
     }

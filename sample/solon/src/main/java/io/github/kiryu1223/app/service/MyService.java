@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 public class MyService
 {
-    @Inject("main")
+    @Inject
     DrinkClient client;
 
     public long showCount()
