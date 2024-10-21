@@ -1,37 +1,32 @@
 package io.github.kiryu1223.drink.ext.sqlite;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.exception.DrinkIntervalException;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
 import io.github.kiryu1223.drink.ext.DbType;
-import io.github.kiryu1223.drink.ext.FunctionBox;
 
 import java.lang.reflect.Method;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SqliteAddOrSubDateExtension extends BaseSqlExtension
 {
-//    static
-//    {
-//        new MySqlDateTimeDiffExtension();
-//    }
-
     @Override
-    public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
+    public SqlExpression parse(Config config, Method sqlFunc, List<SqlExpression> args)
     {
-        FunctionBox box = new FunctionBox();
-        List<String> functions = box.getFunctions();
-        List<SqlExpression> sqlExpressions = box.getSqlExpressions();
+        List<String> templates = new ArrayList<>();
+        List<SqlExpression> sqlExpressions = new ArrayList<>();
         boolean isPlus = sqlFunc.getName().equals("addDate");
         if (sqlFunc.getParameterTypes()[0] == LocalDate.class)
         {
-            functions.add("DATE(");
+            templates.add("DATE(");
         }
         else
         {
-            functions.add("DATETIME(");
+            templates.add("DATETIME(");
         }
         sqlExpressions.add(args.get(0));
         if (sqlFunc.getParameterCount() == 2)
@@ -40,7 +35,7 @@ public class SqliteAddOrSubDateExtension extends BaseSqlExtension
             if (num instanceof SqlSingleValueExpression)
             {
                 SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
-                functions.add(",'" + (isPlus ? "" : "-") + valueExpression.getValue() + " DAY')");
+                templates.add(",'" + (isPlus ? "" : "-") + valueExpression.getValue() + " DAY')");
             }
             else
             {
@@ -53,15 +48,15 @@ public class SqliteAddOrSubDateExtension extends BaseSqlExtension
             if (num instanceof SqlSingleValueExpression)
             {
                 SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
-                functions.add(",'" + (isPlus ? "" : "-") + valueExpression.getValue()+" ");
+                templates.add(",'" + (isPlus ? "" : "-") + valueExpression.getValue()+" ");
                 sqlExpressions.add(args.get(1));
-                functions.add("')");
+                templates.add("')");
             }
             else
             {
                 throw new DrinkIntervalException(DbType.SQLite);
             }
         }
-        return box;
+        return config.getSqlExpressionFactory().template(templates, sqlExpressions);
     }
 }

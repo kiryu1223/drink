@@ -29,12 +29,6 @@ public class SpringSingleDataSourceManager implements DataSourceManager
     }
 
     @Override
-    public void addDataSource(String key, DataSource dataSource)
-    {
-        throw new RuntimeException("Single DataSourceManager does not support addDataSource");
-    }
-
-    @Override
     public void useDs(String key)
     {
         throw new RuntimeException("single DataSourceManager does not support useDs");

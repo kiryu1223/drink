@@ -26,7 +26,7 @@ public class StringMethods
                 functions = Arrays.asList("CONCAT('%',", ",'%')");
                 break;
         }
-        SqlFunctionExpression function = factory.function(functions, Collections.singletonList(right));
+        SqlTemplateExpression function = factory.template(functions, Collections.singletonList(right));
         return factory.binary(SqlOperator.LIKE, left, function);
     }
 
@@ -44,7 +44,7 @@ public class StringMethods
                 functions = Arrays.asList("CONCAT(", ",'%')");
                 break;
         }
-        return factory.binary(SqlOperator.LIKE, left, factory.function(functions, args));
+        return factory.binary(SqlOperator.LIKE, left, factory.template(functions, args));
     }
 
     public static SqlBinaryExpression endsWith(Config config, SqlExpression left, SqlExpression right)
@@ -61,10 +61,10 @@ public class StringMethods
                 functions = Arrays.asList("CONCAT('%',", ")");
                 break;
         }
-        return factory.binary(SqlOperator.LIKE, left, factory.function(functions, args));
+        return factory.binary(SqlOperator.LIKE, left, factory.template(functions, args));
     }
 
-    public static SqlFunctionExpression length(Config config, SqlExpression thiz)
+    public static SqlTemplateExpression length(Config config, SqlExpression thiz)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
@@ -85,24 +85,24 @@ public class StringMethods
             default:
                 functions = Arrays.asList("CHAR_LENGTH(", ")");
         }
-        return factory.function(functions, Collections.singletonList(thiz));
+        return factory.template(functions, Collections.singletonList(thiz));
     }
 
-    public static SqlFunctionExpression toUpperCase(Config config, SqlExpression thiz)
+    public static SqlTemplateExpression toUpperCase(Config config, SqlExpression thiz)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions = Arrays.asList("UPPER(", ")");
-        return factory.function(functions, Collections.singletonList(thiz));
+        return factory.template(functions, Collections.singletonList(thiz));
     }
 
-    public static SqlFunctionExpression toLowerCase(Config config, SqlExpression thiz)
+    public static SqlTemplateExpression toLowerCase(Config config, SqlExpression thiz)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions = Arrays.asList("LOWER(", ")");
-        return factory.function(functions, Collections.singletonList(thiz));
+        return factory.template(functions, Collections.singletonList(thiz));
     }
 
-    public static SqlFunctionExpression concat(Config config, SqlExpression left, SqlExpression right)
+    public static SqlTemplateExpression concat(Config config, SqlExpression left, SqlExpression right)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
@@ -114,14 +114,14 @@ public class StringMethods
             default:
                 functions = Arrays.asList("CONCAT(", ",", ")");
         }
-        return factory.function(functions, Arrays.asList(left, right));
+        return factory.template(functions, Arrays.asList(left, right));
     }
 
-    public static SqlFunctionExpression trim(Config config, SqlExpression thiz)
+    public static SqlTemplateExpression trim(Config config, SqlExpression thiz)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions = Arrays.asList("TRIM(", ")");
-        return factory.function(functions, Collections.singletonList(thiz));
+        return factory.template(functions, Collections.singletonList(thiz));
     }
 
     public static SqlExpression isEmpty(Config config, SqlExpression thiz)
@@ -130,13 +130,13 @@ public class StringMethods
         switch (config.getDbType())
         {
             case SQLServer:
-                return factory.parens(factory.binary(SqlOperator.EQ, factory.function(Arrays.asList("DATALENGTH(", ")"), Collections.singletonList(thiz)), factory.constString("0")));
+                return factory.parens(factory.binary(SqlOperator.EQ, factory.template(Arrays.asList("DATALENGTH(", ")"), Collections.singletonList(thiz)), factory.constString("0")));
             default:
                 return factory.parens(factory.binary(SqlOperator.EQ, length(config, thiz), factory.constString("0")));
         }
 //        if (config.getDbType() == DbType.SQLServer)
 //        {
-//            return factory.function(Arrays.asList("IIF(", ",1,0)"), Collections.singletonList(parens));
+//            return factory.template(Arrays.asList("IIF(", ",1,0)"), Collections.singletonList(parens));
 //        }
 //        else
 //        {
@@ -144,7 +144,7 @@ public class StringMethods
 //        }
     }
 
-    public static SqlFunctionExpression indexOf(Config config, SqlExpression thisStr, SqlExpression subStr)
+    public static SqlTemplateExpression indexOf(Config config, SqlExpression thisStr, SqlExpression subStr)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
@@ -163,10 +163,10 @@ public class StringMethods
                 functions = Arrays.asList("INSTR(", ",", ")");
                 sqlExpressions = Arrays.asList(thisStr, subStr);
         }
-        return factory.function(functions, sqlExpressions);
+        return factory.template(functions, sqlExpressions);
     }
 
-    public static SqlFunctionExpression indexOf(Config config, SqlExpression thisStr, SqlExpression subStr, SqlExpression fromIndex)
+    public static SqlTemplateExpression indexOf(Config config, SqlExpression thisStr, SqlExpression subStr, SqlExpression fromIndex)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
@@ -193,18 +193,18 @@ public class StringMethods
                 functions = Arrays.asList("LOCATE(", ",", ",", ")");
                 sqlExpressions = Arrays.asList(subStr, thisStr, fromIndex);
         }
-        return factory.function(functions, sqlExpressions);
+        return factory.template(functions, sqlExpressions);
     }
 
-    public static SqlFunctionExpression replace(Config config, SqlExpression thisStr, SqlExpression oldStr, SqlExpression newStr)
+    public static SqlTemplateExpression replace(Config config, SqlExpression thisStr, SqlExpression oldStr, SqlExpression newStr)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions = Arrays.asList("REPLACE(", ",", ",", ")");
         List<SqlExpression> sqlExpressions = Arrays.asList(thisStr, oldStr, newStr);
-        return factory.function(functions, sqlExpressions);
+        return factory.template(functions, sqlExpressions);
     }
 
-    public static SqlFunctionExpression substring(Config config, SqlExpression thisStr, SqlExpression beginIndex)
+    public static SqlTemplateExpression substring(Config config, SqlExpression thisStr, SqlExpression beginIndex)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
@@ -220,10 +220,10 @@ public class StringMethods
                 sqlExpressions = Arrays.asList(thisStr, beginIndex);
                 break;
         }
-        return factory.function(functions, sqlExpressions);
+        return factory.template(functions, sqlExpressions);
     }
 
-    public static SqlFunctionExpression substring(Config config, SqlExpression thisStr, SqlExpression beginIndex, SqlExpression endIndex)
+    public static SqlTemplateExpression substring(Config config, SqlExpression thisStr, SqlExpression beginIndex, SqlExpression endIndex)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
@@ -236,10 +236,10 @@ public class StringMethods
             default:
                 functions = Arrays.asList("SUBSTR(", ",", ",", ")");
         }
-        return factory.function(functions, sqlExpressions);
+        return factory.template(functions, sqlExpressions);
     }
 
-    public static SqlFunctionExpression joinArray(Config config, SqlExpression delimiter, List<SqlExpression> elements)
+    public static SqlTemplateExpression joinArray(Config config, SqlExpression delimiter, List<SqlExpression> elements)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions = new ArrayList<>();
@@ -272,10 +272,10 @@ public class StringMethods
                 }
                 functions.add(")");
         }
-        return factory.function(functions, sqlExpressions);
+        return factory.template(functions, sqlExpressions);
     }
 
-    public static SqlFunctionExpression joinList(Config config, SqlExpression delimiter, SqlExpression elements)
+    public static SqlTemplateExpression joinList(Config config, SqlExpression delimiter, SqlExpression elements)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> functions;
@@ -321,6 +321,6 @@ public class StringMethods
                 functions.add(",");
                 functions.add(")");
         }
-        return factory.function(functions, sqlExpressions);
+        return factory.template(functions, sqlExpressions);
     }
 }

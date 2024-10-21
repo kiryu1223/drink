@@ -27,6 +27,6 @@ public class LogicExpression
             default:
                 function = Arrays.asList("IF(", ",", ",", ")");
         }
-        return factory.function(function, args);
+        return factory.template(function, args);
     }
 }

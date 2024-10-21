@@ -387,7 +387,7 @@ public class IncludeBuilder<T>
         rowNumber(rowNumberFunction, rowNumberParams);
 
         String rank = "-rank-";
-        selects.add(factory.as(factory.function(rowNumberFunction, rowNumberParams), rank));
+        selects.add(factory.as(factory.template(rowNumberFunction, rowNumberParams), rank));
         window.setSelect(factory.select(selects, navigateTargetType));
         // 最外层
         SqlQueryableExpression window2 = factory.queryable(window);

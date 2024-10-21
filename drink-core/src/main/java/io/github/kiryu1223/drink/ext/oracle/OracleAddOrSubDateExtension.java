@@ -1,31 +1,27 @@
 package io.github.kiryu1223.drink.ext.oracle;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlSingleValueExpression;
+import io.github.kiryu1223.drink.core.expression.SqlTemplateExpression;
 import io.github.kiryu1223.drink.exception.DrinkIntervalException;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
 import io.github.kiryu1223.drink.ext.DbType;
-import io.github.kiryu1223.drink.ext.FunctionBox;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OracleAddOrSubDateExtension extends BaseSqlExtension
 {
-//    static
-//    {
-//        new OracleAddOrSubDateExtension();
-//    }
-
     @Override
-    public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
+    public SqlExpression parse(Config config, Method sqlFunc, List<SqlExpression> args)
     {
-        FunctionBox box = new FunctionBox();
-        List<String> functions = box.getFunctions();
-        List<SqlExpression> sqlExpressions = box.getSqlExpressions();
+        List<String> templates = new ArrayList<>();
+        List<SqlExpression> sqlExpressions = new ArrayList<>();
         if (sqlFunc.getParameterCount() == 2)
         {
-            functions.add("(");
+            templates.add("(");
             sqlExpressions.add(args.get(0));
             SqlExpression num = args.get(1);
             if (num instanceof SqlSingleValueExpression)
@@ -33,13 +29,12 @@ public class OracleAddOrSubDateExtension extends BaseSqlExtension
                 SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
                 if (sqlFunc.getName().equals("addDate"))
                 {
-                    functions.add(" + INTERVAL '" + valueExpression.getValue() + "' DAY)");
+                    templates.add(" + INTERVAL '" + valueExpression.getValue() + "' DAY)");
                 }
                 else
                 {
-                    functions.add(" - INTERVAL '" + valueExpression.getValue() + "' DAY)");
+                    templates.add(" - INTERVAL '" + valueExpression.getValue() + "' DAY)");
                 }
-
             }
             else
             {
@@ -48,7 +43,7 @@ public class OracleAddOrSubDateExtension extends BaseSqlExtension
         }
         else
         {
-            functions.add("(");
+            templates.add("(");
             sqlExpressions.add(args.get(0));
             sqlExpressions.add(args.get(1));
             SqlExpression num = args.get(2);
@@ -57,19 +52,19 @@ public class OracleAddOrSubDateExtension extends BaseSqlExtension
                 SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
                 if (sqlFunc.getName().equals("addDate"))
                 {
-                    functions.add(" + INTERVAL '" + valueExpression.getValue() + "' ");
+                    templates.add(" + INTERVAL '" + valueExpression.getValue() + "' ");
                 }
                 else
                 {
-                    functions.add(" - INTERVAL '" + valueExpression.getValue() + "' ");
+                    templates.add(" - INTERVAL '" + valueExpression.getValue() + "' ");
                 }
-                functions.add(")");
+                templates.add(")");
             }
             else
             {
                 throw new DrinkIntervalException(DbType.Oracle);
             }
         }
-        return box;
+        return config.getSqlExpressionFactory().template(templates, sqlExpressions);
     }
 }

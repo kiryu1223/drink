@@ -3,7 +3,7 @@ package io.github.kiryu1223.drink.core.visitor.methods;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.core.expression.SqlFunctionExpression;
+import io.github.kiryu1223.drink.core.expression.SqlTemplateExpression;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.List;
 public class MathMethods
 {
 
-    public static SqlFunctionExpression atan2(Config config, SqlExpression arg1, SqlExpression arg2)
+    public static SqlTemplateExpression atan2(Config config, SqlExpression arg1, SqlExpression arg2)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -24,10 +24,10 @@ public class MathMethods
             default:
                 function = Arrays.asList("ATAN2(", ",", ")");
         }
-        return factory.function(function, Arrays.asList(arg1, arg2));
+        return factory.template(function, Arrays.asList(arg1, arg2));
     }
 
-    public static SqlFunctionExpression ceil(Config config, SqlExpression arg)
+    public static SqlTemplateExpression ceil(Config config, SqlExpression arg)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -39,10 +39,10 @@ public class MathMethods
             default:
                 function = Arrays.asList("CEIL(", ")");
         }
-        return factory.function(function, Collections.singletonList(arg));
+        return factory.template(function, Collections.singletonList(arg));
     }
 
-    public static SqlFunctionExpression toDegrees(Config config, SqlExpression arg)
+    public static SqlTemplateExpression toDegrees(Config config, SqlExpression arg)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -55,10 +55,10 @@ public class MathMethods
             default:
                 function = Arrays.asList("DEGREES(", ")");
         }
-        return factory.function(function, Collections.singletonList(arg));
+        return factory.template(function, Collections.singletonList(arg));
     }
 
-    public static SqlFunctionExpression toRadians(Config config, SqlExpression arg)
+    public static SqlTemplateExpression toRadians(Config config, SqlExpression arg)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -70,10 +70,10 @@ public class MathMethods
             default:
                 function = Arrays.asList("RADIANS(", ")");
         }
-        return factory.function(function, Collections.singletonList(arg));
+        return factory.template(function, Collections.singletonList(arg));
     }
 
-    public static SqlFunctionExpression log(Config config, SqlExpression arg)
+    public static SqlTemplateExpression log(Config config, SqlExpression arg)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -85,10 +85,10 @@ public class MathMethods
             default:
                 function = Arrays.asList("LN(", ")");
         }
-        return factory.function(function, Collections.singletonList(arg));
+        return factory.template(function, Collections.singletonList(arg));
     }
 
-    public static SqlFunctionExpression log10(Config config, SqlExpression arg)
+    public static SqlTemplateExpression log10(Config config, SqlExpression arg)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -104,10 +104,10 @@ public class MathMethods
             default:
                 function = Arrays.asList("LOG10(", ")");
         }
-        return factory.function(function, Collections.singletonList(arg));
+        return factory.template(function, Collections.singletonList(arg));
     }
 
-    public static SqlFunctionExpression random(Config config)
+    public static SqlTemplateExpression random(Config config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -126,10 +126,10 @@ public class MathMethods
             default:
                 function = Collections.singletonList("RAND()");
         }
-        return factory.function(function, Collections.emptyList());
+        return factory.template(function, Collections.emptyList());
     }
 
-    public static SqlFunctionExpression round(Config config, SqlExpression arg)
+    public static SqlTemplateExpression round(Config config, SqlExpression arg)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> function;
@@ -142,6 +142,6 @@ public class MathMethods
             default:
                 function = Arrays.asList("ROUND(", ")");
         }
-        return factory.function(function, Collections.singletonList(arg));
+        return factory.template(function, Collections.singletonList(arg));
     }
 }

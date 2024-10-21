@@ -32,12 +32,6 @@ public class SpringDynamicDataSourceManager extends AbstractRoutingDataSource im
     }
 
     @Override
-    public void addDataSource(String key, DataSource dataSource)
-    {
-        throw new RuntimeException("DynamicDataSource cant add datasource");
-    }
-
-    @Override
     public void useDs(String key)
     {
         keyHolder.set(key);

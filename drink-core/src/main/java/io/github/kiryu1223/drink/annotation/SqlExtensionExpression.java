@@ -12,7 +12,7 @@ public @interface SqlExtensionExpression
 {
     DbType dbType() default DbType.Any;
 
-    String function();
+    String template();
 
     String separator() default ",";
 

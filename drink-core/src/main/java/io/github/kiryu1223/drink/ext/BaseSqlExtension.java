@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.ext;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 
 import java.lang.reflect.Method;
@@ -9,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BaseSqlExtension
 {
-    public abstract FunctionBox parse(Method sqlFunc, List<SqlExpression> args);
+    public abstract SqlExpression parse(Config config, Method sqlFunc, List<SqlExpression> args);
 
     private static final Map<Class<? extends BaseSqlExtension>, BaseSqlExtension> sqlExtensionCache = new ConcurrentHashMap<>();
 

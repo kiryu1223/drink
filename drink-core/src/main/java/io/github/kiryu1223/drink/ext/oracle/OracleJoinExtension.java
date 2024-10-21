@@ -1,38 +1,33 @@
 package io.github.kiryu1223.drink.ext.oracle;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
-import io.github.kiryu1223.drink.ext.FunctionBox;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OracleJoinExtension extends BaseSqlExtension
 {
-//    static
-//    {
-//        new OracleJoinExtension();
-//    }
-
     @Override
-    public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
+    public SqlExpression parse(Config config, Method sqlFunc, List<SqlExpression> args)
     {
-        FunctionBox functionBox = new FunctionBox();
-        List<String> functions = functionBox.getFunctions();
-        List<SqlExpression> sqlContexts = functionBox.getSqlExpressions();
+        List<String> templates = new ArrayList<>();
+        List<SqlExpression> sqlExpressions = new ArrayList<>();
         SqlExpression separator = args.get(0);
-        functions.add("(");
+        templates.add("(");
         for (int i = 1; i < args.size(); i++)
         {
-            sqlContexts.add(args.get(i));
+            sqlExpressions.add(args.get(i));
             if (i < args.size() - 1)
             {
-                functions.add("||");
-                sqlContexts.add(separator);
-                functions.add("||");
+                templates.add("||");
+                sqlExpressions.add(separator);
+                templates.add("||");
             }
         }
-        functions.add(")");
-        return functionBox;
+        templates.add(")");
+        return config.getSqlExpressionFactory().template(templates, sqlExpressions);
     }
 }

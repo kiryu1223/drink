@@ -22,6 +22,6 @@ public class BigDecimalMethods
             default:
                 function = Arrays.asList("(", " % ", ")");
         }
-        return factory.function(function, Arrays.asList(left, right));
+        return factory.template(function, Arrays.asList(left, right));
     }
 }

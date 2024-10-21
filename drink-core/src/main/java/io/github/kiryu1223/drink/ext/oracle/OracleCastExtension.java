@@ -1,11 +1,12 @@
 package io.github.kiryu1223.drink.ext.oracle;
 
+import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.expression.SqlExpression;
 import io.github.kiryu1223.drink.core.expression.SqlTypeExpression;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
-import io.github.kiryu1223.drink.ext.FunctionBox;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OracleCastExtension extends BaseSqlExtension
@@ -16,11 +17,10 @@ public class OracleCastExtension extends BaseSqlExtension
 //    }
 
     @Override
-    public FunctionBox parse(Method sqlFunc, List<SqlExpression> args)
+    public SqlExpression parse(Config config, Method sqlFunc, List<SqlExpression> args)
     {
-        FunctionBox box = new FunctionBox();
-        List<String> functions = box.getFunctions();
-        List<SqlExpression> sqlExpressions = box.getSqlExpressions();
+        List<String> templates = new ArrayList<>();
+        List<SqlExpression> sqlExpressions = new ArrayList<>();
         SqlExpression expression = args.get(1);
         if (expression instanceof SqlTypeExpression)
         {
@@ -28,24 +28,24 @@ public class OracleCastExtension extends BaseSqlExtension
             Class<?> type = typeExpression.getType();
             if (type == String.class)
             {
-                functions.add("TO_CHAR(");
-                functions.add(")");
+                templates.add("TO_CHAR(");
+                templates.add(")");
                 sqlExpressions.add(args.get(0));
-                return box;
+                return config.getSqlExpressionFactory().template(templates, sqlExpressions);
             }
             else if (type == char.class || type == Character.class)
             {
-                functions.add("SUBSTR(TO_CHAR(");
-                functions.add("),1,1)");
+                templates.add("SUBSTR(TO_CHAR(");
+                templates.add("),1,1)");
                 sqlExpressions.add(args.get(0));
-                return box;
+                return config.getSqlExpressionFactory().template(templates, sqlExpressions);
             }
         }
-        functions.add("CAST(");
-        functions.add(" AS ");
-        functions.add(")");
+        templates.add("CAST(");
+        templates.add(" AS ");
+        templates.add(")");
         sqlExpressions.add(args.get(0));
         sqlExpressions.add(args.get(1));
-        return box;
+        return config.getSqlExpressionFactory().template(templates, sqlExpressions);
     }
 }

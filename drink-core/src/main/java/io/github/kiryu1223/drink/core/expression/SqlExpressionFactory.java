@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.core.expression;
 
-import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
@@ -185,9 +184,9 @@ public abstract class SqlExpressionFactory
         return new SqlCollectedValueExpression(value);
     }
 
-    public SqlFunctionExpression function(List<String> functions, List<? extends SqlExpression> expressions)
+    public SqlTemplateExpression template(List<String> templates, List<? extends SqlExpression> expressions)
     {
-        return new SqlFunctionExpression(functions, expressions);
+        return new SqlTemplateExpression(templates, expressions);
     }
 
     public SqlBinaryExpression binary(SqlOperator operator, SqlExpression left, SqlExpression right)

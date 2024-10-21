@@ -16,7 +16,6 @@ import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
 import io.github.kiryu1223.drink.ext.DbType;
-import io.github.kiryu1223.drink.ext.FunctionBox;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -108,7 +107,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 case "count":
                     if (methodCall.getMethod().getParameterCount() == 0)
                     {
-                        return factory.function(Collections.singletonList("COUNT(*)"), Collections.emptyList());
+                        return factory.template(Collections.singletonList("COUNT(*)"), Collections.emptyList());
                     }
                 case "sum":
                 case "avg":
@@ -126,7 +125,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                         strings.add(",");
                     }
                     strings.add(")");
-                    return factory.function(strings, args);
+                    return factory.template(strings, args);
                 default:
                     throw new IllegalExpressionException(methodCall);
             }
@@ -143,15 +142,14 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 {
                     expressions.add(visit(arg));
                 }
-                BaseSqlExtension baseSqlExtension = BaseSqlExtension.getCache(sqlFuncExt.extension());
-                FunctionBox parse = baseSqlExtension.parse(sqlFunction, expressions);
-                return factory.function(parse.getFunctions(), parse.getSqlExpressions());
+                BaseSqlExtension sqlExtension = BaseSqlExtension.getCache(sqlFuncExt.extension());
+                return sqlExtension.parse(config,sqlFunction,expressions);
             }
             else
             {
                 List<String> strings = new ArrayList<>();
                 List<Parameter> methodParameters = Arrays.stream(methodCall.getMethod().getParameters()).collect(Collectors.toList());
-                ParamMatcher match = match(sqlFuncExt.function());
+                ParamMatcher match = match(sqlFuncExt.template());
                 List<String> functions = match.remainder;
                 List<String> params = match.bracesContent;
                 for (int i = 0; i < functions.size(); i++)
@@ -163,7 +161,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                         Parameter targetParam = methodParameters.stream()
                                 .filter(f -> f.getName().equals(param))
                                 .findFirst()
-                                .orElseThrow(() -> new DrinkException("无法在" + sqlFuncExt.function() + "中找到" + param));
+                                .orElseThrow(() -> new DrinkException("无法在" + sqlFuncExt.template() + "中找到" + param));
                         int index = methodParameters.indexOf(targetParam);
 
                         // 如果是可变参数
@@ -183,7 +181,7 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                         }
                     }
                 }
-                return factory.function(strings, expressions);
+                return factory.template(strings, expressions);
             }
         }
         else if (List.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
@@ -335,37 +333,37 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 case "abs":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("ABS(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("ABS(", ")"), Collections.singletonList(arg));
                 }
                 case "cos":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("COS(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("COS(", ")"), Collections.singletonList(arg));
                 }
                 case "acos":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("ACOS(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("ACOS(", ")"), Collections.singletonList(arg));
                 }
                 case "sin":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("SIN(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("SIN(", ")"), Collections.singletonList(arg));
                 }
                 case "asin":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("ASIN(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("ASIN(", ")"), Collections.singletonList(arg));
                 }
                 case "tan":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("TAN(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("TAN(", ")"), Collections.singletonList(arg));
                 }
                 case "atan":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("ATAN(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("ATAN(", ")"), Collections.singletonList(arg));
                 }
                 case "atan2":
                 {
@@ -386,12 +384,12 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 case "exp":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("EXP(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("EXP(", ")"), Collections.singletonList(arg));
                 }
                 case "floor":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("FLOOR(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("FLOOR(", ")"), Collections.singletonList(arg));
                 }
                 case "log":
                 {
@@ -416,17 +414,17 @@ public abstract class SqlVisitor extends ResultThrowVisitor<SqlExpression>
                 {
                     SqlExpression arg1 = visit(methodCall.getArgs().get(0));
                     SqlExpression arg2 = visit(methodCall.getArgs().get(1));
-                    return factory.function(Arrays.asList("POWER(", ",", ")"), Arrays.asList(arg1, arg2));
+                    return factory.template(Arrays.asList("POWER(", ",", ")"), Arrays.asList(arg1, arg2));
                 }
                 case "signum":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("SIGN(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("SIGN(", ")"), Collections.singletonList(arg));
                 }
                 case "sqrt":
                 {
                     SqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.function(Arrays.asList("SQRT(", ")"), Collections.singletonList(arg));
+                    return factory.template(Arrays.asList("SQRT(", ")"), Collections.singletonList(arg));
                 }
                 default:
                     return checkAndReturnValue(methodCall);
