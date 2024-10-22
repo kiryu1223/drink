@@ -87,6 +87,6 @@ public class SqlSelectExpression extends SqlExpression
         {
             newColumns.add(column.copy(config));
         }
-        return (T) factory.select(newColumns, target, isSingle);
+        return (T) factory.select(newColumns, target, isDistinct());
     }
 }

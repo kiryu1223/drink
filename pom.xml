@@ -15,6 +15,7 @@
         <!-- skip -->
         <module>drink-test</module>
         <module>sample</module>
+        <module>drink-extensions</module>
     </modules>
 
     <properties>

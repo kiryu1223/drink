@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.annotation;
+package io.github.kiryu1223.drink.extensions.annotation;
 
 import io.github.kiryu1223.drink.ext.BaseSqlExtension;
 import io.github.kiryu1223.drink.ext.DbType;

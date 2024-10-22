@@ -83,13 +83,13 @@ qq群：257911716
 
    import com.zaxxer.hikari.HikariDataSource;
    import io.github.kiryu1223.drink.Drink;
-   import io.github.kiryu1223.drink.api.client.DrinkClient;
+   import io.github.kiryu1223.drink.core.api.client.DrinkClient;
    import io.github.kiryu1223.drink.transaction.DefaultTransactionManager;
    import io.github.kiryu1223.drink.transaction.TransactionManager;
-   import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-   import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
-   import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
-   import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
+   import io.github.kiryu1223.drink.core.core.dataSource.DataSourceManager;
+   import io.github.kiryu1223.drink.core.core.dataSource.DefaultDataSourceManager;
+   import io.github.kiryu1223.drink.core.core.session.DefaultSqlSessionFactory;
+   import io.github.kiryu1223.drink.core.core.session.SqlSessionFactory;
 
    public class Main
    {

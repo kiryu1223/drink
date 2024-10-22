@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.annotation;
+package io.github.kiryu1223.drink.extensions.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
