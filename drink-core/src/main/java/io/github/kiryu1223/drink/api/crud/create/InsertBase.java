@@ -3,12 +3,11 @@ package io.github.kiryu1223.drink.api.crud.create;
 import io.github.kiryu1223.drink.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.sqlBuilder.InsertSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.dialect.IDialect;
+import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.ext.IConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

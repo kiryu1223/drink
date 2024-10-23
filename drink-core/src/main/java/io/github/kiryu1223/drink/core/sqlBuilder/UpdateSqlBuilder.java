@@ -1,16 +1,13 @@
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.dialect.IDialect;
+import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
-import io.github.kiryu1223.drink.core.visitor.SetVisitor;
-import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
+import io.github.kiryu1223.drink.nnnn.expression.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class UpdateSqlBuilder implements ISqlBuilder

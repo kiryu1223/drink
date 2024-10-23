@@ -1,9 +1,8 @@
 package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.core.expression.SqlQueryableExpression;
+import io.github.kiryu1223.drink.nnnn.expression.SqlColumnExpression;
+import io.github.kiryu1223.drink.nnnn.expression.SqlQueryableExpression;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;

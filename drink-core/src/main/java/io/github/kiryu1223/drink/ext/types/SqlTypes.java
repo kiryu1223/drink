@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.ext.types;
 
-import io.github.kiryu1223.drink.ext.ISqlKeywords;
+import io.github.kiryu1223.drink.base.sqlext.ISqlKeywords;
 
 public abstract class SqlTypes<T> implements ISqlKeywords
 {

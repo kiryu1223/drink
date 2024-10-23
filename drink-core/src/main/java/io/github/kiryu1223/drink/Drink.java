@@ -9,7 +9,6 @@ import io.github.kiryu1223.drink.core.builder.BeanCreatorFactory;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
-import io.github.kiryu1223.drink.ext.DbType;
 
 public class Drink
 {

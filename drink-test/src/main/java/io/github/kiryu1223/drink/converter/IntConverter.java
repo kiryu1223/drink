@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.converter;
 
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.ext.IConverter;
 
 public class IntConverter implements IConverter<Integer, String>
 {

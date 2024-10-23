@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.core.builder;
 
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
@@ -13,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.upperClass;
 
 public class ObjectBuilder<T>
 {

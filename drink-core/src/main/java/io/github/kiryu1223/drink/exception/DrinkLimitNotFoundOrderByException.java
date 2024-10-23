@@ -1,7 +1,5 @@
 package io.github.kiryu1223.drink.exception;
 
-import io.github.kiryu1223.drink.ext.DbType;
-
 public class DrinkLimitNotFoundOrderByException extends DrinkException
 {
     public DrinkLimitNotFoundOrderByException(DbType dbType)

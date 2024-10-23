@@ -7,7 +7,7 @@ import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.ext.IMappingTable;
+import io.github.kiryu1223.drink.nnnn.expression.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

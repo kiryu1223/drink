@@ -14,8 +14,8 @@ import io.github.kiryu1223.drink.core.visitor.methods.TemporalMethods;
 import io.github.kiryu1223.drink.exception.DrinkException;
 import io.github.kiryu1223.drink.exception.IllegalExpressionException;
 import io.github.kiryu1223.drink.exception.SqlFuncExtNotFoundException;
-import io.github.kiryu1223.drink.ext.BaseSqlExtension;
-import io.github.kiryu1223.drink.ext.DbType;
+import io.github.kiryu1223.drink.nnnn.expression.SqlColumnExpression;
+import io.github.kiryu1223.drink.nnnn.expression.SqlValueExpression;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;

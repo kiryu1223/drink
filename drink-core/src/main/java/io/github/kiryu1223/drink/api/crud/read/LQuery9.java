@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.api.crud.read;
 
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery9;
-import io.github.kiryu1223.drink.core.expression.JoinType;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func10;
 import io.github.kiryu1223.expressionTree.delegate.Func9;

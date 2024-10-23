@@ -1,10 +1,11 @@
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.config.dialect.IDialect;
+import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.nnnn.expression.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,9 +1,8 @@
 package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.core.expression.SqlGroupByExpression;
-import io.github.kiryu1223.drink.core.expression.SqlQueryableExpression;
+import io.github.kiryu1223.drink.nnnn.expression.SqlGroupByExpression;
+import io.github.kiryu1223.drink.nnnn.expression.SqlQueryableExpression;
 import io.github.kiryu1223.expressionTree.expressions.FieldSelectExpression;
 
 import java.util.Map;

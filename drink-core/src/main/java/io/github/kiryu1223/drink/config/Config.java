@@ -1,16 +1,31 @@
 package io.github.kiryu1223.drink.config;
 
 import io.github.kiryu1223.drink.api.transaction.TransactionManager;
-import io.github.kiryu1223.drink.config.dialect.IDialect;
+import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.IDialect;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.config.dialect.*;
 import io.github.kiryu1223.drink.core.builder.BeanCreatorFactory;
+import io.github.kiryu1223.drink.core.builder.DefaultResultSetValueGetter;
 import io.github.kiryu1223.drink.core.builder.IResultSetValueGetter;
 import io.github.kiryu1223.drink.core.builder.IncludeFactory;
+import io.github.kiryu1223.drink.core.builder.h2.H2IncludeFactory;
+import io.github.kiryu1223.drink.core.builder.mysql.MySqlIncludeFactory;
+import io.github.kiryu1223.drink.core.builder.oracle.OracleIncludeFactory;
+import io.github.kiryu1223.drink.core.builder.pgsql.PostgreSQLResultSetValueGetter;
+import io.github.kiryu1223.drink.core.builder.sqlite.SqliteResultSetValueGetter;
+import io.github.kiryu1223.drink.core.builder.sqlserver.SqlServerIncludeFactory;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.nnnn.expression.ext.h2.H2ExpressionFactory;
+import io.github.kiryu1223.drink.nnnn.expression.ext.mysql.MySqlExpressionFactory;
+import io.github.kiryu1223.drink.nnnn.expression.ext.oracle.OracleExpressionFactory;
+import io.github.kiryu1223.drink.nnnn.expression.ext.pgsql.PostgreSQLExpressionFactory;
+import io.github.kiryu1223.drink.nnnn.expression.ext.sqlite.SqliteExpressionFactory;
+import io.github.kiryu1223.drink.nnnn.expression.ext.sqlserver.SqlServerExpressionFactory;
 import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
-import io.github.kiryu1223.drink.ext.DbType;
 
-public class Config
+public class Config implements IConfig
 {
     private final Option option;
     private final DbType dbType;
@@ -29,34 +44,11 @@ public class Config
         this.dbType = dbType;
         this.beanCreatorFactory = beanCreatorFactory;
 
-        this.disambiguation = dbType.getDialect();
-        this.sqlExpressionFactory = dbType.getSqlExpressionFactory();
-        this.includeFactory = dbType.getIncludeFactory();
-        this.valueGetter = dbType.getValueGetter();
-//        switch (dbType)
-//        {
-//            case MySQL:
-//                disambiguation = new MySQLDialect();
-//                sqlExpressionFactory = new MySqlExpressionFactory();
-//                includeFactory = new MySqlIncludeFactory();
-//                break;
-//            case SQLServer:
-//                disambiguation = new SqlServerDialect();
-//                sqlExpressionFactory = new SqlServerExpressionFactory();
-//                includeFactory = new SqlServerIncludeFactory();
-//                break;
-//            case Oracle:
-//                disambiguation = new OracleDialect();
-//                sqlExpressionFactory = new OracleExpressionFactory();
-//                includeFactory = new OracleIncludeFactory();
-//                break;
-//            case H2:
-//            default:
-//                disambiguation = new DefaultDialect();
-//                sqlExpressionFactory = new H2ExpressionFactory();
-//                includeFactory = new H2IncludeFactory();
-//                break;
-//        }
+        this.disambiguation = getIDialectByDbType(dbType);
+        this.sqlExpressionFactory = getSqlExpressionFactoryByDbType(dbType);
+        this.includeFactory = getIncludeFactoryByDbType(dbType);
+        this.valueGetter = getIResultSetValueGetterByType(dbType);
+
         this.transactionManager = transactionManager;
         this.dataSourceManager = dataSourceManager;
         this.sqlSessionFactory = sqlSessionFactory;
@@ -130,5 +122,89 @@ public class Config
     public IResultSetValueGetter getValueGetter()
     {
         return valueGetter;
+    }
+
+    private IDialect getIDialectByDbType(DbType dbType)
+    {
+        switch (dbType)
+        {
+            case Any:
+                return new DefaultDialect();
+            case MySQL:
+                return new MySQLDialect();
+            case SQLServer:
+                return new SqlServerDialect();
+            case H2:
+                return new H2Dialect();
+            case Oracle:
+                return new OracleDialect();
+            case SQLite:
+                return new SQLiteDialect();
+            case PostgreSQL:
+                return new PostgreSQLDialect();
+            default:
+                throw new RuntimeException(dbType.name());
+        }
+    }
+
+    public SqlExpressionFactory getSqlExpressionFactoryByDbType(DbType dbType)
+    {
+        switch (dbType)
+        {
+            case Any:
+            case MySQL:
+                return new MySqlExpressionFactory();
+            case SQLServer:
+                return new SqlServerExpressionFactory();
+            case H2:
+                return new H2ExpressionFactory();
+            case Oracle:
+                return new OracleExpressionFactory();
+            case SQLite:
+                return new SqliteExpressionFactory();
+            case PostgreSQL:
+                return new PostgreSQLExpressionFactory();
+            default:
+                throw new RuntimeException(dbType.name());
+        }
+    }
+
+    public IncludeFactory getIncludeFactoryByDbType(DbType dbType)
+    {
+        switch (dbType)
+        {
+            case Any:
+            case MySQL:
+            case SQLite:
+            case PostgreSQL:
+                return new MySqlIncludeFactory();
+            case SQLServer:
+                return new SqlServerIncludeFactory();
+            case H2:
+                return new H2IncludeFactory();
+            case Oracle:
+                return new OracleIncludeFactory();
+            default:
+                throw new RuntimeException(dbType.name());
+        }
+    }
+
+    public IResultSetValueGetter getIResultSetValueGetterByType(DbType dbType)
+    {
+        switch (dbType)
+        {
+            case Any:
+            case MySQL:
+            case SQLServer:
+            case H2:
+            case Oracle:
+                return new DefaultResultSetValueGetter();
+            case SQLite:
+                return new SqliteResultSetValueGetter();
+            case PostgreSQL:
+                return new PostgreSQLResultSetValueGetter();
+            default:
+                throw new RuntimeException(dbType.name());
+        }
     }
 }

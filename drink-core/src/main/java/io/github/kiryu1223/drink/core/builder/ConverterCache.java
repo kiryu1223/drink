@@ -1,7 +1,5 @@
 package io.github.kiryu1223.drink.core.builder;
 
-import io.github.kiryu1223.drink.ext.IConverter;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

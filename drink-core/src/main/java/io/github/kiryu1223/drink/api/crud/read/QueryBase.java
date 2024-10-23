@@ -17,7 +17,7 @@ import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
 import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
 import io.github.kiryu1223.drink.core.visitor.methods.LogicExpression;
 import io.github.kiryu1223.drink.exception.DrinkException;
-import io.github.kiryu1223.drink.ext.IMappingTable;
+import io.github.kiryu1223.drink.nnnn.expression.*;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;

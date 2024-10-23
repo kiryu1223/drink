@@ -1,8 +1,8 @@
 package io.github.kiryu1223.drink.ext.sqlite;
 
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.ext.BaseSqlExtension;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.sqlext.BaseSqlExtension;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -11,11 +11,11 @@ import java.util.List;
 public class SqliteJoinExtension extends BaseSqlExtension
 {
     @Override
-    public SqlExpression parse(Config config, Method sqlFunc, List<SqlExpression> args)
+    public ISqlExpression parse(IConfig config, Method sqlFunc, List<ISqlExpression> args)
     {
         List<String> templates = new ArrayList<>();
-        List<SqlExpression> sqlExpressions = new ArrayList<>();
-        SqlExpression separator = args.get(0);
+        List<ISqlExpression> sqlExpressions = new ArrayList<>();
+        ISqlExpression separator = args.get(0);
         templates.add("(");
         for (int i = 1; i < args.size(); i++)
         {

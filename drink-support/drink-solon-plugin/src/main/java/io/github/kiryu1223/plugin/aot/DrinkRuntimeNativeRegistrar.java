@@ -2,13 +2,6 @@ package io.github.kiryu1223.plugin.aot;
 
 import io.github.kiryu1223.drink.api.crud.read.Empty;
 import io.github.kiryu1223.drink.api.crud.read.group.*;
-import io.github.kiryu1223.drink.ext.BaseSqlExtension;
-import io.github.kiryu1223.drink.ext.NoConverter;
-import io.github.kiryu1223.drink.ext.mysql.MySqlDateTimeDiffExtension;
-import io.github.kiryu1223.drink.ext.oracle.OracleAddOrSubDateExtension;
-import io.github.kiryu1223.drink.ext.oracle.OracleCastExtension;
-import io.github.kiryu1223.drink.ext.oracle.OracleDateTimeDiffExtension;
-import io.github.kiryu1223.drink.ext.oracle.OracleJoinExtension;
 import io.github.kiryu1223.drink.ext.types.Char;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
 import io.github.kiryu1223.drink.ext.types.Varchar2;

@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.ext.types;
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.config.Config;
 
 public class Varchar2 extends SqlTypes<String>
@@ -12,7 +13,7 @@ public class Varchar2 extends SqlTypes<String>
     }
 
     @Override
-    public String getKeyword(Config config)
+    public String getKeyword(IConfig config)
     {
         switch (config.getDbType())
         {

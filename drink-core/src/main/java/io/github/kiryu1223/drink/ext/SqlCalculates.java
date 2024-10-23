@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.ext;
 
-import io.github.kiryu1223.drink.annotation.SqlOperatorMethod;
-import io.github.kiryu1223.drink.core.expression.SqlOperator;
+import io.github.kiryu1223.drink.base.annotation.SqlOperatorMethod;
+import io.github.kiryu1223.drink.base.expression.SqlOperator;
 import io.github.kiryu1223.drink.exception.SqlCalculatesInvokeException;
 
 public class SqlCalculates

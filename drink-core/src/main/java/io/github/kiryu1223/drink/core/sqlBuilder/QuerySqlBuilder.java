@@ -6,6 +6,7 @@ import io.github.kiryu1223.drink.core.expression.*;
 import io.github.kiryu1223.drink.core.metaData.MetaData;
 import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.nnnn.expression.*;
 
 import java.util.ArrayList;
 import java.util.List;

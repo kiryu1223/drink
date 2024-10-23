@@ -1,11 +1,11 @@
 package io.github.kiryu1223.drink.ext.pgsql;
 
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.core.expression.SqlSingleValueExpression;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.sqlext.BaseSqlExtension;
+import io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit;
+import io.github.kiryu1223.drink.nnnn.expression.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.exception.DrinkException;
-import io.github.kiryu1223.drink.ext.BaseSqlExtension;
-import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,13 +14,13 @@ import java.util.List;
 public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
 {
     @Override
-    public SqlExpression parse(Config config, Method sqlFunc, List<SqlExpression> args)
+    public ISqlExpression parse(IConfig config, Method sqlFunc, List<ISqlExpression> args)
     {
         List<String> templates = new ArrayList<>();
-        List<SqlExpression> sqlExpressions = new ArrayList<>();
-        SqlExpression unit = args.get(0);
-        SqlExpression from = args.get(1);
-        SqlExpression to = args.get(2);
+        List<ISqlExpression> sqlExpressions = new ArrayList<>();
+        ISqlExpression unit = args.get(0);
+        ISqlExpression from = args.get(1);
+        ISqlExpression to = args.get(2);
         Class<?>[] parameterTypes = sqlFunc.getParameterTypes();
         boolean isToIsString = parameterTypes[2] == String.class;
         boolean isFromIsString = parameterTypes[1] == String.class;

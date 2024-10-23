@@ -1,9 +1,6 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
 import io.github.kiryu1223.drink.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.expression.JoinType;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
-import io.github.kiryu1223.drink.core.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.config.Config;
 import io.github.kiryu1223.drink.core.session.SqlSession;

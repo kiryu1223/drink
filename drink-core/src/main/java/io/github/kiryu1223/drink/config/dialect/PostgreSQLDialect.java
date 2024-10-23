@@ -1,5 +1,7 @@
 package io.github.kiryu1223.drink.config.dialect;
 
+import io.github.kiryu1223.drink.base.IDialect;
+
 public class PostgreSQLDialect implements IDialect
 {
     @Override

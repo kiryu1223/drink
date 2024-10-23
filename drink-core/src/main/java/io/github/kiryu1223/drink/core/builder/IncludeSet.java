@@ -1,8 +1,7 @@
 package io.github.kiryu1223.drink.core.builder;
 
 
-import io.github.kiryu1223.drink.core.expression.SqlColumnExpression;
-import io.github.kiryu1223.drink.core.expression.SqlExpression;
+import io.github.kiryu1223.drink.nnnn.expression.SqlColumnExpression;
 
 import java.util.ArrayList;
 import java.util.List;
