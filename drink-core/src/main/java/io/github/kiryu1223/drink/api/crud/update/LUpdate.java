@@ -1,7 +1,8 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
 
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.JoinType;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
@@ -12,7 +13,7 @@ import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 public class LUpdate<T> extends UpdateBase
 {
     // region [INIT]
-    public LUpdate(Config config, Class<T> t)
+    public LUpdate(IConfig config, Class<T> t)
     {
         super(config, t);
     }

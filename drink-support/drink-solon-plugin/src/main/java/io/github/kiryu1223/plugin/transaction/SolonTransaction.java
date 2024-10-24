@@ -1,7 +1,7 @@
 package io.github.kiryu1223.plugin.transaction;
 
-import io.github.kiryu1223.drink.api.transaction.DefaultTransaction;
-import io.github.kiryu1223.drink.api.transaction.TransactionManager;
+import io.github.kiryu1223.drink.base.transaction.DefaultTransaction;
+import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import org.noear.solon.data.tran.TranUtils;
 
 import javax.sql.DataSource;

@@ -13,22 +13,6 @@ public interface ISqlSetExpression extends ISqlExpression
     ISqlExpression getValue();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        String set = getColumn().getSqlAndValue(config, values) + " = ";
-        PropertyMetaData propertyMetaData = getColumn().getPropertyMetaData();
-        if (propertyMetaData.hasConverter() && getValue() instanceof ISqlSingleValueExpression)
-        {
-            ISqlSingleValueExpression sqlSingleValueExpression = (ISqlSingleValueExpression) getValue();
-            return set + sqlSingleValueExpression.getSqlAndValue(config, values, propertyMetaData.getConverter(), propertyMetaData);
-        }
-        else
-        {
-            return set + getValue().getSqlAndValue(config, values);
-        }
-    }
-
-    @Override
     default ISqlSetExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

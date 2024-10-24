@@ -1,13 +1,12 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
 import io.github.kiryu1223.drink.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.expression.*;
-import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
-import io.github.kiryu1223.drink.core.visitor.SetVisitor;
-import io.github.kiryu1223.drink.nnnn.expression.*;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.*;
+import io.github.kiryu1223.drink.sqlBuilder.UpdateSqlBuilder;
+import io.github.kiryu1223.drink.base.session.SqlSession;
+import io.github.kiryu1223.drink.visitor.NormalVisitor;
+import io.github.kiryu1223.drink.visitor.SetVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ public class UpdateBase extends CRUD
 
     private final UpdateSqlBuilder sqlBuilder;
 
-    public UpdateBase(Config config,Class<?> target)
+    public UpdateBase(IConfig config, Class<?> target)
     {
         this.sqlBuilder = new UpdateSqlBuilder(config,target);
     }
@@ -37,7 +36,7 @@ public class UpdateBase extends CRUD
         return sqlBuilder;
     }
 
-    protected Config getConfig()
+    protected IConfig getConfig()
     {
         return sqlBuilder.getConfig();
     }
@@ -49,7 +48,7 @@ public class UpdateBase extends CRUD
 
     public long executeRows()
     {
-        Config config = getConfig();
+        IConfig config = getConfig();
         checkHasWhere();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
@@ -72,23 +71,23 @@ public class UpdateBase extends CRUD
     {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression on = normalVisitor.visit(expr.getTree());
-        SqlTableExpression table = factory.table(target);
+        ISqlExpression on = normalVisitor.visit(expr.getTree());
+        ISqlTableExpression table = factory.table(target);
         getSqlBuilder().addJoin(target, joinType, table, on);
     }
 
     protected void set(LambdaExpression<?> lambda)
     {
         SetVisitor setVisitor = new SetVisitor(getConfig());
-        SqlExpression expression = setVisitor.visit(lambda);
-        if (expression instanceof SqlSetsExpression)
+        ISqlExpression expression = setVisitor.visit(lambda);
+        if (expression instanceof ISqlSetsExpression)
         {
-            SqlSetsExpression sqlSetsExpression = (SqlSetsExpression) expression;
+            ISqlSetsExpression sqlSetsExpression = (ISqlSetsExpression) expression;
             sqlBuilder.addSet(sqlSetsExpression);
         }
-        else if (expression instanceof SqlSetExpression)
+        else if (expression instanceof ISqlSetExpression)
         {
-            SqlSetExpression sqlSetExpression = (SqlSetExpression) expression;
+            ISqlSetExpression sqlSetExpression = (ISqlSetExpression) expression;
             sqlBuilder.addSet(sqlSetExpression);
         }
     }
@@ -96,7 +95,7 @@ public class UpdateBase extends CRUD
     protected void where(LambdaExpression<?> lambda)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression expression = normalVisitor.visit(lambda);
+        ISqlExpression expression = normalVisitor.visit(lambda);
         sqlBuilder.addWhere(expression);
     }
 }

@@ -11,52 +11,6 @@ import java.util.List;
 
 public interface ISqlQueryableExpression extends ISqlTableExpression
 {
-//    protected final SqlSelectExpression select;
-//    protected final ISqlFromExpression from;
-//    protected final SqlJoinsExpression joins;
-//    protected final SqlWhereExpression where;
-//    protected final SqlGroupByExpression groupBy;
-//    protected final ISqlHavingExpression having;
-//    protected final ISqlOrderByExpression orderBy;
-//    protected final SqlLimitExpression limit;
-//
-//     SqlQueryableExpression(SqlSelectExpression select, ISqlFromExpression from, SqlJoinsExpression joins, SqlWhereExpression where, SqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, SqlLimitExpression limit)
-//    {
-//        this.select = select;
-//        this.from = from;
-//        this.joins = joins;
-//        this.where = where;
-//        this.groupBy = groupBy;
-//        this.having = having;
-//        this.orderBy = orderBy;
-//        this.limit = limit;
-//    }
-
-    @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        List<String> strings = new ArrayList<>();
-        strings.add(getSelect().getSqlAndValue(config, values));
-        String fromSqlAndValue = getFrom().getSqlAndValue(config, values);
-        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
-        String joinsSqlAndValue = getJoins().getSqlAndValue(config, values);
-        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
-        String whereSqlAndValue = getWhere().getSqlAndValue(config, values);
-        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
-        String groupBySqlAndValue = getGroupBy().getSqlAndValue(config, values);
-        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
-        String havingSqlAndValue = getHaving().getSqlAndValue(config, values);
-        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
-        String orderBySqlAndValue = getOrderBy().getSqlAndValue(config, values);
-        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-        if (!getFrom().isEmptyTable())
-        {
-            String limitSqlAndValue = getLimit().getSqlAndValue(config, values);
-            if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
-        }
-        return String.join(" ", strings);
-    }
-
     @Override
     default ISqlQueryableExpression copy(IConfig config)
     {

@@ -1,8 +1,8 @@
 package io.github.kiryu1223.drink.test.mssql;
 
 import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit;
 import io.github.kiryu1223.drink.ext.SqlFunctions;
-import io.github.kiryu1223.drink.ext.SqlTimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

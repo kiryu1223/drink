@@ -1,9 +1,9 @@
 package io.github.kiryu1223.drink.pojos;
 
-import io.github.kiryu1223.drink.annotation.Column;
-import io.github.kiryu1223.drink.annotation.Navigate;
-import io.github.kiryu1223.drink.annotation.RelationType;
-import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.base.annotation.Column;
+import io.github.kiryu1223.drink.base.annotation.Navigate;
+import io.github.kiryu1223.drink.base.annotation.RelationType;
+import io.github.kiryu1223.drink.base.annotation.Table;
 import lombok.Data;
 
 import java.time.LocalDate;

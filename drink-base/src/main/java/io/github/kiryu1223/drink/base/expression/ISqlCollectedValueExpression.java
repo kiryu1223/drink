@@ -15,18 +15,6 @@ public interface ISqlCollectedValueExpression extends ISqlValueExpression
     String getDelimiter();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        List<String> strings = new ArrayList<>(getCollection().size());
-        for (Object obj : getCollection())
-        {
-            strings.add("?");
-            if (values != null) values.add(obj);
-        }
-        return String.join(getDelimiter(), strings);
-    }
-
-    @Override
     default ISqlCollectedValueExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

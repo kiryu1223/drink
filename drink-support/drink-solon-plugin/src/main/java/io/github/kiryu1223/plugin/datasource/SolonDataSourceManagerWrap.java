@@ -1,6 +1,7 @@
 package io.github.kiryu1223.plugin.datasource;
 
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

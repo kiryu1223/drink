@@ -15,18 +15,6 @@ public interface ISqlGroupByExpression extends ISqlExpression
     LinkedHashMap<String, ISqlExpression> getColumns();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        if (getColumns().isEmpty()) return "";
-        List<String> strings = new ArrayList<>();
-        for (ISqlExpression column : getColumns().values())
-        {
-            strings.add(column.getSqlAndValue(config, values));
-        }
-        return "GROUP BY " + String.join(",", strings);
-    }
-
-    @Override
     default ISqlGroupByExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

@@ -4,6 +4,7 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public interface ISqlSetsExpression extends ISqlExpression
@@ -12,16 +13,7 @@ public interface ISqlSetsExpression extends ISqlExpression
 
     void addSet(ISqlSetExpression sqlSetExpression);
 
-    @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        List<String> strings = new ArrayList<>(getSets().size());
-        for (ISqlSetExpression expression : getSets())
-        {
-            strings.add(expression.getSqlAndValue(config, values));
-        }
-        return "SET " + String.join(",", strings);
-    }
+    void addSet(Collection<ISqlSetExpression> set);
 
     @Override
     default ISqlSetsExpression copy(IConfig config)

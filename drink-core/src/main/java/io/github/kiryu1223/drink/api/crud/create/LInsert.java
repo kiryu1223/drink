@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.create;
 
 
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
@@ -11,7 +11,7 @@ public class LInsert<T> extends InsertBase
 {
     private final Class<T> t;
 
-    public LInsert(Config c, Class<T> t)
+    public LInsert(IConfig c, Class<T> t)
     {
         super(c);
         this.t = t;

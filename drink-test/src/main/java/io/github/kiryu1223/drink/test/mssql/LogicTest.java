@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 
+import static io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit.DAY;
 import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
-import static io.github.kiryu1223.drink.ext.SqlTimeUnit.DAY;
 
 public class LogicTest extends BaseTest
 {

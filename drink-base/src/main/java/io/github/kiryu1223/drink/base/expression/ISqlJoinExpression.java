@@ -16,13 +16,6 @@ public interface ISqlJoinExpression extends ISqlExpression
     int getIndex();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        String t = "t" + getIndex();
-        return getJoinType().getJoin() + " " + (getJoinTable() instanceof ISqlRealTableExpression ? getJoinTable().getSqlAndValue(config, values) : "(" + getJoinTable().getSqlAndValue(config, values) + ")") + " AS " + config.getDisambiguation().disambiguation(t) + " ON " + getConditions().getSqlAndValue(config, values);
-    }
-
-    @Override
     default ISqlJoinExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

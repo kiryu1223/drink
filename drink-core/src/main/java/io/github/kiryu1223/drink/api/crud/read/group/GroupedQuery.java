@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.api.crud.read.group;
 
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.read.QueryBase;

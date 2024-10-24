@@ -1,8 +1,8 @@
 package io.github.kiryu1223.plugin.transaction;
 
-import io.github.kiryu1223.drink.api.transaction.DefaultTransactionManager;
-import io.github.kiryu1223.drink.api.transaction.Transaction;
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
+import io.github.kiryu1223.drink.base.transaction.Transaction;
 import org.noear.solon.data.tran.TranUtils;
 
 public class SolonTransactionManager extends DefaultTransactionManager

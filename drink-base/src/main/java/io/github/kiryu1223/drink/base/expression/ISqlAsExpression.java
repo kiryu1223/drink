@@ -12,13 +12,6 @@ public interface ISqlAsExpression extends ISqlExpression
     String getAsName();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        IDialect dialect = config.getDisambiguation();
-        return getExpression().getSqlAndValue(config, values) + " AS " + dialect.disambiguation(getAsName());
-    }
-
-    @Override
     default ISqlAsExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

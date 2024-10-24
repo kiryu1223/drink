@@ -1,9 +1,9 @@
 package io.github.kiryu1223.plugin.builder;
 
-import io.github.kiryu1223.drink.core.builder.DefaultBeanCreator;
-import io.github.kiryu1223.drink.core.builder.ISetterCaller;
-import io.github.kiryu1223.drink.core.metaData.MetaData;
-import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.base.tobean.beancreator.DefaultBeanCreator;
+import io.github.kiryu1223.drink.base.tobean.beancreator.ISetterCaller;
 import org.noear.solon.core.runtime.NativeDetector;
 
 import java.lang.reflect.Constructor;

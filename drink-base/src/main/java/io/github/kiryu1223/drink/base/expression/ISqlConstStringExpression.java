@@ -10,12 +10,6 @@ public interface ISqlConstStringExpression extends ISqlExpression
     String getString();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        return getString();
-    }
-
-    @Override
     default ISqlConstStringExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

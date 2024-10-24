@@ -1,23 +1,23 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
-import io.github.kiryu1223.drink.annotation.RelationType;
 import io.github.kiryu1223.drink.api.crud.CRUD;
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.builder.IncludeFactory;
-import io.github.kiryu1223.drink.core.builder.IncludeSet;
-import io.github.kiryu1223.drink.core.builder.ObjectBuilder;
-import io.github.kiryu1223.drink.core.expression.*;
-import io.github.kiryu1223.drink.core.metaData.NavigateData;
-import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.core.visitor.GroupByVisitor;
-import io.github.kiryu1223.drink.core.visitor.HavingVisitor;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
-import io.github.kiryu1223.drink.core.visitor.SelectVisitor;
-import io.github.kiryu1223.drink.core.visitor.methods.LogicExpression;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.annotation.RelationType;
+import io.github.kiryu1223.drink.base.expression.*;
+import io.github.kiryu1223.drink.base.metaData.IMappingTable;
+import io.github.kiryu1223.drink.base.metaData.NavigateData;
+import io.github.kiryu1223.drink.base.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.base.tobean.Include.IncludeFactory;
+import io.github.kiryu1223.drink.base.tobean.Include.IncludeSet;
+import io.github.kiryu1223.drink.base.tobean.build.ObjectBuilder;
+import io.github.kiryu1223.drink.base.session.SqlSession;
+import io.github.kiryu1223.drink.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.visitor.GroupByVisitor;
+import io.github.kiryu1223.drink.visitor.HavingVisitor;
+import io.github.kiryu1223.drink.visitor.NormalVisitor;
+import io.github.kiryu1223.drink.visitor.SelectVisitor;
+import io.github.kiryu1223.drink.visitor.methods.LogicExpression;
 import io.github.kiryu1223.drink.exception.DrinkException;
-import io.github.kiryu1223.drink.nnnn.expression.*;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isBool;
+import static io.github.kiryu1223.drink.visitor.ExpressionUtil.isBool;
 
 
 public abstract class QueryBase extends CRUD
@@ -36,7 +36,7 @@ public abstract class QueryBase extends CRUD
 
     private final QuerySqlBuilder sqlBuilder;
 
-    public QueryBase(Config config, Class<?> c)
+    public QueryBase(IConfig config, Class<?> c)
     {
         this.sqlBuilder = new QuerySqlBuilder(config, c);
     }
@@ -51,7 +51,7 @@ public abstract class QueryBase extends CRUD
         return sqlBuilder;
     }
 
-    protected Config getConfig()
+    protected IConfig getConfig()
     {
         return sqlBuilder.getConfig();
     }
@@ -105,7 +105,7 @@ public abstract class QueryBase extends CRUD
 
     protected <T> List<T> toList()
     {
-        Config config = getConfig();
+        IConfig config = getConfig();
         boolean single = sqlBuilder.isSingle();
         List<PropertyMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
         List<Object> values = new ArrayList<>();
@@ -144,7 +144,7 @@ public abstract class QueryBase extends CRUD
 
     protected <T> T first()
     {
-        SqlQueryableExpression queryableCopy = getSqlBuilder().getQueryable().copy(getConfig());
+        ISqlQueryableExpression queryableCopy = getSqlBuilder().getQueryable().copy(getConfig());
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), queryableCopy);
         querySqlBuilder.getIncludeSets().addAll(getSqlBuilder().getIncludeSets());
         LQuery<T> lQuery = new LQuery<>(querySqlBuilder);
@@ -167,11 +167,11 @@ public abstract class QueryBase extends CRUD
     protected boolean select(LambdaExpression<?> lambda)
     {
         SelectVisitor selectVisitor = new SelectVisitor(getConfig(), sqlBuilder.getQueryable());
-        SqlExpression expression = selectVisitor.visit(lambda);
-        SqlSelectExpression selectExpression;
-        if (expression instanceof SqlSelectExpression)
+        ISqlExpression expression = selectVisitor.visit(lambda);
+        ISqlSelectExpression selectExpression;
+        if (expression instanceof ISqlSelectExpression)
         {
-            selectExpression = (SqlSelectExpression) expression;
+            selectExpression = (ISqlSelectExpression) expression;
         }
         else
         {
@@ -179,7 +179,7 @@ public abstract class QueryBase extends CRUD
             // 用于包装某些数据库不支持直接返回bool
             if (isBool(lambda.getReturnType()))
             {
-                Config config = getConfig();
+                IConfig config = getConfig();
                 switch (config.getDbType())
                 {
                     case SQLServer:
@@ -187,7 +187,7 @@ public abstract class QueryBase extends CRUD
                         expression = LogicExpression.IfExpression(config, expression, factory.constString("1"), factory.constString("0"));
                 }
             }
-            selectExpression = factory.select(Collections.singletonList(expression), lambda.getReturnType(), true);
+            selectExpression = factory.select(Collections.singletonList(expression), lambda.getReturnType(), true,false);
         }
         sqlBuilder.setSelect(selectExpression);
         return sqlBuilder.isSingle();
@@ -207,21 +207,21 @@ public abstract class QueryBase extends CRUD
     {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression on = normalVisitor.visit(expr.getTree());
+        ISqlExpression on = normalVisitor.visit(expr.getTree());
         sqlBuilder.addJoin(joinType, factory.table(target), on);
     }
 
     protected void join(JoinType joinType, QueryBase target, ExprTree<?> expr)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression on = normalVisitor.visit(expr.getTree());
+        ISqlExpression on = normalVisitor.visit(expr.getTree());
         sqlBuilder.addJoin(joinType, target.getSqlBuilder().getQueryable(), on);
     }
 
     protected void where(LambdaExpression<?> lambda)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression where = normalVisitor.visit(lambda);
+        ISqlExpression where = normalVisitor.visit(lambda);
         sqlBuilder.addWhere(where);
     }
 
@@ -229,7 +229,7 @@ public abstract class QueryBase extends CRUD
     {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression where = normalVisitor.visit(lambda);
+        ISqlExpression where = normalVisitor.visit(lambda);
         sqlBuilder.addOrWhere(where);
     }
 
@@ -237,11 +237,11 @@ public abstract class QueryBase extends CRUD
     {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression where = normalVisitor.visit(lambda);
+        ISqlExpression where = normalVisitor.visit(lambda);
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), table, sqlBuilder.getQueryable().getOrderedCount());
-        querySqlBuilder.setSelect(factory.select(Collections.singletonList(factory.constString("1")), table, true));
+        querySqlBuilder.setSelect(factory.select(Collections.singletonList(factory.constString("1")), table, true,false));
         querySqlBuilder.addWhere(where);
-        SqlUnaryExpression exists = factory.unary(SqlOperator.EXISTS, querySqlBuilder.getQueryable());
+        ISqlUnaryExpression exists = factory.unary(SqlOperator.EXISTS, querySqlBuilder.getQueryable());
         if (not)
         {
             sqlBuilder.addWhere(factory.unary(SqlOperator.NOT, exists));
@@ -256,12 +256,12 @@ public abstract class QueryBase extends CRUD
     {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression where = normalVisitor.visit(lambda);
-        SqlQueryableExpression queryable = queryBase.getSqlBuilder().getQueryable();
+        ISqlExpression where = normalVisitor.visit(lambda);
+        ISqlQueryableExpression queryable = queryBase.getSqlBuilder().getQueryable();
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), queryable, sqlBuilder.getQueryable().getOrderedCount());
-        querySqlBuilder.setSelect(factory.select(Collections.singletonList(factory.constString("1")), queryable.getTableClass(), true));
+        querySqlBuilder.setSelect(factory.select(Collections.singletonList(factory.constString("1")), queryable.getTableClass(), true,false));
         querySqlBuilder.addWhere(where);
-        SqlUnaryExpression exists = factory.unary(SqlOperator.EXISTS, querySqlBuilder.getQueryable());
+        ISqlUnaryExpression exists = factory.unary(SqlOperator.EXISTS, querySqlBuilder.getQueryable());
         if (not)
         {
             sqlBuilder.addWhere(factory.unary(SqlOperator.NOT, exists));
@@ -275,16 +275,16 @@ public abstract class QueryBase extends CRUD
     protected void groupBy(LambdaExpression<?> lambda)
     {
         GroupByVisitor groupByVisitor = new GroupByVisitor(getConfig());
-        SqlExpression expression = groupByVisitor.visit(lambda);
-        SqlGroupByExpression group;
-        if (expression instanceof SqlGroupByExpression)
+        ISqlExpression expression = groupByVisitor.visit(lambda);
+        ISqlGroupByExpression group;
+        if (expression instanceof ISqlGroupByExpression)
         {
-            group = (SqlGroupByExpression) expression;
+            group = (ISqlGroupByExpression) expression;
         }
         else
         {
             SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-            LinkedHashMap<String, SqlExpression> map = new LinkedHashMap<>();
+            LinkedHashMap<String, ISqlExpression> map = new LinkedHashMap<>();
             map.put("key", expression);
             group = factory.groupBy(map);
         }
@@ -294,7 +294,7 @@ public abstract class QueryBase extends CRUD
     protected void having(LambdaExpression<?> lambda)
     {
         HavingVisitor havingVisitor = new HavingVisitor(getConfig(), sqlBuilder.getQueryable());
-        SqlExpression expression = havingVisitor.visit(lambda);
+        ISqlExpression expression = havingVisitor.visit(lambda);
         sqlBuilder.addHaving(expression);
     }
 
@@ -302,7 +302,7 @@ public abstract class QueryBase extends CRUD
     {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         HavingVisitor havingVisitor = new HavingVisitor(getConfig(), sqlBuilder.getQueryable());
-        SqlExpression expression = havingVisitor.visit(lambda);
+        ISqlExpression expression = havingVisitor.visit(lambda);
         sqlBuilder.addOrder(factory.order(expression, asc));
     }
 
@@ -337,10 +337,10 @@ public abstract class QueryBase extends CRUD
     protected void include(LambdaExpression<?> lambda, LambdaExpression<?> cond, List<IncludeSet> includeSets)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression expression = normalVisitor.visit(lambda);
-        if (expression instanceof SqlColumnExpression)
+        ISqlExpression expression = normalVisitor.visit(lambda);
+        if (expression instanceof ISqlColumnExpression)
         {
-            SqlColumnExpression columnExpression = (SqlColumnExpression) expression;
+            ISqlColumnExpression columnExpression = (ISqlColumnExpression) expression;
             if (!columnExpression.getPropertyMetaData().hasNavigate())
             {
                 throw new RuntimeException("include指定的字段需要被@Navigate修饰");
@@ -350,7 +350,7 @@ public abstract class QueryBase extends CRUD
             if (cond != null)
             {
                 NormalVisitor normalVisitor2 = new NormalVisitor(getConfig());
-                SqlExpression condition = normalVisitor2.visit(cond);
+                ISqlExpression condition = normalVisitor2.visit(cond);
                 includeSet = new IncludeSet(columnExpression, condition);
             }
             else
@@ -378,10 +378,10 @@ public abstract class QueryBase extends CRUD
     protected <R> void includeByCond(LambdaExpression<?> lambda, Action1<IncludeCond<R>> action, List<IncludeSet> includeSets)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression expression = normalVisitor.visit(lambda);
-        if (expression instanceof SqlColumnExpression)
+        ISqlExpression expression = normalVisitor.visit(lambda);
+        if (expression instanceof ISqlColumnExpression)
         {
-            SqlColumnExpression columnExpression = (SqlColumnExpression) expression;
+            ISqlColumnExpression columnExpression = (ISqlColumnExpression) expression;
             PropertyMetaData propertyMetaData = columnExpression.getPropertyMetaData();
             if (!columnExpression.getPropertyMetaData().hasNavigate())
             {

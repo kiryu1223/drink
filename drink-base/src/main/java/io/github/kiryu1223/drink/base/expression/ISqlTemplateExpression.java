@@ -12,23 +12,6 @@ public interface ISqlTemplateExpression extends ISqlExpression
     List<? extends ISqlExpression> getExpressions();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < getFunctions().size(); i++)
-        {
-            String function = getFunctions().get(i);
-            sb.append(function);
-            if (i < getExpressions().size())
-            {
-                ISqlExpression expression = getExpressions().get(i);
-                sb.append(expression.getSqlAndValue(config, values));
-            }
-        }
-        return sb.toString();
-    }
-
-    @Override
     default ISqlTemplateExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

@@ -1,6 +1,6 @@
 package io.github.kiryu1223.plugin.datasource;
 
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import org.noear.solon.data.tran.TranUtils;
 
 import javax.sql.DataSource;

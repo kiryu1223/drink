@@ -3,8 +3,8 @@ package io.github.kiryu1223.drink.ext.oracle;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.sqlext.BaseSqlExtension;
-import io.github.kiryu1223.drink.nnnn.expression.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.exception.DrinkIntervalException;
 
 import java.lang.reflect.Method;
@@ -23,9 +23,9 @@ public class OracleAddOrSubDateExtension extends BaseSqlExtension
             templates.add("(");
             sqlExpressions.add(args.get(0));
             ISqlExpression num = args.get(1);
-            if (num instanceof SqlSingleValueExpression)
+            if (num instanceof ISqlSingleValueExpression)
             {
-                SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
+                ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) num;
                 if (sqlFunc.getName().equals("addDate"))
                 {
                     templates.add(" + INTERVAL '" + valueExpression.getValue() + "' DAY)");
@@ -46,9 +46,9 @@ public class OracleAddOrSubDateExtension extends BaseSqlExtension
             sqlExpressions.add(args.get(0));
             sqlExpressions.add(args.get(1));
             ISqlExpression num = args.get(2);
-            if (num instanceof SqlSingleValueExpression)
+            if (num instanceof ISqlSingleValueExpression)
             {
-                SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
+                ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) num;
                 if (sqlFunc.getName().equals("addDate"))
                 {
                     templates.add(" + INTERVAL '" + valueExpression.getValue() + "' ");

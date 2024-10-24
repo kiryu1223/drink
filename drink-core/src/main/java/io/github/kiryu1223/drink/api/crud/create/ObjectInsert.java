@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.create;
 
-import io.github.kiryu1223.drink.config.Config;
+
+import io.github.kiryu1223.drink.base.IConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +12,7 @@ public class ObjectInsert<T> extends InsertBase
     private final List<T> tObjects = new ArrayList<>();
     private final Class<T> tableType;
 
-    public ObjectInsert(Config config, Class<T> tableType)
+    public ObjectInsert(IConfig config, Class<T> tableType)
     {
         super(config);
         this.tableType = tableType;

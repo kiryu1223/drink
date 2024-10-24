@@ -1,15 +1,14 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func0;
-import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class EmptyQuery extends QueryBase
 {
-    public EmptyQuery(Config config)
+    public EmptyQuery(IConfig config)
     {
         super(config, Empty.class);
     }

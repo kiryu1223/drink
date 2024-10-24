@@ -13,37 +13,7 @@ public interface ISqlSingleValueExpression extends ISqlValueExpression
 {
     Object getValue();
 
-    @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        if (getValue() == null)
-        {
-            return "NULL";
-        }
-        else if (getValue() instanceof ISqlKeywords)
-        {
-            ISqlKeywords keywords = (ISqlKeywords) getValue();
-            return keywords.getKeyword(config);
-        }
-        else
-        {
-            if (values != null) values.add(getValue());
-            return "?";
-        }
-    }
-
-    default String getSqlAndValue(IConfig config, List<Object> values, IConverter<?, ?> converter, PropertyMetaData propertyMetaData)
-    {
-        if (getValue() == null)
-        {
-            return "NULL";
-        }
-        else
-        {
-            if (values != null) values.add(converter.toDb(cast(getValue()), propertyMetaData));
-            return "?";
-        }
-    }
+    String getSqlAndValue(IConfig config, List<Object> values, IConverter<?, ?> converter, PropertyMetaData propertyMetaData);
 
     @Override
     default ISqlSingleValueExpression copy(IConfig config)

@@ -38,13 +38,6 @@ public abstract class SqlExpressionFactory
         return groupByExpression;
     }
 
-    public ISqlHavingExpression having(ISqlConditionsExpression conditions)
-    {
-        ISqlHavingExpression having = having();
-        having.addCond(conditions);
-        return having;
-    }
-
     public abstract ISqlHavingExpression having();
 
     public abstract ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlExpression conditions, int index);
@@ -143,6 +136,8 @@ public abstract class SqlExpressionFactory
     public abstract ISqlConstStringExpression constString(String s);
 
     public abstract ISqlSetsExpression sets();
+
+    public abstract ISqlTypeExpression type(Class<?> c);
 
     private List<ISqlExpression> getColumnByClass(Class<?> target)
     {

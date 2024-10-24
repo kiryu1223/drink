@@ -10,12 +10,6 @@ public interface ISqlParensExpression extends ISqlExpression
     ISqlExpression getExpression();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        return "(" + getExpression().getSqlAndValue(config, values) + ")";
-    }
-
-    @Override
     default ISqlParensExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

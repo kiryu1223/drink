@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
@@ -9,7 +9,7 @@ import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class IncludeCond<T> extends QueryBase
 {
-    public IncludeCond(Config config, Class<?> c)
+    public IncludeCond(IConfig config, Class<?> c)
     {
         super(config, c);
     }

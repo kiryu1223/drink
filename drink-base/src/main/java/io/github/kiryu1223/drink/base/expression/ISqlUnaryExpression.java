@@ -12,23 +12,6 @@ public interface ISqlUnaryExpression extends ISqlExpression
     ISqlExpression getExpression();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        SqlOperator operator = getOperator();
-        String temp = getExpression().getSqlAndValue(config, values);
-        String res;
-        if (operator.isLeft())
-        {
-            res = operator.getOperator() + " " + temp;
-        }
-        else
-        {
-            res = temp + " " + operator.getOperator();
-        }
-        return res;
-    }
-
-    @Override
     default ISqlUnaryExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

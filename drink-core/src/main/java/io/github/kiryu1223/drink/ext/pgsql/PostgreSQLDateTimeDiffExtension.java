@@ -2,9 +2,9 @@ package io.github.kiryu1223.drink.ext.pgsql;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.sqlext.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit;
-import io.github.kiryu1223.drink.nnnn.expression.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.exception.DrinkException;
 
 import java.lang.reflect.Method;
@@ -26,9 +26,9 @@ public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
         boolean isFromIsString = parameterTypes[1] == String.class;
         String toString = isToIsString ? "::TIMESTAMP" : "";
         String fromString = isFromIsString ? "::TIMESTAMP" : "";
-        if (unit instanceof SqlSingleValueExpression)
+        if (unit instanceof ISqlSingleValueExpression)
         {
-            SqlSingleValueExpression sqlSingleValueExpression = (SqlSingleValueExpression) unit;
+            ISqlSingleValueExpression sqlSingleValueExpression = (ISqlSingleValueExpression) unit;
             SqlTimeUnit timeUnit = (SqlTimeUnit) sqlSingleValueExpression.getValue();
             switch (timeUnit)
             {

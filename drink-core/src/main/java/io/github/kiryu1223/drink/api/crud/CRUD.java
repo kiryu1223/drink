@@ -1,12 +1,12 @@
 package io.github.kiryu1223.drink.api.crud;
 
 
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
 import org.slf4j.Logger;
 
 public abstract class CRUD
 {
-    protected abstract Config getConfig();
+    protected abstract IConfig getConfig();
 
     protected void tryPrintSql(Logger log, String sql)
     {

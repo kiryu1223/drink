@@ -2,9 +2,9 @@ package io.github.kiryu1223.drink.ext.oracle;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.sqlext.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit;
-import io.github.kiryu1223.drink.nnnn.expression.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.exception.DrinkException;
 
 import java.lang.reflect.Method;
@@ -21,9 +21,9 @@ public class OracleDateTimeDiffExtension extends BaseSqlExtension
         ISqlExpression unit = args.get(0);
         ISqlExpression t1 = args.get(1);
         ISqlExpression t2 = args.get(2);
-        if (unit instanceof SqlSingleValueExpression)
+        if (unit instanceof ISqlSingleValueExpression)
         {
-            SqlSingleValueExpression sqlSingleValueExpression = (SqlSingleValueExpression) unit;
+            ISqlSingleValueExpression sqlSingleValueExpression = (ISqlSingleValueExpression) unit;
             SqlTimeUnit timeUnit = (SqlTimeUnit) sqlSingleValueExpression.getValue();
             Class<?> t1Type = sqlFunc.getParameterTypes()[1];
             Class<?> t2Type = sqlFunc.getParameterTypes()[2];

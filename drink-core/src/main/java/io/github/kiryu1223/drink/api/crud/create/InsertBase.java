@@ -1,13 +1,15 @@
 package io.github.kiryu1223.drink.api.crud.create;
 
 import io.github.kiryu1223.drink.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.sqlBuilder.InsertSqlBuilder;
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.metaData.IConverter;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.base.metaData.PropertyMetaData;
+import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.sqlBuilder.InsertSqlBuilder;
 import io.github.kiryu1223.drink.base.IDialect;
-import io.github.kiryu1223.drink.core.metaData.MetaData;
-import io.github.kiryu1223.drink.core.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.core.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.core.session.SqlSession;
+import io.github.kiryu1223.drink.base.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.cast;
+import static io.github.kiryu1223.drink.visitor.ExpressionUtil.cast;
 
 public abstract class InsertBase extends CRUD
 {
@@ -29,12 +31,12 @@ public abstract class InsertBase extends CRUD
         return sqlBuilder;
     }
 
-    protected Config getConfig()
+    protected IConfig getConfig()
     {
         return sqlBuilder.getConfig();
     }
 
-    public InsertBase(Config c)
+    public InsertBase(IConfig c)
     {
         this.sqlBuilder = new InsertSqlBuilder(c);
     }
@@ -74,7 +76,7 @@ public abstract class InsertBase extends CRUD
 
     private long objectsExecuteRows(List<Object> objects)
     {
-        Config config = getConfig();
+        IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = makeByObjects(objects, sqlValues);
         tryPrintUseDs(log,config.getDataSourceManager().getDsKey());

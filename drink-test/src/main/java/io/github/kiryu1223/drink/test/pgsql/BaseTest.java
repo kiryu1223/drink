@@ -3,8 +3,9 @@ package io.github.kiryu1223.drink.test.pgsql;
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
+import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
 
 abstract class BaseTest
 {

@@ -11,17 +11,21 @@ public interface ISqlHavingExpression extends ISqlExpression
 
     void addCond(ISqlExpression condition);
 
-    @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
+    default boolean isEmpty()
     {
-        if (getConditions().isEmpty()) return "";
-        return "HAVING " + getConditions().getSqlAndValue(config, values);
+        return getConditions().isEmpty();
     }
 
     @Override
     default ISqlHavingExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.having(getConditions().copy(config));
+        ISqlHavingExpression having = factory.having();
+        ISqlConditionsExpression conditions = getConditions();
+        for (ISqlExpression condition : conditions.getConditions())
+        {
+            having.addCond(condition);
+        }
+        return having;
     }
 }

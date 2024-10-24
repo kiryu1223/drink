@@ -1,23 +1,22 @@
 package io.github.kiryu1223.drink.api.client;
 
 
-import io.github.kiryu1223.drink.api.StopWatch;
 import io.github.kiryu1223.drink.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.api.crud.read.EmptyQuery;
 import io.github.kiryu1223.drink.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.api.crud.update.LUpdate;
-import io.github.kiryu1223.drink.api.transaction.Transaction;
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.transaction.Transaction;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.util.Collection;
 
 public class DrinkClient
 {
-    private final Config config;
+    private final IConfig config;
 
-    public DrinkClient(Config config)
+    public DrinkClient(IConfig config)
     {
         this.config = config;
     }
@@ -83,7 +82,7 @@ public class DrinkClient
         throw new RuntimeException();
     }
 
-    public Config getConfig()
+    public IConfig getConfig()
     {
         return config;
     }

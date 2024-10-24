@@ -11,12 +11,6 @@ public interface ISqlOrderExpression extends ISqlExpression
     boolean isAsc();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        return getExpression().getSqlAndValue(config, values) + " " + (isAsc() ? "ASC" : "DESC");
-    }
-
-    @Override
     default ISqlOrderExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

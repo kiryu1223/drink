@@ -18,18 +18,6 @@ public interface ISqlOrderByExpression extends ISqlExpression
     }
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        if (isEmpty()) return "";
-        List<String> strings = new ArrayList<>(getSqlOrders().size());
-        for (ISqlOrderExpression sqlOrder : getSqlOrders())
-        {
-            strings.add(sqlOrder.getSqlAndValue(config, values));
-        }
-        return "ORDER BY " + String.join(",", strings);
-    }
-
-    @Override
     default ISqlOrderByExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

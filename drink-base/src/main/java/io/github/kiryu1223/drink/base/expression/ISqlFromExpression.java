@@ -21,23 +21,6 @@ public interface ISqlFromExpression extends ISqlExpression
     int getIndex();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        if (isEmptyTable()) return "";
-        String sql;
-        if (getSqlTableExpression() instanceof ISqlRealTableExpression)
-        {
-            sql = getSqlTableExpression().getSqlAndValue(config, values);
-        }
-        else
-        {
-            sql = "(" + getSqlTableExpression().getSqlAndValue(config, values) + ")";
-        }
-        String t = "t" + getIndex();
-        return "FROM " + sql + " AS " + config.getDisambiguation().disambiguation(t);
-    }
-
-    @Override
     default ISqlFromExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

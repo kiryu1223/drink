@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.update;
 
-import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
+import io.github.kiryu1223.drink.base.expression.JoinType;
+import io.github.kiryu1223.drink.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action2;
 import io.github.kiryu1223.expressionTree.delegate.Func2;

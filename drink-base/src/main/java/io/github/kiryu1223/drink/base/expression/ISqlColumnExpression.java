@@ -14,14 +14,6 @@ public interface ISqlColumnExpression extends ISqlExpression
     int getTableIndex();
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        IDialect dbConfig = config.getDisambiguation();
-        String t = "t" + getTableIndex();
-        return dbConfig.disambiguation(t) + "." + dbConfig.disambiguation(getPropertyMetaData().getColumn());
-    }
-
-    @Override
     default ISqlColumnExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

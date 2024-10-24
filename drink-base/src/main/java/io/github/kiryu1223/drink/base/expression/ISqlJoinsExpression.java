@@ -18,18 +18,6 @@ public interface ISqlJoinsExpression extends ISqlExpression
     }
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        if (getJoins().isEmpty()) return "";
-        List<String> strings = new ArrayList<>(getJoins().size());
-        for (ISqlJoinExpression join : getJoins())
-        {
-            strings.add(join.getSqlAndValue(config,values));
-        }
-        return String.join(" ", strings);
-    }
-
-    @Override
     default ISqlJoinsExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

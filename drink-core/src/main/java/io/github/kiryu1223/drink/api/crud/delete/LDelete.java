@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
-import io.github.kiryu1223.drink.config.Config;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.JoinType;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
@@ -9,7 +10,7 @@ import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 
 public class LDelete<T> extends DeleteBase
 {
-    public LDelete(Config config, Class<T> c)
+    public LDelete(IConfig config, Class<T> c)
     {
         super(config, c);
     }

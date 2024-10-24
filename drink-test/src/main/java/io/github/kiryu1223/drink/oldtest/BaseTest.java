@@ -3,12 +3,12 @@ package io.github.kiryu1223.drink.oldtest;
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.Drink;
 import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.transaction.DefaultTransactionManager;
-import io.github.kiryu1223.drink.api.transaction.TransactionManager;
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.dataSource.DefaultDataSourceManager;
-import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
-import io.github.kiryu1223.drink.core.session.SqlSessionFactory;
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
+import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
+import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
+import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
+import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 
 public class BaseTest
 {

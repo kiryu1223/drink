@@ -2,9 +2,9 @@ package io.github.kiryu1223.drink.ext.mysql;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.sqlext.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit;
-import io.github.kiryu1223.drink.nnnn.expression.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.exception.DrinkException;
 
 import java.lang.reflect.Method;
@@ -19,9 +19,9 @@ public class MySqlDateTimeDiffExtension extends BaseSqlExtension
         List<String> templates=new ArrayList<>();
         List<ISqlExpression> sqlExpressions=new ArrayList<>();
         ISqlExpression expression = args.get(0);
-        if (expression instanceof SqlSingleValueExpression)
+        if (expression instanceof ISqlSingleValueExpression)
         {
-            SqlSingleValueExpression sqlSingleValueExpression = (SqlSingleValueExpression) expression;
+            ISqlSingleValueExpression sqlSingleValueExpression = (ISqlSingleValueExpression) expression;
             SqlTimeUnit timeUnit = (SqlTimeUnit) sqlSingleValueExpression.getValue();
             if (timeUnit == SqlTimeUnit.MILLISECOND)
             {

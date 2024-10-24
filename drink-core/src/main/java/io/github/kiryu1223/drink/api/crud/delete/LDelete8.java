@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
-import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
+import io.github.kiryu1223.drink.base.expression.JoinType;
+import io.github.kiryu1223.drink.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Func8;
 import io.github.kiryu1223.expressionTree.delegate.Func9;

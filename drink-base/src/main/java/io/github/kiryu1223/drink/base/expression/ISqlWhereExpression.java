@@ -14,12 +14,7 @@ public interface ISqlWhereExpression extends ISqlExpression
 
     ISqlConditionsExpression getConditions();
 
-    @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        if (isEmpty()) return "";
-        return "WHERE " + getConditions().getSqlAndValue(config, values);
-    }
+    void addCondition(ISqlExpression condition);
 
     @Override
     default ISqlWhereExpression copy(IConfig config)

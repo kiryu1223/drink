@@ -1,10 +1,13 @@
 package io.github.kiryu1223.drink.api.crud.delete;
 
 import io.github.kiryu1223.drink.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.session.SqlSession;
-import io.github.kiryu1223.drink.core.visitor.NormalVisitor;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.JoinType;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.sqlBuilder.DeleteSqlBuilder;
+import io.github.kiryu1223.drink.base.session.SqlSession;
+import io.github.kiryu1223.drink.visitor.NormalVisitor;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
@@ -19,7 +22,7 @@ public abstract class DeleteBase extends CRUD
 
     private final DeleteSqlBuilder sqlBuilder;
 
-    public DeleteBase(Config config,Class<?> target)
+    public DeleteBase(IConfig config, Class<?> target)
     {
         this.sqlBuilder = new DeleteSqlBuilder(config,target);
     }
@@ -34,14 +37,14 @@ public abstract class DeleteBase extends CRUD
         return sqlBuilder;
     }
 
-    public Config getConfig()
+    public IConfig getConfig()
     {
         return sqlBuilder.getConfig();
     }
 
     public long executeRows()
     {
-        Config config = getConfig();
+        IConfig config = getConfig();
         checkHasWhere();
         List<Object> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
@@ -69,7 +72,7 @@ public abstract class DeleteBase extends CRUD
     {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression on = normalVisitor.visit(expr.getTree());
+        ISqlExpression on = normalVisitor.visit(expr.getTree());
         getSqlBuilder().addJoin(target, joinType, factory.table(target), on);
     }
 
@@ -81,7 +84,7 @@ public abstract class DeleteBase extends CRUD
     protected void where(LambdaExpression<?> lambda)
     {
         NormalVisitor normalVisitor = new NormalVisitor(getConfig());
-        SqlExpression expression = normalVisitor.visit(lambda);
+        ISqlExpression expression = normalVisitor.visit(lambda);
         sqlBuilder.addWhere(expression);
     }
 }

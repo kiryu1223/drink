@@ -3,8 +3,8 @@ package io.github.kiryu1223.drink.ext.pgsql;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.sqlext.BaseSqlExtension;
-import io.github.kiryu1223.drink.nnnn.expression.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.exception.DrinkIntervalException;
 
 import java.lang.reflect.Method;
@@ -31,9 +31,9 @@ public class PostgreSQLAddOrSubDateExtension extends BaseSqlExtension
         if (sqlFunc.getParameterCount() == 2)
         {
             ISqlExpression num = args.get(1);
-            if (num instanceof SqlSingleValueExpression)
+            if (num instanceof ISqlSingleValueExpression)
             {
-                SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
+                ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) num;
                 templates.add(",INTERVAL '" + valueExpression.getValue() + "' DAY)");
             }
             else
@@ -44,9 +44,9 @@ public class PostgreSQLAddOrSubDateExtension extends BaseSqlExtension
         else
         {
             ISqlExpression num = args.get(2);
-            if (num instanceof SqlSingleValueExpression)
+            if (num instanceof ISqlSingleValueExpression)
             {
-                SqlSingleValueExpression valueExpression = (SqlSingleValueExpression) num;
+                ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) num;
                 templates.add(",INTERVAL '" + valueExpression.getValue() + "' ");
                 sqlExpressions.add(args.get(1));
                 templates.add(")");

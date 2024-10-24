@@ -1,7 +1,8 @@
 package io.github.kiryu1223.drink.pojos;
 
-import io.github.kiryu1223.drink.annotation.Column;
-import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.base.annotation.Column;
+import io.github.kiryu1223.drink.base.annotation.Table;
+import io.github.kiryu1223.drink.base.metaData.IMappingTable;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -11,7 +12,7 @@ import java.time.LocalDate;
  */
 @Data
 @Table("dept_emp")
-public class DeptEmp
+public class DeptEmp implements IMappingTable
 {
     @Column("emp_no")
     private int empNumber;

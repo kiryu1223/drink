@@ -16,24 +16,13 @@ public interface ISqlSelectExpression extends ISqlExpression
 
     boolean isDistinct();
 
-    @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        List<String> strings = new ArrayList<>(getColumns().size());
-        for (ISqlExpression sqlExpression : getColumns())
-        {
-            strings.add(sqlExpression.getSqlAndValue(config, values));
-        }
-        String col = String.join(",", strings);
-        List<String> result = new ArrayList<>();
-        result.add("SELECT");
-        if (isDistinct())
-        {
-            result.add("DISTINCT");
-        }
-        result.add(col);
-        return String.join(" ", result);
-    }
+    void setColumns(List<ISqlExpression> columns);
+
+    void setSingle(boolean single);
+
+    void setDistinct(boolean distinct);
+
+    void setTarget(Class<?> target);
 
     @Override
     default ISqlSelectExpression copy(IConfig config)
@@ -44,6 +33,6 @@ public interface ISqlSelectExpression extends ISqlExpression
         {
             newColumns.add(column.copy(config));
         }
-        return factory.select(newColumns, getTarget(),isSingle(), isDistinct());
+        return factory.select(newColumns, getTarget(), isSingle(), isDistinct());
     }
 }

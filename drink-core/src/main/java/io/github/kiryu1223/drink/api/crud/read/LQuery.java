@@ -1,8 +1,9 @@
 package io.github.kiryu1223.drink.api.crud.read;
 
 import io.github.kiryu1223.drink.api.crud.read.group.GroupedQuery;
-import io.github.kiryu1223.drink.config.Config;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.JoinType;
+import io.github.kiryu1223.drink.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.exception.NotCompiledException;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
@@ -18,7 +19,7 @@ public class LQuery<T> extends QueryBase
 {
     // region [INIT]
 
-    public LQuery(Config config, Class<T> c)
+    public LQuery(IConfig config, Class<T> c)
     {
         super(config, c);
     }

@@ -20,17 +20,6 @@ public interface ISqlConditionsExpression extends ISqlExpression
     }
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        List<String> whereStr = new ArrayList<>(getConditions().size());
-        for (ISqlExpression expression : getConditions())
-        {
-            whereStr.add(expression.getSqlAndValue(config, values));
-        }
-        return String.join(" AND ", whereStr);
-    }
-
-    @Override
     default ISqlConditionsExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

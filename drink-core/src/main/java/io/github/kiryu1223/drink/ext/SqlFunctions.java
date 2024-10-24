@@ -1,21 +1,26 @@
 package io.github.kiryu1223.drink.ext;
 
 
+import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.base.annotation.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit;
 import io.github.kiryu1223.drink.exception.SqlFunctionInvokeException;
+import io.github.kiryu1223.drink.ext.h2.H2CastExtension;
+import io.github.kiryu1223.drink.ext.mysql.MySqlCastExtension;
 import io.github.kiryu1223.drink.ext.mysql.MySqlDateTimeDiffExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleAddOrSubDateExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleCastExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleDateTimeDiffExtension;
 import io.github.kiryu1223.drink.ext.oracle.OracleJoinExtension;
 import io.github.kiryu1223.drink.ext.pgsql.PostgreSQLAddOrSubDateExtension;
+import io.github.kiryu1223.drink.ext.pgsql.PostgreSQLCastExtension;
 import io.github.kiryu1223.drink.ext.pgsql.PostgreSQLDateTimeDiffExtension;
 import io.github.kiryu1223.drink.ext.sqlite.SqliteAddOrSubDateExtension;
+import io.github.kiryu1223.drink.ext.sqlite.SqliteCastExtension;
 import io.github.kiryu1223.drink.ext.sqlite.SqliteDateTimeDiffExtension;
 import io.github.kiryu1223.drink.ext.sqlite.SqliteJoinExtension;
+import io.github.kiryu1223.drink.ext.sqlserver.SQLServerCastExtension;
 import io.github.kiryu1223.drink.ext.types.SqlTypes;
-import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.base.annotation.SqlExtensionExpression;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -2057,12 +2062,12 @@ public class SqlFunctions
         return (T) new Object();
     }
 
-    @SqlExtensionExpression(dbType = DbType.H2, template = "CAST({value} AS {targetType})")
-    @SqlExtensionExpression(dbType = DbType.MySQL, template = "CAST({value} AS {targetType})")
+    @SqlExtensionExpression(dbType = DbType.H2, template = "",extension = H2CastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.MySQL, template = "", extension = MySqlCastExtension.class)
     @SqlExtensionExpression(dbType = DbType.Oracle, template = "", extension = OracleCastExtension.class)
-    @SqlExtensionExpression(dbType = DbType.SQLServer, template = "CAST({value} AS {targetType})")
-    @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST({value} AS {targetType})")
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "{value}::{targetType}")
+    @SqlExtensionExpression(dbType = DbType.SQLServer, template = "",extension = SQLServerCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.SQLite, template = "",extension = SqliteCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "",extension = PostgreSQLCastExtension.class)
     public static <T> T cast(Object value, Class<T> targetType)
     {
         boom();

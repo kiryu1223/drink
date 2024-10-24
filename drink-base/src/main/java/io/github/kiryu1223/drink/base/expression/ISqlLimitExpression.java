@@ -30,23 +30,6 @@ public interface ISqlLimitExpression extends ISqlExpression
     }
 
     @Override
-    default String getSqlAndValue(IConfig config, List<Object> values)
-    {
-        if (getRows() > 0)
-        {
-            if (getOffset() > 0)
-            {
-                return String.format("LIMIT %d OFFSET %d", getRows(), getOffset());
-            }
-            else
-            {
-                return String.format("LIMIT %d", getRows());
-            }
-        }
-        return "";
-    }
-
-    @Override
     default ISqlLimitExpression copy(IConfig config)
     {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

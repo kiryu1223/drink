@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.base.metaData;
 
-import io.github.kiryu1223.drink.ext.IConverter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
