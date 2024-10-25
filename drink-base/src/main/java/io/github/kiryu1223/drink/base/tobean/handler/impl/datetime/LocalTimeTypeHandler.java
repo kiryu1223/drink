@@ -7,15 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class LocalTimeTypeHandler implements ITypeHandler<LocalTime>
 {
     @Override
-    public LocalTime getValue(ResultSet resultSet, int index,Class<?> c) throws SQLException
+    public LocalTime getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getTime(index).toLocalTime();
+        Time time = resultSet.getTime(index);
+        return time == null ? null : time.toLocalTime();
     }
 
     @Override

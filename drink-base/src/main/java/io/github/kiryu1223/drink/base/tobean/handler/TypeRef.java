@@ -22,7 +22,7 @@ public abstract class TypeRef<T>
         }
         else
         {
-            throw new RuntimeException(genericSuperclass.getTypeName());
+            throw new RuntimeException("TypeRef<T>需要一个提供了具体类型参数的类或匿名类");
         }
     }
 }

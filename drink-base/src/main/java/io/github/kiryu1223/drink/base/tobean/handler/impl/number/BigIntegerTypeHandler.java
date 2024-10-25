@@ -13,8 +13,8 @@ public class BigIntegerTypeHandler implements ITypeHandler<BigInteger>
     @Override
     public BigInteger getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        BigDecimal value = resultSet.getBigDecimal(index);
-        return value.toBigInteger();
+        BigDecimal decimal = resultSet.getBigDecimal(index);
+        return decimal == null ? null : decimal.toBigInteger();
     }
 
     @Override

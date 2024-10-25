@@ -14,7 +14,8 @@ public class LocalDateTimeTypeHandler implements ITypeHandler<LocalDateTime>
     @Override
     public LocalDateTime getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getTimestamp(index).toLocalDateTime();
+        Timestamp timestamp = resultSet.getTimestamp(index);
+        return timestamp == null ? null : timestamp.toLocalDateTime();
     }
 
     @Override

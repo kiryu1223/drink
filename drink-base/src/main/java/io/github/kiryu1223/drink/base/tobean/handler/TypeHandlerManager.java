@@ -3,13 +3,19 @@ package io.github.kiryu1223.drink.base.tobean.handler;
 import io.github.kiryu1223.drink.base.tobean.handler.impl.datetime.*;
 import io.github.kiryu1223.drink.base.tobean.handler.impl.number.*;
 import io.github.kiryu1223.drink.base.tobean.handler.impl.other.URLTypeHandler;
-import io.github.kiryu1223.drink.base.tobean.handler.impl.other.URLTypeRef;
 import io.github.kiryu1223.drink.base.tobean.handler.impl.varchar.CharTypeHandler;
-import io.github.kiryu1223.drink.base.tobean.handler.impl.varchar.CharTypeRef;
 import io.github.kiryu1223.drink.base.tobean.handler.impl.varchar.StringTypeHandler;
-import io.github.kiryu1223.drink.base.tobean.handler.impl.varchar.StringTypeRef;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URL;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,39 +37,39 @@ public class TypeHandlerManager
     static
     {
         //varchar
-        set(new CharTypeRef(), new CharTypeHandler());
+        set(new TypeRef<Character>(){}, new CharTypeHandler());
         set(char.class, new CharTypeHandler());
-        set(new StringTypeRef(), new StringTypeHandler());
+        set(new TypeRef<String>(){}, new StringTypeHandler());
 
         //number
-        set(new ByteTypeRef(), new ByteTypeHandler());
+        set(new TypeRef<Byte>(){}, new ByteTypeHandler());
         set(byte.class, new ByteTypeHandler());
-        set(new ShortTypeRef(), new ShortTypeHandler());
+        set(new TypeRef<Short>(){}, new ShortTypeHandler());
         set(short.class, new ShortTypeHandler());
-        set(new IntTypeRef(), new IntTypeHandler());
+        set(new TypeRef<Integer>(){}, new IntTypeHandler());
         set(int.class, new IntTypeHandler());
-        set(new LongTypeRef(), new LongTypeHandler());
+        set(new TypeRef<Long>(){}, new LongTypeHandler());
         set(long.class, new LongTypeHandler());
-        set(new BoolTypeRef(), new BoolTypeHandler());
+        set(new TypeRef<Boolean>(){}, new BoolTypeHandler());
         set(boolean.class, new BoolTypeHandler());
-        set(new FloatTypeRef(), new FloatTypeHandler());
+        set(new TypeRef<Float>(){}, new FloatTypeHandler());
         set(float.class, new FloatTypeHandler());
-        set(new DoubleTypeRef(), new DoubleTypeHandler());
+        set(new TypeRef<Double>(){}, new DoubleTypeHandler());
         set(double.class, new DoubleTypeHandler());
-        set(new BigIntegerTypeRef(), new BigIntegerTypeHandler());
-        set(new BigDecimalTypeRef(), new BigDecimalTypeHandler());
+        set(new TypeRef<BigInteger>(){}, new BigIntegerTypeHandler());
+        set(new TypeRef<BigDecimal>(){}, new BigDecimalTypeHandler());
 
         //datetime
-        set(new DateTypeRef(), new DateTypeHandler());
-        set(new UtilDateTypeRef(), new UtilDateHandler());
-        set(new TimeTypeRef(), new TimeTypeHandler());
-        set(new TimestampTypeRef(), new TimestampTypeHandler());
-        set(new LocalDateTimeTypeRef(), new LocalDateTimeTypeHandler());
-        set(new LocalDateTypeRef(), new LocalDateTypeHandler());
-        set(new LocalTimeTypeRef(), new LocalTimeTypeHandler());
+        set(new TypeRef<Date>(){}, new DateTypeHandler());
+        set(new TypeRef<java.util.Date>(){}, new UtilDateHandler());
+        set(new TypeRef<Time>(){}, new TimeTypeHandler());
+        set(new TypeRef<Timestamp>(){}, new TimestampTypeHandler());
+        set(new TypeRef<LocalDateTime>(){}, new LocalDateTimeTypeHandler());
+        set(new TypeRef<LocalDate>(){}, new LocalDateTypeHandler());
+        set(new TypeRef<LocalTime>(){}, new LocalTimeTypeHandler());
 
         //other
-        set(new URLTypeRef(), new URLTypeHandler());
+        set(new TypeRef<URL>(){}, new URLTypeHandler());
     }
 
     public static <T> ITypeHandler<T> get(Type type)

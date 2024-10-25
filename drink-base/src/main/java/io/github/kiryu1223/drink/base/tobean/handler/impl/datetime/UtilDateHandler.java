@@ -15,7 +15,7 @@ public class UtilDateHandler implements ITypeHandler<Date>
     public Date getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
         Timestamp timestamp = resultSet.getTimestamp(index);
-        return Date.from(timestamp.toInstant());
+        return timestamp == null ? null : Date.from(timestamp.toInstant());
     }
 
     @Override

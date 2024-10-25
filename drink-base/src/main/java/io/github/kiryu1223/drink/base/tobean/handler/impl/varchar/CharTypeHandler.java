@@ -10,9 +10,10 @@ import java.sql.SQLException;
 public class CharTypeHandler implements ITypeHandler<Character>
 {
     @Override
-    public Character getValue(ResultSet resultSet, int index,Class<?> c) throws SQLException
+    public Character getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getString(index).charAt(0);
+        String string = resultSet.getString(index);
+        return string == null ? null : string.charAt(0);
     }
 
     @Override
