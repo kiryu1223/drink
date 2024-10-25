@@ -3,6 +3,8 @@ package io.github.kiryu1223.drink.base.metaData;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 public class PropertyMetaData
@@ -12,6 +14,7 @@ public class PropertyMetaData
     private final Method getter;
     private final Method setter;
     private final Field field;
+    private final boolean isGenericType;
     private final IConverter<?, ?> converter;
     private final boolean ignoreColumn;
     private final NavigateData navigateData;
@@ -30,7 +33,7 @@ public class PropertyMetaData
         this.field = field;
         this.converter = converter;
         this.navigateData = navigateData;
-
+        this.isGenericType = field.getGenericType() instanceof ParameterizedType;
     }
 
     public String getProperty()
@@ -91,6 +94,16 @@ public class PropertyMetaData
     public Class<?> getType()
     {
         return field.getType();
+    }
+
+    public Type getGenericType()
+    {
+        return field.getGenericType();
+    }
+
+    public boolean isGenericType()
+    {
+        return isGenericType;
     }
 
     public boolean isPrimaryKey()

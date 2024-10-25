@@ -6,10 +6,11 @@ import io.github.kiryu1223.drink.base.metaData.IConverter;
 import io.github.kiryu1223.drink.base.metaData.PropertyMetaData;
 import io.github.kiryu1223.drink.base.tobean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.tobean.beancreator.ISetterCaller;
-import io.github.kiryu1223.drink.base.tobean.typehandler.ITypeHandler;
-import io.github.kiryu1223.drink.base.tobean.typehandler.TypeHandlerManager;
+import io.github.kiryu1223.drink.base.tobean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.tobean.handler.TypeHandlerManager;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -210,10 +211,9 @@ public class ObjectBuilder<T>
 
     private Object convertValue(PropertyMetaData metaData, int index) throws SQLException, NoSuchFieldException, IllegalAccessException
     {
-        Class<?> type;
         if (metaData.hasConverter())
         {
-            type = metaData.getConverter().getDbType();
+            Class<?> type = metaData.getConverter().getDbType();
             ITypeHandler<?> typeHandler = TypeHandlerManager.get(type);
             Object value = typeHandler.getValue(resultSet, index, cast(type));
             IConverter<?, ?> converter = metaData.getConverter();
@@ -221,7 +221,7 @@ public class ObjectBuilder<T>
         }
         else
         {
-            type = metaData.getType();
+            Type type = metaData.getGenericType();
             ITypeHandler<?> typeHandler = TypeHandlerManager.get(type);
             return typeHandler.getValue(resultSet, index, cast(type));
         }

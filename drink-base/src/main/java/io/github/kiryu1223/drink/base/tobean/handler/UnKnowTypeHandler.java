@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.base.tobean.typehandler;
+package io.github.kiryu1223.drink.base.tobean.handler;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class UnKnowTypeHandler<T> implements ITypeHandler<T>
 {
     @Override
-    public T getValue(ResultSet resultSet, int index, Class<T> c) throws SQLException
+    public T getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getObject(index, c);
+        return (T) resultSet.getObject(index, c);
     }
 
     @Override
