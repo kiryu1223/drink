@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.test.pgsql;
 
-import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.core.sqlExt.SqlFunctions;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

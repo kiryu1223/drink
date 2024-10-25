@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.test.sqlite;
 
-import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.ext.types.SqlTypes;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.core.sqlExt.types.SqlTypes;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 
-import static io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit.DAY;
-import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
+import static io.github.kiryu1223.drink.base.sqlExt.SqlTimeUnit.DAY;
+import static io.github.kiryu1223.drink.core.sqlExt.SqlFunctions.*;
 
 public class LogicTest extends BaseTest
 {

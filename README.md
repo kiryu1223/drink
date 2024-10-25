@@ -82,7 +82,7 @@ qq群：257911716
    package io.github.kiryu1223;
 
    import com.zaxxer.hikari.HikariDataSource;
-   import io.github.kiryu1223.drink.Drink;
+   import io.github.kiryu1223.drink.core.Drink;
    import io.github.kiryu1223.drink.core.api.client.DrinkClient;
    import io.github.kiryu1223.drink.transaction.DefaultTransactionManager;
    import io.github.kiryu1223.drink.transaction.TransactionManager;

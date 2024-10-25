@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.starter.dataSource;
 
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 

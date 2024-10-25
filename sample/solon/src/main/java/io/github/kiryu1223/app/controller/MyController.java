@@ -2,14 +2,12 @@ package io.github.kiryu1223.app.controller;
 
 import io.github.kiryu1223.app.service.EmployeeService;
 import io.github.kiryu1223.app.service.MyService;
-import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.api.client.DrinkClient;
+import io.github.kiryu1223.drink.core.api.Result;
 import org.noear.solon.annotation.Controller;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.annotation.Mapping;
 import org.noear.solon.annotation.Path;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 @Controller

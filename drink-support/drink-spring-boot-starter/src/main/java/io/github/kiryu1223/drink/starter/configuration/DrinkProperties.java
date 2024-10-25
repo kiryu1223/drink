@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.starter.configuration;
 
-import io.github.kiryu1223.drink.config.Option;
+import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.core.Option;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "drink")

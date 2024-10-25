@@ -1,8 +1,8 @@
 package io.github.kiryu1223.drink.test.sqlite;
 
-import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit;
-import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.base.sqlExt.SqlTimeUnit;
+import io.github.kiryu1223.drink.core.sqlExt.SqlFunctions;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
-import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
+import static io.github.kiryu1223.drink.core.sqlExt.SqlFunctions.*;
 
 public class DateTimeTest extends BaseTest
 {

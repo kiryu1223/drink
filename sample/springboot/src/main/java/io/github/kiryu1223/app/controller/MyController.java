@@ -2,7 +2,7 @@ package io.github.kiryu1223.app.controller;
 
 import io.github.kiryu1223.app.service.EmployeeService;
 import io.github.kiryu1223.app.service.MyService;
-import io.github.kiryu1223.drink.api.Result;
+import io.github.kiryu1223.drink.core.api.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

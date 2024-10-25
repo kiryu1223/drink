@@ -1,9 +1,9 @@
 package io.github.kiryu1223.drink.oldtest;
 
-import io.github.kiryu1223.drink.Drink;
-import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
+import io.github.kiryu1223.drink.core.Drink;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.core.api.client.DrinkClient;
+import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
@@ -25,9 +25,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.github.kiryu1223.drink.base.sqlext.SqlTimeUnit.DAY;
-import static io.github.kiryu1223.drink.ext.SqlCalculates.*;
-import static io.github.kiryu1223.drink.ext.SqlFunctions.*;
+import static io.github.kiryu1223.drink.base.sqlExt.SqlTimeUnit.DAY;
+import static io.github.kiryu1223.drink.core.sqlExt.SqlCalculates.*;
+import static io.github.kiryu1223.drink.core.sqlExt.SqlFunctions.*;
 
 @SuppressWarnings("all")
 public class SQLTest

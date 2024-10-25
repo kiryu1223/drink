@@ -2,11 +2,11 @@ package io.github.kiryu1223.app.service;
 
 import io.github.kiryu1223.app.pojos.Department;
 import io.github.kiryu1223.app.pojos.Employee;
-import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.transaction.Transaction;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.core.api.client.DrinkClient;
+import io.github.kiryu1223.drink.core.api.transaction.Transaction;
 import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.core.sqlExt.SqlFunctions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,10 +1,10 @@
 package io.github.kiryu1223.drink.oldtest;
 
 
-import io.github.kiryu1223.drink.api.Result;
-import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.api.crud.read.LQuery;
-import io.github.kiryu1223.drink.api.crud.read.group.Grouper;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.core.api.client.DrinkClient;
+import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
+import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.pojos.Department;
 import io.github.kiryu1223.drink.pojos.DeptManager;
 import io.github.kiryu1223.drink.pojos.Employee;

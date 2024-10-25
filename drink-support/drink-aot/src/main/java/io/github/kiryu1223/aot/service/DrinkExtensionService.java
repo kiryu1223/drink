@@ -13,6 +13,7 @@ import com.sun.tools.javac.util.Options;
 import io.github.kiryu1223.aot.data.AnonymousClassData;
 import io.github.kiryu1223.aot.data.ClassData;
 import io.github.kiryu1223.aot.data.NormalClassData;
+import io.github.kiryu1223.drink.base.metaData.IConverter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
@@ -32,7 +33,7 @@ import java.util.Set;
 
 public class DrinkExtensionService implements IExtensionService
 {
-    private static final String projectVersion = "1.0.13";
+    private static final String projectVersion = "1.0.14";
     private FileObject aotConfig;
     private boolean aotTime;
     private Set<String> AnonymousClassesName = new HashSet<>();

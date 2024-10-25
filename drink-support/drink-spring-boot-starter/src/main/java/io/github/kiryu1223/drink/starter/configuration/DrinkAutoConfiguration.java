@@ -1,9 +1,9 @@
 package io.github.kiryu1223.drink.starter.configuration;
 
-import io.github.kiryu1223.drink.Drink;
-import io.github.kiryu1223.drink.api.client.DrinkClient;
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
-import io.github.kiryu1223.drink.core.session.DefaultSqlSessionFactory;
+import io.github.kiryu1223.drink.core.Drink;
+import io.github.kiryu1223.drink.core.api.client.DrinkClient;
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.starter.dataSource.SpringDynamicDataSourceManager;
 import io.github.kiryu1223.drink.starter.dataSource.SpringSingleDataSourceManager;
 import io.github.kiryu1223.drink.starter.transaction.SpringTransactionManager;

@@ -1,8 +1,8 @@
 package io.github.kiryu1223.drink.oldtest;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.kiryu1223.drink.Drink;
-import io.github.kiryu1223.drink.api.client.DrinkClient;
+import io.github.kiryu1223.drink.core.Drink;
+import io.github.kiryu1223.drink.core.api.client.DrinkClient;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;

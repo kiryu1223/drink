@@ -1,8 +1,9 @@
 package io.github.kiryu1223.drink.starter.transaction;
 
-import io.github.kiryu1223.drink.api.transaction.DefaultTransactionManager;
-import io.github.kiryu1223.drink.api.transaction.Transaction;
-import io.github.kiryu1223.drink.core.dataSource.DataSourceManager;
+
+import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
+import io.github.kiryu1223.drink.base.transaction.Transaction;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 public class SpringTransactionManager extends DefaultTransactionManager

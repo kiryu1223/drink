@@ -4,7 +4,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.metaData.IConverter;
 import io.github.kiryu1223.drink.base.metaData.PropertyMetaData;
-import io.github.kiryu1223.drink.base.sqlext.ISqlKeywords;
+import io.github.kiryu1223.drink.base.sqlExt.ISqlKeywords;
 
 import java.util.List;
 

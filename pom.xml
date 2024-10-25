@@ -6,16 +6,16 @@
 
     <groupId>io.github.kiryu1223</groupId>
     <artifactId>drink-all</artifactId>
-    <version>1.0.13</version>
+    <version>1.0.14</version>
     <packaging>pom</packaging>
     <modules>
+        <module>drink-base</module>
         <module>drink-core</module>
         <module>drink-support</module>
 
         <!-- skip -->
-        <module>drink-test</module>
-        <module>sample</module>
-        <module>drink-base</module>
+<!--        <module>drink-test</module>-->
+<!--        <module>sample</module>-->
     </modules>
 
     <properties>

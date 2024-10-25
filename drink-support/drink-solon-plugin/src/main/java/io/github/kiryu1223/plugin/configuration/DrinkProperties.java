@@ -1,7 +1,7 @@
 package io.github.kiryu1223.plugin.configuration;
 
 import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.config.Option;
+import io.github.kiryu1223.drink.core.Option;
 import org.noear.solon.annotation.Configuration;
 
 @Configuration

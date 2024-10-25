@@ -1,13 +1,10 @@
 package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.sqlext.ISqlKeywords;
 import io.github.kiryu1223.drink.base.metaData.IConverter;
 import io.github.kiryu1223.drink.base.metaData.PropertyMetaData;
 
 import java.util.List;
-
-import static com.sun.jmx.mbeanserver.Util.cast;
 
 public interface ISqlSingleValueExpression extends ISqlValueExpression
 {

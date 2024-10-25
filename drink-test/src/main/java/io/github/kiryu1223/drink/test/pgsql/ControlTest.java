@@ -1,13 +1,13 @@
 package io.github.kiryu1223.drink.test.pgsql;
 
-import io.github.kiryu1223.drink.ext.SqlFunctions;
+import io.github.kiryu1223.drink.core.sqlExt.SqlFunctions;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.github.kiryu1223.drink.ext.SqlFunctions.Case;
-import static io.github.kiryu1223.drink.ext.SqlFunctions.when;
+import static io.github.kiryu1223.drink.core.sqlExt.SqlFunctions.Case;
+import static io.github.kiryu1223.drink.core.sqlExt.SqlFunctions.when;
 
 @SuppressWarnings("all")
 public class ControlTest extends BaseTest

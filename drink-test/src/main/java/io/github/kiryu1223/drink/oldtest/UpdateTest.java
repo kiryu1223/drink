@@ -1,8 +1,8 @@
 package io.github.kiryu1223.drink.oldtest;
 
-import io.github.kiryu1223.drink.api.client.DrinkClient;
+import io.github.kiryu1223.drink.core.api.client.DrinkClient;
 import io.github.kiryu1223.drink.base.transaction.Transaction;
-import io.github.kiryu1223.drink.ext.SqlCalculates;
+import io.github.kiryu1223.drink.core.sqlExt.SqlCalculates;
 import io.github.kiryu1223.drink.pojos.Department;
 import io.github.kiryu1223.drink.pojos.DeptEmp;
 import org.junit.Test;
