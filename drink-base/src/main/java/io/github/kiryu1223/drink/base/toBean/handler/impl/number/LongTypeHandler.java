@@ -12,12 +12,13 @@ public class LongTypeHandler implements ITypeHandler<Long>
     @Override
     public Long getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getLong(index);
+        long aLong = resultSet.getLong(index);
+        return resultSet.wasNull() ? null : aLong;
     }
 
     @Override
     public void setValue(PreparedStatement preparedStatement, int index, Long aLong) throws SQLException
     {
-        preparedStatement.setLong(index,aLong);
+        preparedStatement.setLong(index, aLong);
     }
 }

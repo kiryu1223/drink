@@ -11,7 +11,8 @@ public class ByteTypeHandler implements ITypeHandler<Byte>
     @Override
     public Byte getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getByte(index);
+        byte aByte = resultSet.getByte(index);
+        return resultSet.wasNull() ? null : aByte;
     }
 
     @Override

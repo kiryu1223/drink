@@ -3,6 +3,8 @@ package io.github.kiryu1223.plugin;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
+import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.core.Drink;
 import io.github.kiryu1223.drink.core.api.client.DrinkClient;
@@ -57,7 +59,7 @@ public class XPluginImpl implements Plugin
             });
         }
 
-        //context.subWrapsOfType(DataSource.class, beanWrap -> registerDrink(context, beanWrap));
+        context.getBeanAsync(ITypeHandler.class, bean -> TypeHandlerManager.set(bean));
         registerAot(context);
     }
 

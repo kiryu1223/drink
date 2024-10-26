@@ -12,7 +12,8 @@ public class BoolTypeHandler implements ITypeHandler<Boolean>
     @Override
     public Boolean getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getBoolean(index);
+        boolean aBoolean = resultSet.getBoolean(index);
+        return resultSet.wasNull() ? null : aBoolean;
     }
 
     @Override

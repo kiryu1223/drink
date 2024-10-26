@@ -5,17 +5,10 @@ import io.github.kiryu1223.drink.base.toBean.handler.impl.number.*;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.other.URLTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.varchar.CharTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.varchar.StringTypeHandler;
+import jdk.jfr.internal.JVM;
+import sun.misc.VM;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URL;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,52 +17,46 @@ public class TypeHandlerManager
     private static final Map<Type, ITypeHandler<?>> cache = new HashMap<>();
     private static final UnKnowTypeHandler<?> unKnowTypeHandler = new UnKnowTypeHandler<>();
 
-    public static <T> void set(TypeRef<T> typeRef, ITypeHandler<T> typeHandler)
-    {
-        cache.put(typeRef.getActualType(), typeHandler);
-    }
+//    public static <T> void set(TypeRef<T> typeRef, ITypeHandler<T> typeHandler)
+//    {
+//        cache.put(typeRef.getActualType(), typeHandler);
+//    }
 
-    public static <T> void set(Class<T> type, ITypeHandler<T> typeHandler)
+    public static <T> void set(ITypeHandler<T> typeHandler)
     {
-        cache.put(type, typeHandler);
+        Type actualType = typeHandler.getActualType();
+        warpBaseType(actualType, typeHandler);
+        cache.put(actualType, typeHandler);
     }
 
     static
     {
         //varchar
-        set(new TypeRef<Character>(){}, new CharTypeHandler());
-        set(char.class, new CharTypeHandler());
-        set(new TypeRef<String>(){}, new StringTypeHandler());
+        set(new CharTypeHandler());
+        set(new StringTypeHandler());
 
         //number
-        set(new TypeRef<Byte>(){}, new ByteTypeHandler());
-        set(byte.class, new ByteTypeHandler());
-        set(new TypeRef<Short>(){}, new ShortTypeHandler());
-        set(short.class, new ShortTypeHandler());
-        set(new TypeRef<Integer>(){}, new IntTypeHandler());
-        set(int.class, new IntTypeHandler());
-        set(new TypeRef<Long>(){}, new LongTypeHandler());
-        set(long.class, new LongTypeHandler());
-        set(new TypeRef<Boolean>(){}, new BoolTypeHandler());
-        set(boolean.class, new BoolTypeHandler());
-        set(new TypeRef<Float>(){}, new FloatTypeHandler());
-        set(float.class, new FloatTypeHandler());
-        set(new TypeRef<Double>(){}, new DoubleTypeHandler());
-        set(double.class, new DoubleTypeHandler());
-        set(new TypeRef<BigInteger>(){}, new BigIntegerTypeHandler());
-        set(new TypeRef<BigDecimal>(){}, new BigDecimalTypeHandler());
+        set(new ByteTypeHandler());
+        set(new ShortTypeHandler());
+        set(new IntTypeHandler());
+        set(new LongTypeHandler());
+        set(new BoolTypeHandler());
+        set(new FloatTypeHandler());
+        set(new DoubleTypeHandler());
+        set(new BigIntegerTypeHandler());
+        set(new BigDecimalTypeHandler());
 
         //datetime
-        set(new TypeRef<Date>(){}, new DateTypeHandler());
-        set(new TypeRef<java.util.Date>(){}, new UtilDateHandler());
-        set(new TypeRef<Time>(){}, new TimeTypeHandler());
-        set(new TypeRef<Timestamp>(){}, new TimestampTypeHandler());
-        set(new TypeRef<LocalDateTime>(){}, new LocalDateTimeTypeHandler());
-        set(new TypeRef<LocalDate>(){}, new LocalDateTypeHandler());
-        set(new TypeRef<LocalTime>(){}, new LocalTimeTypeHandler());
+        set(new DateTypeHandler());
+        set(new UtilDateHandler());
+        set(new TimeTypeHandler());
+        set(new TimestampTypeHandler());
+        set(new LocalDateTimeTypeHandler());
+        set(new LocalDateTypeHandler());
+        set(new LocalTimeTypeHandler());
 
         //other
-        set(new TypeRef<URL>(){}, new URLTypeHandler());
+        set(new URLTypeHandler());
     }
 
     public static <T> ITypeHandler<T> get(Type type)
@@ -80,5 +67,41 @@ public class TypeHandlerManager
             return (ITypeHandler<T>) unKnowTypeHandler;
         }
         return iTypeHandler;
+    }
+
+    private static void warpBaseType(Type actualType, ITypeHandler<?> typeHandler)
+    {
+        if (actualType == Character.class)
+        {
+            cache.put(char.class, typeHandler);
+        }
+        else if (actualType == Byte.class)
+        {
+            cache.put(byte.class, typeHandler);
+        }
+        else if (actualType == Short.class)
+        {
+            cache.put(short.class, typeHandler);
+        }
+        else if (actualType == Integer.class)
+        {
+            cache.put(int.class, typeHandler);
+        }
+        else if (actualType == Long.class)
+        {
+            cache.put(long.class, typeHandler);
+        }
+        else if (actualType == Float.class)
+        {
+            cache.put(float.class, typeHandler);
+        }
+        else if (actualType == Double.class)
+        {
+            cache.put(double.class, typeHandler);
+        }
+        else if (actualType == Boolean.class)
+        {
+            cache.put(boolean.class, typeHandler);
+        }
     }
 }

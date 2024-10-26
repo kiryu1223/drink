@@ -12,7 +12,8 @@ public class IntTypeHandler implements ITypeHandler<Integer>
     @Override
     public Integer getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getInt(index);
+        int anInt = resultSet.getInt(index);
+        return resultSet.wasNull() ? null : anInt;
     }
 
     @Override

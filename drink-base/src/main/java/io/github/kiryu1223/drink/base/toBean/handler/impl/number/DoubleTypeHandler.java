@@ -12,12 +12,13 @@ public class DoubleTypeHandler implements ITypeHandler<Double>
     @Override
     public Double getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getDouble(index);
+        double aDouble = resultSet.getDouble(index);
+        return resultSet.wasNull() ? null : aDouble;
     }
 
     @Override
     public void setValue(PreparedStatement preparedStatement, int index, Double aDouble) throws SQLException
     {
-        preparedStatement.setDouble(index,aDouble);
+        preparedStatement.setDouble(index, aDouble);
     }
 }

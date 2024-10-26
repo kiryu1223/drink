@@ -1,5 +1,7 @@
 package io.github.kiryu1223.drink.core;
 
+import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.api.client.DrinkClient;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
@@ -82,6 +84,12 @@ public class Drink
     public Drink setFastCreatorFactory(BeanCreatorFactory beanCreatorFactory)
     {
         this.beanCreatorFactory = beanCreatorFactory;
+        return this;
+    }
+
+    public Drink addTypeHandler(ITypeHandler<?> iTypeHandler)
+    {
+        TypeHandlerManager.set(iTypeHandler);
         return this;
     }
 }

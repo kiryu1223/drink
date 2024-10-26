@@ -12,7 +12,8 @@ public class FloatTypeHandler implements ITypeHandler<Float>
     @Override
     public Float getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
     {
-        return resultSet.getFloat(index);
+        float aFloat = resultSet.getFloat(index);
+        return resultSet.wasNull() ? null : aFloat;
     }
 
     @Override
