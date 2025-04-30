@@ -1,7 +1,6 @@
 package io.github.kiryu1223.plugin.aot;
 
-import io.github.kiryu1223.drink.base.metaData.NoConverter;
-import io.github.kiryu1223.drink.core.api.crud.read.Empty;
+import io.github.kiryu1223.drink.base.annotation.Empty;
 import io.github.kiryu1223.drink.core.api.crud.read.group.*;
 import io.github.kiryu1223.drink.core.sqlExt.types.Char;
 import io.github.kiryu1223.drink.core.sqlExt.types.SqlTypes;

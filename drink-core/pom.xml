@@ -23,11 +23,6 @@
             <artifactId>drink-base</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.github.kiryu1223</groupId>
-            <artifactId>ExpressionTree</artifactId>
-            <version>1.4.6</version>
-        </dependency>
     </dependencies>
 
     <build>

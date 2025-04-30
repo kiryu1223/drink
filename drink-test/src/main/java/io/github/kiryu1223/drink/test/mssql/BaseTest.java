@@ -1,15 +1,15 @@
 package io.github.kiryu1223.drink.test.mssql;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.kiryu1223.drink.core.Drink;
-import io.github.kiryu1223.drink.core.api.client.DrinkClient;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
+import io.github.kiryu1223.drink.core.SqlClient;
+import io.github.kiryu1223.drink.core.Builder;
 
 abstract class BaseTest
 {
-    protected static final DrinkClient client;
+    protected static final SqlClient client;
     protected static final HikariDataSource sqlserverDataSource;
 
     static
@@ -20,7 +20,7 @@ abstract class BaseTest
         sqlserverDataSource.setPassword("root");
         sqlserverDataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         DataSourceManager dataSourceManager = new DefaultDataSourceManager(sqlserverDataSource);
-        client = Drink.bootStrap()
+        client = Builder.bootStrap()
                 .setDataSourceManager(dataSourceManager)
                 .setDbType(DbType.SQLServer)
                 .build();

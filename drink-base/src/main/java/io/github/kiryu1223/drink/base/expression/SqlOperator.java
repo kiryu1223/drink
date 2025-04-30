@@ -1,10 +1,30 @@
+/*
+ * Copyright 2017-2024 noear.org and authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.kiryu1223.drink.base.expression;
 
-public enum SqlOperator
-{
+/**
+ * sql运算符
+ *
+ * @author kiryu1223
+ * @since 3.0
+ */
+public enum SqlOperator {
     POS("+", true),                             // +
     NEG("-", true),                             // -
-    NOT("NOT", true),                             // !
+    NOT("NOT", true),                           // !
     COMPL("~", true),                           // ~
     PREINC("++", true),                         // ++ _
     PREDEC("--", true),                         // -- _
@@ -13,11 +33,11 @@ public enum SqlOperator
 
 
     OR("OR"),                             // ||
-    AND("AND"),                            // &&
+    AND("AND"),                           // &&
     BITOR("|"),                           // |
     BITXOR("^"),                          // ^
     BITAND("&"),                          // &
-    EQ("="),                             // ==
+    EQ("="),                              // ==
     NE("<>"),                             // !=
     LT("<"),                              // <
     GT(">"),                              // >
@@ -56,37 +76,31 @@ public enum SqlOperator
     private final String operator;
     private final boolean isLeft;
 
-    SqlOperator()
-    {
+    SqlOperator() {
         this.operator = name();
         this.isLeft = false;
     }
 
-    SqlOperator(boolean isLeft)
-    {
+    SqlOperator(boolean isLeft) {
         this.operator = name();
         this.isLeft = isLeft;
     }
 
-    SqlOperator(String operator)
-    {
+    SqlOperator(String operator) {
         this.operator = operator;
         this.isLeft = false;
     }
 
-    SqlOperator(String operator, boolean isLeft)
-    {
+    SqlOperator(String operator, boolean isLeft) {
         this.operator = operator;
         this.isLeft = isLeft;
     }
 
-    public String getOperator()
-    {
+    public String getOperator() {
         return operator;
     }
 
-    public boolean isLeft()
-    {
+    public boolean isLeft() {
         return isLeft;
     }
 }

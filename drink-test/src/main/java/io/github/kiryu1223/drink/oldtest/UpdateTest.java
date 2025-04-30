@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.oldtest;
 
+import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.client.DrinkClient;
 import io.github.kiryu1223.drink.base.transaction.Transaction;
 import io.github.kiryu1223.drink.core.sqlExt.SqlCalculates;
@@ -11,20 +12,16 @@ import java.util.List;
 
 
 @SuppressWarnings("all")
-public class UpdateTest extends BaseTest
-{
-    private final DrinkClient client;
+public class UpdateTest extends BaseTest {
+    private final SqlClient client;
 
-    public UpdateTest()
-    {
+    public UpdateTest() {
         this.client = mysql;
     }
 
     @Test
-    public void u1()
-    {
-        try (Transaction transaction = client.beginTransaction())
-        {
+    public void u1() {
+        try (Transaction transaction = client.beginTransaction()) {
             Department department1 = new Department();
             department1.setNumber("100");
             long l = client.insert(department1).executeRows();
@@ -34,10 +31,7 @@ public class UpdateTest extends BaseTest
             System.out.println(list);
 
             long l2 = client.update(Department.class)
-                    .set(s ->
-                    {
-                        s.setName("newName");
-                    })
+                    .set(s -> s.getName(), "newName")
                     .where(w -> SqlCalculates.eq(w.getNumber(), "100"))
                     .executeRows();
 
@@ -62,8 +56,7 @@ public class UpdateTest extends BaseTest
     }
 
     @Test
-    public void u2()
-    {
+    public void u2() {
         String sql = client.update(Department.class)
                 .leftJoin(DeptEmp.class, (a, b) -> a.getNumber() == b.getDeptNumber())
                 .set((a, b) -> a.setName("111"))
@@ -99,8 +92,7 @@ public class UpdateTest extends BaseTest
 //    }
 
     @Test
-    public void display0()
-    {
+    public void display0() {
         String sql = client.update(Department.class)
                 .set(s ->
                 {
@@ -112,8 +104,7 @@ public class UpdateTest extends BaseTest
     }
 
     @Test
-    public void display1()
-    {
+    public void display1() {
         long l = client.update(Department.class)
                 .leftJoin(DeptEmp.class, (a, b) -> a.getNumber() == b.getDeptNumber())
                 .set((a, b) -> a.setName(b.getDeptNumber()))

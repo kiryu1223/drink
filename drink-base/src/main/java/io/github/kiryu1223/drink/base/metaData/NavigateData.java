@@ -19,12 +19,12 @@ public class NavigateData
         this.navigateCollectionType = navigateCollectionType;
     }
 
-    public String getSelfPropertyName()
+    public String getSelfFieldName()
     {
         return navigate.self();
     }
 
-    public String getTargetPropertyName()
+    public String getTargetFieldName()
     {
         return navigate.target();
     }
@@ -54,12 +54,12 @@ public class NavigateData
         return navigate.mappingTable();
     }
 
-    public String getSelfMappingPropertyName()
+    public String getSelfMappingFieldName()
     {
         return navigate.selfMapping();
     }
 
-    public String getTargetMappingPropertyName()
+    public String getTargetMappingFieldName()
     {
         return navigate.targetMapping();
     }

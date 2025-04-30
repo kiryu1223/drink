@@ -1,40 +1,62 @@
+/*
+ * Copyright 2017-2024 noear.org and authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.kiryu1223.drink.core;
 
-import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
-import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
-import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
-import io.github.kiryu1223.drink.core.dialect.*;
-import io.github.kiryu1223.drink.core.include.h2.H2IncludeFactory;
-import io.github.kiryu1223.drink.core.include.mysql.MySqlIncludeFactory;
-import io.github.kiryu1223.drink.core.include.oracle.OracleIncludeFactory;
-import io.github.kiryu1223.drink.core.include.sqlserver.SqlServerIncludeFactory;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
+import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
+import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
+import io.github.kiryu1223.drink.base.transaction.TransactionManager;
+import io.github.kiryu1223.drink.base.transform.DefaultTransformer;
+import io.github.kiryu1223.drink.base.transform.Transformer;
+import io.github.kiryu1223.drink.base.Filter;
+import io.github.kiryu1223.drink.core.dialect.*;
 import io.github.kiryu1223.drink.core.expression.h2.H2ExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.mysql.MySqlExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.oracle.OracleExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.pgsql.PostgreSQLExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.sqlite.SqliteExpressionFactory;
 import io.github.kiryu1223.drink.core.expression.sqlserver.SqlServerExpressionFactory;
+import io.github.kiryu1223.drink.core.include.h2.H2IncludeFactory;
+import io.github.kiryu1223.drink.core.include.mysql.MySqlIncludeFactory;
+import io.github.kiryu1223.drink.core.include.oracle.OracleIncludeFactory;
+import io.github.kiryu1223.drink.core.include.sqlserver.SqlServerIncludeFactory;
 
-class Config implements IConfig
-{
+/**
+ * @author kiryu1223
+ * @since 3.0
+ */
+class Config implements IConfig {
     private final Option option;
-    private final DbType dbType;
-    private final IDialect disambiguation;
+    private DbType dbType;
     private final TransactionManager transactionManager;
     private final DataSourceManager dataSourceManager;
     private final SqlSessionFactory sqlSessionFactory;
-    private final SqlExpressionFactory sqlExpressionFactory;
-    private final IncludeFactory includeFactory;
     private final BeanCreatorFactory beanCreatorFactory;
+    private final Filter filter = new Filter();
+    private final Transformer transformer;
+    private IDialect disambiguation;
+    private SqlExpressionFactory sqlExpressionFactory;
+    private IncludeFactory includeFactory;
 
-    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory)
-    {
+    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory) {
         this.option = option;
         this.dbType = dbType;
         this.beanCreatorFactory = beanCreatorFactory;
@@ -46,77 +68,75 @@ class Config implements IConfig
         this.transactionManager = transactionManager;
         this.dataSourceManager = dataSourceManager;
         this.sqlSessionFactory = sqlSessionFactory;
+        this.transformer = new DefaultTransformer(this);
     }
 
-    public DataSourceManager getDataSourceManager()
-    {
+    public DataSourceManager getDataSourceManager() {
         return dataSourceManager;
     }
 
-    public IDialect getDisambiguation()
-    {
+    public IDialect getDisambiguation() {
         return disambiguation;
     }
 
-    public DbType getDbType()
-    {
+    public DbType getDbType() {
         return dbType;
     }
 
-    public boolean isIgnoreUpdateNoWhere()
-    {
+    public Filter getFilter() {
+        return filter;
+    }
+
+    public boolean isIgnoreUpdateNoWhere() {
         return option.isIgnoreUpdateNoWhere();
     }
 
-    public boolean isIgnoreDeleteNoWhere()
-    {
+    public boolean isIgnoreDeleteNoWhere() {
         return option.isIgnoreDeleteNoWhere();
     }
 
-    public boolean isPrintSql()
-    {
+    public boolean isPrintSql() {
         return option.isPrintSql();
     }
 
-    public TransactionManager getTransactionManager()
-    {
+    public TransactionManager getTransactionManager() {
         return transactionManager;
     }
 
-    public SqlSessionFactory getSqlSessionFactory()
-    {
+    public SqlSessionFactory getSqlSessionFactory() {
         return sqlSessionFactory;
     }
 
-    public boolean isPrintUseDs()
-    {
-        return option.isPrintUseDs();
-    }
-
-    public boolean isPrintBatch()
-    {
+    public boolean isPrintBatch() {
         return option.isPrintBatch();
     }
 
-    public SqlExpressionFactory getSqlExpressionFactory()
-    {
+    public SqlExpressionFactory getSqlExpressionFactory() {
         return sqlExpressionFactory;
     }
 
-    public IncludeFactory getIncludeFactory()
-    {
+    public IncludeFactory getIncludeFactory() {
         return includeFactory;
     }
 
-    public BeanCreatorFactory getFastCreatorFactory()
-    {
+    public BeanCreatorFactory getBeanCreatorFactory() {
         return beanCreatorFactory;
     }
 
-    private IDialect getIDialectByDbType(DbType dbType)
-    {
-        switch (dbType)
-        {
+    @Override
+    public Transformer getTransformer() {
+        return transformer;
+    }
+
+    public void setDbType(DbType dbType) {
+        this.dbType = dbType;
+        this.disambiguation = getIDialectByDbType(dbType);
+        this.sqlExpressionFactory = getSqlExpressionFactoryByDbType(dbType);
+        this.includeFactory = getIncludeFactoryByDbType(dbType);
+    }
+
+    private IDialect getIDialectByDbType(DbType dbType) {
+        switch (dbType) {
             case Any:
                 return new DefaultDialect();
             case MySQL:
@@ -136,10 +156,8 @@ class Config implements IConfig
         }
     }
 
-    public SqlExpressionFactory getSqlExpressionFactoryByDbType(DbType dbType)
-    {
-        switch (dbType)
-        {
+    public SqlExpressionFactory getSqlExpressionFactoryByDbType(DbType dbType) {
+        switch (dbType) {
             case Any:
             case MySQL:
                 return new MySqlExpressionFactory();
@@ -158,10 +176,8 @@ class Config implements IConfig
         }
     }
 
-    public IncludeFactory getIncludeFactoryByDbType(DbType dbType)
-    {
-        switch (dbType)
-        {
+    public IncludeFactory getIncludeFactoryByDbType(DbType dbType) {
+        switch (dbType) {
             case Any:
             case MySQL:
             case SQLite:

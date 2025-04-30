@@ -11,11 +11,11 @@
     <modules>
         <module>drink-base</module>
         <module>drink-core</module>
-        <module>drink-support</module>
+<!--        <module>drink-support</module>-->
 
-        <!-- skip -->
-        <module>drink-test</module>
-        <module>sample</module>
+<!--        &lt;!&ndash; skip &ndash;&gt;-->
+<!--        <module>drink-test</module>-->
+<!--        <module>sample</module>-->
     </modules>
 
     <properties>

@@ -1,37 +1,55 @@
+/*
+ * Copyright 2017-2024 noear.org and authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.kiryu1223.drink.core.sqlExt.pgsql;
+
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlTimeUnit;
-import io.github.kiryu1223.drink.core.exception.DrinkException;
+import io.github.kiryu1223.drink.core.exception.SqLinkException;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
-{
+/**
+ * PostgreSQL时间运算函数扩展
+ *
+ * @author kiryu1223
+ * @since 3.0
+ */
+public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension {
     @Override
-    public ISqlExpression parse(IConfig config, Method sqlFunc, List<ISqlExpression> args)
-    {
+    public ISqlExpression parse(IConfig config, Method method, List<ISqlExpression> args) {
         List<String> templates = new ArrayList<>();
         List<ISqlExpression> sqlExpressions = new ArrayList<>();
         ISqlExpression unit = args.get(0);
         ISqlExpression from = args.get(1);
         ISqlExpression to = args.get(2);
-        Class<?>[] parameterTypes = sqlFunc.getParameterTypes();
+        Class<?>[] parameterTypes = method.getParameterTypes();
         boolean isToIsString = parameterTypes[2] == String.class;
         boolean isFromIsString = parameterTypes[1] == String.class;
         String toString = isToIsString ? "::TIMESTAMP" : "";
         String fromString = isFromIsString ? "::TIMESTAMP" : "";
-        if (unit instanceof ISqlSingleValueExpression)
-        {
+        if (unit instanceof ISqlSingleValueExpression) {
             ISqlSingleValueExpression sqlSingleValueExpression = (ISqlSingleValueExpression) unit;
             SqlTimeUnit timeUnit = (SqlTimeUnit) sqlSingleValueExpression.getValue();
-            switch (timeUnit)
-            {
+            switch (timeUnit) {
                 case YEAR:
                     templates.add("EXTRACT(YEAR FROM AGE(");
                     sqlExpressions.add(to);
@@ -94,9 +112,8 @@ public class PostgreSQLDateTimeDiffExtension extends BaseSqlExtension
                     break;
             }
         }
-        else
-        {
-            throw new DrinkException("SqlTimeUnit必须为可求值的");
+        else {
+            throw new SqLinkException("SqlTimeUnit必须为可求值的");
         }
         return config.getSqlExpressionFactory().template(templates, sqlExpressions);
     }

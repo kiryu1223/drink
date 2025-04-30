@@ -1,122 +1,114 @@
+/*
+ * Copyright 2017-2024 noear.org and authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.kiryu1223.drink.core.sqlBuilder;
+
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
-import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.base.IDialect;
+import io.github.kiryu1223.drink.base.session.SqlValue;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class UpdateSqlBuilder implements ISqlBuilder
-{
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.doGetAsName;
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getFirst;
+
+
+/**
+ * 更新语句构造器
+ *
+ * @author kiryu1223
+ * @since 3.0
+ */
+public class UpdateSqlBuilder implements ISqlBuilder {
     private final IConfig config;
-    private final ISqlJoinsExpression joins;
-    private final ISqlSetsExpression sets;
-    private final ISqlWhereExpression wheres;
-    private final Class<?> target;
     private final SqlExpressionFactory factory;
+    private final ISqlUpdateExpression update;
 
-    public UpdateSqlBuilder(IConfig config, Class<?> target)
-    {
+    public UpdateSqlBuilder(IConfig config, ISqlUpdateExpression update) {
         this.config = config;
-        this.target = target;
-        factory = config.getSqlExpressionFactory();
-        joins = factory.Joins();
-        sets = factory.sets();
-        wheres = factory.where();
+        this.update = update;
+        this.factory = config.getSqlExpressionFactory();
     }
 
-    public void addJoin(Class<?> target, JoinType joinType, ISqlTableExpression table, ISqlExpression on)
-    {
+    /**
+     * 添加关联表
+     *
+     * @param joinType 关联类型
+     * @param table    关联表
+     * @param on       关联条件
+     */
+    public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlExpression on) {
+        String first = getFirst(table.getMainTableClass());
+        Set<String> stringSet = new HashSet<>(update.getJoins().getJoins().size() + 1);
+        stringSet.add(update.getFrom().getAsName().getName());
+        for (ISqlJoinExpression join : update.getJoins().getJoins()) {
+            stringSet.add(join.getAsName().getName());
+        }
+        AsName asName = doGetAsName(first,stringSet);
         ISqlJoinExpression join = factory.join(
                 joinType,
                 table,
                 on,
-                1 + joins.getJoins().size()
+                asName
         );
-        joins.addJoin(join);
+        update.addJoin(join);
     }
 
-    public void addSet(ISqlSetsExpression set)
-    {
-        sets.addSet(set.getSets());
+    /**
+     * 添加需要更新的列
+     */
+    public void addSet(ISqlSetExpression set) {
+        update.addSet(set);
     }
 
-    public void addSet(ISqlSetExpression set)
-    {
-        sets.addSet(set);
+    /**
+     * 添加条件
+     */
+    public void addWhere(ISqlExpression where) {
+        update.addWhere(where);
     }
 
-    public void addWhere(ISqlExpression where)
-    {
-        wheres.addCondition(where);
+    /**
+     * 是否有条件
+     */
+    public boolean hasWhere() {
+        return !update.getWhere().isEmpty();
     }
 
-    public boolean hasWhere()
-    {
-        return !wheres.isEmpty();
+    public boolean hasSet() {
+        return !update.getSets().isEmpty();
     }
 
     @Override
-    public String getSql()
-    {
-        return makeUpdate();
+    public String getSql() {
+        return getSqlAndValue(null);
     }
 
     @Override
-    public String getSqlAndValue(List<Object> values)
-    {
-        return makeUpdate();
+    public String getSqlAndValue(List<SqlValue> sqlValues) {
+        return update.getSqlAndValue(config, sqlValues);
     }
 
-    public IConfig getConfig()
-    {
+    public IConfig getConfig() {
         return config;
     }
 
-    private String makeUpdate()
-    {
-        MetaData metaData = MetaDataCache.getMetaData(target);
-        IDialect dbConfig = config.getDisambiguation();
-        String sql = "UPDATE " + dbConfig.disambiguationTableName(metaData.getTableName()) + " AS t0";
-        StringBuilder sb = new StringBuilder();
-        sb.append(sql);
-        String joinsSqlAndValue = joins.getSql(config);
-        if (!joinsSqlAndValue.isEmpty())
-        {
-            sb.append(" ").append(joinsSqlAndValue);
-        }
-        String setsSqlAndValue = sets.getSql(config);
-        sb.append(" ").append(setsSqlAndValue);
-        String wheresSqlAndValue = wheres.getSql(config);
-        if (!wheresSqlAndValue.isEmpty())
-        {
-            sb.append(" ").append(wheresSqlAndValue);
-        }
-        return sb.toString();
-    }
-
-    private String makeUpdate(List<Object> values)
-    {
-        MetaData metaData = MetaDataCache.getMetaData(target);
-        IDialect dbConfig = config.getDisambiguation();
-        String sql = "UPDATE " + dbConfig.disambiguationTableName(metaData.getTableName()) + " AS t0";
-        List<String> sb = new ArrayList<>();
-        sb.add(sql);
-        String joinsSqlAndValue = joins.getSqlAndValue(config, values);
-        if (!joinsSqlAndValue.isEmpty())
-        {
-            sb.add(joinsSqlAndValue);
-        }
-        String setsSqlAndValue = sets.getSqlAndValue(config, values);
-        sb.add(setsSqlAndValue);
-        String wheresSqlAndValue = wheres.getSqlAndValue(config, values);
-        if (!wheresSqlAndValue.isEmpty())
-        {
-            sb.add(wheresSqlAndValue);
-        }
-        return String.join(" ", sb);
+    public ISqlUpdateExpression getUpdate() {
+        return update;
     }
 }

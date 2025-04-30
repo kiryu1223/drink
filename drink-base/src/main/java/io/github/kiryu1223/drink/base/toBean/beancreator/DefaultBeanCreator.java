@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.base.toBean.beancreator;
 
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.base.metaData.PropertyMetaData;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.*;
@@ -96,14 +96,14 @@ public class DefaultBeanCreator<T> extends AbsBeanCreator<T>
 
     protected ISetterCaller<T> methodBeanSetter(String property)
     {
-        PropertyMetaData propertyMetaData = MetaDataCache.getMetaData(target).getPropertyMetaDataByFieldName(property);
+        FieldMetaData propertyMetaData = MetaDataCache.getMetaData(target).getFieldMetaDataByFieldName(property);
         Method setter = propertyMetaData.getSetter();
         return (t, v) -> setter.invoke(t, v);
     }
 
     protected ISetterCaller<T> methodHandleBeanSetter(String property)
     {
-        PropertyMetaData propertyMetaData = MetaDataCache.getMetaData(target).getPropertyMetaDataByFieldName(property);
+        FieldMetaData propertyMetaData = MetaDataCache.getMetaData(target).getFieldMetaDataByFieldName(property);
         Class<?> propertyType = propertyMetaData.getType();
 
         MethodHandles.Lookup caller = MethodHandles.lookup();
@@ -145,7 +145,7 @@ public class DefaultBeanCreator<T> extends AbsBeanCreator<T>
             {
                 return Character.class;
             }
-            if (c == Byte.TYPE)
+            else if (c == Byte.TYPE)
             {
                 return Byte.class;
             }

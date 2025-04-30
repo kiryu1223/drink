@@ -1,6 +1,5 @@
 package io.github.kiryu1223.plugin.builder;
 
-import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.toBean.beancreator.DefaultBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;

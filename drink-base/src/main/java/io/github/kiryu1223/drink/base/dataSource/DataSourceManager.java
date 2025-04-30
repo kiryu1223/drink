@@ -7,13 +7,13 @@ import java.util.Map;
 
 public interface DataSourceManager
 {
+    /**
+     * 获取连接
+     */
     Connection getConnection() throws SQLException;
 
+    /**
+     * 获取数据源
+     */
     DataSource getDataSource();
-
-    void useDs(String key);
-
-    void useDefDs();
-
-    String getDsKey();
 }

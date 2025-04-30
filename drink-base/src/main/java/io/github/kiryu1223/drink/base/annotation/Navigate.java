@@ -18,6 +18,11 @@ public @interface Navigate
     RelationType value();
 
     /**
+     * 目标类型(仅少数场合需要手动填写)
+     */
+    Class<?> targetType() default Empty.class;
+
+    /**
      * 自身对应java字段名
      */
     String self();

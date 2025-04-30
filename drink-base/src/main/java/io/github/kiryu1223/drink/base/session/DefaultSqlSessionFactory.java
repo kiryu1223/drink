@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.base.session;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 
@@ -16,7 +17,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory
     }
 
     @Override
-    public SqlSession getSession()
+    public SqlSession getSession(IConfig config)
     {
         return new DefaultSqlSession(dataSourceManager, transactionManager);
     }

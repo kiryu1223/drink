@@ -1,334 +1,161 @@
 package io.github.kiryu1223.drink.base.session;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collection;
-import java.util.List;
 
-public class DefaultSqlSession implements SqlSession
-{
+public class DefaultSqlSession implements SqlSession {
     protected final DataSourceManager dataSourceManager;
     protected final TransactionManager transactionManager;
 
-    public DefaultSqlSession(DataSourceManager dataSourceManager, TransactionManager transactionManager)
-    {
+    public DefaultSqlSession(DataSourceManager dataSourceManager, TransactionManager transactionManager) {
         this.dataSourceManager = dataSourceManager;
         this.transactionManager = transactionManager;
     }
 
-    public <R> R executeQuery(Function<ResultSet, R> func, String sql, Collection<Object> values)
-    {
-        if (!transactionManager.currentThreadInTransaction())
-        {
-            try (Connection connection = dataSourceManager.getConnection())
-            {
-                return executeQuery(connection, func, sql, values);
-            }
-            catch (SQLException e)
-            {
+    public <R> R executeQuery(Function<ResultSet, R> func, String sql, Collection<SqlValue> sqlValues) {
+        if (!transactionManager.currentThreadInTransaction()) {
+            try (Connection connection = dataSourceManager.getConnection()) {
+                return executeQuery(connection, func, sql, sqlValues);
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
-        else
-        {
-            try
-            {
+        else {
+            try {
                 Connection connection;
-                if (transactionManager.isOpenTransaction())
-                {
+                if (transactionManager.isOpenTransaction()) {
                     connection = transactionManager.getCurTransaction().getConnection();
                 }
-                else
-                {
+                else {
                     connection = dataSourceManager.getConnection();
                 }
-                return executeQuery(connection, func, sql, values);
-            }
-            catch (SQLException e)
-            {
+                return executeQuery(connection, func, sql, sqlValues);
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private <R> R executeQuery(Connection connection, Function<ResultSet, R> func, String sql, Collection<Object> values)
-    {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
-        {
-            setObjects(preparedStatement, values);
-            try (ResultSet resultSet = preparedStatement.executeQuery())
-            {
+    private <R> R executeQuery(Connection connection, Function<ResultSet, R> func, String sql, Collection<SqlValue> sqlValues) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            setObjects(preparedStatement, sqlValues);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return func.invoke(resultSet);
             }
-        }
-        catch (SQLException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e)
-        {
+        } catch (SQLException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public long executeUpdate(String sql, List<SqlValue> values)
-    {
-        if (!transactionManager.currentThreadInTransaction())
-        {
-            try (Connection connection = dataSourceManager.getConnection())
-            {
-                return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
-            {
+    @Override
+    public long executeInsert(String sql, Collection<SqlValue> sqlValues, int length) {
+        if (!transactionManager.currentThreadInTransaction()) {
+            try (Connection connection = dataSourceManager.getConnection()) {
+                boolean autoCommit = connection.getAutoCommit();
+                connection.setAutoCommit(true);
+                long count = executeInsert(connection, sql, sqlValues, length);
+                connection.setAutoCommit(autoCommit);
+                return count;
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
-        else
-        {
-            try
-            {
+        else {
+            try {
                 Connection connection;
-                if (transactionManager.isOpenTransaction())
-                {
+                if (transactionManager.isOpenTransaction()) {
                     connection = transactionManager.getCurTransaction().getConnection();
                 }
-                else
-                {
+                else {
                     connection = dataSourceManager.getConnection();
                 }
-                return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
-            {
+                return executeInsert(connection, sql, sqlValues, length);
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public long executeUpdate(String sql, List<Object> values, Object... o)
-    {
-        if (!transactionManager.currentThreadInTransaction())
-        {
-            try (Connection connection = dataSourceManager.getConnection())
-            {
-                return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
-            {
+    @Override
+    public long executeDelete(String sql, Collection<SqlValue> sqlValues) {
+        return executeUpdate(sql, sqlValues);
+    }
+
+    public long executeUpdate(String sql, Collection<SqlValue> sqlValues) {
+        if (!transactionManager.currentThreadInTransaction()) {
+            try (Connection connection = dataSourceManager.getConnection()) {
+                boolean autoCommit = connection.getAutoCommit();
+                connection.setAutoCommit(true);
+                long count = executeUpdate(connection, sql, sqlValues);
+                connection.setAutoCommit(autoCommit);
+                return count;
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
-        else
-        {
-            try
-            {
+        else {
+            try {
                 Connection connection;
-                if (transactionManager.isOpenTransaction())
-                {
+                if (transactionManager.isOpenTransaction()) {
                     connection = transactionManager.getCurTransaction().getConnection();
                 }
-                else
-                {
+                else {
                     connection = dataSourceManager.getConnection();
                 }
-                return executeUpdate(connection, sql, values);
-            }
-            catch (SQLException e)
-            {
+                return executeUpdate(connection, sql, sqlValues);
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    public long batchExecuteUpdate(String sql, long limit, List<SqlValue> values)
-    {
-        if (!transactionManager.currentThreadInTransaction())
-        {
-            try (Connection connection = dataSourceManager.getConnection())
-            {
-                return batchExecuteUpdate(connection, sql, limit, values);
+    protected long executeInsert(Connection connection, String sql, Collection<SqlValue> sqlValues, int length) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            boolean batch = setObjects(preparedStatement, sqlValues, length);
+            if (batch) {
+                return preparedStatement.executeBatch().length;
             }
-            catch (SQLException e)
-            {
-                throw new RuntimeException(e);
+            else {
+                return preparedStatement.executeUpdate();
             }
-        }
-        else
-        {
-            try
-            {
-                Connection connection;
-                if (transactionManager.isOpenTransaction())
-                {
-                    connection = transactionManager.getCurTransaction().getConnection();
-                }
-                else
-                {
-                    connection = dataSourceManager.getConnection();
-                }
-                return batchExecuteUpdate(connection, sql, limit, values);
-            }
-            catch (SQLException e)
-            {
-                throw new RuntimeException(e);
-            }
+        } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    protected long executeUpdate(Connection connection, String sql, List<SqlValue> values)
-    {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
-        {
-            setObjectsIfNull(preparedStatement, values);
+    protected long executeUpdate(Connection connection, String sql, Collection<SqlValue> sqlValues) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            setObjects(preparedStatement, sqlValues);
             return preparedStatement.executeUpdate();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected long executeUpdate(Connection connection, String sql, Collection<Object> values, Object... o)
-    {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
-        {
-            setObjects(preparedStatement, values);
-            return preparedStatement.executeUpdate();
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected long batchExecuteUpdate(Connection connection, String sql, long limit, List<SqlValue> values)
-    {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql))
-        {
-            batchSetObjects(preparedStatement, limit, values);
-            return preparedStatement.executeBatch().length;
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected void setObjects(PreparedStatement preparedStatement, Collection<Object> values) throws SQLException
-    {
+    protected void setObjects(PreparedStatement preparedStatement, Collection<SqlValue> sqlValues) throws SQLException {
         int index = 1;
-        for (Object value : values)
-        {
-            if (value instanceof Enum)
-            {
-                preparedStatement.setString(index++, value.toString());
-            }
-            else if (value instanceof Character)
-            {
-                preparedStatement.setString(index++, value.toString());
-            }
-            else if (value instanceof Integer)
-            {
-                preparedStatement.setInt(index++, (int) value);
-            }
-            else if (value instanceof String)
-            {
-                preparedStatement.setString(index++, value.toString());
-            }
-            else
-            {
-                preparedStatement.setObject(index++, value);
-            }
+        for (SqlValue sqlValue : sqlValues) {
+            sqlValue.preparedStatementSetValue(preparedStatement, index++);
         }
     }
 
-    protected void setObjectsIfNull(PreparedStatement preparedStatement, List<SqlValue> values) throws SQLException
-    {
-        for (int i = 1; i <= values.size(); i++)
-        {
-            SqlValue value = values.get(i - 1);
-            Object o = value.getValues().get(0);
-            if (o == null)
-            {
-                preparedStatement.setNull(i, convert(value.getType()));
-            }
-            else
-            {
-                preparedStatement.setObject(i, o);
+    protected boolean setObjects(PreparedStatement preparedStatement, Collection<SqlValue> sqlValues, int length) throws SQLException, InvocationTargetException, IllegalAccessException {
+        int size = sqlValues.size();
+        boolean batch = size > length;
+        int index = 1;
+        for (SqlValue sqlValue : sqlValues) {
+            sqlValue.preparedStatementSetValue(preparedStatement, index++);
+            if (index > length && batch) {
+                index = 1;
+                preparedStatement.addBatch();
             }
         }
-    }
-
-    protected void batchSetObjects(PreparedStatement preparedStatement, long limit, List<SqlValue> values) throws SQLException
-    {
-        for (long i = 0; i < limit; i++)
-        {
-            int index = 0;
-            for (SqlValue value : values)
-            {
-                Object o = value.getValues().get((int) i);
-                if (o == null)
-                {
-                    preparedStatement.setNull(++index, convert(value.getType()));
-                }
-                else
-                {
-                    preparedStatement.setObject(++index, o);
-                }
-            }
-            preparedStatement.addBatch();
-        }
-    }
-
-    protected static int convert(Class<?> type)
-    {
-        if (type == String.class)
-        {
-            return Types.VARCHAR;
-        }
-        else if (type == Integer.class || type == int.class)
-        {
-            return Types.INTEGER;
-        }
-        else if (type == Long.class || type == long.class)
-        {
-            return Types.BIGINT;
-        }
-        else if (type == Double.class || type == double.class)
-        {
-            return Types.DOUBLE;
-        }
-        else if (type == Float.class || type == float.class)
-        {
-            return Types.FLOAT;
-        }
-        else if (type == Boolean.class || type == boolean.class)
-        {
-            return Types.BOOLEAN;
-        }
-        else if (type == java.sql.Date.class || type == LocalDate.class)
-        {
-            return Types.DATE;
-        }
-        else if (type == java.sql.Time.class || type == LocalTime.class)
-        {
-            return Types.TIME;
-        }
-        else if (type == java.sql.Timestamp.class || type == LocalDateTime.class)
-        {
-            return Types.TIMESTAMP;
-        }
-        else if (type == java.math.BigDecimal.class)
-        {
-            return Types.DECIMAL;
-        }
-        else
-        {
-            return Types.OTHER; // Default to OTHER type if not recognized
-        }
+        return batch;
     }
 }

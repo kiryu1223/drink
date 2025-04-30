@@ -24,6 +24,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.kiryu1223</groupId>
+            <artifactId>ExpressionTree</artifactId>
+            <version>1.5.5</version>
+        </dependency>
     </dependencies>
 
 </project>

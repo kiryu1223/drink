@@ -5,8 +5,6 @@ import io.github.kiryu1223.drink.base.toBean.handler.impl.number.*;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.other.URLTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.varchar.CharTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.varchar.StringTypeHandler;
-import jdk.jfr.internal.JVM;
-import sun.misc.VM;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -15,12 +13,18 @@ import java.util.Map;
 public class TypeHandlerManager
 {
     private static final Map<Type, ITypeHandler<?>> cache = new HashMap<>();
+    private static final Map<Class<? extends ITypeHandler<?>>, ITypeHandler<?>> handlerCache = new HashMap<>();
     private static final UnKnowTypeHandler<?> unKnowTypeHandler = new UnKnowTypeHandler<>();
 
 //    public static <T> void set(TypeRef<T> typeRef, ITypeHandler<T> typeHandler)
 //    {
 //        cache.put(typeRef.getActualType(), typeHandler);
 //    }
+
+    public static UnKnowTypeHandler<?> getUnKnowTypeHandler()
+    {
+        return unKnowTypeHandler;
+    }
 
     public static <T> void set(ITypeHandler<T> typeHandler)
     {
@@ -67,6 +71,25 @@ public class TypeHandlerManager
             return (ITypeHandler<T>) unKnowTypeHandler;
         }
         return iTypeHandler;
+    }
+
+    /**
+     * 通过处理器类型获取处理器
+     *
+     * @param handlerType 处理器类型
+     */
+    public static <T> ITypeHandler<T> getByHandlerType(Class<? extends ITypeHandler<T>> handlerType) {
+        ITypeHandler<T> typeHandler = (ITypeHandler<T>) handlerCache.get(handlerType);
+        if (typeHandler == null) {
+            try {
+                typeHandler = handlerType.newInstance();
+                handlerCache.put(handlerType, typeHandler);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return typeHandler;
     }
 
     private static void warpBaseType(Type actualType, ITypeHandler<?> typeHandler)

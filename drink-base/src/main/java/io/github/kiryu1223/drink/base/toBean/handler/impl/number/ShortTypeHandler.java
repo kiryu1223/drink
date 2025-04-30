@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.base.toBean.handler.impl.number;
 
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 public class ShortTypeHandler implements ITypeHandler<Short>
 {
     @Override
-    public Short getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
+    public Short getValue(ResultSet resultSet, int index, Type type) throws SQLException
     {
         short aShort = resultSet.getShort(index);
         return resultSet.wasNull() ? null : aShort;

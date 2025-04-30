@@ -1,34 +1,38 @@
 package io.github.kiryu1223.drink.base.session;
 
-import java.util.List;
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import static com.sun.jmx.mbeanserver.Util.cast;
 
 public class SqlValue
 {
-    private final Class<?> type;
-    private final List<Object> values;
+    /**
+     * 值
+     */
+    private final Object value;
+    /**
+     * 类型处理器
+     */
+    private final ITypeHandler<?> typeHandler;
 
-    public SqlValue(Class<?> type, List<Object> values)
-    {
-        this.type = type;
-        this.values = values;
+    public SqlValue(Object value) {
+        this(value, value == null ? TypeHandlerManager.getUnKnowTypeHandler() : TypeHandlerManager.get(value.getClass()));
     }
 
-    public Class<?> getType()
-    {
-        return type;
+    public SqlValue(Object value, ITypeHandler<?> typeHandler) {
+        this.value = value;
+        this.typeHandler = typeHandler;
     }
 
-    public List<Object> getValues()
-    {
-        return values;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "SqlValue{" +
-                "type=" + type +
-                ", values=" + values +
-                '}';
+    /**
+     * 设置进sql
+     */
+    public void preparedStatementSetValue(PreparedStatement preparedStatement, int index) throws SQLException {
+        typeHandler.setValue(preparedStatement, index, cast(value));
     }
 }

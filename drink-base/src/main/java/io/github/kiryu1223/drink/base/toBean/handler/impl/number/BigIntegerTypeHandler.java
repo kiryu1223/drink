@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.base.toBean.handler.impl.number;
 
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
@@ -11,7 +12,7 @@ import java.sql.SQLException;
 public class BigIntegerTypeHandler implements ITypeHandler<BigInteger>
 {
     @Override
-    public BigInteger getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
+    public BigInteger getValue(ResultSet resultSet, int index, Type type) throws SQLException
     {
         BigDecimal decimal = resultSet.getBigDecimal(index);
         return decimal == null ? null : decimal.toBigInteger();

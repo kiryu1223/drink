@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 部门
  */
-@Data
+//@Data
 @Table(value = "departments")
 public class Department
 {
@@ -21,4 +21,20 @@ public class Department
     private String name;
     @Navigate(value = RelationType.OneToMany, self = "number", target = "deptNumber")
     private List<DeptManager> deptManager;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
 }

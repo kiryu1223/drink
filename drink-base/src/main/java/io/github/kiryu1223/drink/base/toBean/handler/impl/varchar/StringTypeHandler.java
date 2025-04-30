@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.base.toBean.handler.impl.varchar;
 
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 public class StringTypeHandler implements ITypeHandler<String>
 {
     @Override
-    public String getValue(ResultSet resultSet, int index,Class<?> c) throws SQLException
+    public String getValue(ResultSet resultSet, int index, Type type) throws SQLException
     {
         return resultSet.getString(index);
     }

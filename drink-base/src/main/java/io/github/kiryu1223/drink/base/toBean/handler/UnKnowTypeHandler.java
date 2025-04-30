@@ -1,16 +1,27 @@
 package io.github.kiryu1223.drink.base.toBean.handler;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 public class UnKnowTypeHandler<T> implements ITypeHandler<T>
 {
     @Override
-    public T getValue(ResultSet resultSet, int index, Class<?> c) throws SQLException
+    public T getValue(ResultSet resultSet, int index, Type type) throws SQLException
     {
-        return (T) resultSet.getObject(index, c);
+        if (type instanceof Class<?>) {
+            Class<?> aClass = (Class<?>) type;
+            if (aClass.isEnum()) {
+                return (T) Enum.valueOf((Class<Enum>) type, resultSet.getString(index));
+            }
+            else {
+                return (T) resultSet.getObject(index, aClass);
+            }
+        }
+        else {
+            return (T) resultSet.getObject(index);
+        }
     }
 
     @Override
