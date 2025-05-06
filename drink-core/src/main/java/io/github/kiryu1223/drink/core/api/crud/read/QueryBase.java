@@ -16,8 +16,6 @@
 package io.github.kiryu1223.drink.core.api.crud.read;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.SqlOption;
-import io.github.kiryu1223.drink.base.SqlOptions;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.*;
@@ -93,10 +91,7 @@ public abstract class QueryBase extends CRUD {
     }
 
     protected String buildSqlAndValue(List<SqlValue> values) {
-        SqlOptions.setOption(new SqlOption(ignoreFilterIds, ignoreFilterAll));
-        String sql = sqlBuilder.getSqlAndValue(values);
-        SqlOptions.clear();
-        return sql;
+        return sqlBuilder.getSqlAndValue(values);
     }
 
     protected String buildSqlAndValue() {
@@ -172,7 +167,7 @@ public abstract class QueryBase extends CRUD {
         queryable.addJoin(join);
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
         ISqlExpression cond = sqlVisitor.visit(lambda);
-        join.setConditions(cond);
+        join.addConditions(cond);
     }
 
     protected void join(JoinType joinType, QueryBase target, LambdaExpression<?> lambda) {
@@ -189,7 +184,7 @@ public abstract class QueryBase extends CRUD {
         queryable.addJoin(join);
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
         ISqlExpression cond = sqlVisitor.visit(lambda);
-        join.setConditions(cond);
+        join.addConditions(cond);
     }
 
     protected void joinWith(JoinType joinType, QueryBase target, LambdaExpression<?> lambda) {
@@ -207,7 +202,7 @@ public abstract class QueryBase extends CRUD {
         queryable.addJoin(join);
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
         ISqlExpression cond = sqlVisitor.visit(lambda);
-        join.setConditions(cond);
+        join.addConditions(cond);
     }
 
     protected void where(LambdaExpression<?> lambda) {
@@ -534,5 +529,13 @@ public abstract class QueryBase extends CRUD {
         minQuerySqlBuilder.setSelect(factory.select(minList, lambda.getReturnType(), true, false));
         LQuery<T> minQuery = new LQuery<>(minQuerySqlBuilder);
         return minQuery.toList();
+    }
+
+    protected void addFilterId(String filterId) {
+        sqlBuilder.addIgnoreFilter(filterId);
+    }
+
+    protected void setIgnoreFilterAll(boolean ignoreFilterAll) {
+        sqlBuilder.setIgnoreFilterAll(ignoreFilterAll);
     }
 }

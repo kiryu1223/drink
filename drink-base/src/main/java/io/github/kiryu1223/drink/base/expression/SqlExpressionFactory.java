@@ -343,8 +343,6 @@ public interface SqlExpressionFactory {
 
     ISqlWithsExpression withs();
 
-    ISqlWarpExpression warp(ISqlExpression expression, String filterId);
-
     ISqlUnionExpression union(ISqlQueryableExpression queryable, boolean all);
 
     ISqlUnionsExpression unions();

@@ -163,11 +163,6 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlWarpExpression warp(ISqlExpression expression, String filterId) {
-        return new SqlWarpExpression(expression, filterId);
-    }
-
-    @Override
     public ISqlUnionExpression union(ISqlQueryableExpression queryable, boolean all) {
         return new SqlUnionExpression(queryable, all);
     }

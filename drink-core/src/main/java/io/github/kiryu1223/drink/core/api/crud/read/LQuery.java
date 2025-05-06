@@ -936,12 +936,17 @@ public class LQuery<T> extends QueryBase {
     // region [Filter]
 
     public LQuery<T> DisableFilter(String filterId) {
-        ignoreFilterIds.add(filterId);
+        addFilterId(filterId);
+        return this;
+    }
+
+    public LQuery<T> DisableFilterAll(boolean condition) {
+        setIgnoreFilterAll(condition);
         return this;
     }
 
     public LQuery<T> DisableFilterAll() {
-        ignoreFilterAll = true;
+        setIgnoreFilterAll(true);
         return this;
     }
 

@@ -18,8 +18,6 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.List;
 
 /**
@@ -32,6 +30,13 @@ public interface ISqlExpression {
 
     default Class<?> getType() {
         return void.class;
+    }
+
+    /**
+     * 访问者
+     */
+    default void accept(SqlTreeVisitor visitor) {
+        visitor.visit(this);
     }
     /**
      * 获取sql和参数

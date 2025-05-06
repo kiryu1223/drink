@@ -89,7 +89,9 @@ public class SqlRecursionExpression implements ISqlRecursionExpression {
         }
         // SELECT ..., wct1.cte_level + 1 as cte_level
         ISqlQueryableExpression wct = factory.queryable(selectCopy, factory.from(factory.table(TreeCte.class), AsWct1));
-        wct.addJoin(factory.join(JoinType.INNER, factory.table(mainTableClass), factory.binary(SqlOperator.EQ, factory.constString(dialect.disambiguation("wct2")+"." + parentId), factory.constString(dialect.disambiguation("wct1")+"." + childId)), AsWct2));
+        ISqlConditionsExpression on = factory.condition();
+        on.addCondition(factory.binary(SqlOperator.EQ, factory.constString(dialect.disambiguation("wct2") + "." + parentId), factory.constString(dialect.disambiguation("wct1") + "." + childId)));
+        wct.addJoin(factory.join(JoinType.INNER, factory.table(mainTableClass), on, AsWct2));
         tryLevel(config, queryCopy.getSelect(), wct.getSelect(), wct.getWhere());
         List<String> templates = new ArrayList<>();
         String s = recursionKeyword();
@@ -110,7 +112,7 @@ public class SqlRecursionExpression implements ISqlRecursionExpression {
             IDialect dialect = config.getDisambiguation();
             s1.addColumn(factory.as(factory.constString("0"), "cte_level"));
             ISqlConstStringExpression wct1_cte_level = factory.constString(dialect.disambiguation("wct1") + "." + dialect.disambiguation("cte_level"));
-            s2.addColumn(factory.as(factory.binary(SqlOperator.PLUS,wct1_cte_level,factory.constString("1")), "cte_level"));
+            s2.addColumn(factory.as(factory.binary(SqlOperator.PLUS, wct1_cte_level, factory.constString("1")), "cte_level"));
             where.addCondition(factory.binary(SqlOperator.LT, wct1_cte_level, factory.constString(String.valueOf(level))));
         }
     }

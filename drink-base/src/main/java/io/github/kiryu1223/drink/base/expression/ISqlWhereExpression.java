@@ -34,6 +34,11 @@ public interface ISqlWhereExpression extends ISqlExpression {
     void addCondition(ISqlExpression condition);
 
     /**
+     * 设置条件表达式
+     */
+    void setConditions(ISqlConditionsExpression conditions);
+
+    /**
      * 判断是否为空
      */
     default boolean isEmpty() {

@@ -15,14 +15,9 @@
  */
 package io.github.kiryu1223.drink.base.expression.impl;
 
-import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.SqlOption;
-import io.github.kiryu1223.drink.base.SqlOptions;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
-import io.github.kiryu1223.drink.base.visitor.ISqlVisitor;
-import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.List;
 
@@ -31,7 +26,7 @@ import java.util.List;
  * @since 3.0
  */
 public class SqlWhereExpression implements ISqlWhereExpression {
-    private final ISqlConditionsExpression conditions;
+    private ISqlConditionsExpression conditions;
 
     SqlWhereExpression(ISqlConditionsExpression conditions) {
         this.conditions = conditions;
@@ -39,6 +34,11 @@ public class SqlWhereExpression implements ISqlWhereExpression {
 
     public void addCondition(ISqlExpression condition) {
         conditions.getConditions().add(condition);
+    }
+
+    @Override
+    public void setConditions(ISqlConditionsExpression conditions) {
+        this.conditions = conditions;
     }
 
     public boolean isEmpty() {
@@ -51,25 +51,6 @@ public class SqlWhereExpression implements ISqlWhereExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        SqlOption option = SqlOptions.getOption();
-        if (!option.isIgnoreFilterAll()) {
-            ISqlQueryableExpression current = SqlOptions.getCurrentQueryable().peek();
-            ISqlFromExpression from = current.getFrom();
-            ISqlTableExpression sqlTableExpression = from.getSqlTableExpression();
-            if (sqlTableExpression instanceof ISqlRealTableExpression) {
-                ISqlRealTableExpression realTable = (ISqlRealTableExpression) sqlTableExpression;
-                Class<?> type = realTable.getType();
-                Filter filter = config.getFilter();
-                ISqlWhereExpression whereCopy = copy(config);
-                List<LambdaExpression<?>> applyList = filter.getApplyList(type, option.getIgnoreFilterIds());
-                for (LambdaExpression<?> lambdaExpression : applyList) {
-                    ISqlVisitor sqlVisitor = config.getSqlVisitor(from, current.getJoins(), -1);
-                    ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                    whereCopy.addCondition(expression);
-                }
-                return whereCopy.getSqlAndValue(config, values);
-            }
-        }
         return "WHERE " + getConditions().getSqlAndValue(config, values);
     }
 }

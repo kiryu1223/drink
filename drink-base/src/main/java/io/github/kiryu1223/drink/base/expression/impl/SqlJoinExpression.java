@@ -29,10 +29,10 @@ import java.util.List;
 public class SqlJoinExpression implements ISqlJoinExpression {
     protected final JoinType joinType;
     protected final ISqlTableExpression joinTable;
-    protected final ISqlConditionsExpression conditions;
+    protected ISqlConditionsExpression conditions;
     protected final AsName asName;
 
-    protected SqlJoinExpression(JoinType joinType, ISqlTableExpression joinTable,ISqlConditionsExpression conditions,AsName asName) {
+    protected SqlJoinExpression(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, AsName asName) {
         this.joinType = joinType;
         this.joinTable = joinTable;
         this.asName = asName;
@@ -52,6 +52,11 @@ public class SqlJoinExpression implements ISqlJoinExpression {
     @Override
     public ISqlConditionsExpression getConditions() {
         return conditions;
+    }
+
+    @Override
+    public void setConditions(ISqlConditionsExpression condition) {
+        this.conditions = condition;
     }
 
     @Override

@@ -8,10 +8,7 @@ import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import javafx.util.Pair;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -19,19 +16,21 @@ public class Filter {
 
     private final Map<Class<?>, Map<String, Pair<Func0<Boolean>, LambdaExpression<?>>>> applyIfMap = new ConcurrentHashMap<>();
 
-    interface ITenant{
+    interface ITenant {
         long getTenantId();
     }
 
     {
-        long tid=0;
+        Long tid = new Random().nextLong();
 
-        apply(
+        applyIf(
                 ITenant.class,
                 "tenant",
+                () -> tid > 1000,
                 t -> t.getTenantId() == tid
         );
     }
+
     public <T> void apply(Class<T> t, String filterId, @Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {
 
     }

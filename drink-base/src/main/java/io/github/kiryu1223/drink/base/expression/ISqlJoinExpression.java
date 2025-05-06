@@ -43,6 +43,8 @@ public interface ISqlJoinExpression extends ISqlExpression {
         getConditions().addCondition(conditions);
     }
 
+    void setConditions(ISqlConditionsExpression condition);
+
     /**
      * 获取别名
      */

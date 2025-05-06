@@ -31,7 +31,7 @@ import java.util.List;
 public class SqlRealTableExpression implements ISqlRealTableExpression {
     private final Class<?> tableClass;
 
-    SqlRealTableExpression(Class<?> tableClass) {
+    protected SqlRealTableExpression(Class<?> tableClass) {
         this.tableClass = tableClass;
     }
 

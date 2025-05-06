@@ -16,8 +16,6 @@
 package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.SqlOption;
-import io.github.kiryu1223.drink.base.SqlOptions;
 
 import java.util.List;
 

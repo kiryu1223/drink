@@ -23,6 +23,7 @@ import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeSet;
+import io.github.kiryu1223.drink.base.expression.SqlTreeVisitor;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
@@ -40,7 +41,15 @@ public class QuerySqlBuilder implements ISqlBuilder {
     protected final List<String> ignoreFilterIds = new ArrayList<>();
     protected boolean ignoreFilterAll = false;
 
-//    public QuerySqlBuilder(IConfig config, Class<?> target, int offset)
+    public void setIgnoreFilterAll(boolean ignoreFilterAll) {
+        this.ignoreFilterAll = ignoreFilterAll;
+    }
+
+    public void addIgnoreFilter(String id) {
+        ignoreFilterIds.add(id);
+    }
+
+    //    public QuerySqlBuilder(IConfig config, Class<?> target, int offset)
 //    {
 //        this(config, config.getSqlExpressionFactory().table(target), offset);
 //    }
@@ -65,8 +74,6 @@ public class QuerySqlBuilder implements ISqlBuilder {
     public QuerySqlBuilder(IConfig config, ISqlQueryableExpression queryable) {
         this.config = config;
         this.queryable = queryable;
-        ISqlFromExpression from = queryable.getFrom();
-        if()
     }
 
     public void addWhere(ISqlExpression cond) {
@@ -173,26 +180,72 @@ public class QuerySqlBuilder implements ISqlBuilder {
 
     @Override
     public String getSql() {
-        return queryable.getSql(config);
+        return tryFilter().getSql(config);
     }
 
     @Override
     public String getSqlAndValue(List<SqlValue> values) {
-        return queryable.getSqlAndValue(config, values);
+        return tryFilter().getSqlAndValue(config, values);
     }
 
-    private void tryFilter0(ISqlTableExpression table) {
-        if (table instanceof ISqlRealTableExpression) {
-            ISqlRealTableExpression realTable = (ISqlRealTableExpression) table;
-            Class<?> type = realTable.getMainTableClass();
-            Filter filter = config.getFilter();
-            List<LambdaExpression<?>> applyList = filter.getApplyList(type, ignoreFilterIds);
-            for (LambdaExpression<?> lambdaExpression : applyList) {
-                SqlVisitor sqlVisitor = new SqlVisitor(config, queryable);
-                ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                addWhere(expression);
+    private ISqlQueryableExpression tryFilter() {
+        if (ignoreFilterAll) return queryable;
+        Filter filter = config.getFilter();
+        boolean[] needFilter = {false};
+        queryable.accept(new SqlTreeVisitor() {
+            @Override
+            public void visit(ISqlRealTableExpression expression) {
+                super.visit(expression);
+                Class<?> c = expression.getMainTableClass();
+                List<LambdaExpression<?>> applyList = filter.getApplyList(c, ignoreFilterIds);
+                if (!applyList.isEmpty()) needFilter[0] = true;
             }
-        }
+        });
+        if (!needFilter[0]) return queryable;
+        ISqlQueryableExpression copy = queryable.copy(config);
+        copy.accept(new SqlTreeVisitor() {
+            @Override
+            public void visit(ISqlQueryableExpression query) {
+                super.visit(query);
+                ISqlFromExpression from = query.getFrom();
+                ISqlTableExpression table = from.getSqlTableExpression();
+                if (table instanceof ISqlRealTableExpression) {
+                    ISqlRealTableExpression realTable = (ISqlRealTableExpression) table;
+                    Class<?> type = realTable.getMainTableClass();
+                    SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                    List<LambdaExpression<?>> applyList = filter.getApplyList(type, ignoreFilterIds);
+                    for (LambdaExpression<?> lambdaExpression : applyList) {
+                        ISqlWhereExpression where = query.getWhere();
+                        SqlVisitor sqlVisitor = new SqlVisitor(config, query);
+                        ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                        ISqlConditionsExpression condition = factory.condition();
+                        condition.addCondition(factory.parens(where.getConditions()));
+                        condition.addCondition(expression);
+                        query.setWhere(condition);
+                    }
+                }
+                ISqlJoinsExpression joins = query.getJoins();
+                for (ISqlJoinExpression join : joins.getJoins()) {
+                    ISqlTableExpression joinTable = join.getJoinTable();
+                    if (joinTable instanceof ISqlRealTableExpression) {
+                        ISqlRealTableExpression realTable = (ISqlRealTableExpression) joinTable;
+                        Class<?> type = realTable.getMainTableClass();
+                        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                        List<LambdaExpression<?>> applyList = filter.getApplyList(type, ignoreFilterIds);
+                        for (LambdaExpression<?> lambdaExpression : applyList) {
+                            ISqlConditionsExpression conditions = join.getConditions();
+                            SqlVisitor sqlVisitor = new SqlVisitor(config, query);
+                            ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                            ISqlConditionsExpression condition = factory.condition();
+                            condition.addCondition(factory.parens(conditions));
+                            condition.addCondition(expression);
+                            join.setConditions(condition);
+                        }
+                    }
+                }
+            }
+        });
+        return copy;
     }
 
 //    public String getSqlAndValueAndFirst(List<Object> values)

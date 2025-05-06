@@ -15,18 +15,11 @@
  */
 package io.github.kiryu1223.drink.base.expression.impl;
 
-import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.SqlOption;
-import io.github.kiryu1223.drink.base.SqlOptions;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
-import io.github.kiryu1223.drink.base.visitor.ISqlVisitor;
-import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 /**
@@ -62,7 +55,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
             return from.getSqlTableExpression().getSqlAndValue(config, values);
         }
         else {
-            SqlOptions.getCurrentQueryable().push(this);
             List<String> strings = new ArrayList<>();
             tryWith(config, strings, values);
             strings.add(getSelect().getSqlAndValue(config, values));
@@ -82,7 +74,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
                 String limitSqlAndValue = getLimit().getSqlAndValue(config, values);
                 if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
             }
-            SqlOptions.getCurrentQueryable().pop();
             return String.join(" ", strings);
         }
     }
@@ -96,6 +87,12 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     @Override
     public void addWhere(ISqlExpression cond) {
         where.addCondition(cond);
+        change();
+    }
+
+    @Override
+    public void setWhere(ISqlConditionsExpression conditions) {
+        where.setConditions(conditions);
         change();
     }
 
@@ -226,36 +223,5 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
         if (!withs.isEmpty()) {
             strings.add("WITH " + String.join(",", withs));
         }
-    }
-
-
-    protected String buildJoin(IConfig config, List<SqlValue> values) {
-        SqlOption option = SqlOptions.getOption();
-        if (!option.isIgnoreFilterAll()) {
-            SqlExpressionFactory factory = config.getSqlExpressionFactory();
-            ISqlJoinsExpression newJoins = factory.Joins();
-            for (ISqlJoinExpression join : joins.getJoins()) {
-                ISqlTableExpression joinTable = join.getJoinTable();
-                if (joinTable instanceof ISqlRealTableExpression) {
-                    ISqlRealTableExpression realTable = (ISqlRealTableExpression) joinTable;
-                    Class<?> type = realTable.getType();
-                    Filter filter = config.getFilter();
-                    ISqlConditionsExpression conditions = join.getConditions().copy(config);
-                    List<LambdaExpression<?>> applyList = filter.getApplyList(type, option.getIgnoreFilterIds());
-                    int index = 0;
-                    for (LambdaExpression<?> lambdaExpression : applyList) {
-                        ISqlVisitor sqlVisitor = config.getSqlVisitor(from, joins, index++);
-                        ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                        conditions.addCondition(expression);
-                    }
-                    newJoins.addJoin(factory.join(join.getJoinType(), joinTable, conditions, join.getAsName()));
-                }
-                else {
-                    newJoins.addJoin(join);
-                }
-            }
-            return newJoins.getSqlAndValue(config, values);
-        }
-        return joins.getSqlAndValue(config, values);
     }
 }

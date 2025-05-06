@@ -53,6 +53,11 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
     void addWhere(ISqlExpression cond);
 
     /**
+     * 设置where条件
+     */
+    void setWhere(ISqlConditionsExpression conditions);
+
+    /**
      * 添加join条件
      */
     void addJoin(ISqlJoinExpression join);
