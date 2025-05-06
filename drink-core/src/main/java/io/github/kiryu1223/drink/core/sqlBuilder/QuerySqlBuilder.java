@@ -232,9 +232,10 @@ public class QuerySqlBuilder implements ISqlBuilder {
                         Class<?> type = realTable.getMainTableClass();
                         SqlExpressionFactory factory = config.getSqlExpressionFactory();
                         List<LambdaExpression<?>> applyList = filter.getApplyList(type, ignoreFilterIds);
+                        int index = 1;
                         for (LambdaExpression<?> lambdaExpression : applyList) {
                             ISqlConditionsExpression conditions = join.getConditions();
-                            SqlVisitor sqlVisitor = new SqlVisitor(config, query);
+                            SqlVisitor sqlVisitor = new SqlVisitor(config, query, index++);
                             ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
                             ISqlConditionsExpression condition = factory.condition();
                             condition.addCondition(factory.parens(conditions));

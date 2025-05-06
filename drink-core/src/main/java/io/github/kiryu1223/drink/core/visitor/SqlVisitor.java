@@ -67,20 +67,25 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     protected final ISqlGroupByExpression groupByExpression;
     protected boolean isFirst = true;
     protected boolean isGroup = false;
+    protected int index;
 
     public SqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression) {
-        this(config, sqlQueryableExpression.getFrom(), sqlQueryableExpression.getJoins(), sqlQueryableExpression.getGroupBy());
+        this(config, sqlQueryableExpression.getFrom(), sqlQueryableExpression.getJoins(), sqlQueryableExpression.getGroupBy(), 0);
+    }
+
+    public SqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression, int index) {
+        this(config, sqlQueryableExpression.getFrom(), sqlQueryableExpression.getJoins(), sqlQueryableExpression.getGroupBy(), index);
     }
 
     public SqlVisitor(IConfig config, ISqlUpdateExpression updateExpression) {
-        this(config, updateExpression.getFrom(), updateExpression.getJoins(), null);
+        this(config, updateExpression.getFrom(), updateExpression.getJoins(), null, 0);
     }
 
     public SqlVisitor(IConfig config, ISqlFromExpression fromExpression, ISqlJoinsExpression joinsExpression) {
-        this(config, fromExpression, joinsExpression, null);
+        this(config, fromExpression, joinsExpression, null, 0);
     }
 
-    protected SqlVisitor(IConfig config, ISqlFromExpression fromExpression, ISqlJoinsExpression joinsExpression, ISqlGroupByExpression groupByExpression) {
+    protected SqlVisitor(IConfig config, ISqlFromExpression fromExpression, ISqlJoinsExpression joinsExpression, ISqlGroupByExpression groupByExpression, int index) {
         this.config = config;
         this.factory = config.getSqlExpressionFactory();
         this.fromExpression = fromExpression;
@@ -99,12 +104,14 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             isFirst = false;
             for (int i = 0; i < parameters.size(); i++) {
                 ParameterExpression parameter = parameters.get(i);
+                AsName asName;
                 if (i == 0) {
-                    asNameMap.put(parameter, fromExpression.getAsName());
+                    asName = fromExpression.getAsName();
                 }
                 else {
-                    asNameMap.put(parameter, joinsExpression.getJoins().get(i - 1).getAsName());
+                    asName = joinsExpression.getJoins().get(i - 1).getAsName();
                 }
+                asNameMap.put(parameter, asName);
             }
             ISqlExpression visit = visit(lambda.getBody());
             for (ParameterExpression parameter : parameters) {
@@ -163,7 +170,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
             Field field = fieldSelect.getField();
             MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
-            return factory.column(metaData.getFieldMetaDataByFieldName(field.getName()), asNameMap.get(parameter));
+            AsName asName = getAsNameByIndex(parameter);
+            return factory.column(metaData.getFieldMetaDataByFieldName(field.getName()), asName);
         }
         else if (isGroupKey(asNameMap, fieldSelect.getExpr())) // g.key.xxx
         {
@@ -867,7 +875,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
                     Method getter = methodCall.getMethod();
                     MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
-                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asNameMap.get(parameter));
+                    AsName asName = getAsNameByIndex(parameter);
+                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
                 }
                 else if (isSetter(methodCall.getMethod())) {
                     ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
@@ -885,7 +894,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     String columnName = expression.getValue().toString();
                     Expression expression1 = args.get(1);
                     Class<?> value = (Class<?>) expression1.getValue();
-                    return factory.dynamicColumn(columnName, value, asNameMap.get(parameter));
+                    AsName asName = getAsNameByIndex(parameter);
+                    return factory.dynamicColumn(columnName, value, asName);
                 }
                 else {
                     return checkAndReturnValue(methodCall);
@@ -1328,5 +1338,19 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             throw new SqLinkException(String.format("意外的类型:%s 表达式为:%s", expression.getClass(), lambda));
         }
         return column;
+    }
+
+    protected AsName getAsNameByIndex(ParameterExpression parameter) {
+        AsName asName;
+        if (index == 1) {
+            asName = fromExpression.getAsName();
+        }
+        else if (index > 1) {
+            asName = joinsExpression.getJoins().get(index - 1).getAsName();
+        }
+        else {
+            asName = asNameMap.get(parameter);
+        }
+        return asName;
     }
 }
