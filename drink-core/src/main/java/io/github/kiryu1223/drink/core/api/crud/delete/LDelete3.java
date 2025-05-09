@@ -27,7 +27,7 @@ import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
  * @author kiryu1223
  * @since 3.0
  */
-public class LDelete3<T1, T2, T3> extends DeleteBase {
+public class LDelete3<T1, T2, T3> extends DeleteBase<LDelete3<T1, T2, T3>> {
     public LDelete3(DeleteSqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }

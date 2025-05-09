@@ -11,6 +11,7 @@ import io.github.kiryu1223.drink.core.api.crud.read.EmptyQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.UnionQuery;
+import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
@@ -20,6 +21,7 @@ import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.util.Collection;
+import java.util.List;
 
 public class SqlClient {
     private final IConfig config;
@@ -129,7 +131,9 @@ public class SqlClient {
      * @return 删除过程对象
      */
     public <T> LDelete<T> delete(@Recode Class<T> c) {
-        return new LDelete<>(new DeleteSqlBuilder(config, c));
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        String first = ExpressionUtil.getFirst(c);
+        return new LDelete<>(new DeleteSqlBuilder(config, factory.delete(c, new AsName(first))));
     }
 
     public IConfig getConfig() {
@@ -141,5 +145,14 @@ public class SqlClient {
             return (Class<T>) t.getClass();
         }
         throw new SqLinkException("insert内容为空");
+    }
+
+    {
+//        List<Empty> list = query(Empty.class)
+//                .DisableFilterAll()
+//                .leftJoin(Empty.class, (e1, e2) -> true)
+//                .limit(5)
+//                .select(Empty.class)
+//                .toList();
     }
 }

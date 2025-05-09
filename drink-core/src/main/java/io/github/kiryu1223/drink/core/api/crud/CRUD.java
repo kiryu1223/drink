@@ -17,13 +17,15 @@ package io.github.kiryu1223.drink.core.api.crud;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.core.api.crud.update.UpdateBase;
+import io.github.kiryu1223.drink.core.sqlBuilder.ISqlBuilder;
 import org.slf4j.Logger;
 
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public abstract class CRUD {
+public abstract class CRUD<C> {
     protected abstract IConfig getConfig();
 
     /**
@@ -57,5 +59,22 @@ public abstract class CRUD {
         if (getConfig().isPrintBatch()) {
             log.info("DataSize: {} Use normal execute", count);
         }
+    }
+
+    protected abstract ISqlBuilder getSqlBuilder();
+
+    public C DisableFilter(String filterId) {
+        getSqlBuilder().addIgnoreFilterId(filterId);
+        return (C) this;
+    }
+
+    public C DisableFilterAll(boolean condition) {
+        getSqlBuilder().setIgnoreFilterAll(condition);
+        return (C) this;
+    }
+
+    public C DisableFilterAll() {
+        getSqlBuilder().setIgnoreFilterAll(true);
+        return (C) this;
     }
 }

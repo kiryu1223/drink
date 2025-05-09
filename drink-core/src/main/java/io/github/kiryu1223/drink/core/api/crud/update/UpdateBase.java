@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
@@ -29,13 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public class UpdateBase extends CRUD {
+public class UpdateBase<C> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(UpdateBase.class);
 
     private final UpdateSqlBuilder sqlBuilder;
@@ -88,29 +91,29 @@ public class UpdateBase extends CRUD {
 
     protected void join(JoinType joinType, Class<?> target, ExprTree<?> expr) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(),sqlBuilder.getUpdate());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getUpdate());
         ISqlExpression on = sqlVisitor.visit(expr.getTree());
         ISqlTableExpression table = factory.table(target);
-        getSqlBuilder().addJoin(joinType, table, on);
+        sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
     }
 
     protected void set(LambdaExpression<?> left, Object value) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(),sqlBuilder.getUpdate());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getUpdate());
         ISqlColumnExpression column = sqlVisitor.toColumn(left);
         sqlBuilder.addSet(factory.set(column, factory.AnyValue(value)));
     }
 
     protected void set(LambdaExpression<?> left, LambdaExpression<?> right) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(),sqlBuilder.getUpdate());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getUpdate());
         ISqlColumnExpression column = sqlVisitor.toColumn(left);
         ISqlExpression value = sqlVisitor.visit(right);
         sqlBuilder.addSet(factory.set(column, value));
     }
 
     protected void where(LambdaExpression<?> lambda) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(),sqlBuilder.getUpdate());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getUpdate());
         ISqlExpression expression = sqlVisitor.visit(lambda);
         sqlBuilder.addWhere(expression);
     }

@@ -37,7 +37,7 @@ public class Filter {
 
     public <T> void apply(Class<T> t, String filterId, ExprTree<Func1<T, Boolean>> func) {
         Map<String, Pair<Func0<Boolean>, LambdaExpression<?>>> stringPairMap = applyIfMap.computeIfAbsent(t, k -> new HashMap<>());
-        stringPairMap.put(filterId, new Pair<>(null, func.getTree()));
+        stringPairMap.put(filterId, new Pair<>(() -> true, func.getTree()));
     }
 
     public <T> void applyIf(Class<T> t, String filterId, Func0<Boolean> cond, @Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {

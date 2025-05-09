@@ -33,7 +33,7 @@ import io.github.kiryu1223.drink.core.api.crud.read.group.*;
  * @author kiryu1223
  * @since 3.0
  */
-public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase {
+public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase<LQuery7<T1, T2, T3, T4, T5, T6, T7>> {
     // region [INIT]
 
     public LQuery7(QuerySqlBuilder sqlBuilder) {
@@ -250,11 +250,11 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase {
      * @param asc  是否为升序
      * @return this
      */
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr, boolean asc) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr, boolean asc) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr, boolean asc) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr, boolean asc) {
         orderBy(expr.getTree(), asc);
         return this;
     }
@@ -266,102 +266,50 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase {
      * @param expr 返回需要的字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
      * @return this
      */
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderBy(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
         orderBy(expr.getTree(), true);
         return this;
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDesc(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDesc(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDesc(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDesc(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
         orderBy(expr, false);
         return this;
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr, boolean asc) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr, boolean asc) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr, boolean asc) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr, boolean asc) {
         if (condition) orderBy(expr.getTree(), asc);
         return this;
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByIf(boolean condition, ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
         if (condition) orderBy(expr, true);
         return this;
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDescIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDescIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDescIf(boolean condition, ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
+    public  <R extends Comparable<R>> LQuery7<T1, T2, T3, T4, T5, T6, T7> orderByDescIf(boolean condition, ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
         if (condition) orderBy(expr, false);
         return this;
     }// endregion
-
-    // region [LIMIT]
-
-    /**
-     * 获取指定数量的数据
-     *
-     * @param rows 需要返回的条数
-     * @return this
-     */
-    public LQuery7<T1, T2, T3, T4, T5, T6, T7> limit(long rows) {
-        limit0(rows);
-        return this;
-    }
-
-    /**
-     * 跳过指定数量条数据，再指定获取指定数量的数据
-     *
-     * @param offset 需要跳过的条数
-     * @param rows   需要返回的条数
-     * @return this
-     */
-    public LQuery7<T1, T2, T3, T4, T5, T6, T7> limit(long offset, long rows) {
-        limit0(offset, rows);
-        return this;
-    }
-
-    /**
-     * 获取指定数量的数据
-     *
-     * @param condition 条件
-     * @param rows 需要返回的条数
-     * @return this
-     */
-    public LQuery7<T1, T2, T3, T4, T5, T6, T7> limitIf(boolean condition, long rows) {
-        if (condition) limit0(rows);
-        return this;
-    }
-
-    /**
-     * 跳过指定数量条数据，再指定获取指定数量的数据
-     *
-     * @param condition 条件
-     * @param offset 需要跳过的条数
-     * @param rows   需要返回的条数
-     * @return this
-     */
-    public LQuery7<T1, T2, T3, T4, T5, T6, T7> limitIf(boolean condition, long offset, long rows) {
-        if (condition) limit0(offset, rows);
-        return this;
-    }
-
-    // endregion
 
     // region [GROUP BY]
 
@@ -385,17 +333,6 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase {
     // region [SELECT]
 
     /**
-     * 设置select，根据指定的类型的字段匹配去生成选择的sql字段
-     *
-     * @param r   指定的返回类型
-     * @param <R> 指定的返回类型
-     * @return 终结查询过程
-     */
-    public <R> EndQuery<R> select(@Recode Class<R> r) {
-        return super.select(r);
-    }
-
-    /**
      * 设置select<p>
      * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
      *
@@ -403,55 +340,30 @@ public class LQuery7<T1, T2, T3, T4, T5, T6, T7> extends QueryBase {
      * @param <R>  Result
      * @return 基于Result类型的新查询过程对象
      */
-    public <R extends Result> LQuery<? extends R> select(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
+    public <R> EndQuery<R> select(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R extends Result> LQuery<? extends R> select(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
-        boolean single = select(expr.getTree());
-        singleCheck(single);
-        return new LQuery<>(boxedQuerySqlBuilder());
-    }
-
-    /**
-     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
-     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
-     *
-     * @param expr 返回一个值的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 终结查询过程
-     */
-    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
-        throw new NotCompiledException();
-    }
-
-    public <R> EndQuery<R> endSelect(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
+    public <R> EndQuery<R> select(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
         select(expr.getTree());
         return new EndQuery<>(getSqlBuilder());
     }
+
+//    /**
+//     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
+//     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+//     *
+//     * @param expr 返回一个值的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 终结查询过程
+//     */
+//    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> expr) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <R> EndQuery<R> endSelect(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, R>> expr) {
+//        select(expr.getTree());
+//        return new EndQuery<>(getSqlBuilder());
+//    }
+
     // endregion
-
-    //region [OTHER]
-
-    /**
-     * 设置distinct
-     *
-     * @return this
-     */
-    public LQuery7<T1, T2, T3, T4, T5, T6, T7> distinct() {
-        distinct0(true);
-        return this;
-    }
-
-    /**
-     * 设置distinct
-     *
-     * @param condition 是否distinct
-     * @return this
-     */
-    public LQuery7<T1, T2, T3, T4, T5, T6, T7> distinct(boolean condition) {
-        distinct0(condition);
-        return this;
-    }
-
-    //endregion
 }

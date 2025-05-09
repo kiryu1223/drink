@@ -29,7 +29,7 @@ import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
  * @author kiryu1223
  * @since 3.0
  */
-public class LDelete<T> extends DeleteBase {
+public class LDelete<T> extends DeleteBase<LDelete<T>> {
     public LDelete(DeleteSqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }

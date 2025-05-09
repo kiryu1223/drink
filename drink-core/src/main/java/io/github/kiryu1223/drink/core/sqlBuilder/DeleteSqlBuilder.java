@@ -38,23 +38,19 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getFirst;
  */
 public class DeleteSqlBuilder implements ISqlBuilder {
     private final IConfig config;
-    private final ISqlFromExpression from;
-    private final ISqlJoinsExpression joins;
-    private final ISqlWhereExpression wheres;
-    //private final Class<?> target;
-    private final Set<Integer> excludes = new HashSet<>();
+    private final ISqlDeleteExpression delete;
     private final SqlExpressionFactory factory;
-    //private final List<Class<?>> orderedClasses = new ArrayList<>();
+    private final List<String> ignoreFilterIds = new ArrayList<>();
+    private boolean ignoreFilterAll = false;
 
-    public DeleteSqlBuilder(IConfig config, Class<?> target) {
+    public DeleteSqlBuilder(IConfig config, ISqlDeleteExpression delete) {
         this.config = config;
-        //this.target = target;
+        this.delete = delete;
         factory = config.getSqlExpressionFactory();
-        this.joins = factory.Joins();
-        this.wheres = factory.where();
-        String first = getFirst(target);
-        this.from = factory.from(factory.table(target), new AsName(first));
-        //orderedClasses.add(target);
+    }
+
+    public ISqlDeleteExpression getDelete() {
+        return delete;
     }
 
     /**
@@ -64,21 +60,21 @@ public class DeleteSqlBuilder implements ISqlBuilder {
      * @param table    关联表
      * @param on       关联条件
      */
-    public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlExpression on) {
+    public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlConditionsExpression on) {
         String first = getFirst(table.getMainTableClass());
-        Set<String> stringSet = new HashSet<>(joins.getJoins().size() + 1);
-        stringSet.add(from.getAsName().getName());
-        for (ISqlJoinExpression join : joins.getJoins()) {
+        Set<String> stringSet = new HashSet<>(delete.getJoins().getJoins().size() + 1);
+        stringSet.add(delete.getFrom().getAsName().getName());
+        for (ISqlJoinExpression join : delete.getJoins().getJoins()) {
             stringSet.add(join.getAsName().getName());
         }
-        AsName asName = doGetAsName(first, stringSet);
+        AsName asName = doGetAsName(first,stringSet);
         ISqlJoinExpression join = factory.join(
                 joinType,
                 table,
                 on,
                 asName
         );
-        joins.addJoin(join);
+        delete.addJoin(join);
     }
 
     /**
@@ -92,7 +88,7 @@ public class DeleteSqlBuilder implements ISqlBuilder {
      * 添加删除的where条件
      */
     public void addWhere(ISqlExpression where) {
-        wheres.addCondition(where);
+        delete.addWhere(where);
     }
 
     @Override
@@ -104,34 +100,33 @@ public class DeleteSqlBuilder implements ISqlBuilder {
      * 是否有where条件
      */
     public boolean hasWhere() {
-        return !wheres.isEmpty();
-    }
-
-    public ISqlFromExpression getFrom() {
-        return from;
-    }
-
-    public ISqlJoinsExpression getJoins() {
-        return joins;
+        return !delete.getWhere().isEmpty();
     }
 
     @Override
     public String getSql() {
-        return getSqlAndValue(null);
+        return tryFilter(delete).getSql(null);
     }
 
     public String getSqlAndValue(List<SqlValue> values) {
-        IDialect disambiguation = config.getDisambiguation();
-        List<String> strings = new ArrayList<>();
-        strings.add("DELETE");
-        strings.add(disambiguation.disambiguation(from.getAsName().getName()));
-        strings.add(from.getSqlAndValue(config, values));
-        if (!joins.isEmpty()) {
-            strings.add(joins.getSqlAndValue(config, values));
-        }
-        if (!wheres.isEmpty()) {
-            strings.add(wheres.getSqlAndValue(config, values));
-        }
-        return String.join(" ", strings);
+        return tryFilter(delete).getSqlAndValue(config, values);
+    }
+
+    @Override
+    public List<String> getIgnoreFilterIds() {
+        return ignoreFilterIds;
+    }
+
+    @Override
+    public boolean isIgnoreFilterAll() {
+        return ignoreFilterAll;
+    }
+
+    public void setIgnoreFilterAll(boolean ignoreFilterAll) {
+        this.ignoreFilterAll = ignoreFilterAll;
+    }
+
+    public void addIgnoreFilterId(String filterId) {
+        ignoreFilterIds.add(filterId);
     }
 }

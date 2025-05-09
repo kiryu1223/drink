@@ -163,13 +163,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlUnionExpression union(ISqlQueryableExpression queryable, boolean all) {
-        return new SqlUnionExpression(queryable, all);
-    }
-
-    @Override
-    public ISqlUnionsExpression unions() {
-        return new SqlUnionsExpression();
+    public ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions) {
+        return new SqlUnionQueryableExpression(queryable, unions);
     }
 
     @Override
@@ -180,6 +175,11 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     @Override
     public ISqlUpdateExpression update(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlSetsExpression sets, ISqlWhereExpression where) {
         return new SqlUpdateExpression(from, joins, sets, where);
+    }
+
+    @Override
+    public ISqlDeleteExpression delete(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where) {
+        return new SqlDeleteExpression(from, joins, where);
     }
 
     @Override

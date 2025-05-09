@@ -19,6 +19,7 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,6 +44,26 @@ public class InsertSqlBuilder implements ISqlBuilder {
     @Override
     public String getSqlAndValue(List<SqlValue> values) {
         return "";
+    }
+
+    @Override
+    public boolean isIgnoreFilterAll() {
+        return false;
+    }
+
+    @Override
+    public List<String> getIgnoreFilterIds() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void addIgnoreFilterId(String filterId) {
+
+    }
+
+    @Override
+    public void setIgnoreFilterAll(boolean condition) {
+
     }
 
     public IConfig getConfig() {

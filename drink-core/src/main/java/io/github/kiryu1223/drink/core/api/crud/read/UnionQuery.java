@@ -17,12 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class UnionQuery<T> extends CRUD {
+public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
     private static final Logger log = LoggerFactory.getLogger(UnionQuery.class);
     private final UnionBuilder unionBuilder;
+
+    public UnionBuilder getSqlBuilder() {
+        return unionBuilder;
+    }
 
     public UnionQuery(IConfig config, LQuery<T> q1, LQuery<T> q2, boolean all) {
         this(config, q1.getSqlBuilder().getQueryable(), q2.getSqlBuilder().getQueryable(), all);
@@ -34,9 +39,8 @@ public class UnionQuery<T> extends CRUD {
 
     public UnionQuery(IConfig config, ISqlQueryableExpression q1, ISqlQueryableExpression q2, boolean all) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        ISqlUnionsExpression unions = factory.unions();
-        unions.addUnion(factory.union(q2, all));
-        unionBuilder = new UnionBuilder(config, q1, unions, factory.orderBy(), factory.limit());
+        ISqlUnionQueryableExpression unionQuery = factory.unionQueryable(new ArrayList<>(Arrays.asList(q1, q2)), new ArrayList<>(Collections.singletonList(all)));
+        unionBuilder = new UnionBuilder(config, unionQuery);
     }
 
     protected IConfig getConfig() {
@@ -44,11 +48,9 @@ public class UnionQuery<T> extends CRUD {
     }
 
     // region [UNION]
-
     public UnionQuery<T> union(LQuery<T> query, boolean all) {
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         ISqlQueryableExpression queryable = query.getSqlBuilder().getQueryable();
-        unionBuilder.addUnion(factory.union(queryable, all));
+        unionBuilder.addUnion(queryable, all);
         return this;
     }
 
@@ -61,9 +63,8 @@ public class UnionQuery<T> extends CRUD {
     }
 
     public UnionQuery<T> union(EndQuery<T> query, boolean all) {
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         ISqlQueryableExpression queryable = query.getSqlBuilder().getQueryable();
-        unionBuilder.addUnion(factory.union(queryable, all));
+        unionBuilder.addUnion(queryable, all);
         return this;
     }
 
@@ -73,72 +74,6 @@ public class UnionQuery<T> extends CRUD {
 
     public UnionQuery<T> unionAll(EndQuery<T> query) {
         return union(query, true);
-    }
-
-    // endregion
-
-    // region [ORDER BY]
-
-    /**
-     * 设置orderBy的字段以及升降序，多次调用可以指定多个orderBy字段<p>
-     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
-     *
-     * @param expr 返回需要的字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @param asc  是否为升序
-     * @return this
-     */
-    public <R> UnionQuery<T> orderBy(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, boolean asc) {
-        throw new NotCompiledException();
-    }
-
-    public <R> UnionQuery<T> orderBy(ExprTree<Func1<T, R>> expr, boolean asc) {
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), unionBuilder.getQueryable());
-        ISqlExpression expression = sqlVisitor.visit(expr.getTree());
-        unionBuilder.addOrder(factory.order(expression, asc));
-        return this;
-    }
-
-    /**
-     * 设置orderBy的字段并且为升序，多次调用可以指定多个orderBy字段<p>
-     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
-     *
-     * @param expr 返回需要的字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return this
-     */
-    public <R> UnionQuery<T> orderBy(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
-        throw new NotCompiledException();
-    }
-
-    public <R> UnionQuery<T> orderBy(ExprTree<Func1<T, R>> expr) {
-        return orderBy(expr, true);
-    }
-
-    // endregion
-
-    // region [LIMIT]
-
-    /**
-     * 获取指定数量的数据
-     *
-     * @param rows 需要返回的条数
-     * @return this
-     */
-    public UnionQuery<T> limit(long rows) {
-        unionBuilder.addLimit(0, rows);
-        return this;
-    }
-
-    /**
-     * 跳过指定数量条数据，再指定获取指定数量的数据
-     *
-     * @param offset 需要跳过的条数
-     * @param rows   需要返回的条数
-     * @return this
-     */
-    public UnionQuery<T> limit(long offset, long rows) {
-        unionBuilder.addLimit(offset, rows);
-        return this;
     }
 
     // endregion

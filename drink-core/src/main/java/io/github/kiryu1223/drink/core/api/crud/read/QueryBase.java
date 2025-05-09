@@ -47,10 +47,8 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getFirst;
  * @author kiryu1223
  * @since 3.0
  */
-public abstract class QueryBase extends CRUD {
+public abstract class QueryBase<C> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(QueryBase.class);
-    protected final List<String> ignoreFilterIds = new ArrayList<>();
-    protected boolean ignoreFilterAll = false;
 
     private final QuerySqlBuilder sqlBuilder;
 
@@ -62,11 +60,26 @@ public abstract class QueryBase extends CRUD {
         return sqlBuilder;
     }
 
+    protected void withTempQuery() {
+        sqlBuilder.box();
+    }
+
     protected IConfig getConfig() {
         return sqlBuilder.getConfig();
     }
 
-    protected boolean any0(LambdaExpression<?> lambda) {
+    /**
+     * 检查表中是否存在至少一条数据
+     */
+    public boolean any() {
+        return any(null);
+    }
+
+    /**
+     * 检查表中是否存在至少一条数据<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     */
+    protected boolean any(LambdaExpression<?> lambda) {
         IConfig config = getConfig();
         //获取拷贝的查询对象
         ISqlQueryableExpression queryableCopy = getSqlBuilder().getQueryable().copy(config);
@@ -83,7 +96,7 @@ public abstract class QueryBase extends CRUD {
             querySqlBuilder.addWhere(cond);
         }
         //查询
-        SqlSession session = getConfig().getSqlSessionFactory().getSession(config);
+        SqlSession session = config.getSqlSessionFactory().getSession(config);
         List<SqlValue> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
         tryPrintSql(log, sql);
@@ -133,10 +146,22 @@ public abstract class QueryBase extends CRUD {
         return list.isEmpty() ? null : list.get(0);
     }
 
-    protected void distinct0(boolean condition) {
+    public final C distinct(boolean condition) {
         sqlBuilder.setDistinct(condition);
+        return (C) this;
     }
 
+    public final C distinct() {
+        return distinct(true);
+    }
+
+    /**
+     * 设置select，根据指定的类型的字段匹配去生成选择的sql字段
+     *
+     * @param r   指定的返回类型
+     * @param <R> 指定的返回类型
+     * @return 终结查询过程
+     */
     protected <R> EndQuery<R> select(Class<R> r) {
         select0(r);
         return new EndQuery<>(boxedQuerySqlBuilder());
@@ -281,12 +306,13 @@ public abstract class QueryBase extends CRUD {
         sqlBuilder.addOrder(factory.order(expression, asc));
     }
 
-    protected void limit0(long rows) {
-        limit0(0, rows);
+    public final C limit(long rows) {
+        return limit(0, rows);
     }
 
-    protected void limit0(long offset, long rows) {
+    public final C limit(long offset, long rows) {
         sqlBuilder.setLimit(offset, rows);
+        return (C) this;
     }
 
     protected void singleCheck(boolean single) {
@@ -478,7 +504,6 @@ public abstract class QueryBase extends CRUD {
         return avgQuery.toList();
     }
 
-
     protected <T extends Number> T max0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
@@ -529,13 +554,5 @@ public abstract class QueryBase extends CRUD {
         minQuerySqlBuilder.setSelect(factory.select(minList, lambda.getReturnType(), true, false));
         LQuery<T> minQuery = new LQuery<>(minQuerySqlBuilder);
         return minQuery.toList();
-    }
-
-    protected void addFilterId(String filterId) {
-        sqlBuilder.addIgnoreFilter(filterId);
-    }
-
-    protected void setIgnoreFilterAll(boolean ignoreFilterAll) {
-        sqlBuilder.setIgnoreFilterAll(ignoreFilterAll);
     }
 }

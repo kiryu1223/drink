@@ -28,19 +28,9 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class EndQuery<T> extends QueryBase {
+public class EndQuery<T> extends QueryBase<EndQuery<T>> {
     public EndQuery(QuerySqlBuilder sqlBuilder) {
         super(sqlBuilder);
-    }
-
-    /**
-     * 检查表中是否存在至少一条数据
-     *
-     * @return boolean
-     */
-    @Override
-    public boolean any0(LambdaExpression<?> lambdaExpression) {
-        return super.any0(lambdaExpression);
     }
 
     /**

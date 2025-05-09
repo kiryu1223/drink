@@ -27,7 +27,7 @@ import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
  * @author kiryu1223
  * @since 3.0
  */
-public class LUpdate4<T1, T2, T3, T4> extends UpdateBase {
+public class LUpdate4<T1, T2, T3, T4> extends UpdateBase<LUpdate4<T1, T2, T3, T4>> {
     public LUpdate4(UpdateSqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }

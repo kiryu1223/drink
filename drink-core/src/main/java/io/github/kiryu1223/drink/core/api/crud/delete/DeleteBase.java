@@ -29,13 +29,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public abstract class DeleteBase extends CRUD {
+public abstract class DeleteBase<C> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(DeleteBase.class);
 
     private final DeleteSqlBuilder sqlBuilder;
@@ -81,9 +82,9 @@ public abstract class DeleteBase extends CRUD {
 
     protected void join(JoinType joinType, Class<?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getFrom(), sqlBuilder.getJoins());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getDelete());
         ISqlExpression on = sqlVisitor.visit(lambda);
-        getSqlBuilder().addJoin(joinType, factory.table(target), on);
+        getSqlBuilder().addJoin(joinType, factory.table(target), factory.condition(Collections.singleton(on)));
     }
 
     protected void selectDeleteTable(Class<?> c) {
@@ -91,7 +92,7 @@ public abstract class DeleteBase extends CRUD {
     }
 
     protected void where(LambdaExpression<?> lambda) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getFrom(), sqlBuilder.getJoins());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getDelete());
         ISqlExpression expression = sqlVisitor.visit(lambda);
         sqlBuilder.addWhere(expression);
     }

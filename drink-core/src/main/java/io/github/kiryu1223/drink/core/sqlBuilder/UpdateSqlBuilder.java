@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,8 @@ public class UpdateSqlBuilder implements ISqlBuilder {
     private final IConfig config;
     private final SqlExpressionFactory factory;
     private final ISqlUpdateExpression update;
+    private final List<String> ignoreFilterIds = new ArrayList<>();
+    private boolean ignoreFilterAll = false;
 
     public UpdateSqlBuilder(IConfig config, ISqlUpdateExpression update) {
         this.config = config;
@@ -52,7 +55,7 @@ public class UpdateSqlBuilder implements ISqlBuilder {
      * @param table    关联表
      * @param on       关联条件
      */
-    public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlExpression on) {
+    public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlConditionsExpression on) {
         String first = getFirst(table.getMainTableClass());
         Set<String> stringSet = new HashSet<>(update.getJoins().getJoins().size() + 1);
         stringSet.add(update.getFrom().getAsName().getName());
@@ -96,12 +99,12 @@ public class UpdateSqlBuilder implements ISqlBuilder {
 
     @Override
     public String getSql() {
-        return getSqlAndValue(null);
+        return tryFilter(update).getSql(config);
     }
 
     @Override
     public String getSqlAndValue(List<SqlValue> sqlValues) {
-        return update.getSqlAndValue(config, sqlValues);
+        return tryFilter(update).getSqlAndValue(config, sqlValues);
     }
 
     public IConfig getConfig() {
@@ -110,5 +113,23 @@ public class UpdateSqlBuilder implements ISqlBuilder {
 
     public ISqlUpdateExpression getUpdate() {
         return update;
+    }
+
+    @Override
+    public List<String> getIgnoreFilterIds() {
+        return ignoreFilterIds;
+    }
+
+    @Override
+    public boolean isIgnoreFilterAll() {
+        return ignoreFilterAll;
+    }
+
+    public void setIgnoreFilterAll(boolean ignoreFilterAll) {
+        this.ignoreFilterAll = ignoreFilterAll;
+    }
+
+    public void addIgnoreFilterId(String filterId) {
+        ignoreFilterIds.add(filterId);
     }
 }

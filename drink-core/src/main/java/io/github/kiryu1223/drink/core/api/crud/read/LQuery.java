@@ -21,6 +21,7 @@ import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
@@ -53,7 +54,7 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
  * @author kiryu1223
  * @since 3.0
  */
-public class LQuery<T> extends QueryBase {
+public class LQuery<T> extends QueryBase<LQuery<T>> {
     // region [INIT]
 
     public LQuery(QuerySqlBuilder sqlBuilder) {
@@ -287,11 +288,11 @@ public class LQuery<T> extends QueryBase {
      * @param asc  是否为升序
      * @return this
      */
-    public <R> LQuery<T> orderBy(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery<T> orderBy(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, boolean asc) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> orderBy(ExprTree<Func1<T, R>> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery<T> orderBy(ExprTree<Func1<T, R>> expr, boolean asc) {
         orderBy(expr.getTree(), asc);
         return this;
     }
@@ -303,100 +304,48 @@ public class LQuery<T> extends QueryBase {
      * @param expr 返回需要的字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
      * @return this
      */
-    public <R> LQuery<T> orderBy(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderBy(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> orderBy(ExprTree<Func1<T, R>> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderBy(ExprTree<Func1<T, R>> expr) {
         orderBy(expr, true);
         return this;
     }
 
-    public <R> LQuery<T> orderByDesc(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderByDesc(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> orderByDesc(ExprTree<Func1<T, R>> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderByDesc(ExprTree<Func1<T, R>> expr) {
         orderBy(expr, false);
         return this;
     }
 
-    public <R> LQuery<T> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery<T> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> expr, boolean asc) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> orderByIf(boolean condition, ExprTree<Func1<T, R>> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery<T> orderByIf(boolean condition, ExprTree<Func1<T, R>> expr, boolean asc) {
         if (condition) orderBy(expr.getTree(), asc);
         return this;
     }
 
-    public <R> LQuery<T> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> orderByIf(boolean condition, ExprTree<Func1<T, R>> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderByIf(boolean condition, ExprTree<Func1<T, R>> expr) {
         if (condition) orderBy(expr, true);
         return this;
     }
 
-    public <R> LQuery<T> orderByDescIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderByDescIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> orderByDescIf(boolean condition, ExprTree<Func1<T, R>> expr) {
+    public <R extends Comparable<R>> LQuery<T> orderByDescIf(boolean condition, ExprTree<Func1<T, R>> expr) {
         if (condition) orderBy(expr, false);
-        return this;
-    }
-
-    // endregion
-
-    // region [LIMIT]
-
-    /**
-     * 获取指定数量的数据
-     *
-     * @param rows 需要返回的条数
-     * @return this
-     */
-    public LQuery<T> limit(long rows) {
-        limit0(rows);
-        return this;
-    }
-
-    /**
-     * 跳过指定数量条数据，再指定获取指定数量的数据
-     *
-     * @param offset 需要跳过的条数
-     * @param rows   需要返回的条数
-     * @return this
-     */
-    public LQuery<T> limit(long offset, long rows) {
-        limit0(offset, rows);
-        return this;
-    }
-
-    /**
-     * 获取指定数量的数据
-     *
-     * @param condition 条件
-     * @param rows      需要返回的条数
-     * @return this
-     */
-    public LQuery<T> limitIf(boolean condition, long rows) {
-        if (condition) limit0(rows);
-        return this;
-    }
-
-    /**
-     * 跳过指定数量条数据，再指定获取指定数量的数据
-     *
-     * @param condition 条件
-     * @param offset    需要跳过的条数
-     * @param rows      需要返回的条数
-     * @return this
-     */
-    public LQuery<T> limitIf(boolean condition, long offset, long rows) {
-        if (condition) limit0(offset, rows);
         return this;
     }
 
@@ -443,58 +392,57 @@ public class LQuery<T> extends QueryBase {
      * @param <R>  Result
      * @return 基于Result类型的新查询过程对象
      */
-    public <R extends Result> LQuery<? extends R> select(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+    public <R> EndQuery<R> select(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R extends Result> LQuery<? extends R> select(ExprTree<Func1<T, R>> expr) {
-        boolean single = select(expr.getTree());
-        singleCheck(single);
-        return new LQuery<>(boxedQuerySqlBuilder());
-    }
-
-    /**
-     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
-     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
-     *
-     * @param expr 返回一个值的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 终结查询过程
-     */
-    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
-        throw new NotCompiledException();
-    }
-
-    public <R> EndQuery<R> endSelect(ExprTree<Func1<T, R>> expr) {
+    public <R> EndQuery<R> select(ExprTree<Func1<T, R>> expr) {
         select(expr.getTree());
         return new EndQuery<>(getSqlBuilder());
     }
 
-    public <R> LQuery<R> selectMany(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr) {
-        throw new NotCompiledException();
-    }
-
-    public <R> LQuery<R> selectMany(ExprTree<Func1<T, Collection<R>>> expr) {
-        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
-        ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
-        FieldMetaData fieldMetaData = column.getFieldMetaData();
-        if (!fieldMetaData.hasNavigate()) {
-            throw new SqLinkException("selectMany指定的字段需要被@Navigate修饰");
-        }
-        NavigateData navigateData = fieldMetaData.getNavigateData();
-        Class<?> targetType = navigateData.getNavigateTargetType();
-        FieldMetaData target = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-        FieldMetaData self = MetaDataCache.getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-
-        AsName asName = new AsName(getFirst(targetType));
-        // 获取父的拷贝，然后把select换成自己的字段
-        ISqlQueryableExpression copy = queryable.copy(getConfig());
-        copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
-        ISqlQueryableExpression newQuery = factory.queryable(targetType, asName);
-        newQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(target, asName), copy));
-        return new LQuery<>(new QuerySqlBuilder(getConfig(), newQuery));
-    }
+//    /**
+//     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
+//     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+//     *
+//     * @param expr 返回一个值的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 终结查询过程
+//     */
+//    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <R> EndQuery<R> endSelect(ExprTree<Func1<T, R>> expr) {
+//        select(expr.getTree());
+//        return new EndQuery<>(getSqlBuilder());
+//    }
+//
+//    public <R> LQuery<R> selectMany(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <R> LQuery<R> selectMany(ExprTree<Func1<T, Collection<R>>> expr) {
+//        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
+//        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
+//        ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
+//        FieldMetaData fieldMetaData = column.getFieldMetaData();
+//        if (!fieldMetaData.hasNavigate()) {
+//            throw new SqLinkException("selectMany指定的字段需要被@Navigate修饰");
+//        }
+//        NavigateData navigateData = fieldMetaData.getNavigateData();
+//        Class<?> targetType = navigateData.getNavigateTargetType();
+//        FieldMetaData target = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+//        FieldMetaData self = MetaDataCache.getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+//        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+//
+//        AsName asName = new AsName(getFirst(targetType));
+//        // 获取父的拷贝，然后把select换成自己的字段
+//        ISqlQueryableExpression copy = queryable.copy(getConfig());
+//        copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
+//        ISqlQueryableExpression newQuery = factory.queryable(targetType, asName);
+//        newQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(target, asName), copy));
+//        return new LQuery<>(new QuerySqlBuilder(getConfig(), newQuery));
+//    }
 
     // endregion
 
@@ -530,7 +478,7 @@ public class LQuery<T> extends QueryBase {
 
     public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr, Action1<LQuery<R>> then) {
         LambdaExpression<Func1<T, R>> tree = expr.getTree();
-        Class<?> targetType =tree.getReturnType();
+        Class<?> targetType = tree.getReturnType();
         String first = getFirst(targetType);
         LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType, new AsName(first))));
         then.invoke(lQuery);
@@ -577,31 +525,6 @@ public class LQuery<T> extends QueryBase {
     }
 
     // endregion
-
-    //region [OTHER]
-
-    /**
-     * 设置distinct
-     *
-     * @return this
-     */
-    public LQuery<T> distinct() {
-        distinct0(true);
-        return this;
-    }
-
-    /**
-     * 设置distinct
-     *
-     * @param condition 是否distinct
-     * @return this
-     */
-    public LQuery<T> distinct(boolean condition) {
-        distinct0(condition);
-        return this;
-    }
-
-    //endregion
 
     // region [toAny]
 
@@ -710,23 +633,12 @@ public class LQuery<T> extends QueryBase {
 
     // region [FAST RETURN]
 
-    /**
-     * 检查表中是否存在至少一条数据
-     */
-    public boolean any() {
-        return any0(null);
-    }
-
-    /**
-     * 检查表中是否存在至少一条数据<p>
-     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
-     */
     public boolean any(@Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {
         throw new NotCompiledException();
     }
 
     public boolean any(ExprTree<Func1<T, Boolean>> expr) {
-        return any0(expr.getTree());
+        return any(expr.getTree());
     }
 
     /**
@@ -815,17 +727,20 @@ public class LQuery<T> extends QueryBase {
 
     // region [WITH]
 
-//    public LQuery<T> asWith() {
-//        SqLinkConfig config = getConfig();
-//        SqlExpressionFactory factory = config.getSqlExpressionFactory();
-//        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
-//        Class<?> target = queryable.getMainTableClass();
-//        MetaData metaData = MetaDataCache.getMetaData(target);
-//        String asName = ExpressionUtil.getFirst(target);
-//        ISqlWithExpression with = factory.with(queryable, metaData.getTableName());
-//        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, factory.queryable(factory.from(with, asName)));
-//        return new LQuery<>(querySqlBuilder);
-//    }
+    public LQuery<T> withTemp() {
+        withTempQuery();
+        return this;
+    }
+
+    public <R extends Result> LQuery<? extends R> withTemp(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+        throw new NotCompiledException();
+    }
+
+    public <R extends Result> LQuery<? extends R> withTemp(ExprTree<Func1<T, R>> expr) {
+        select(expr.getTree());
+        withTempQuery();
+        return new LQuery<>(getSqlBuilder());
+    }
 
     // endregion
 
@@ -906,14 +821,14 @@ public class LQuery<T> extends QueryBase {
         ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
         MetaData metaData = MetaDataCache.getMetaData(queryable.getMainTableClass());
         FieldMetaData primary = metaData.getPrimary();
-        DeleteSqlBuilder deleteSqlBuilder = new DeleteSqlBuilder(getConfig(), queryable.getMainTableClass());
+        ISqlDeleteExpression delete = factory.delete(queryable.getMainTableClass(), queryable.getFrom().getAsName());
         ISqlQueryableExpression copy = queryable.copy(getConfig());
         // 某些数据库不支持 a.xx in (select b.xx from b), 所以需要在外边包一层 a.xx in (select b.xx from (select * from b))
         ISqlSelectExpression select = factory.select(Collections.singletonList(factory.column(primary, copy.getFrom().getAsName())), copy.getMainTableClass());
         ISqlQueryableExpression warpQuery = factory.queryable(select, factory.from(copy, copy.getFrom().getAsName()));
         warpQuery.setChanged(true);
-        deleteSqlBuilder.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, deleteSqlBuilder.getFrom().getAsName()), warpQuery));
-        return new LDelete<>(deleteSqlBuilder);
+        delete.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, delete.getFrom().getAsName()), warpQuery));
+        return new LDelete<>(new DeleteSqlBuilder(getConfig(), delete));
     }
 
     public LUpdate<T> toUpdate() {
@@ -929,25 +844,6 @@ public class LQuery<T> extends QueryBase {
         warpQuery.setChanged(true);
         update.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, update.getFrom().getAsName()), warpQuery));
         return new LUpdate<>(new UpdateSqlBuilder(getConfig(), update));
-    }
-
-    // endregion
-
-    // region [Filter]
-
-    public LQuery<T> DisableFilter(String filterId) {
-        addFilterId(filterId);
-        return this;
-    }
-
-    public LQuery<T> DisableFilterAll(boolean condition) {
-        setIgnoreFilterAll(condition);
-        return this;
-    }
-
-    public LQuery<T> DisableFilterAll() {
-        setIgnoreFilterAll(true);
-        return this;
     }
 
     // endregion

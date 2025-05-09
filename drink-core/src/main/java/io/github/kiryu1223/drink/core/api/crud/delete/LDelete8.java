@@ -27,7 +27,7 @@ import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
  * @author kiryu1223
  * @since 3.0
  */
-public class LDelete8<T1, T2, T3, T4, T5, T6, T7, T8> extends DeleteBase {
+public class LDelete8<T1, T2, T3, T4, T5, T6, T7, T8> extends DeleteBase<LDelete8<T1, T2, T3, T4, T5, T6, T7, T8>> {
     public LDelete8(DeleteSqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }

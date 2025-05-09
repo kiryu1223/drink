@@ -11,42 +11,51 @@ import java.util.List;
 
 public class UnionBuilder implements ISqlBuilder {
     private final IConfig config;
-    private final ISqlQueryableExpression queryable;
-    private final ISqlUnionsExpression unions;
-    private final ISqlOrderByExpression orderBy;
-    private final ISqlLimitExpression limit;
+    private final ISqlUnionQueryableExpression unionQueryable;
+    private final List<String> ignoreFilterIds = new ArrayList<>();
+    private boolean ignoreFilterAll = false;
 
-    public UnionBuilder(IConfig config, ISqlQueryableExpression queryable, ISqlUnionsExpression unions, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+    public UnionBuilder(IConfig config, ISqlUnionQueryableExpression unionQueryable) {
         this.config = config;
-        this.queryable = queryable;
-        this.unions = unions;
-        this.orderBy = orderBy;
-        this.limit = limit;
+        this.unionQueryable = unionQueryable;
     }
 
-    public void addUnion(ISqlUnionExpression unionExpression) {
-        unions.addUnion(unionExpression);
+    public ISqlUnionQueryableExpression getUnionQueryable() {
+        return unionQueryable;
     }
 
-    public void addOrder(ISqlOrderExpression orderExpression) {
-        orderBy.addOrder(orderExpression);
+    @Override
+    public List<String> getIgnoreFilterIds() {
+        return ignoreFilterIds;
     }
 
-    public void addLimit(long offset, long rows) {
-        limit.setOffset(offset);
-        limit.setRows(rows);
+    @Override
+    public boolean isIgnoreFilterAll() {
+        return ignoreFilterAll;
+    }
+
+    public void setIgnoreFilterAll(boolean ignoreFilterAll) {
+        this.ignoreFilterAll = ignoreFilterAll;
+    }
+
+    public void addIgnoreFilterId(String filterId) {
+        ignoreFilterIds.add(filterId);
+    }
+
+    public void addUnion(ISqlQueryableExpression queryable, boolean isAll) {
+        unionQueryable.addQueryable(queryable, isAll);
     }
 
     public boolean isSingle() {
-        return queryable.getSelect().isSingle();
+        return unionQueryable.getQueryable().get(0).getSelect().isSingle();
     }
 
     public List<FieldMetaData> getMappingData() {
-        return queryable.getMappingData();
+        return unionQueryable.getQueryable().get(0).getMappingData();
     }
 
     public <T> Class<T> getTargetClass() {
-        return (Class<T>) queryable.getMainTableClass();
+        return (Class<T>) unionQueryable.getMainTableClass();
     }
 
     @Override
@@ -56,37 +65,11 @@ public class UnionBuilder implements ISqlBuilder {
 
     @Override
     public String getSql() {
-        List<String> strings = new ArrayList<>(4);
-        strings.add("(" + queryable.getSql(config) + ")");
-        strings.add(unions.getSql(config));
-        String orderBySql = orderBy.getSql(config);
-        if (!orderBySql.isEmpty()) {
-            strings.add(orderBySql);
-        }
-        String limitSql = limit.getSql(config);
-        if (!limitSql.isEmpty()) {
-            strings.add(limitSql);
-        }
-        return String.join(" ", strings);
+        return tryFilter(unionQueryable).getSql(config);
     }
 
     @Override
     public String getSqlAndValue(List<SqlValue> values) {
-        List<String> strings = new ArrayList<>(4);
-        strings.add("(" + queryable.getSqlAndValue(config, values) + ")");
-        strings.add(unions.getSqlAndValue(config, values));
-        String orderBySql = orderBy.getSqlAndValue(config, values);
-        if (!orderBySql.isEmpty()) {
-            strings.add(orderBySql);
-        }
-        String limitSql = limit.getSqlAndValue(config, values);
-        if (!limitSql.isEmpty()) {
-            strings.add(limitSql);
-        }
-        return String.join(" ", strings);
-    }
-
-    public ISqlQueryableExpression getQueryable() {
-        return queryable;
+        return tryFilter(unionQueryable).getSqlAndValue(config, values);
     }
 }

@@ -16,8 +16,12 @@
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
 
+import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
+import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.List;
 
@@ -42,4 +46,77 @@ public interface ISqlBuilder {
      * 获取SQL和参数
      */
     String getSqlAndValue(List<SqlValue> values);
+
+    boolean isIgnoreFilterAll();
+
+    List<String> getIgnoreFilterIds();
+
+    default <T extends ISqlExpression> T tryFilter(T expression) {
+        if (isIgnoreFilterAll()) return expression;
+        IConfig config = getConfig();
+        Filter filter = config.getFilter();
+        boolean[] needFilter = {false};
+        expression.accept(new SqlTreeVisitor() {
+            @Override
+            public void visit(ISqlRealTableExpression expression) {
+                Class<?> c = expression.getMainTableClass();
+                List<LambdaExpression<?>> applyList = filter.getApplyList(c, getIgnoreFilterIds());
+                if (!applyList.isEmpty()) {
+                    needFilter[0] = true;
+                    return;
+                }
+                super.visit(expression);
+            }
+        });
+        if (!needFilter[0]) return expression;
+        T copy = expression.copy(getConfig());
+        copy.accept(new SqlTreeVisitor() {
+            @Override
+            public void visit(ISqlQueryableExpression query) {
+                super.visit(query);
+                ISqlFromExpression from = query.getFrom();
+                ISqlTableExpression table = from.getSqlTableExpression();
+                if (table instanceof ISqlRealTableExpression) {
+                    ISqlRealTableExpression realTable = (ISqlRealTableExpression) table;
+                    Class<?> type = realTable.getMainTableClass();
+                    SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                    List<LambdaExpression<?>> applyList = filter.getApplyList(type, getIgnoreFilterIds());
+                    for (LambdaExpression<?> lambdaExpression : applyList) {
+                        ISqlWhereExpression where = query.getWhere();
+                        SqlVisitor sqlVisitor = new SqlVisitor(config, query);
+                        ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                        ISqlConditionsExpression condition = factory.condition();
+                        condition.addCondition(factory.parens(where.getConditions()));
+                        condition.addCondition(expression);
+                        query.setWhere(condition);
+                    }
+                }
+                ISqlJoinsExpression joins = query.getJoins();
+                for (ISqlJoinExpression join : joins.getJoins()) {
+                    ISqlTableExpression joinTable = join.getJoinTable();
+                    if (joinTable instanceof ISqlRealTableExpression) {
+                        ISqlRealTableExpression realTable = (ISqlRealTableExpression) joinTable;
+                        Class<?> type = realTable.getMainTableClass();
+                        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                        List<LambdaExpression<?>> applyList = filter.getApplyList(type, getIgnoreFilterIds());
+                        int index = 1;
+                        for (LambdaExpression<?> lambdaExpression : applyList) {
+                            ISqlConditionsExpression conditions = join.getConditions();
+                            SqlVisitor sqlVisitor = new SqlVisitor(config, query, index++);
+                            ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                            ISqlConditionsExpression condition = factory.condition();
+                            condition.addCondition(factory.parens(conditions));
+                            condition.addCondition(expression);
+                            join.setConditions(condition);
+                        }
+                    }
+                }
+            }
+        });
+        return copy;
+    }
+
+    void addIgnoreFilterId(String filterId);
+
+    void setIgnoreFilterAll(boolean condition);
 }

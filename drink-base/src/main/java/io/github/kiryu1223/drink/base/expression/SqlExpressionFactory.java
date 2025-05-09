@@ -62,6 +62,14 @@ public interface SqlExpressionFactory {
      */
     ISqlConditionsExpression condition();
 
+    default ISqlConditionsExpression condition(Collection<ISqlExpression> expressions) {
+        ISqlConditionsExpression conditions = condition();
+        for (ISqlExpression expression : expressions) {
+            conditions.addCondition(expression);
+        }
+        return conditions;
+    }
+
     /**
      * 创建from表达式
      *
@@ -343,9 +351,7 @@ public interface SqlExpressionFactory {
 
     ISqlWithsExpression withs();
 
-    ISqlUnionExpression union(ISqlQueryableExpression queryable, boolean all);
-
-    ISqlUnionsExpression unions();
+    ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions);
 
     ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, String parentId, String childId, int level);
 
@@ -353,6 +359,12 @@ public interface SqlExpressionFactory {
 
     default ISqlUpdateExpression update(Class<?> target, AsName asName) {
         return update(from(table(target), asName), Joins(), sets(), where());
+    }
+
+    ISqlDeleteExpression delete(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where);
+
+    default ISqlDeleteExpression delete(Class<?> target, AsName asName) {
+        return delete(from(table(target), asName), Joins(), where());
     }
 
     ISqlDynamicColumnExpression dynamicColumn(String column, Class<?> type, AsName tableAsName);

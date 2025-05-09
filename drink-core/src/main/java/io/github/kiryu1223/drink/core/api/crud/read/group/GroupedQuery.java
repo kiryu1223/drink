@@ -37,7 +37,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class GroupedQuery<Key, T> extends QueryBase {
+public class GroupedQuery<Key, T> extends QueryBase<GroupedQuery<Key, T>> {
     public GroupedQuery(QuerySqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }
@@ -144,58 +144,6 @@ public class GroupedQuery<Key, T> extends QueryBase {
 
     // endregion
 
-    // region [LIMIT]
-
-    /**
-     * 获取指定数量的数据
-     *
-     * @param rows 需要返回的条数
-     * @return this
-     */
-    public GroupedQuery<Key, T> limit(long rows) {
-        limit0(rows);
-        return this;
-    }
-
-    /**
-     * 跳过指定数量条数据，再指定获取指定数量的数据
-     *
-     * @param offset 需要跳过的条数
-     * @param rows   需要返回的条数
-     * @return this
-     */
-    public GroupedQuery<Key, T> limit(long offset, long rows) {
-        limit0(offset, rows);
-        return this;
-    }
-
-    /**
-     * 获取指定数量的数据
-     *
-     * @param condition 条件
-     * @param rows      需要返回的条数
-     * @return this
-     */
-    public GroupedQuery<Key, T> limitIf(boolean condition, long rows) {
-        if (condition) limit0(rows);
-        return this;
-    }
-
-    /**
-     * 跳过指定数量条数据，再指定获取指定数量的数据
-     *
-     * @param condition 条件
-     * @param offset    需要跳过的条数
-     * @param rows      需要返回的条数
-     * @return this
-     */
-    public GroupedQuery<Key, T> limitIf(boolean condition, long offset, long rows) {
-        if (condition) limit0(offset, rows);
-        return this;
-    }
-
-    // endregion
-
     // region [SELECT]
 
     /**
@@ -206,30 +154,30 @@ public class GroupedQuery<Key, T> extends QueryBase {
      * @param <R>  Result
      * @return 基于Result类型的新查询过程对象
      */
-    public <R extends Result> LQuery<? extends R> select(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, R> expr) {
+    public <R> EndQuery<R> select(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R extends Result> LQuery<? extends R> select(ExprTree<Func1<Group<Key, T>, R>> expr) {
-        singleCheck(select(expr.getTree()));
-        return new LQuery<>(boxedQuerySqlBuilder());
-    }
-
-    /**
-     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
-     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
-     *
-     * @param expr 返回一个值的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 终结查询过程
-     */
-    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, R> expr) {
-        throw new NotCompiledException();
-    }
-
-    public <R> EndQuery<R> endSelect(ExprTree<Func1<Group<Key, T>, R>> expr) {
+    public <R> EndQuery<R> select(ExprTree<Func1<Group<Key, T>, R>> expr) {
         select(expr.getTree());
-        return new EndQuery<>(boxedQuerySqlBuilder());
+        return new EndQuery<>(getSqlBuilder());
     }
+
+//    /**
+//     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
+//     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+//     *
+//     * @param expr 返回一个值的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 终结查询过程
+//     */
+//    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func1<Group<Key, T>, R> expr) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <R> EndQuery<R> endSelect(ExprTree<Func1<Group<Key, T>, R>> expr) {
+//        select(expr.getTree());
+//        return new EndQuery<>(boxedQuerySqlBuilder());
+//    }
 
     public <R> GroupedQuery<Key, T> includes(@Expr(Expr.BodyType.Expr) Func1<Key, Collection<R>> expr) {
         throw new NotCompiledException();
@@ -278,39 +226,7 @@ public class GroupedQuery<Key, T> extends QueryBase {
 
     // endregion
 
-    // region [OTHER]
-
-    /**
-     * 设置distinct
-     *
-     * @return this
-     */
-    public GroupedQuery<Key, T> distinct() {
-        distinct0(true);
-        return this;
-    }
-
-    /**
-     * 设置distinct
-     *
-     * @param condition 是否distinct
-     * @return this
-     */
-    public GroupedQuery<Key, T> distinct(boolean condition) {
-        distinct0(condition);
-        return this;
-    }
-
-    // endregion
-
     // region [AGGREGATE]
-
-    /**
-     * 检查表中是否存在至少一条数据
-     */
-    public boolean any() {
-        return any0(null);
-    }
 
     /**
      * 检查表中是否存在至少一条数据<p>
@@ -321,7 +237,7 @@ public class GroupedQuery<Key, T> extends QueryBase {
     }
 
     public boolean any(ExprTree<Func1<T, Boolean>> expr) {
-        return any0(expr.getTree());
+        return any(expr.getTree());
     }
 
     /**

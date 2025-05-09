@@ -81,6 +81,10 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         this(config, updateExpression.getFrom(), updateExpression.getJoins(), null, 0);
     }
 
+    public SqlVisitor(IConfig config, ISqlDeleteExpression deleteExpression) {
+        this(config, deleteExpression.getFrom(), deleteExpression.getJoins(), null, 0);
+    }
+
     public SqlVisitor(IConfig config, ISqlFromExpression fromExpression, ISqlJoinsExpression joinsExpression) {
         this(config, fromExpression, joinsExpression, null, 0);
     }
