@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.metaData.NavigateData;
+import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
@@ -417,32 +418,32 @@ public class LQuery<T> extends QueryBase<LQuery<T>,T> {
 //        return new EndQuery<>(getSqlBuilder());
 //    }
 //
-//    public <R> LQuery<R> selectMany(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <R> LQuery<R> selectMany(ExprTree<Func1<T, Collection<R>>> expr) {
-//        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
-//        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
-//        ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
-//        FieldMetaData fieldMetaData = column.getFieldMetaData();
-//        if (!fieldMetaData.hasNavigate()) {
-//            throw new SqLinkException("selectMany指定的字段需要被@Navigate修饰");
-//        }
-//        NavigateData navigateData = fieldMetaData.getNavigateData();
-//        Class<?> targetType = navigateData.getNavigateTargetType();
-//        FieldMetaData target = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-//        FieldMetaData self = MetaDataCache.getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-//        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-//
-//        AsName asName = new AsName(getFirst(targetType));
-//        // 获取父的拷贝，然后把select换成自己的字段
-//        ISqlQueryableExpression copy = queryable.copy(getConfig());
-//        copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
-//        ISqlQueryableExpression newQuery = factory.queryable(targetType, asName);
-//        newQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(target, asName), copy));
-//        return new LQuery<>(new QuerySqlBuilder(getConfig(), newQuery));
-//    }
+    public <R extends ITable> LQuery<R> selectMany(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr) {
+        throw new NotCompiledException();
+    }
+
+    public <R extends ITable> LQuery<R> selectMany(ExprTree<Func1<T, Collection<R>>> expr) {
+        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
+        ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
+        FieldMetaData fieldMetaData = column.getFieldMetaData();
+        if (!fieldMetaData.hasNavigate()) {
+            throw new SqLinkException("selectMany指定的字段需要被@Navigate修饰");
+        }
+        NavigateData navigateData = fieldMetaData.getNavigateData();
+        Class<?> targetType = navigateData.getNavigateTargetType();
+        FieldMetaData target = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+        FieldMetaData self = MetaDataCache.getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+
+        AsName asName = new AsName(getFirst(targetType));
+        // 获取父的拷贝，然后把select换成自己的字段
+        ISqlQueryableExpression copy = queryable.copy(getConfig());
+        copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
+        ISqlQueryableExpression newQuery = factory.queryable(targetType, asName);
+        newQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(target, asName), copy));
+        return new LQuery<>(new QuerySqlBuilder(getConfig(), newQuery));
+    }
 
     // endregion
 
@@ -824,7 +825,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>,T> {
         // 某些数据库不支持 a.xx in (select b.xx from b), 所以需要在外边包一层 a.xx in (select b.xx from (select * from b))
         ISqlSelectExpression select = factory.select(Collections.singletonList(factory.column(primary, copy.getFrom().getAsName())), copy.getMainTableClass());
         ISqlQueryableExpression warpQuery = factory.queryable(select, factory.from(copy, copy.getFrom().getAsName()));
-        warpQuery.setChanged(true);
         delete.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, delete.getFrom().getAsName()), warpQuery));
         return new LDelete<>(new DeleteSqlBuilder(getConfig(), delete));
     }
@@ -839,7 +839,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>,T> {
         ISqlSelectExpression select = factory.select(Collections.singletonList(factory.column(primary, copy.getFrom().getAsName())), copy.getMainTableClass());
         // 某些数据库不支持 a.xx in (select b.xx from b), 所以需要在外边包一层 a.xx in (select b.xx from (select * from b))
         ISqlQueryableExpression warpQuery = factory.queryable(select, factory.from(copy, copy.getFrom().getAsName()));
-        warpQuery.setChanged(true);
         update.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, update.getFrom().getAsName()), warpQuery));
         return new LUpdate<>(new UpdateSqlBuilder(getConfig(), update));
     }

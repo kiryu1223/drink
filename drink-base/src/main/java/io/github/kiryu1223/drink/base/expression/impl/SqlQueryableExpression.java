@@ -36,7 +36,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     protected final ISqlHavingExpression having;
     protected final ISqlOrderByExpression orderBy;
     protected final ISqlLimitExpression limit;
-    protected boolean isChanged;
 
     public SqlQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
         this.select = select;
@@ -51,10 +50,7 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        if (!isChanged && from.getSqlTableExpression() instanceof ISqlQueryableExpression) {
-            return from.getSqlTableExpression().getSqlAndValue(config, values);
-        }
-        else {
+
             List<String> strings = new ArrayList<>();
             tryWith(config, strings, values);
             strings.add(getSelect().getSqlAndValue(config, values));
@@ -75,7 +71,7 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
                 if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
             }
             return String.join(" ", strings);
-        }
+        
     }
 
 
@@ -87,37 +83,31 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     @Override
     public void addWhere(ISqlExpression cond) {
         where.addCondition(cond);
-        change();
     }
 
     @Override
     public void setWhere(ISqlConditionsExpression conditions) {
         where.setConditions(conditions);
-        change();
     }
 
     @Override
     public void addJoin(ISqlJoinExpression join) {
         joins.addJoin(join);
-        change();
     }
 
     @Override
     public void setGroup(ISqlGroupByExpression group) {
         groupBy.setColumns(group.getColumns());
-        change();
     }
 
     @Override
     public void addHaving(ISqlExpression cond) {
         having.addCond(cond);
-        change();
     }
 
     @Override
     public void addOrder(ISqlOrderExpression order) {
         orderBy.addOrder(order);
-        change();
     }
 
     @Override
@@ -126,20 +116,18 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
         select.setTarget(newSelect.getTarget());
         select.setSingle(newSelect.isSingle());
         select.setDistinct(newSelect.isDistinct());
-        change();
+        
     }
 
     @Override
     public void setLimit(long offset, long rows) {
         limit.setOffset(offset);
         limit.setRows(rows);
-        change();
     }
 
     @Override
     public void setDistinct(boolean distinct) {
         select.setDistinct(distinct);
-        change();
     }
 
     @Override
@@ -193,20 +181,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
 //        collect.add(0,tableClass);
 //        return collect;
 //    }
-
-    public void change() {
-        setChanged(true);
-    }
-
-    @Override
-    public boolean getChanged() {
-        return isChanged;
-    }
-
-    @Override
-    public void setChanged(boolean changed) {
-        this.isChanged = changed;
-    }
 
     protected void tryWith(IConfig config, List<String> strings, List<SqlValue> values) {
         ISqlTableExpression fromSqlTableExpression = from.getSqlTableExpression();

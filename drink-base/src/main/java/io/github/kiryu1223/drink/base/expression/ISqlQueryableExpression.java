@@ -32,20 +32,8 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
     @Override
     default ISqlQueryableExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        ISqlQueryableExpression queryableExpression = factory.queryable(getSelect().copy(config), getFrom().copy(config), getJoins().copy(config), getWhere().copy(config), getGroupBy().copy(config), getHaving().copy(config), getOrderBy().copy(config), getLimit().copy(config));
-        queryableExpression.setChanged(getChanged());
-        return queryableExpression;
+        return factory.queryable(getSelect().copy(config), getFrom().copy(config), getJoins().copy(config), getWhere().copy(config), getGroupBy().copy(config), getHaving().copy(config), getOrderBy().copy(config), getLimit().copy(config));
     }
-
-    /**
-     * 设置是否已经发生变化
-     */
-    void setChanged(boolean changed);
-
-    /**
-     * 获取是否已经发生变化
-     */
-    boolean getChanged();
 
     /**
      * 添加where条件
@@ -141,19 +129,20 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
      * 获取映射的列
      */
     default List<FieldMetaData> getMappingData() {
-        if (getChanged()) {
-            return getMappingData0();
-        }
-        else {
-            ISqlTableExpression sqlTableExpression = getFrom().getSqlTableExpression();
-            if (sqlTableExpression instanceof ISqlRealTableExpression || sqlTableExpression instanceof ISqlWithExpression) {
-                return getMappingData0();
-            }
-            else {
-                ISqlQueryableExpression tableExpression = (ISqlQueryableExpression) sqlTableExpression;
-                return tableExpression.getMappingData();
-            }
-        }
+        return getMappingData0();
+//        if (getChanged()) {
+//            return getMappingData0();
+//        }
+//        else {
+//            ISqlTableExpression sqlTableExpression = getFrom().getSqlTableExpression();
+//            if (sqlTableExpression instanceof ISqlRealTableExpression || sqlTableExpression instanceof ISqlWithExpression) {
+//                return getMappingData0();
+//            }
+//            else {
+//                ISqlQueryableExpression tableExpression = (ISqlQueryableExpression) sqlTableExpression;
+//                return tableExpression.getMappingData();
+//            }
+//        }
     }
 
     default List<FieldMetaData> getMappingData0() {

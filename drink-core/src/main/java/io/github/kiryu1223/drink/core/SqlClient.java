@@ -5,6 +5,7 @@ import io.github.kiryu1223.drink.base.annotation.Empty;
 import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.transaction.Transaction;
+import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.EmptyQuery;
@@ -20,6 +21,7 @@ import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.util.Collection;
+import java.util.List;
 
 public class SqlClient
 {
@@ -160,5 +162,54 @@ public class SqlClient
             return (Class<T>) t.getClass();
         }
         throw new SqLinkException("insert内容为空");
+    }
+
+    {
+
+        class Area implements ITable
+        {
+            String code;
+        }
+
+        class User{
+            int id;
+            List<String> nicknames;
+            List<Area> areas;
+
+            public int getId()
+            {
+                return id;
+            }
+
+            public void setId(int id)
+            {
+                this.id = id;
+            }
+
+            public List<String> getNicknames()
+            {
+                return nicknames;
+            }
+
+            public void setNicknames(List<String> nicknames)
+            {
+                this.nicknames = nicknames;
+            }
+
+            public List<Area> getAreas()
+            {
+                return areas;
+            }
+
+            public void setAreas(List<Area> areas)
+            {
+                this.areas = areas;
+            }
+        }
+
+
+        query(User.class)
+                .selectMany(u -> u.areas)
+                .
     }
 }

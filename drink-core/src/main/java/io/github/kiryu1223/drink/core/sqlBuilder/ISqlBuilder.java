@@ -23,6 +23,8 @@ import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -85,10 +87,7 @@ public interface ISqlBuilder {
                         ISqlWhereExpression where = query.getWhere();
                         SqlVisitor sqlVisitor = new SqlVisitor(config, query);
                         ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                        ISqlConditionsExpression condition = factory.condition();
-                        condition.addCondition(factory.parens(where.getConditions()));
-                        condition.addCondition(expression);
-                        query.setWhere(condition);
+                        query.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(where.getConditions()),expression))));
                     }
                 }
                 ISqlJoinsExpression joins = query.getJoins();
@@ -104,10 +103,7 @@ public interface ISqlBuilder {
                             ISqlConditionsExpression conditions = join.getConditions();
                             SqlVisitor sqlVisitor = new SqlVisitor(config, query, index++);
                             ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                            ISqlConditionsExpression condition = factory.condition();
-                            condition.addCondition(factory.parens(conditions));
-                            condition.addCondition(expression);
-                            join.setConditions(condition);
+                            join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions),expression)));
                         }
                     }
                 }
