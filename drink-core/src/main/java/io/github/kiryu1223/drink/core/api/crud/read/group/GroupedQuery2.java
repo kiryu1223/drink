@@ -37,7 +37,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class GroupedQuery2<Key, T1, T2> extends QueryBase<GroupedQuery2<Key, T1, T2>> {
+public class GroupedQuery2<Key, T1, T2> extends QueryBase<GroupedQuery2<Key, T1, T2>,Key> {
     public GroupedQuery2(QuerySqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }

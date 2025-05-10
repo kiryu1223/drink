@@ -2,9 +2,9 @@ package io.github.kiryu1223.plugin.aot;
 
 import io.github.kiryu1223.drink.base.annotation.Empty;
 import io.github.kiryu1223.drink.core.api.crud.read.group.*;
-import io.github.kiryu1223.drink.core.sqlExt.types.Char;
-import io.github.kiryu1223.drink.core.sqlExt.types.SqlTypes;
-import io.github.kiryu1223.drink.core.sqlExt.types.Varchar2;
+import io.github.kiryu1223.drink.func.types.Char;
+import io.github.kiryu1223.drink.func.types.SqlTypes;
+import io.github.kiryu1223.drink.func.types.Varchar2;
 import io.github.kiryu1223.plugin.configuration.DrinkProperties;
 import org.noear.solon.aot.RuntimeNativeMetadata;
 import org.noear.solon.aot.RuntimeNativeRegistrar;

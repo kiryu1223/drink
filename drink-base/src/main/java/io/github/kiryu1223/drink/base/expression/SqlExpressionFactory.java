@@ -345,7 +345,7 @@ public interface SqlExpressionFactory {
      *
      * @param c 类型
      */
-    ISqlTypeExpression type(Class<?> c);
+    ISqlTypeCastExpression typeCast(Class<?> c,ISqlExpression expression);
 
     ISqlWithExpression with(ISqlQueryableExpression queryable, String name);
 

@@ -16,20 +16,20 @@ public class Filter {
 
     private final Map<Class<?>, Map<String, Pair<Func0<Boolean>, LambdaExpression<?>>>> applyIfMap = new ConcurrentHashMap<>();
 
-    interface ITenant {
-        long getTenantId();
-    }
-
-    {
-        Long tid = new Random().nextLong();
-
-        applyIf(
-                ITenant.class,
-                "tenant",
-                () -> tid > 1000,
-                t -> t.getTenantId() == tid
-        );
-    }
+//    interface ITenant {
+//        long getTenantId();
+//    }
+//
+//    {
+//        Long tid = new Random().nextLong();
+//
+//        applyIf(
+//                ITenant.class,
+//                "tenant",
+//                () -> tid > 1000,
+//                t -> t.getTenantId() == tid
+//        );
+//    }
 
     public <T> void apply(Class<T> t, String filterId, @Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {
 

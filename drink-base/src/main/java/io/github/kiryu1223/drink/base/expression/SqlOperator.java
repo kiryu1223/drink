@@ -69,6 +69,7 @@ public enum SqlOperator {
     LIKE,
     IN,
     IS,
+    IS_NOT("IS NOT"),
     BETWEEN,
     EXISTS(true),
     ;

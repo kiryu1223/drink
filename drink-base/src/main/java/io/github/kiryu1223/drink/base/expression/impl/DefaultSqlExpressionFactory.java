@@ -148,8 +148,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlTypeExpression type(Class<?> c) {
-        return new SqlTypeExpression(c);
+    public ISqlTypeCastExpression typeCast(Class<?> c,ISqlExpression expression) {
+        return new SqlTypeCastExpression(c,expression);
     }
 
     @Override

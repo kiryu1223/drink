@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.core.api.crud.read;
 
 import io.github.kiryu1223.expressionTree.delegate.Func10;
+import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func9;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
@@ -33,7 +34,7 @@ import io.github.kiryu1223.drink.core.api.crud.read.group.*;
  * @author kiryu1223
  * @since 3.0
  */
-public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase<LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9>> {
+public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase<LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9>,T1> {
     // region [INIT]
 
     public LQuery9(QuerySqlBuilder sqlBuilder) {
@@ -84,14 +85,14 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase<LQuer
         return joinNewQuery();
     }
 
-    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> innerJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean> func) {
-        throw new NotCompiledException();
-    }
-
-    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> innerJoinWith(LQuery<Tn> target, ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean>> expr) {
-        joinWith(JoinType.INNER, target, expr.getTree());
-        return joinNewQuery();
-    }
+//    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> innerJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean> func) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> innerJoinWith(LQuery<Tn> target, ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean>> expr) {
+//        joinWith(JoinType.INNER, target, expr.getTree());
+//        return joinNewQuery();
+//    }
 
     /**
      * join表操作<p>
@@ -129,14 +130,14 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase<LQuer
         return joinNewQuery();
     }
 
-    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> leftJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean> func) {
-        throw new NotCompiledException();
-    }
-
-    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> leftJoinWith(LQuery<Tn> target, ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean>> expr) {
-        joinWith(JoinType.LEFT, target, expr.getTree());
-        return joinNewQuery();
-    }
+//    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> leftJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean> func) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> leftJoinWith(LQuery<Tn> target, ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean>> expr) {
+//        joinWith(JoinType.LEFT, target, expr.getTree());
+//        return joinNewQuery();
+//    }
 
     /**
      * join表操作<p>
@@ -174,14 +175,14 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase<LQuer
         return joinNewQuery();
     }
 
-    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> rightJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean> func) {
-        throw new NotCompiledException();
-    }
-
-    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> rightJoinWith(LQuery<Tn> target, ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean>> expr) {
-        joinWith(JoinType.RIGHT, target, expr.getTree());
-        return joinNewQuery();
-    }
+//    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> rightJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean> func) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <Tn> LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn> rightJoinWith(LQuery<Tn> target, ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, Tn, Boolean>> expr) {
+//        joinWith(JoinType.RIGHT, target, expr.getTree());
+//        return joinNewQuery();
+//    }
 
     // endregion
 
@@ -366,6 +367,20 @@ public class LQuery9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends QueryBase<LQuer
 //        select(expr.getTree());
 //        return new EndQuery<>(getSqlBuilder());
 //    }
+
+    // endregion
+
+    // region [WITH]
+
+    public <R extends Result> LQuery<? extends R> withTemp(@Expr(Expr.BodyType.Expr) Func9<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> expr) {
+        throw new NotCompiledException();
+    }
+
+    public <R extends Result> LQuery<? extends R> withTemp(ExprTree<Func9<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>> expr) {
+        select(expr.getTree());
+        withTempQuery();
+        return new LQuery<>(getSqlBuilder());
+    }
 
     // endregion
 }

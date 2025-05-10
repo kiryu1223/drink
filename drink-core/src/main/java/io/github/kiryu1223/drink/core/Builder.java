@@ -16,12 +16,15 @@
 package io.github.kiryu1223.drink.core;
 
 import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.base.IDbSupport;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
+
+import java.util.ServiceLoader;
 
 /**
  * @author kiryu1223
@@ -71,8 +74,22 @@ public class Builder {
         if (beanCreatorFactory == null) {
             beanCreatorFactory = new BeanCreatorFactory();
         }
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory);
+
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory,getSpi());
         return new SqlClient(config);
+    }
+
+    private IDbSupport getSpi()
+    {
+        ServiceLoader<IDbSupport> load = ServiceLoader.load(IDbSupport.class);
+        for (IDbSupport support : load)
+        {
+            if (support.getDbType() == dbType)
+            {
+                return support;
+            }
+        }
+        throw new RuntimeException("找不到对应的数据库支持");
     }
 
     /**

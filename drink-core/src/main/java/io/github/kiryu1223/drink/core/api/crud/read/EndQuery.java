@@ -28,7 +28,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class EndQuery<T> extends QueryBase<EndQuery<T>> {
+public class EndQuery<T> extends QueryBase<EndQuery<T>,T> {
     public EndQuery(QuerySqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }

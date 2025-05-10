@@ -25,9 +25,8 @@ import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
-import io.github.kiryu1223.drink.base.transform.Transformer;
-import io.github.kiryu1223.drink.base.transform.expression.ILogic;
-import io.github.kiryu1223.drink.base.transform.method.*;
+import io.github.kiryu1223.drink.base.transform.*;
+import io.github.kiryu1223.drink.base.transform.ILogic;
 import io.github.kiryu1223.drink.core.SubQuery;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
@@ -201,28 +200,26 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             String name = methodCall.getMethod().getName();
             List<Expression> args = methodCall.getArgs();
             Transformer transformer = config.getTransformer();
-            MethodTransformer methodTransformer = transformer.getMethodTransformer();
-            IAggregateMethods agg = methodTransformer.getAggregateMethod();
             isGroup = true;
             switch (name) {
                 case "count":
-                    ISqlTemplateExpression count = agg.count(args.isEmpty() ? null : visit(args.get(0)));
+                    ISqlTemplateExpression count = transformer.count(args.isEmpty() ? null : visit(args.get(0)));
                     isGroup = false;
                     return count;
                 case "sum":
-                    ISqlTemplateExpression sum = agg.sum(visit(args.get(0)));
+                    ISqlTemplateExpression sum = transformer.sum(visit(args.get(0)));
                     isGroup = false;
                     return sum;
                 case "avg":
-                    ISqlTemplateExpression avg = agg.avg(visit(args.get(0)));
+                    ISqlTemplateExpression avg = transformer.avg(visit(args.get(0)));
                     isGroup = false;
                     return avg;
                 case "max":
-                    ISqlTemplateExpression max = agg.max(visit(args.get(0)));
+                    ISqlTemplateExpression max = transformer.max(visit(args.get(0)));
                     isGroup = false;
                     return max;
                 case "min":
-                    ISqlTemplateExpression min = agg.min(visit(args.get(0)));
+                    ISqlTemplateExpression min = transformer.min(visit(args.get(0)));
                     isGroup = false;
                     return min;
                 case "groupConcat":
@@ -230,7 +227,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     for (Expression arg : args) {
                         visit.add(visit(arg));
                     }
-                    ISqlTemplateExpression iSqlTemplateExpression = agg.groupConcat(visit);
+                    ISqlTemplateExpression iSqlTemplateExpression = transformer.groupConcat(visit);
                     isGroup = false;
                     return iSqlTemplateExpression;
                 default:
@@ -360,7 +357,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 if (!methodCall.getArgs().isEmpty()) {
                     column = visit(methodCall.getArgs().get(0));
                 }
-                IAggregateMethods agg = config.getTransformer().getMethodTransformer().getAggregateMethod();
+                IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.count(column)), long.class));
                 // 在终结的地方弹出
                 asNameDeque.pop();
@@ -374,7 +371,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer().getMethodTransformer().getAggregateMethod();
+                IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.sum(column)), BigDecimal.class));
 
                 return queryable;
@@ -387,7 +384,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer().getMethodTransformer().getAggregateMethod();
+                IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.avg(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 asNameDeque.pop();
@@ -401,7 +398,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer().getMethodTransformer().getAggregateMethod();
+                IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.min(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 asNameDeque.pop();
@@ -415,7 +412,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer().getMethodTransformer().getAggregateMethod();
+                IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.max(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 asNameDeque.pop();
@@ -574,7 +571,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 if (left instanceof ISqlColumnExpression) {
                     ISqlColumnExpression columnExpression = (ISqlColumnExpression) left;
                     ISqlQueryableExpression query = columnToQuery(columnExpression);
-                    IAggregateMethods agg = config.getTransformer().getMethodTransformer().getAggregateMethod();
+                    IAggregateMethods agg = config.getTransformer();
                     query.setSelect(factory.select(Collections.singletonList(agg.count(factory.constString("*"))), long.class));
                     return query;
                 }
@@ -604,7 +601,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         // 字符串的函数
         else if (String.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
-            IStringMethods str = config.getTransformer().getMethodTransformer().getStringMethod();
+            IStringMethods str = config.getTransformer();
             if (Modifier.isStatic(method.getModifiers())) {
                 switch (method.getName()) {
                     case "join": {
@@ -706,7 +703,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         // Math的函数
         else if (Math.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
-            IMathMethods math = config.getTransformer().getMethodTransformer().getMathMethod();
+            IMathMethods math = config.getTransformer();
             switch (method.getName()) {
                 case "abs": {
                     ISqlExpression arg = visit(methodCall.getArgs().get(0));
@@ -766,7 +763,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     return math.log10(arg);
                 }
                 case "random": {
-                    return math.random(config);
+                    return math.random();
                 }
                 case "round": {
                     ISqlExpression arg = visit(methodCall.getArgs().get(0));
@@ -793,7 +790,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         else if (BigDecimal.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())
                  || BigInteger.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
-            INumberMethods number = config.getTransformer().getMethodTransformer().getNumberMethod();
+            INumberMethods number = config.getTransformer();
             switch (method.getName()) {
                 case "add": {
                     if (method.getParameterCount() == 1) {
@@ -837,7 +834,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         // 时间的函数
         else if (Temporal.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
-            ITimeMethods time = config.getTransformer().getMethodTransformer().getTimeMethod();
+            ITimeMethods time = config.getTransformer();
             switch (method.getName()) {
                 case "isAfter": {
                     ISqlExpression left = visit(methodCall.getExpr());
@@ -861,7 +858,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         // Objects的函数
         else if (Objects.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
-            IObjectsMethods objects = config.getTransformer().getMethodTransformer().getObjectsMethod();
+            IObjectsMethods objects = config.getTransformer();
             if (method.getName().equals("equals")) {
                 List<Expression> args = methodCall.getArgs();
                 return factory.binary(SqlOperator.EQ, visit(args.get(0)), visit(args.get(1)));
@@ -978,7 +975,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         ISqlExpression cond = visit(conditional.getCondition());
         ISqlExpression truePart = visit(conditional.getTruePart());
         ISqlExpression falsePart = visit(conditional.getFalsePart());
-        ILogic logic = config.getTransformer().getExpressionTransformer().getLogic();
+        ILogic logic = config.getTransformer();
         return logic.If(cond, truePart, falsePart);
     }
 
@@ -988,14 +985,6 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     @Override
     public ISqlExpression visit(ParensExpression parens) {
         return factory.parens(visit(parens.getExpr()));
-    }
-
-    /**
-     * 类表达式解析
-     */
-    @Override
-    public ISqlExpression visit(StaticClassExpression staticClass) {
-        return factory.type(staticClass.getType());
     }
 
     /**
@@ -1097,6 +1086,12 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         ISqlSetsExpression sets = factory.sets();
         sets.addSet(sqlSetExpressions);
         return sets;
+    }
+
+    @Override
+    public ISqlExpression visit(TypeCastExpression typeCast)
+    {
+        return factory.typeCast(typeCast.getTargetType(),visit(typeCast.getExpr()));
     }
 
     protected ISqlValueExpression checkAndReturnValue(MethodCallExpression expression) {
@@ -1291,7 +1286,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         switch (config.getDbType()) {
             case SQLServer:
             case Oracle:
-                ILogic logic = config.getTransformer().getExpressionTransformer().getLogic();
+                ILogic logic = config.getTransformer();
                 return logic.If(result, factory.constString("1"), factory.constString("0"));
             default:
                 return result;
@@ -1311,7 +1306,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 switch (config.getDbType()) {
                     case SQLServer:
                     case Oracle:
-                        ILogic logic = config.getTransformer().getExpressionTransformer().getLogic();
+                        ILogic logic = config.getTransformer();
                         expression = logic.If(expression, factory.constString("1"), factory.constString("0"));
                 }
             }

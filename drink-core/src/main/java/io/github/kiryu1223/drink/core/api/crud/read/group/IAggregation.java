@@ -16,7 +16,7 @@
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
 
-import static io.github.kiryu1223.drink.core.exception.Winner.boom;
+import static io.github.kiryu1223.drink.base.exception.Winner.boom;
 
 /**
  * @author kiryu1223

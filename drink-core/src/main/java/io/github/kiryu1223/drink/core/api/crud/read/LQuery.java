@@ -54,7 +54,7 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
  * @author kiryu1223
  * @since 3.0
  */
-public class LQuery<T> extends QueryBase<LQuery<T>> {
+public class LQuery<T> extends QueryBase<LQuery<T>,T> {
     // region [INIT]
 
     public LQuery(QuerySqlBuilder sqlBuilder) {
@@ -105,14 +105,14 @@ public class LQuery<T> extends QueryBase<LQuery<T>> {
         return joinNewQuery();
     }
 
-    public <Tn> LQuery2<T, Tn> innerJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
-        throw new NotCompiledException();
-    }
-
-    public <Tn> LQuery2<T, Tn> innerJoinWith(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
-        joinWith(JoinType.INNER, target, expr.getTree());
-        return joinNewQuery();
-    }
+//    public <Tn> LQuery2<T, Tn> innerJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <Tn> LQuery2<T, Tn> innerJoinWith(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
+//        joinWith(JoinType.INNER, target, expr.getTree());
+//        return joinNewQuery();
+//    }
 
     /**
      * join表操作<p>
@@ -150,14 +150,14 @@ public class LQuery<T> extends QueryBase<LQuery<T>> {
         return joinNewQuery();
     }
 
-    public <Tn> LQuery2<T, Tn> leftJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
-        throw new NotCompiledException();
-    }
-
-    public <Tn> LQuery2<T, Tn> leftJoinWith(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
-        joinWith(JoinType.LEFT, target, expr.getTree());
-        return joinNewQuery();
-    }
+//    public <Tn> LQuery2<T, Tn> leftJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <Tn> LQuery2<T, Tn> leftJoinWith(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
+//        joinWith(JoinType.LEFT, target, expr.getTree());
+//        return joinNewQuery();
+//    }
 
     /**
      * join表操作<p>
@@ -213,14 +213,14 @@ public class LQuery<T> extends QueryBase<LQuery<T>> {
         return joinNewQuery();
     }
 
-    public <Tn> LQuery2<T, Tn> rightJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
-        throw new NotCompiledException();
-    }
-
-    public <Tn> LQuery2<T, Tn> rightJoinWith(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
-        joinWith(JoinType.RIGHT, target, expr.getTree());
-        return joinNewQuery();
-    }
+//    public <Tn> LQuery2<T, Tn> rightJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <Tn> LQuery2<T, Tn> rightJoinWith(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
+//        joinWith(JoinType.RIGHT, target, expr.getTree());
+//        return joinNewQuery();
+//    }
 
     //endregion
 
@@ -662,7 +662,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>> {
         return count0(expr.getTree());
     }
 
-
     /**
      * 聚合函数SUM
      * <p>
@@ -677,7 +676,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>> {
     public <R extends Number> R sum(ExprTree<Func1<T, R>> expr) {
         return sum0(expr.getTree());
     }
-
 
     /**
      * 聚合函数AVG

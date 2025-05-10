@@ -19,7 +19,7 @@ import io.github.kiryu1223.expressionTree.delegate.Func3;
 
 import java.math.BigDecimal;
 
-import static io.github.kiryu1223.drink.core.exception.Winner.boom;
+import static io.github.kiryu1223.drink.base.exception.Winner.boom;
 
 /**
  * @author kiryu1223

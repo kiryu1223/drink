@@ -85,8 +85,8 @@ public class SqlTreeVisitor {
         else if (expr instanceof ISqlWithsExpression) {
             visit((ISqlWithsExpression) expr);
         }
-        else if (expr instanceof ISqlTypeExpression) {
-            visit((ISqlTypeExpression) expr);
+        else if (expr instanceof ISqlTypeCastExpression) {
+            visit((ISqlTypeCastExpression) expr);
         }
         else if (expr instanceof ISqlUpdateExpression) {
             visit((ISqlUpdateExpression) expr);
@@ -239,7 +239,7 @@ public class SqlTreeVisitor {
         }
     }
 
-    public void visit(ISqlTypeExpression expr) {
+    public void visit(ISqlTypeCastExpression expr) {
         // do nothing
     }
 

@@ -18,11 +18,9 @@ package io.github.kiryu1223.drink.base.expression.impl;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
-import io.github.kiryu1223.drink.base.transform.method.IStringMethods;
-import io.github.kiryu1223.drink.base.transform.method.MethodTransformer;
+import io.github.kiryu1223.drink.base.transform.Transformer;
 
 import java.util.List;
-import java.util.StringJoiner;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.isString;
 
@@ -58,11 +56,10 @@ public class SqlBinaryExpression implements ISqlBinaryExpression {
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> sqlValues) {
         StringBuilder sb = new StringBuilder();
-        MethodTransformer methodTransformer = config.getTransformer().getMethodTransformer();
+        Transformer transformer = config.getTransformer();
         if (operator == SqlOperator.PLUS) {
             if (isString(getType())) {
-                IStringMethods stringMethod = methodTransformer.getStringMethod();
-                ISqlTemplateExpression concat = stringMethod.concat(left, right);
+                ISqlTemplateExpression concat = transformer.concat(left, right);
                 sb.append(concat.getSqlAndValue(config, sqlValues));
             }
             else {

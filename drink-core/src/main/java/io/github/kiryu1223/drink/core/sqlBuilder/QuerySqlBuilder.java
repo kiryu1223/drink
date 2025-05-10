@@ -15,7 +15,6 @@
  */
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
-import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
@@ -23,9 +22,6 @@ import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeSet;
-import io.github.kiryu1223.drink.base.expression.SqlTreeVisitor;
-import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
-import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +30,8 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class QuerySqlBuilder implements ISqlBuilder {
+public class QuerySqlBuilder implements ISqlBuilder
+{
     private final IConfig config;
     private ISqlQueryableExpression queryable;
     private final List<IncludeSet> includeSets = new ArrayList<>();
@@ -63,20 +60,25 @@ public class QuerySqlBuilder implements ISqlBuilder {
 //        queryable = factory.queryable(factory.from(target, offset));
 //    }
 
-    public QuerySqlBuilder(IConfig config, ISqlQueryableExpression queryable) {
+    public QuerySqlBuilder(IConfig config, ISqlQueryableExpression queryable)
+    {
         this.config = config;
         this.queryable = queryable;
     }
 
-    public void addWhere(ISqlExpression cond) {
+    public void addWhere(ISqlExpression cond)
+    {
         queryable.addWhere(cond);
     }
 
-    public void addOrWhere(ISqlExpression cond) {
-        if (queryable.getWhere().isEmpty()) {
+    public void addOrWhere(ISqlExpression cond)
+    {
+        if (queryable.getWhere().isEmpty())
+        {
             addWhere(cond);
         }
-        else {
+        else
+        {
             SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
             addWhere(factory.unary(SqlOperator.OR, cond));
         }
@@ -95,58 +97,76 @@ public class QuerySqlBuilder implements ISqlBuilder {
 //        queryable.addJoin(join);
 //    }
 
-    public void setGroup(ISqlGroupByExpression group) {
+    public void setGroup(ISqlGroupByExpression group)
+    {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         queryable.setGroup(group);
     }
 
-    public void addHaving(ISqlExpression cond) {
+    public void addHaving(ISqlExpression cond)
+    {
         queryable.addHaving(cond);
     }
 
-    public void addOrder(ISqlOrderExpression order) {
+    public void addOrder(ISqlOrderExpression order)
+    {
         queryable.addOrder(order);
     }
 
-    public void setSelect(ISqlSelectExpression select) {
+    public void setSelect(ISqlSelectExpression select)
+    {
         queryable.setSelect(select);
     }
 
-    public void setSelect(Class<?> c) {
+    public void setSelect(Class<?> c)
+    {
         MetaData metaData = MetaDataCache.getMetaData(c);
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         ISqlFromExpression from = queryable.getFrom();
         ISqlJoinsExpression joins = queryable.getJoins();
         List<ISqlExpression> expressions = new ArrayList<>();
-        if (from.getSqlTableExpression().getMainTableClass() == c) {
-            for (FieldMetaData notIgnoreProperty : metaData.getNotIgnorePropertys()) {
+        if (from.getSqlTableExpression().getMainTableClass() == c)
+        {
+            for (FieldMetaData notIgnoreProperty : metaData.getNotIgnorePropertys())
+            {
                 expressions.add(factory.column(notIgnoreProperty, from.getAsName()));
             }
         }
-        else if (joins.getJoins().stream().anyMatch(join -> join.getJoinTable().getMainTableClass() == c)) {
-            for (ISqlJoinExpression join : joins.getJoins()) {
-                if (join.getJoinTable().getMainTableClass() == c) {
-                    for (FieldMetaData notIgnoreProperty : metaData.getNotIgnorePropertys()) {
+        else if (joins.getJoins().stream().anyMatch(join -> join.getJoinTable().getMainTableClass() == c))
+        {
+            for (ISqlJoinExpression join : joins.getJoins())
+            {
+                if (join.getJoinTable().getMainTableClass() == c)
+                {
+                    for (FieldMetaData notIgnoreProperty : metaData.getNotIgnorePropertys())
+                    {
                         expressions.add(factory.column(notIgnoreProperty, join.getAsName()));
                     }
                     break;
                 }
             }
         }
-        else {
+        else
+        {
             GOTO:
-            for (FieldMetaData sel : metaData.getNotIgnorePropertys()) {
+            for (FieldMetaData sel : metaData.getNotIgnorePropertys())
+            {
                 MetaData mainTableMetaData = MetaDataCache.getMetaData(from.getSqlTableExpression().getMainTableClass());
-                for (FieldMetaData noi : mainTableMetaData.getNotIgnorePropertys()) {
-                    if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType())) {
+                for (FieldMetaData noi : mainTableMetaData.getNotIgnorePropertys())
+                {
+                    if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType()))
+                    {
                         expressions.add(factory.column(sel, from.getAsName()));
                         break GOTO;
                     }
                 }
-                for (ISqlJoinExpression join : joins.getJoins()) {
+                for (ISqlJoinExpression join : joins.getJoins())
+                {
                     MetaData joinTableMetaData = MetaDataCache.getMetaData(join.getJoinTable().getMainTableClass());
-                    for (FieldMetaData noi : joinTableMetaData.getNotIgnorePropertys()) {
-                        if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType())) {
+                    for (FieldMetaData noi : joinTableMetaData.getNotIgnorePropertys())
+                    {
+                        if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType()))
+                        {
                             expressions.add(factory.column(sel, join.getAsName()));
                             break GOTO;
                         }
@@ -157,26 +177,31 @@ public class QuerySqlBuilder implements ISqlBuilder {
         queryable.setSelect(factory.select(expressions, c));
     }
 
-    public void setLimit(long offset, long rows) {
+    public void setLimit(long offset, long rows)
+    {
         queryable.setLimit(offset, rows);
     }
 
-    public void setDistinct(boolean distinct) {
+    public void setDistinct(boolean distinct)
+    {
         queryable.setDistinct(distinct);
     }
 
     @Override
-    public IConfig getConfig() {
+    public IConfig getConfig()
+    {
         return config;
     }
 
     @Override
-    public String getSql() {
+    public String getSql()
+    {
         return tryFilter(queryable).getSql(config);
     }
 
     @Override
-    public String getSqlAndValue(List<SqlValue> values) {
+    public String getSqlAndValue(List<SqlValue> values)
+    {
         return tryFilter(queryable).getSqlAndValue(config, values);
     }
 
@@ -201,57 +226,76 @@ public class QuerySqlBuilder implements ISqlBuilder {
 //        }
 //    }
 
-    public List<FieldMetaData> getMappingData() {
+    public List<FieldMetaData> getMappingData()
+    {
         return queryable.getMappingData();
     }
 
-    public boolean isSingle() {
+    public boolean isSingle()
+    {
         return queryable.getSelect().isSingle();
     }
 
-    public <T> Class<T> getTargetClass() {
+    public <T> Class<T> getTargetClass()
+    {
         return (Class<T>) queryable.getMainTableClass();
     }
 
-    public ISqlQueryableExpression getQueryable() {
+    public ISqlQueryableExpression getQueryable()
+    {
         return queryable;
     }
 
-    public void setQueryable(ISqlQueryableExpression queryable) {
+    public void setQueryable(ISqlQueryableExpression queryable)
+    {
         this.queryable = queryable;
     }
 
-    public List<IncludeSet> getIncludeSets() {
+    public List<IncludeSet> getIncludeSets()
+    {
         return includeSets;
     }
 
-    public IncludeSet getLastIncludeSet() {
+    public IncludeSet getLastIncludeSet()
+    {
         return includeSets.get(includeSets.size() - 1);
     }
 
     @Override
-    public void setIgnoreFilterAll(boolean ignoreFilterAll) {
+    public void setIgnoreFilterAll(boolean ignoreFilterAll)
+    {
         this.ignoreFilterAll = ignoreFilterAll;
     }
 
     @Override
-    public List<String> getIgnoreFilterIds() {
+    public List<String> getIgnoreFilterIds()
+    {
         return ignoreFilterIds;
     }
 
     @Override
-    public void addIgnoreFilterId(String filterId) {
+    public void addIgnoreFilterId(String filterId)
+    {
         ignoreFilterIds.add(filterId);
     }
 
     @Override
-    public boolean isIgnoreFilterAll() {
+    public boolean isIgnoreFilterAll()
+    {
         return ignoreFilterAll;
     }
 
-    public void box() {
+    public void boxed() {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         AsName asName = queryable.getFrom().getAsName();
-        queryable = factory.queryable(queryable,new AsName(asName.getName()));
+        queryable = factory.queryable(queryable, new AsName(asName.getName()));
+    }
+
+    public QuerySqlBuilder getCopy() {
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, queryable.copy(config));
+        querySqlBuilder.includeSets.addAll(includeSets);
+        querySqlBuilder.ignoreFilterAll=ignoreFilterAll;
+        querySqlBuilder.ignoreFilterIds.addAll(ignoreFilterIds);
+        return querySqlBuilder;
     }
 }

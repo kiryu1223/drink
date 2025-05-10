@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.test.mssql;
 
 import io.github.kiryu1223.drink.core.api.Result;
-import io.github.kiryu1223.drink.core.sqlExt.types.SqlTypes;
+import io.github.kiryu1223.drink.func.types.SqlTypes;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

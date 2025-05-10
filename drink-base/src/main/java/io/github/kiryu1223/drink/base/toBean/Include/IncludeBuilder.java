@@ -264,7 +264,10 @@ public class IncludeBuilder<T> {
         // join中间表
         AsName mappingTableAsName = new AsName(getFirst(mappingTableType).equals(getFirst(navigateTargetType))?getFirst(mappingTableType)+1:getFirst(mappingTableType));
         //mappingTableAsName = mappingTableAsName.equals(tempQueryAsName) ? mappingTableAsName + 1 : mappingTableAsName;
-        tempQueryable.addJoin(factory.join(JoinType.LEFT, factory.table(mappingTableType), factory.binary(SqlOperator.EQ, factory.column(targetFieldMetaData, tempQueryAsName), factory.column(targetMappingFieldMetaData, mappingTableAsName)), mappingTableAsName));
+        tempQueryable.addJoin(factory.join(JoinType.LEFT, factory.table(mappingTableType),
+                factory.condition(Collections.singletonList(factory.binary(SqlOperator.EQ, factory.column(targetFieldMetaData, tempQueryAsName), factory.column(targetMappingFieldMetaData, mappingTableAsName)))),
+                mappingTableAsName
+        ));
         // 包一层，并选择字段
         AsName warpQueryAsName =new AsName( getFirst(queryable.getMainTableClass()));
         ISqlQueryableExpression warpQueryable = factory.queryable(queryable,warpQueryAsName);
