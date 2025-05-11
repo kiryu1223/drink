@@ -19,6 +19,7 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,15 +40,6 @@ public interface SqlExpressionFactory {
      * @param asName     别名
      */
     ISqlAsExpression as(ISqlExpression expression, String asName);
-
-    /**
-     * 创建列表达式
-     *
-     * @param fieldMetaData 字段元数据
-     */
-    default ISqlColumnExpression column(FieldMetaData fieldMetaData) {
-        return column(fieldMetaData, null);
-    }
 
     /**
      * 创建列表达式
@@ -164,6 +156,10 @@ public interface SqlExpressionFactory {
      */
     default ISqlQueryableExpression queryable(Class<?> target, AsName asName) {
         return queryable(from(table(target), asName));
+    }
+
+    default ISqlQueryableExpression queryable(Class<?> target) {
+        return queryable(from(table(target),new AsName(DrinkUtil.getFirst(target))));
     }
 
     /**

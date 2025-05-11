@@ -2,16 +2,20 @@ package io.github.kiryu1223.drink.core;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.Empty;
+import io.github.kiryu1223.drink.base.annotation.Navigate;
+import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.transaction.Transaction;
 import io.github.kiryu1223.drink.core.api.ITable;
+import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.EmptyQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.UnionQuery;
+import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
@@ -20,6 +24,7 @@ import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -166,15 +171,25 @@ public class SqlClient
 
     {
 
-        class Area implements ITable
+        class User implements ITable
         {
-            String code;
+            int id;
+            int age;
+            int areaId;
+            String name;
+            BigDecimal amount;
         }
 
-        class User{
+        class Area implements ITable
+        {
             int id;
-            List<String> nicknames;
-            List<Area> areas;
+            String name;
+            @Navigate(
+                    value = RelationType.OneToMany,
+                    self = "id",
+                    target = "areaId"
+            )
+            List<User> users;
 
             public int getId()
             {
@@ -186,30 +201,70 @@ public class SqlClient
                 this.id = id;
             }
 
-            public List<String> getNicknames()
+            public String getName()
             {
-                return nicknames;
+                return name;
             }
 
-            public void setNicknames(List<String> nicknames)
+            public void setName(String name)
             {
-                this.nicknames = nicknames;
+                this.name = name;
             }
 
-            public List<Area> getAreas()
+            public List<User> getUsers()
             {
-                return areas;
+                return users;
             }
 
-            public void setAreas(List<Area> areas)
+            public void setUsers(List<User> users)
             {
-                this.areas = areas;
+                this.users = users;
             }
         }
 
+        BigDecimal sumMoney = query(Area.class)
+                .where(a -> a.name.contains("华东"))
+                .selectMany(a -> a.users)
+                .where(a -> a.age >= 20 && a.age <= 30)
+                .sum(u -> u.amount);
 
-        query(User.class)
-                .selectMany(u -> u.areas)
-                .
+        List<? extends Result> list = query(Area.class)
+//                .groupBy(a->new Grouper()
+//                {
+//                    int id=a.getId();
+//                    String name=a.getName();
+//                })
+                .selectAggregate(g -> new Result()
+                {
+                    String name = g.key.name;
+                    long count1 = g.count(g.value1.id);
+                    long count2 = g.count(gg -> gg.id);
+                    BigDecimal avg1 = g.avg(gg -> gg.id);
+                    BigDecimal avg2 = g.avg(g.key.id);
+                    int sum1 = g.sum(a -> a.id);
+                    int sum2 = g.sum(g.key.id);
+                    String max1 = g.max(g.key.name);
+                    String max2 = g.max(gg -> gg.name);
+                    String min1 = g.min(g.key.name);
+                    String min2 = g.min(gg -> gg.name);
+                }).toList();
+
+        List<Long> list1 = query(Area.class)
+                .selectAggregate(g -> g.count())
+                .toList();
+
+//        List<Area> list2 = query(Area.class)
+//                .selectRaw(a ->
+//                {
+//                    a.getId();
+//                    a.getName();
+//                    a.getUsers();
+//                })
+//                .toList(r ->
+//                {
+//                    Area area = new Area();
+//                    area.setId(r.getInt(1));
+//                    return area;
+//                });
     }
 }

@@ -42,10 +42,6 @@ public class OracleQueryableExpression extends SqlQueryableExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        if (!isChanged && from.getSqlTableExpression() instanceof ISqlQueryableExpression) {
-            return from.getSqlTableExpression().getSqlAndValue(config, values);
-        }
-        else {
             List<String> strings = new ArrayList<>();
 //        if (!from.isEmptyTable() && (limit.onlyHasRows() || limit.hasRowsAndOffset()))
 //        {
@@ -82,7 +78,7 @@ public class OracleQueryableExpression extends SqlQueryableExpression {
 //            }
 //        }
             return String.join(" ", strings);
-        }
+
     }
 
     private void limitAndOrderCheck(List<String> strings, List<SqlValue> values, IConfig config) {
@@ -94,7 +90,7 @@ public class OracleQueryableExpression extends SqlQueryableExpression {
             }
             SqlExpressionFactory factory = config.getSqlExpressionFactory();
             ISqlOrderByExpression sqlOrderByExpression = factory.orderBy();
-            sqlOrderByExpression.addOrder(factory.order(factory.column(primary)));
+            sqlOrderByExpression.addOrder(factory.order(factory.column(primary,from.getAsName())));
             strings.add(sqlOrderByExpression.getSqlAndValue(config, values));
         }
     }

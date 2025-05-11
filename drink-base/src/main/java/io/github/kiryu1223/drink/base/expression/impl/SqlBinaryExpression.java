@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.isString;
@@ -66,13 +67,25 @@ public class SqlBinaryExpression implements ISqlBinaryExpression {
                 sb.append(build(config, sqlValues));
             }
         }
-        else {
+        else
+        {
             sb.append(build(config, sqlValues));
         }
         return sb.toString();
     }
 
     private String build(IConfig config, List<SqlValue> sqlValues) {
-        return String.join(" ", left.getSqlAndValue(config, sqlValues), operator.getOperator(), right.getSqlAndValue(config, sqlValues));
+        List<String> strings=new ArrayList<>(3);
+        strings.add(left.getSqlAndValue(config, sqlValues));
+        strings.add(operator.getOperator());
+        if (operator == SqlOperator.IN)
+        {
+            strings.add("("+right.getSqlAndValue(config,sqlValues)+")");
+        }
+        else
+        {
+            strings.add(right.getSqlAndValue(config,sqlValues));
+        }
+        return String.join(" ", strings);
     }
 }

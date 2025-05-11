@@ -33,7 +33,7 @@ public @interface Navigate
     String target();
 
     /**
-     * 中间表，需要继承{@link IMappingTable}
+     * 中间表，需要继承{@link io.github.kiryu1223.drink.base.metaData.ITable}
      */
     Class<? extends IMappingTable> mappingTable() default IMappingTable.class;
 

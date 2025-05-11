@@ -16,6 +16,10 @@
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
 
+import io.github.kiryu1223.expressionTree.delegate.Func1;
+
+import java.math.BigDecimal;
+
 import static io.github.kiryu1223.drink.base.exception.Winner.boom;
 
 /**
@@ -38,8 +42,28 @@ public interface IAggregation {
      *
      * @return 符合的条数
      */
-    default long count(int i) {
+    default <R> long count(R r) {
         boom();
         return 0;
+    }
+
+    default <R> R sum(R r) {
+        boom();
+        return (R) new Object();
+    }
+
+    default BigDecimal avg(Number r) {
+        boom();
+        return BigDecimal.ZERO;
+    }
+
+    default <R> R max(R r) {
+        boom();
+        return (R) new Object();
+    }
+
+    default <R> R min(R r) {
+        boom();
+        return (R) new Object();
     }
 }

@@ -15,10 +15,71 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
+import io.github.kiryu1223.expressionTree.delegate.Func2;
+
+import java.math.BigDecimal;
+
+import static io.github.kiryu1223.drink.base.exception.Winner.boom;
+
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public class Group2<Key, T1, T2> extends SqlAggregation2<T1, T2> implements IGroup {
-    public Key key;
+public class Group2<Key, T1, T2> extends Group<Key, T1> {
+    public T2 value2;
+
+    /**
+     * 等价于聚合函数COUNT(expr)
+     *
+     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @return 符合的条数
+     */
+    public <R> long count(Func2<T1, T2, R> expr) {
+        boom();
+        return 0;
+    }
+
+    /**
+     * 等价于聚合函数SUM(expr)
+     *
+     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @return 总和的值，类型为BigDecimal
+     */
+    public <R> R sum(Func2<T1, T2, R> expr) {
+        boom();
+        return (R) new Object();
+    }
+
+    /**
+     * 等价于聚合函数AVG(expr)
+     *
+     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @return 平均的值，类型为BigDecimal
+     */
+    public BigDecimal avg(Func2<T1, T2, Number> expr) {
+        boom();
+        return BigDecimal.ZERO;
+    }
+
+    /**
+     * 等价于聚合函数MAX(expr)
+     *
+     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @return 最大值，类型与lambda的返回值一致
+     */
+    public <R> R max(Func2<T1, T2, R> expr) {
+        boom();
+        return (R) new Object();
+    }
+
+    /**
+     * 等价于聚合函数MIN(expr)
+     *
+     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @return 最小值，类型与lambda的返回值一致
+     */
+    public <R> R min(Func2<T1, T2, R> expr) {
+        boom();
+        return (R) new Object();
+    }
 }

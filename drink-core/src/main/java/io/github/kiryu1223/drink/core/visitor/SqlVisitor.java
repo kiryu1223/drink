@@ -181,6 +181,10 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             Map<String, ISqlExpression> columns = groupByExpression.getColumns();
             return columns.get(fieldSelect.getField().getName());
         }
+        else if (isGroupValue(asNameMap, fieldSelect.getExpr())) // g.value?.xxx
+        {
+            // todo
+        }
         else {
             return checkAndReturnValue(fieldSelect);
         }
@@ -943,12 +947,12 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     public ISqlExpression visit(BinaryExpression binary) {
         ISqlExpression left = visit(binary.getLeft());
         ISqlExpression right = visit(binary.getRight());
-        if (left instanceof ISqlQueryableExpression) {
-            left = factory.parens(left);
-        }
-        if (right instanceof ISqlQueryableExpression) {
-            right = factory.parens(right);
-        }
+//        if (left instanceof ISqlQueryableExpression) {
+//            left = factory.parens(left);
+//        }
+//        if (right instanceof ISqlQueryableExpression) {
+//            right = factory.parens(right);
+//        }
         return factory.binary(
                 SqlOperator.valueOf(binary.getOperatorType().name()),
                 left,

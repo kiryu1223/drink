@@ -16,15 +16,23 @@
 package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.annotation.RelationType;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeSet;
+import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
+import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getFirst;
 
 /**
  * @author kiryu1223

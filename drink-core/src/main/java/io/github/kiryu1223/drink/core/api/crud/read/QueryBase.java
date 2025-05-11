@@ -17,6 +17,7 @@ package io.github.kiryu1223.drink.core.api.crud.read;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.session.SqlSession;
@@ -140,8 +141,7 @@ public abstract class QueryBase<C,R> extends CRUD<C> {
 
     protected R first() {
         LQuery<R> lQuery = new LQuery<>(getSqlBuilder().getCopy());
-        lQuery.limit(1);
-        List<R> list = lQuery.toList();
+        List<R> list = lQuery.limit(1).toList();
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -185,6 +185,72 @@ public abstract class QueryBase<C,R> extends CRUD<C> {
     }
 
     // endregion
+
+    // region [selectMany]
+
+    protected QuerySqlBuilder toMany(LambdaExpression<?> tree)
+    {
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
+        ISqlColumnExpression column = sqlVisitor.toColumn(tree);
+        FieldMetaData fieldMetaData = column.getFieldMetaData();
+        if (!fieldMetaData.hasNavigate())
+        {
+            throw new DrinkException(String.format("%s字段需要被@Navigate修饰",fieldMetaData.getField()));
+        }
+        NavigateData navigateData = fieldMetaData.getNavigateData();
+        relationTypeCheck(navigateData);
+        RelationType relationType = navigateData.getRelationType();
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+        ISqlQueryableExpression boxedQueryable;
+        Class<?> targetType = navigateData.getNavigateTargetType();
+        FieldMetaData target = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+        FieldMetaData self = MetaDataCache.getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+        if (relationType == RelationType.OneToMany)
+        {
+            // SELECT s.* FROM selfTable s ...
+            ISqlQueryableExpression copy = queryable.copy(getConfig());
+            // SELECT s.selfField FROM selfTable ...
+            copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
+            // SELECT t.* FROM targetTable t
+            boxedQueryable = factory.queryable(targetType);
+            AsName asName = boxedQueryable.getFrom().getAsName();
+            // SELECT t.* FROM targetTable t WHERE t.targetField IN (SELECT s.selfField FROM selfTable ...)
+            boxedQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(target, asName), copy));
+        }
+        else if (relationType == RelationType.ManyToMany)
+        {
+            Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
+            String selfMappingName = navigateData.getSelfMappingFieldName();
+            String targetMappingName = navigateData.getTargetMappingFieldName();
+            MetaData mappingData = MetaDataCache.getMetaData(mappingType);
+            FieldMetaData selfMapping = mappingData.getFieldMetaDataByFieldName(selfMappingName);
+            FieldMetaData targetMapping = mappingData.getFieldMetaDataByFieldName(targetMappingName);
+            // SELECT s.* FROM selfTable s ...
+            ISqlQueryableExpression copy = queryable.copy(getConfig());
+            // SELECT s.selfField FROM selfTable ...
+            copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
+            // SELECT m.targetMappingField FROM mappingTable m WHERE m.selfMappingField IN (SELECT s.selfField FROM selfTable ...)
+            ISqlQueryableExpression mappingQuery = factory.queryable(mappingType);
+            AsName mappingAsName = mappingQuery.getFrom().getAsName();
+            mappingQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(selfMapping, mappingAsName),copy));
+            mappingQuery.setSelect(factory.select(Collections.singletonList(factory.column(targetMapping, mappingAsName)),targetMapping.getType()));
+            // SELECT t.*
+            // FROM targetTable t
+            // WHERE t.targetField IN
+            // (SELECT m.targetMappingField FROM mappingTable m WHERE m.selfMappingField IN (SELECT s.selfField FROM selfTable ...))
+            boxedQueryable=factory.queryable(targetType);
+            AsName asName = boxedQueryable.getFrom().getAsName();
+            boxedQueryable.addWhere(factory.binary(SqlOperator.IN,factory.column(target, asName),mappingQuery));
+        }
+        else
+        {
+            throw new DrinkException(relationType.name());
+        }
+        return new QuerySqlBuilder(getConfig(),boxedQueryable);
+    }
+
+    //endregion
 
     // region [join]
 

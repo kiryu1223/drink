@@ -91,6 +91,18 @@ public class ExpressionUtil {
                 && field.getName().equals("key");
     }
 
+    public static boolean isGroupValue(Map<ParameterExpression, AsName> parameters, Expression expression) {
+        if (expression.getKind() != Kind.FieldSelect) return false;
+        FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
+        if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
+        ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
+        Field field = fieldSelect.getField();
+        String fieldName = field.getName();
+        return parameters.containsKey(parameter)
+                && IGroup.class.isAssignableFrom(field.getDeclaringClass())
+                && fieldName.startsWith("value");
+    }
+
     /**
      * 判断是否为getter方法
      */
