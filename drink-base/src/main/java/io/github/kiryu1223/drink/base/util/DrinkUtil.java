@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.base.util;
 
+import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 

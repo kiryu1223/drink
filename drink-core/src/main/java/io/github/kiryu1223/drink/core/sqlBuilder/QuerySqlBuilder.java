@@ -107,7 +107,6 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public void setGroup(ISqlGroupByExpression group)
     {
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
         queryable.setGroup(group);
     }
 

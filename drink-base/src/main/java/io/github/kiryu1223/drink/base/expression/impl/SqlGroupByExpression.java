@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.base.expression.impl;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlGroupByExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;
@@ -30,10 +31,12 @@ import java.util.List;
  */
 public class SqlGroupByExpression implements ISqlGroupByExpression
 {
-    protected final LinkedHashMap<String, ISqlExpression> columns = new LinkedHashMap<>();
-    public void setColumns(LinkedHashMap<String, ISqlExpression> columns) {
-        this.columns.putAll(columns);
+    protected final LinkedHashMap<String, ISqlExpression> columns;
+
+    public SqlGroupByExpression(LinkedHashMap<String, ISqlExpression> columns) {
+        this.columns = columns;
     }
+
     public LinkedHashMap<String, ISqlExpression> getColumns() {
         return columns;
     }

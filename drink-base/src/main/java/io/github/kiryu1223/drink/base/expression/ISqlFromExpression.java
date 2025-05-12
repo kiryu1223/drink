@@ -52,6 +52,11 @@ public interface ISqlFromExpression extends ISqlExpression {
     AsName getAsName();
 
     @Override
+    default Class<?> getType() {
+        return getSqlTableExpression().getType();
+    }
+
+    @Override
     default ISqlFromExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         return factory.from(getSqlTableExpression().copy(config), getAsName());

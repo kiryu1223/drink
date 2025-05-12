@@ -11,11 +11,6 @@ public interface ISqlUnionQueryableExpression extends ISqlTableExpression {
     List<Boolean> getUnions();
 
     @Override
-    default Class<?> getType() {
-        return getMainTableClass();
-    }
-
-    @Override
     default Class<?> getMainTableClass() {
         return getQueryable().get(0).getMainTableClass();
     }

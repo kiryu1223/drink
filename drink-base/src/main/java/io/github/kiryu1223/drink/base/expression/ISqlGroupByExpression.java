@@ -18,7 +18,7 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * 分组表达式
@@ -28,30 +28,29 @@ import java.util.Map;
  */
 public interface ISqlGroupByExpression extends ISqlExpression {
     /**
-     * 设置分组选择的字段
-     */
-    void setColumns(LinkedHashMap<String, ISqlExpression> columns);
-
-    /**
      * 获取分组选择的字段
-     *
-     * @return
      */
     LinkedHashMap<String, ISqlExpression> getColumns();
+
+    //List<AsName> getValueAsNames();
 
     default boolean hasColumns() {
         return !getColumns().isEmpty();
     }
 
+    default void setColumns(LinkedHashMap<String, ISqlExpression> columns) {
+        getColumns().clear();
+        getColumns().putAll(columns);
+    }
+
+//    default void setValueAsNames(List<AsName> valueAsNames) {
+//        getValueAsNames().clear();
+//        getValueAsNames().addAll(valueAsNames);
+//    }
+
     @Override
     default ISqlGroupByExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        ISqlGroupByExpression groupByExpression = factory.groupBy();
-        if (hasColumns()) {
-            for (Map.Entry<String, ISqlExpression> entry : getColumns().entrySet()) {
-                groupByExpression.getColumns().put(entry.getKey(), entry.getValue().copy(config));
-            }
-        }
-        return groupByExpression;
+        return factory.groupBy(getColumns());
     }
 }

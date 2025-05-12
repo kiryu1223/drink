@@ -73,17 +73,10 @@ public interface SqlExpressionFactory {
     /**
      * 创建分组group by表达式
      */
-    ISqlGroupByExpression groupBy();
+    ISqlGroupByExpression groupBy(LinkedHashMap<String, ISqlExpression> columns);
 
-    /**
-     * 创建分组表达式
-     *
-     * @param columns 分组选择的字段
-     */
-    default ISqlGroupByExpression groupBy(LinkedHashMap<String, ISqlExpression> columns) {
-        ISqlGroupByExpression groupByExpression = groupBy();
-        groupByExpression.setColumns(columns);
-        return groupByExpression;
+    default ISqlGroupByExpression groupBy() {
+        return groupBy(new LinkedHashMap<>());
     }
 
     /**

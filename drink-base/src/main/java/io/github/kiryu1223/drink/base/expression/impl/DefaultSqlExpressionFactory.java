@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -48,8 +49,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlGroupByExpression groupBy() {
-        return new SqlGroupByExpression();
+    public ISqlGroupByExpression groupBy(LinkedHashMap<String, ISqlExpression> columns) {
+        return new SqlGroupByExpression(columns);
     }
 
     @Override

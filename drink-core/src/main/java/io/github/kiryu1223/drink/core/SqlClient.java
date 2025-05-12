@@ -28,12 +28,10 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
-public class SqlClient
-{
+public class SqlClient {
     private final IConfig config;
 
-    SqlClient(IConfig config)
-    {
+    SqlClient(IConfig config) {
         this.config = config;
     }
 
@@ -43,8 +41,7 @@ public class SqlClient
      * @param isolationLevel 事务级别
      * @return 事务对象
      */
-    public Transaction beginTransaction(Integer isolationLevel)
-    {
+    public Transaction beginTransaction(Integer isolationLevel) {
         return config.getTransactionManager().get(isolationLevel);
     }
 
@@ -53,8 +50,7 @@ public class SqlClient
      *
      * @return 事务对象
      */
-    public Transaction beginTransaction()
-    {
+    public Transaction beginTransaction() {
         return beginTransaction(null);
     }
 
@@ -65,29 +61,23 @@ public class SqlClient
      * @param <T> 数据类类型
      * @return 查询过程对象
      */
-    public <T> LQuery<T> query(@Recode Class<T> c)
-    {
-        String first = ExpressionUtil.getFirst(c);
-        return new LQuery<>(new QuerySqlBuilder(config, config.getSqlExpressionFactory().queryable(c, new AsName(first))));
+    public <T> LQuery<T> query(@Recode Class<T> c) {
+        return new LQuery<>(new QuerySqlBuilder(config, config.getSqlExpressionFactory().queryable(c)));
     }
 
-    public <T> UnionQuery<T> union(LQuery<T> q1, LQuery<T> q2)
-    {
+    public <T> UnionQuery<T> union(LQuery<T> q1, LQuery<T> q2) {
         return new UnionQuery<>(config, q1, q2, false);
     }
 
-    public <T> UnionQuery<T> union(EndQuery<T> q1, EndQuery<T> q2)
-    {
+    public <T> UnionQuery<T> union(EndQuery<T> q1, EndQuery<T> q2) {
         return new UnionQuery<>(config, q1, q2, false);
     }
 
-    public <T> UnionQuery<T> unionAll(LQuery<T> q1, LQuery<T> q2)
-    {
+    public <T> UnionQuery<T> unionAll(LQuery<T> q1, LQuery<T> q2) {
         return new UnionQuery<>(config, q1, q2, true);
     }
 
-    public <T> UnionQuery<T> unionAll(EndQuery<T> q1, EndQuery<T> q2)
-    {
+    public <T> UnionQuery<T> unionAll(EndQuery<T> q1, EndQuery<T> q2) {
         return new UnionQuery<>(config, q1, q2, false);
     }
 
@@ -96,8 +86,7 @@ public class SqlClient
      *
      * @return 查询过程对象
      */
-    public EmptyQuery queryEmptyTable()
-    {
+    public EmptyQuery queryEmptyTable() {
         return new EmptyQuery(new QuerySqlBuilder(config, config.getSqlExpressionFactory().queryable(Empty.class, new AsName())));
     }
 
@@ -108,8 +97,7 @@ public class SqlClient
      * @param <T> 数据类类型
      * @return 新增过程对象
      */
-    public <T> ObjectInsert<T> insert(@Recode T t)
-    {
+    public <T> ObjectInsert<T> insert(@Recode T t) {
         ObjectInsert<T> objectInsert = new ObjectInsert<>(config, (Class<T>) t.getClass());
         return objectInsert.insert(t);
     }
@@ -121,8 +109,7 @@ public class SqlClient
      * @param <T> 数据类类型
      * @return 新增过程对象
      */
-    public <T> ObjectInsert<T> insert(@Recode Collection<T> ts)
-    {
+    public <T> ObjectInsert<T> insert(@Recode Collection<T> ts) {
         ObjectInsert<T> objectInsert = new ObjectInsert<>(config, getType(ts));
         return objectInsert.insert(ts);
     }
@@ -134,8 +121,7 @@ public class SqlClient
      * @param <T> 数据类类型
      * @return 更新过程对象
      */
-    public <T> LUpdate<T> update(@Recode Class<T> c)
-    {
+    public <T> LUpdate<T> update(@Recode Class<T> c) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         String first = ExpressionUtil.getFirst(c);
         return new LUpdate<>(new UpdateSqlBuilder(config, factory.update(c, new AsName(first))));
@@ -148,22 +134,18 @@ public class SqlClient
      * @param <T> 数据类类型
      * @return 删除过程对象
      */
-    public <T> LDelete<T> delete(@Recode Class<T> c)
-    {
+    public <T> LDelete<T> delete(@Recode Class<T> c) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         String first = ExpressionUtil.getFirst(c);
         return new LDelete<>(new DeleteSqlBuilder(config, factory.delete(c, new AsName(first))));
     }
 
-    public IConfig getConfig()
-    {
+    public IConfig getConfig() {
         return config;
     }
 
-    private <T> Class<T> getType(Collection<T> ts)
-    {
-        for (T t : ts)
-        {
+    private <T> Class<T> getType(Collection<T> ts) {
+        for (T t : ts) {
             return (Class<T>) t.getClass();
         }
         throw new SqLinkException("insert内容为空");
@@ -171,8 +153,7 @@ public class SqlClient
 
     {
 
-        class User implements ITable
-        {
+        class User implements ITable {
             int id;
             int age;
             int areaId;
@@ -180,8 +161,7 @@ public class SqlClient
             BigDecimal amount;
         }
 
-        class Area implements ITable
-        {
+        class Area implements ITable {
             int id;
             String name;
             @Navigate(
@@ -191,33 +171,27 @@ public class SqlClient
             )
             List<User> users;
 
-            public int getId()
-            {
+            public int getId() {
                 return id;
             }
 
-            public void setId(int id)
-            {
+            public void setId(int id) {
                 this.id = id;
             }
 
-            public String getName()
-            {
+            public String getName() {
                 return name;
             }
 
-            public void setName(String name)
-            {
+            public void setName(String name) {
                 this.name = name;
             }
 
-            public List<User> getUsers()
-            {
+            public List<User> getUsers() {
                 return users;
             }
 
-            public void setUsers(List<User> users)
-            {
+            public void setUsers(List<User> users) {
                 this.users = users;
             }
         }
@@ -229,13 +203,12 @@ public class SqlClient
                 .sum(u -> u.amount);
 
         List<? extends Result> list = query(Area.class)
-//                .groupBy(a->new Grouper()
-//                {
-//                    int id=a.getId();
-//                    String name=a.getName();
-//                })
-                .selectAggregate(g -> new Result()
+                .groupBy(a->new Grouper()
                 {
+                    int id=a.getId();
+                    String name=a.getName();
+                })
+                .select(g -> new Result() {
                     String name = g.key.name;
                     long count1 = g.count(g.value1.id);
                     long count2 = g.count(gg -> gg.id);
@@ -253,18 +226,16 @@ public class SqlClient
                 .selectAggregate(g -> g.count())
                 .toList();
 
-//        List<Area> list2 = query(Area.class)
-//                .selectRaw(a ->
-//                {
-//                    a.getId();
-//                    a.getName();
-//                    a.getUsers();
-//                })
-//                .toList(r ->
-//                {
-//                    Area area = new Area();
-//                    area.setId(r.getInt(1));
-//                    return area;
-//                });
+        query(Area.class)
+                .where(a -> a.query(a.users)
+                        .where(u -> u.age > 20)
+                        .groupBy(u -> new Grouper() {
+                            int id = u.id;
+                        })
+                        .select(g -> g.sum(g.value1.age))
+                        .toList()
+                        .contains(a.getId())
+                )
+                .toList();
     }
 }

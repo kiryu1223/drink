@@ -51,27 +51,27 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
 
-            List<String> strings = new ArrayList<>();
-            tryWith(config, strings, values);
-            strings.add(getSelect().getSqlAndValue(config, values));
-            String fromSqlAndValue = getFrom().getSqlAndValue(config, values);
-            if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
-            String joinsSqlAndValue = getJoins().getSqlAndValue(config, values);
-            if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
-            String whereSqlAndValue = getWhere().getSqlAndValue(config, values);
-            if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
-            String groupBySqlAndValue = getGroupBy().getSqlAndValue(config, values);
-            if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
-            String havingSqlAndValue = getHaving().getSqlAndValue(config, values);
-            if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
-            String orderBySqlAndValue = getOrderBy().getSqlAndValue(config, values);
-            if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-            if (!getFrom().isEmptyTable()) {
-                String limitSqlAndValue = getLimit().getSqlAndValue(config, values);
-                if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
-            }
-            return String.join(" ", strings);
-        
+        List<String> strings = new ArrayList<>();
+        tryWith(config, strings, values);
+        strings.add(getSelect().getSqlAndValue(config, values));
+        String fromSqlAndValue = getFrom().getSqlAndValue(config, values);
+        if (!fromSqlAndValue.isEmpty()) strings.add(fromSqlAndValue);
+        String joinsSqlAndValue = getJoins().getSqlAndValue(config, values);
+        if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
+        String whereSqlAndValue = getWhere().getSqlAndValue(config, values);
+        if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
+        String groupBySqlAndValue = getGroupBy().getSqlAndValue(config, values);
+        if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
+        String havingSqlAndValue = getHaving().getSqlAndValue(config, values);
+        if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
+        String orderBySqlAndValue = getOrderBy().getSqlAndValue(config, values);
+        if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
+        if (!getFrom().isEmptyTable()) {
+            String limitSqlAndValue = getLimit().getSqlAndValue(config, values);
+            if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
+        }
+        return String.join(" ", strings);
+
     }
 
 
@@ -98,6 +98,12 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     @Override
     public void setGroup(ISqlGroupByExpression group) {
         groupBy.setColumns(group.getColumns());
+        List<AsName> asNameList = new ArrayList<>(joins.getJoins().size() + 1);
+        asNameList.add(from.getAsName());
+        for (ISqlJoinExpression join : joins.getJoins()) {
+            asNameList.add(join.getAsName());
+        }
+        groupBy.setValueAsNames(asNameList);
     }
 
     @Override
@@ -116,7 +122,7 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
         select.setTarget(newSelect.getTarget());
         select.setSingle(newSelect.isSingle());
         select.setDistinct(newSelect.isDistinct());
-        
+
     }
 
     @Override
