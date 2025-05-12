@@ -63,4 +63,14 @@ public class NavigateData
     {
         return navigate.targetMapping();
     }
+
+    public FieldMetaData getSelfMappingFieldMetaData()
+    {
+        return MetaDataCache.getMetaData(getMappingTableType()).getFieldMetaDataByFieldName(getSelfMappingFieldName());
+    }
+
+    public FieldMetaData getTargetMappingFieldMetaData()
+    {
+        return MetaDataCache.getMetaData(getMappingTableType()).getFieldMetaDataByFieldName(getTargetMappingFieldName());
+    }
 }

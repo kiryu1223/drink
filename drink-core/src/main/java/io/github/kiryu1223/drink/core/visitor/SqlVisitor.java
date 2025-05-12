@@ -17,18 +17,14 @@ package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.exception.DrinkException;
+import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.expression.*;
-import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
-import io.github.kiryu1223.drink.base.metaData.NavigateData;
+import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.base.transform.*;
 import io.github.kiryu1223.drink.base.transform.ILogic;
-import io.github.kiryu1223.drink.core.SubQuery;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
@@ -41,7 +37,6 @@ import io.github.kiryu1223.drink.core.exception.SqLinkIllegalExpressionException
 import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
-import java.awt.*;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -365,6 +360,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     List<AsName> asNames = new ArrayList<>();
                     asNames.add(query.getFrom().getAsName());
                     asNameListDeque.push(asNames);
+                    groupDeque.push(factory.groupBy());
                     return query;
                 }
                 // t.query(a.getOrder().getItem()...getN())
@@ -403,6 +399,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 queryable.setSelect(factory.select(Collections.singletonList(agg.count(column)), long.class));
                 // 在终结的地方弹出
                 asNameListDeque.pop();
+                groupDeque.pop();
                 return queryable;
             }
             else if (method.getName().equals("sum")) {
@@ -416,6 +413,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 queryable.setSelect(factory.select(Collections.singletonList(agg.sum(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 asNameListDeque.pop();
+                groupDeque.pop();
                 return queryable;
             }
             else if (method.getName().equals("avg")) {
@@ -429,6 +427,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 queryable.setSelect(factory.select(Collections.singletonList(agg.avg(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 asNameListDeque.pop();
+                groupDeque.pop();
                 return queryable;
             }
             else if (method.getName().equals("min")) {
@@ -443,6 +442,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 queryable.setSelect(factory.select(Collections.singletonList(agg.min(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 asNameListDeque.pop();
+                groupDeque.pop();
                 return queryable;
             }
             else if (method.getName().equals("max")) {
@@ -457,6 +457,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 queryable.setSelect(factory.select(Collections.singletonList(agg.max(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 asNameListDeque.pop();
+                groupDeque.pop();
                 return queryable;
             }
             else if (method.getName().equals("any")) {
@@ -472,9 +473,11 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     queryable.addWhere(cond);
                 }
                 queryable.setSelect(factory.select(Collections.singletonList(factory.constString("1")), int.class));
+                ISqlUnaryExpression any = factory.unary(SqlOperator.EXISTS, queryable);
                 // 在终结的地方弹出
                 asNameListDeque.pop();
-                return factory.unary(SqlOperator.EXISTS, queryable);
+                groupDeque.pop();
+                return any;
             }
             else if (method.getName().equals("where")) {
                 ISqlExpression visit = visit(methodCall.getExpr());
@@ -599,6 +602,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 // 在终结的地方弹出
                 asNameListDeque.pop();
+                groupDeque.pop();
                 return visit;
             }
             else {
@@ -1229,7 +1233,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         return paramMatcher;
     }
 
-    protected ISqlQueryableExpression columnToQuery(ISqlColumnExpression columnExpression) {
+    protected ISqlQueryableExpression columnToQuery(ISqlColumnExpression column) {
         // A.B();
         // FROM A WHERE (SELECT ... FROM B WHERE B.ID = (SELECT A.ID FROM A))
         //                                                V
@@ -1271,13 +1275,46 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 //        }
 //        return queryable;
 
+
+        FieldMetaData fieldMetaData = column.getFieldMetaData();
+        NavigateData navigateData = fieldMetaData.getNavigateData();
+        String selfFieldName = navigateData.getSelfFieldName();
+        String targetFieldName = navigateData.getTargetFieldName();
+        Class<?> selfType = fieldMetaData.getParentType();
+        Class<?> targetType = fieldMetaData.getType();
+        FieldMetaData selfField = MetaDataCache.getMetaData(selfType).getFieldMetaDataByFieldName(selfFieldName);
+        FieldMetaData targetField = fieldMetaData;
+        RelationType relationType = navigateData.getRelationType();
+
+        List<AsName> asNameList = asNameListDeque.peek();
+        AsName subAsName = doGetAsName(getFirst(targetType),toSet(asNameList));
+        AsName mainAsName = column.getTableAsName();
+        ISqlQueryableExpression subQuery = factory.queryable(targetType, subAsName);
         // A.B
-        // toOne的场合 [A = B]
+        // to one的场合 [A = B]
         // SELECT B.* FROM B WHERE B.targetField = A.selfField
-        // toMany的场合 [A IN {B1,B2,B3,...}]
+        // one to many的场合 [A IN {B1,B2,B3,...}]
         // SELECT B.* FROM B WHERE B.targetField = A.selfField
-
-
+        if (relationType == RelationType.ManyToOne||relationType == RelationType.OneToOne
+                || relationType == RelationType.OneToMany)
+        {
+            subQuery.addWhere(factory.binary(SqlOperator.EQ,factory.column(targetField,subAsName),factory.column(selfField,mainAsName)));
+        }
+        // many to many的场合
+        // SELECT B.* FROM B WHERE B.targetField IN
+        // (SELECT M.targetMapping FROM M WHERE M.selfMapping = A.selfField)
+        else {
+            String selfMappingFieldName = navigateData.getSelfMappingFieldName();
+            FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData();
+            FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData();
+            Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
+            AsName mappingAsName = doGetAsName(getFirst(targetType),toSet(asNameList));
+            ISqlQueryableExpression mappingQuery = factory.queryable(mappingType, mappingAsName);
+            mappingQuery.addWhere(factory.binary(SqlOperator.EQ,factory.column(selfMappingField,mappingAsName),factory.column(selfField,mainAsName)));
+            mappingQuery.setSelect(factory.select(new ArrayList<>(Collections.singletonList(factory.column(targetMappingField, mappingAsName))), targetMappingField.getType()));
+            subQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(targetField,subAsName),mappingQuery));
+        }
+        return subQuery;
     }
 
     protected ISqlQueryableExpression queryToQuery(ISqlQueryableExpression left, Method method) {
@@ -1413,5 +1450,10 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             asName = asNameMap.get(parameter);
         }
         return asName;
+    }
+
+    public Set<String> toSet(Collection<AsName> collection)
+    {
+        return collection.stream().map(a -> a.getName()).collect(Collectors.toSet());
     }
 }
