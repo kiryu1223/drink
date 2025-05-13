@@ -237,5 +237,10 @@ public class SqlClient {
                         .contains(a.getId())
                 )
                 .toList();
+
+
+        Area first = query(Area.class)
+                .where(a -> a.query(a.users).where(u -> u.age > 20).any())
+                .first();
     }
 }

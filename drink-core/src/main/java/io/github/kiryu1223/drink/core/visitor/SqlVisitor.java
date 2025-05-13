@@ -352,7 +352,18 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             if (method.getName().equals("query")) {
                 Expression expression = methodCall.getArgs().get(0);
                 ISqlExpression visit = visit(expression);
-                // t.query(a.getItems())
+
+                // SELECT *
+                // FROM courses as c
+                // WHERE c.id IN (
+                // SELECT m.cou_id FROM student_courses as m
+                // INNER JOIN students as s ON s.id = m.stu_id
+                // WHERE s.age < 20
+                // );
+
+                // self.query(self.geTargets())
+                // 转换
+                // self.field IN (SELECT target.field FROM target)
                 if (visit instanceof ISqlColumnExpression) {
                     ISqlColumnExpression columnExpression = (ISqlColumnExpression) visit;
                     ISqlQueryableExpression query = columnToQuery(columnExpression);
@@ -1287,7 +1298,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         RelationType relationType = navigateData.getRelationType();
 
         List<AsName> asNameList = asNameListDeque.peek();
-        AsName subAsName = doGetAsName(getFirst(targetType),toSet(asNameList));
+        AsName subAsName = doGetAsName(getFirst(targetType), toSet(asNameList));
         AsName mainAsName = column.getTableAsName();
         ISqlQueryableExpression subQuery = factory.queryable(targetType, subAsName);
         // A.B
@@ -1295,24 +1306,24 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         // SELECT B.* FROM B WHERE B.targetField = A.selfField
         // one to many的场合 [A IN {B1,B2,B3,...}]
         // SELECT B.* FROM B WHERE B.targetField = A.selfField
-        if (relationType == RelationType.ManyToOne||relationType == RelationType.OneToOne
-                || relationType == RelationType.OneToMany)
-        {
-            subQuery.addWhere(factory.binary(SqlOperator.EQ,factory.column(targetField,subAsName),factory.column(selfField,mainAsName)));
+        if (relationType == RelationType.ManyToOne || relationType == RelationType.OneToOne
+            || relationType == RelationType.OneToMany) {
+            subQuery.addWhere(factory.binary(SqlOperator.EQ, factory.column(targetField, subAsName), factory.column(selfField, mainAsName)));
         }
         // many to many的场合
         // SELECT B.* FROM B WHERE B.targetField IN
         // (SELECT M.targetMapping FROM M WHERE M.selfMapping = A.selfField)
+        // 优化成以下
+        // SELECT B.* FROM B INNER JOIN M ON B.targetField = M.targetMapping WHERE M.selfMapping = A.selfField
         else {
-            String selfMappingFieldName = navigateData.getSelfMappingFieldName();
             FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData();
             FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData();
             Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
-            AsName mappingAsName = doGetAsName(getFirst(targetType),toSet(asNameList));
+            AsName mappingAsName = doGetAsName(getFirst(targetType), toSet(asNameList));
             ISqlQueryableExpression mappingQuery = factory.queryable(mappingType, mappingAsName);
-            mappingQuery.addWhere(factory.binary(SqlOperator.EQ,factory.column(selfMappingField,mappingAsName),factory.column(selfField,mainAsName)));
+            mappingQuery.addWhere(factory.binary(SqlOperator.EQ, factory.column(selfMappingField, mappingAsName), factory.column(selfField, mainAsName)));
             mappingQuery.setSelect(factory.select(new ArrayList<>(Collections.singletonList(factory.column(targetMappingField, mappingAsName))), targetMappingField.getType()));
-            subQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(targetField,subAsName),mappingQuery));
+            subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subAsName), mappingQuery));
         }
         return subQuery;
     }
@@ -1452,8 +1463,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         return asName;
     }
 
-    public Set<String> toSet(Collection<AsName> collection)
-    {
+    public Set<String> toSet(Collection<AsName> collection) {
         return collection.stream().map(a -> a.getName()).collect(Collectors.toSet());
     }
 }
