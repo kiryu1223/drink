@@ -933,78 +933,87 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             }
         }
         else {
-            if (isProperty(asNameMap, methodCall)) {
-                if (isGetter(methodCall.getMethod())) {
-                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                    Method getter = methodCall.getMethod();
-                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
-                    AsName asName = getAsNameByIndex(parameter);
-                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
-                }
-                else if (isGroupValue(asNameMap, methodCall.getExpr())) // g.value?.field
-                {
-                    FieldSelectExpression expr = (FieldSelectExpression) methodCall.getExpr();
-                    String vname = expr.getField().getName();
-                    int valueIndex = Integer.parseInt(vname.replace("value", ""));
-                    List<AsName> asNameList = asNameListDeque.peek();
-                    AsName asName = asNameList.get(valueIndex);
-                    Method getter = methodCall.getMethod();
-                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
-                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
-                }
-                else if (isSetter(methodCall.getMethod())) {
-                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                    Method setter = methodCall.getMethod();
-                    MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
-                    FieldMetaData fieldMetaData = metaData.getFieldMetaDataBySetter(setter);
-                    ISqlColumnExpression columnExpression = factory.column(fieldMetaData, asNameMap.get(parameter));
-                    ISqlExpression value = visit(methodCall.getArgs().get(0));
-                    return factory.set(columnExpression, value);
-                }
-                else if (isDynamicColumn(methodCall.getMethod())) {
-                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                    List<Expression> args = methodCall.getArgs();
-                    Expression expression = args.get(0);
-                    String columnName = expression.getValue().toString();
-                    Expression expression1 = args.get(1);
-                    Class<?> value = (Class<?>) expression1.getValue();
-                    AsName asName = getAsNameByIndex(parameter);
-                    return factory.dynamicColumn(columnName, value, asName);
-                }
-                else {
-                    return checkAndReturnValue(methodCall);
-                }
+//            if (isProperty(asNameMap, methodCall)) {
+//                if (isGetter(methodCall.getMethod())) {
+//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
+//                    Method getter = methodCall.getMethod();
+//                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
+//                    AsName asName = getAsNameByIndex(parameter);
+//                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
+//                }
+//                else if (isGroupValue(asNameMap, methodCall.getExpr())) // g.value?.field
+//                {
+//                    FieldSelectExpression expr = (FieldSelectExpression) methodCall.getExpr();
+//                    String vname = expr.getField().getName();
+//                    int valueIndex = Integer.parseInt(vname.replace("value", ""));
+//                    List<AsName> asNameList = asNameListDeque.peek();
+//                    AsName asName = asNameList.get(valueIndex);
+//                    Method getter = methodCall.getMethod();
+//                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
+//                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
+//                }
+//                else if (isSetter(methodCall.getMethod())) {
+//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
+//                    Method setter = methodCall.getMethod();
+//                    MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
+//                    FieldMetaData fieldMetaData = metaData.getFieldMetaDataBySetter(setter);
+//                    ISqlColumnExpression columnExpression = factory.column(fieldMetaData, asNameMap.get(parameter));
+//                    ISqlExpression value = visit(methodCall.getArgs().get(0));
+//                    return factory.set(columnExpression, value);
+//                }
+//                else if (isDynamicColumn(methodCall.getMethod())) {
+//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
+//                    List<Expression> args = methodCall.getArgs();
+//                    Expression expression = args.get(0);
+//                    String columnName = expression.getValue().toString();
+//                    Expression expression1 = args.get(1);
+//                    Class<?> value = (Class<?>) expression1.getValue();
+//                    AsName asName = getAsNameByIndex(parameter);
+//                    return factory.dynamicColumn(columnName, value, asName);
+//                }
+//                else {
+//                    return checkAndReturnValue(methodCall);
+//                }
+//            }
+//            else {
+//                ISqlExpression left = visit(methodCall.getExpr());
+//                // if left is A.B()
+//                if (left instanceof ISqlColumnExpression) {
+//                    ISqlColumnExpression columnExpression = (ISqlColumnExpression) left;
+//                    Method method = methodCall.getMethod();
+//                    if (isGetter(method)) {
+//                        // A.B() => SELECT ... FROM B WHERE B.ID = A.ID
+//                        // ISqlQueryableExpression changed = columnToQuery(columnExpression);
+//                        // A.B().C() => SELECT ... FROM C WHERE C.ID = (SELECT B.ID FROM B WHERE B.ID = A.ID)
+//                        //  return queryToQuery(changed, method);
+//                    }
+//                    else {
+//                        return checkAndReturnValue(methodCall);
+//                    }
+//                }
+//                // if left is A.B()...N()
+//                else if (left instanceof ISqlQueryableExpression) {
+//                    Method method = methodCall.getMethod();
+//                    if (isGetter(method)) {
+//                        ISqlQueryableExpression queryableExpression = (ISqlQueryableExpression) left;
+//                        return queryToQuery(queryableExpression, method);
+//                    }
+//                    else {
+//                        return checkAndReturnValue(methodCall);
+//                    }
+//                }
+//                else {
+//                    return checkAndReturnValue(methodCall);
+//                }
+//            }
+            Expression left = methodCall.getExpr();
+            if(left.getKind()==Kind.Parameter)
+            {
+
             }
-            else {
-                ISqlExpression left = visit(methodCall.getExpr());
-                // if left is A.B()
-                if (left instanceof ISqlColumnExpression) {
-                    ISqlColumnExpression columnExpression = (ISqlColumnExpression) left;
-                    Method method = methodCall.getMethod();
-                    if (isGetter(method)) {
-                        // A.B() => SELECT ... FROM B WHERE B.ID = A.ID
-                        ISqlQueryableExpression changed = columnToQuery(columnExpression);
-                        // A.B().C() => SELECT ... FROM C WHERE C.ID = (SELECT B.ID FROM B WHERE B.ID = A.ID)
-                        return queryToQuery(changed, method);
-                    }
-                    else {
-                        return checkAndReturnValue(methodCall);
-                    }
-                }
-                // if left is A.B()...N()
-                else if (left instanceof ISqlQueryableExpression) {
-                    Method method = methodCall.getMethod();
-                    if (isGetter(method)) {
-                        ISqlQueryableExpression queryableExpression = (ISqlQueryableExpression) left;
-                        return queryToQuery(queryableExpression, method);
-                    }
-                    else {
-                        return checkAndReturnValue(methodCall);
-                    }
-                }
-                else {
-                    return checkAndReturnValue(methodCall);
-                }
+            else
+            {
+
             }
         }
     }
