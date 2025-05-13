@@ -18,6 +18,7 @@ package io.github.kiryu1223.drink.core.visitor;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
@@ -1006,14 +1007,42 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 //                    return checkAndReturnValue(methodCall);
 //                }
 //            }
-            Expression left = methodCall.getExpr();
-            if(left.getKind()==Kind.Parameter)
+            Expression expression = methodCall.getExpr();
+            Method method = methodCall.getMethod();
+            // (a) -> a.xxx
+            if(expression.getKind()==Kind.Parameter)
             {
+                // a.getter()
+                if(isGetter(method))
+                {
 
+                }
+                // a.setter()
+                else if (isSetter(method))
+                {
+
+                }
+                else
+                {
+                    return  checkAndReturnValue(methodCall);
+                }
             }
+            // ?.xxx
             else
             {
+                ISqlExpression left = visit(expression);
+                if (left instanceof ISqlColumnExpression)
+                {
 
+                }
+                else if (left instanceof ISqlQueryableExpression)
+                {
+
+                }
+                else
+                {
+                    return  checkAndReturnValue(methodCall);
+                }
             }
         }
     }
