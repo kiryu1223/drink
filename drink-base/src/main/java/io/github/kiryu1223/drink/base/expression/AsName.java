@@ -1,35 +1,30 @@
 package io.github.kiryu1223.drink.base.expression;
 
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
+
 import java.util.Objects;
 
 public class AsName {
-    private String name;
+    private final String name;
+    private String displayName;
 
-    public AsName() {
+    public AsName(Class<?> type) {
+        this.name= DrinkUtil.getFirst(type);
     }
 
     public AsName(String name) {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getDisplayName()
+    {
+        if (displayName == null)
+        {
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AsName asName = (AsName) o;
-        return Objects.equals(name, asName.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(name);
+        }
+        else
+        {
+            return displayName;
+        }
     }
 }
