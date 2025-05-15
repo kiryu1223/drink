@@ -520,8 +520,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     {
         LambdaExpression<Func1<T, R>> tree = expr.getTree();
         Class<?> targetType = tree.getReturnType();
-        String first = getFirst(targetType);
-        LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType, new AsName(first))));
+        LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType)));
         then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
         include(tree, sqlBuilder.getQueryable());
@@ -558,9 +557,8 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
-        Class<?> targetType = getTargetType(column.getFieldMetaData().getGenericType());
-        String first = getFirst(targetType);
-        LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType, new AsName(first))));
+        Class<?> targetType = getTargetType(column.getFieldMetaData().getNavigateData().getNavigateTargetType());
+        LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType)));
         then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
         include(expr.getTree(), sqlBuilder.getQueryable());
@@ -875,12 +873,12 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NavigateData navigateData = fieldMetaData.getNavigateData();
         MetaData metaData = MetaDataCache.getMetaData(fieldMetaData.getParentType());
-        String parentId = metaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName()).getColumn();
-        String childId = metaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName()).getColumn();
+        FieldMetaData parent = metaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+        FieldMetaData child = metaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         ISqlSelectExpression select = queryable.getSelect().copy(getConfig());
-        AsName asName = queryable.getFrom().getAsName();
-        ISqlRecursionExpression recursion = factory.recursion(queryable, parentId, childId, level);
-        ISqlQueryableExpression newQuery = factory.queryable(select, factory.from(recursion, asName));
+        ISqlTableRefExpression tableRef = queryable.getFrom().getTableRefExpression();
+        ISqlRecursionExpression recursion = factory.recursion(queryable, parent, child, level);
+        ISqlQueryableExpression newQuery = factory.queryable(select, factory.from(recursion, tableRef));
         getSqlBuilder().setQueryable(newQuery);
         // TODO INCLUDE
         return this;
@@ -902,32 +900,14 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public LDelete<T> toDelete()
     {
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
-        MetaData metaData = MetaDataCache.getMetaData(queryable.getMainTableClass());
-        FieldMetaData primary = metaData.getPrimary();
-        ISqlDeleteExpression delete = factory.delete(queryable.getMainTableClass(), queryable.getFrom().getAsName());
-        ISqlQueryableExpression copy = queryable.copy(getConfig());
-        // 某些数据库不支持 a.xx in (select b.xx from b), 所以需要在外边包一层 a.xx in (select b.xx from (select * from b))
-        ISqlSelectExpression select = factory.select(Collections.singletonList(factory.column(primary, copy.getFrom().getAsName())), copy.getMainTableClass());
-        ISqlQueryableExpression warpQuery = factory.queryable(select, factory.from(copy, copy.getFrom().getAsName()));
-        delete.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, delete.getFrom().getAsName()), warpQuery));
-        return new LDelete<>(new DeleteSqlBuilder(getConfig(), delete));
+        QuerySqlBuilder sqlBuilder = getSqlBuilder();
+        return new LDelete<>(sqlBuilder.toDeleteSqlBuilder());
     }
 
     public LUpdate<T> toUpdate()
     {
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
-        MetaData metaData = MetaDataCache.getMetaData(queryable.getMainTableClass());
-        FieldMetaData primary = metaData.getPrimary();
-        ISqlUpdateExpression update = factory.update(queryable.getMainTableClass(), queryable.getFrom().getAsName());
-        ISqlQueryableExpression copy = queryable.copy(getConfig());
-        ISqlSelectExpression select = factory.select(Collections.singletonList(factory.column(primary, copy.getFrom().getAsName())), copy.getMainTableClass());
-        // 某些数据库不支持 a.xx in (select b.xx from b), 所以需要在外边包一层 a.xx in (select b.xx from (select * from b))
-        ISqlQueryableExpression warpQuery = factory.queryable(select, factory.from(copy, copy.getFrom().getAsName()));
-        update.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, update.getFrom().getAsName()), warpQuery));
-        return new LUpdate<>(new UpdateSqlBuilder(getConfig(), update));
+        QuerySqlBuilder sqlBuilder = getSqlBuilder();
+        return new LUpdate<>(sqlBuilder.toUpdateSqlBuilder());
     }
 
     // endregion

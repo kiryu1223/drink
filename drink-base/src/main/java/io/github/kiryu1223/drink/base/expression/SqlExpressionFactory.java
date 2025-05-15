@@ -45,9 +45,9 @@ public interface SqlExpressionFactory {
      * 创建列表达式
      *
      * @param fieldMetaData 字段元数据
-     * @param tableAsName   表别名
+     * @param tableRefExpression   表别名
      */
-    ISqlColumnExpression column(FieldMetaData fieldMetaData, AsName tableAsName);
+    ISqlColumnExpression column(FieldMetaData fieldMetaData, ISqlTableRefExpression tableRefExpression);
 
     /**
      * 创建条件表达式
@@ -66,9 +66,9 @@ public interface SqlExpressionFactory {
      * 创建from表达式
      *
      * @param sqlTable 表表达式
-     * @param asName   表别名
+     * @param tableRefExpression   表别名
      */
-    ISqlFromExpression from(ISqlTableExpression sqlTable, AsName asName);
+    ISqlFromExpression from(ISqlTableExpression sqlTable, ISqlTableRefExpression tableRefExpression);
 
     /**
      * 创建分组group by表达式
@@ -91,10 +91,10 @@ public interface SqlExpressionFactory {
      * @param joinTable  join表
      * @param asName     join别名
      */
-    ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, AsName asName);
+    ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, ISqlTableRefExpression asName);
 
-    default ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, AsName asName) {
-        return join(joinType, joinTable, condition(), asName);
+    default ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlTableRefExpression tableRefExpression) {
+        return join(joinType, joinTable, condition(), tableRefExpression);
     }
 
     /**
@@ -147,12 +147,12 @@ public interface SqlExpressionFactory {
      *
      * @param target 目标表
      */
-    default ISqlQueryableExpression queryable(Class<?> target, AsName asName) {
-        return queryable(from(table(target), asName));
+    default ISqlQueryableExpression queryable(Class<?> target, ISqlTableRefExpression tableRefExpression) {
+        return queryable(from(table(target), tableRefExpression));
     }
 
     default ISqlQueryableExpression queryable(Class<?> target) {
-        return queryable(from(table(target),new AsName(DrinkUtil.getFirst(target))));
+        return queryable(from(table(target),tableRef(target)));
     }
 
     /**
@@ -161,7 +161,7 @@ public interface SqlExpressionFactory {
      * @param from from表达式
      */
     default ISqlQueryableExpression queryable(ISqlFromExpression from) {
-        return queryable(select(from.getSqlTableExpression().getMainTableClass(), from.getAsName()), from, Joins(), where(), groupBy(), having(), orderBy(), limit());
+        return queryable(select(from.getSqlTableExpression().getMainTableClass(), from.getTableRefExpression()), from, Joins(), where(), groupBy(), having(), orderBy(), limit());
     }
 
     /**
@@ -179,8 +179,8 @@ public interface SqlExpressionFactory {
      *
      * @param table 表表达式
      */
-    default ISqlQueryableExpression queryable(ISqlTableExpression table, AsName asName) {
-        return queryable(from(table, asName));
+    default ISqlQueryableExpression queryable(ISqlTableExpression table, ISqlTableRefExpression tableRefExpression) {
+        return queryable(from(table, tableRefExpression));
     }
 
     /**
@@ -209,8 +209,8 @@ public interface SqlExpressionFactory {
      *
      * @param target 目标类
      */
-    default ISqlSelectExpression select(Class<?> target, AsName asName) {
-        return select(getColumnByClass(target, asName), target, false, false);
+    default ISqlSelectExpression select(Class<?> target, ISqlTableRefExpression tableRefExpression) {
+        return select(getColumnByClass(target, tableRefExpression), target, false, false);
     }
 
     /**
@@ -342,32 +342,38 @@ public interface SqlExpressionFactory {
 
     ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions);
 
-    ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, String parentId, String childId, int level);
+    ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, FieldMetaData parentId, FieldMetaData childId, int level);
 
     ISqlUpdateExpression update(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlSetsExpression sets, ISqlWhereExpression where);
 
-    default ISqlUpdateExpression update(Class<?> target, AsName asName) {
-        return update(from(table(target), asName), Joins(), sets(), where());
+    default ISqlUpdateExpression update(Class<?> target, ISqlTableRefExpression tableRefExpression) {
+        return update(from(table(target), tableRefExpression), Joins(), sets(), where());
     }
 
     ISqlDeleteExpression delete(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where);
 
-    default ISqlDeleteExpression delete(Class<?> target, AsName asName) {
-        return delete(from(table(target), asName), Joins(), where());
+    default ISqlDeleteExpression delete(Class<?> target, ISqlTableRefExpression tableRefExpression) {
+        return delete(from(table(target), tableRefExpression), Joins(), where());
     }
 
-    ISqlDynamicColumnExpression dynamicColumn(String column, Class<?> type, AsName tableAsName);
+    ISqlDynamicColumnExpression dynamicColumn(String column, Class<?> type, ISqlTableRefExpression tableISqlTableRefExpression);
 
     /**
      * 将实体类转换为列表达式集合
      */
-    default List<ISqlExpression> getColumnByClass(Class<?> target, AsName asName) {
+    default List<ISqlExpression> getColumnByClass(Class<?> target, ISqlTableRefExpression tableRefExpression) {
         MetaData metaData = MetaDataCache.getMetaData(target);
         List<FieldMetaData> property = metaData.getNotIgnorePropertys();
         List<ISqlExpression> columns = new ArrayList<>(property.size());
         for (FieldMetaData data : property) {
-            columns.add(column(data, asName));
+            columns.add(column(data, tableRefExpression));
         }
         return columns;
+    }
+
+    ISqlTableRefExpression tableRef(String name);
+
+    default ISqlTableRefExpression tableRef(Class<?> c) {
+        return tableRef(DrinkUtil.getFirst(c));
     }
 }

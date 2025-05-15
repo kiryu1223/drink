@@ -2,8 +2,8 @@ package io.github.kiryu1223.drink.base.expression.impl;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
-import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.ISqlDynamicColumnExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.List;
@@ -11,12 +11,12 @@ import java.util.List;
 public class SqlDynamicColumnExpression implements ISqlDynamicColumnExpression {
     private final String column;
     private final Class<?> type;
-    private AsName tableAsName;
+    private final ISqlTableRefExpression tableRefExpression;
 
-    public SqlDynamicColumnExpression(String column, Class<?> type, AsName tableAsName) {
+    public SqlDynamicColumnExpression(String column, Class<?> type, ISqlTableRefExpression tableRefExpression) {
         this.column = column;
         this.type = type;
-        this.tableAsName = tableAsName;
+        this.tableRefExpression = tableRefExpression;
     }
 
     @Override
@@ -25,29 +25,19 @@ public class SqlDynamicColumnExpression implements ISqlDynamicColumnExpression {
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<?> getColumnType() {
         return type;
     }
 
     @Override
-    public AsName getTableAsName() {
-        return tableAsName;
-    }
-
-    @Override
-    public void setTableAsName(AsName tableAsName) {
-        this.tableAsName = tableAsName;
+    public ISqlTableRefExpression getTableRefExpression() {
+        return tableRefExpression;
     }
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         IDialect dialect = config.getDisambiguation();
         String columnName = dialect.disambiguation(column);
-        if (tableAsName != null) {
-            return dialect.disambiguation(tableAsName.getName()) + "." + columnName;
-        }
-        else {
-            return columnName;
-        }
+        return dialect.disambiguation(tableRefExpression.getDisPlayName()) + "." + columnName;
     }
 }

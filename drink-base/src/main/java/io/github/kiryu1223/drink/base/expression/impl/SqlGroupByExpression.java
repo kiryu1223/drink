@@ -16,7 +16,6 @@
 package io.github.kiryu1223.drink.base.expression.impl;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlGroupByExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;

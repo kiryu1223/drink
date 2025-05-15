@@ -40,15 +40,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.doGetAsName;
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getFirst;
-
 
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public abstract class QueryBase<C,R> extends CRUD<C> {
+public abstract class QueryBase<C, R> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(QueryBase.class);
 
     private final QuerySqlBuilder sqlBuilder;
@@ -188,15 +185,13 @@ public abstract class QueryBase<C,R> extends CRUD<C> {
 
     // region [selectMany]
 
-    protected QuerySqlBuilder toMany(LambdaExpression<?> tree)
-    {
+    protected QuerySqlBuilder toMany(LambdaExpression<?> tree) {
         ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
         ISqlColumnExpression column = sqlVisitor.toColumn(tree);
         FieldMetaData fieldMetaData = column.getFieldMetaData();
-        if (!fieldMetaData.hasNavigate())
-        {
-            throw new DrinkException(String.format("%s字段需要被@Navigate修饰",fieldMetaData.getField()));
+        if (!fieldMetaData.hasNavigate()) {
+            throw new DrinkException(String.format("%s字段需要被@Navigate修饰", fieldMetaData.getField()));
         }
         NavigateData navigateData = fieldMetaData.getNavigateData();
         relationTypeCheck(navigateData);
@@ -206,20 +201,18 @@ public abstract class QueryBase<C,R> extends CRUD<C> {
         Class<?> targetType = navigateData.getNavigateTargetType();
         FieldMetaData target = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
         FieldMetaData self = MetaDataCache.getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-        if (relationType == RelationType.OneToMany)
-        {
+        if (relationType == RelationType.OneToMany) {
             // SELECT s.* FROM selfTable s ...
             ISqlQueryableExpression copy = queryable.copy(getConfig());
             // SELECT s.selfField FROM selfTable ...
-            copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
+            copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getTableRefExpression())), self.getType()));
             // SELECT t.* FROM targetTable t
             boxedQueryable = factory.queryable(targetType);
-            AsName asName = boxedQueryable.getFrom().getAsName();
+            ISqlTableRefExpression boxedTableRef = boxedQueryable.getFrom().getTableRefExpression();
             // SELECT t.* FROM targetTable t WHERE t.targetField IN (SELECT s.selfField FROM selfTable ...)
-            boxedQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(target, asName), copy));
+            boxedQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(target, boxedTableRef), copy));
         }
-        else if (relationType == RelationType.ManyToMany)
-        {
+        else if (relationType == RelationType.ManyToMany) {
             Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
             String selfMappingName = navigateData.getSelfMappingFieldName();
             String targetMappingName = navigateData.getTargetMappingFieldName();
@@ -229,25 +222,24 @@ public abstract class QueryBase<C,R> extends CRUD<C> {
             // SELECT s.* FROM selfTable s ...
             ISqlQueryableExpression copy = queryable.copy(getConfig());
             // SELECT s.selfField FROM selfTable ...
-            copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getAsName())), self.getType()));
+            copy.setSelect(factory.select(Collections.singletonList(factory.column(self, copy.getFrom().getTableRefExpression())), self.getType()));
             // SELECT m.targetMappingField FROM mappingTable m WHERE m.selfMappingField IN (SELECT s.selfField FROM selfTable ...)
             ISqlQueryableExpression mappingQuery = factory.queryable(mappingType);
-            AsName mappingAsName = mappingQuery.getFrom().getAsName();
-            mappingQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(selfMapping, mappingAsName),copy));
-            mappingQuery.setSelect(factory.select(Collections.singletonList(factory.column(targetMapping, mappingAsName)),targetMapping.getType()));
+            ISqlTableRefExpression mappingAsName = mappingQuery.getFrom().getTableRefExpression();
+            mappingQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(selfMapping, mappingAsName), copy));
+            mappingQuery.setSelect(factory.select(Collections.singletonList(factory.column(targetMapping, mappingAsName)), targetMapping.getType()));
             // SELECT t.*
             // FROM targetTable t
             // WHERE t.targetField IN
             // (SELECT m.targetMappingField FROM mappingTable m WHERE m.selfMappingField IN (SELECT s.selfField FROM selfTable ...))
-            boxedQueryable=factory.queryable(targetType);
-            AsName asName = boxedQueryable.getFrom().getAsName();
-            boxedQueryable.addWhere(factory.binary(SqlOperator.IN,factory.column(target, asName),mappingQuery));
+            boxedQueryable = factory.queryable(targetType);
+            ISqlTableRefExpression asName = boxedQueryable.getFrom().getTableRefExpression();
+            boxedQueryable.addWhere(factory.binary(SqlOperator.IN, factory.column(target, asName), mappingQuery));
         }
-        else
-        {
+        else {
             throw new DrinkException(relationType.name());
         }
-        return new QuerySqlBuilder(getConfig(),boxedQueryable);
+        return new QuerySqlBuilder(getConfig(), boxedQueryable);
     }
 
     //endregion
@@ -256,36 +248,18 @@ public abstract class QueryBase<C,R> extends CRUD<C> {
 
     protected void join(JoinType joinType, Class<?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
-        Set<String> stringSet = new HashSet<>(queryable.getJoins().getJoins().size() + 1);
-        stringSet.add(queryable.getFrom().getAsName().getName());
-        for (ISqlJoinExpression join : queryable.getJoins().getJoins()) {
-            stringSet.add(join.getAsName().getName());
-        }
-        String first = getFirst(target);
-        AsName asName = doGetAsName(first, stringSet);
-        ISqlJoinExpression join = factory.join(joinType, factory.table(target), asName);
-        queryable.addJoin(join);
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
-        ISqlExpression cond = sqlVisitor.visit(lambda);
-        join.addConditions(cond);
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        ISqlExpression on = sqlVisitor.visit(lambda);
+        ISqlTableExpression table = factory.table(target);
+        sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
     }
 
-    protected void join(JoinType joinType, QueryBase<?,?> target, LambdaExpression<?> lambda) {
+    protected void join(JoinType joinType, QueryBase<?, ?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
-        Set<String> stringSet = new HashSet<>(queryable.getJoins().getJoins().size() + 1);
-        stringSet.add(queryable.getFrom().getAsName().getName());
-        for (ISqlJoinExpression join : queryable.getJoins().getJoins()) {
-            stringSet.add(join.getAsName().getName());
-        }
-        String first = getFirst(target.getSqlBuilder().getTargetClass());
-        AsName asName = doGetAsName(first, stringSet);
-        ISqlJoinExpression join = factory.join(joinType, target.getSqlBuilder().getQueryable(), asName);
-        queryable.addJoin(join);
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
-        ISqlExpression cond = sqlVisitor.visit(lambda);
-        join.addConditions(cond);
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        ISqlExpression on = sqlVisitor.visit(lambda);
+        ISqlTableExpression table = target.getSqlBuilder().getQueryable();
+        sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
     }
 
     //    protected void joinWith(JoinType joinType, QueryBase<?,?> target, LambdaExpression<?> lambda) {

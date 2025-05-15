@@ -28,11 +28,11 @@ import java.util.List;
  */
 public class SqlFromExpression implements ISqlFromExpression {
     protected final ISqlTableExpression sqlTableExpression;
-    protected AsName asName;
+    protected final ISqlTableRefExpression tableRefExpression;
 
-    public SqlFromExpression(ISqlTableExpression sqlTableExpression, AsName asName) {
+    public SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
         this.sqlTableExpression = sqlTableExpression;
-        this.asName = asName;
+        this.tableRefExpression = tableRefExpression;
     }
 
     @Override
@@ -41,13 +41,12 @@ public class SqlFromExpression implements ISqlFromExpression {
     }
 
     @Override
-    public AsName getAsName() {
-        return asName;
+    public ISqlTableRefExpression getTableRefExpression() {
+        return tableRefExpression;
     }
 
     @Override
-    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        if (isEmptyTable()) return "";
+    public String normalTable(IConfig config, List<SqlValue> values) {
         IDialect disambiguation = config.getDisambiguation();
         StringBuilder builder = new StringBuilder();
         if (sqlTableExpression instanceof ISqlWithExpression) {
@@ -63,11 +62,21 @@ public class SqlFromExpression implements ISqlFromExpression {
             builder.append(")");
         }
 
-        if (asName != null) {
-            return "FROM " + builder + " AS " + disambiguation.disambiguation(asName.getName());
+        return "FROM " + builder + " AS " + disambiguation.disambiguation(tableRefExpression.getDisPlayName());
+    }
+
+    @Override
+    public String emptyTable(IConfig config, List<SqlValue> values) {
+        return "";
+    }
+
+    @Override
+    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+        if (isEmptyTable()) {
+            return emptyTable(config, values);
         }
         else {
-            return "FROM " + builder;
+            return normalTable(config, values);
         }
     }
 }

@@ -1,18 +1,21 @@
 package io.github.kiryu1223.drink.db.mysql;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.impl.SqlRecursionExpression;
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 public class MySQLRecursionExpression extends SqlRecursionExpression {
 
-    public MySQLRecursionExpression(ISqlQueryableExpression queryable, String parentId, String childId, int level)
-    {
-        super(queryable, parentId, childId, level);
+    public MySQLRecursionExpression(ISqlQueryableExpression queryable, FieldMetaData parentField, FieldMetaData childField, int level) {
+        super(queryable, parentField, childField, level);
     }
 
     @Override
-    public String recursionKeyword() {
-        return "RECURSIVE";
+    protected String getStart(IConfig config) {
+        IDialect dialect = config.getDisambiguation();
+        return "RECURSIVE " + dialect.disambiguationTableName(withTableName()) + " AS";
     }
 }

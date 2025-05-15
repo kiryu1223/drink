@@ -110,8 +110,8 @@ public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
 
     public LQuery<T> withTemp() {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        AsName asName = unionBuilder.getUnionQueryable().getQueryable().get(0).getFrom().getAsName();
-        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), factory.queryable(unionBuilder.getUnionQueryable(), new AsName(asName.getName())));
+        ISqlTableRefExpression tableRefExpression = unionBuilder.getUnionQueryable().getQueryable().get(0).getFrom().getTableRefExpression();
+        QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(getConfig(), factory.queryable(unionBuilder.getUnionQueryable(),factory.tableRef(tableRefExpression.getName())));
         return new LQuery<>(querySqlBuilder);
     }
 

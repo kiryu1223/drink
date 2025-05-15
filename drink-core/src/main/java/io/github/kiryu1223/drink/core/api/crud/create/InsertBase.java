@@ -17,7 +17,6 @@ package io.github.kiryu1223.drink.core.api.crud.create;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
-import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
@@ -39,7 +38,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public abstract class InsertBase extends CRUD {
+public abstract class InsertBase<C> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(InsertBase.class);
 
     private final InsertSqlBuilder sqlBuilder;

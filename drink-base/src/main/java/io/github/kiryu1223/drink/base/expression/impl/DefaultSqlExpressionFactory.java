@@ -34,8 +34,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlColumnExpression column(FieldMetaData fieldMetaData, AsName tableAsName) {
-        return new SqlColumnExpression(fieldMetaData, tableAsName);
+    public ISqlColumnExpression column(FieldMetaData fieldMetaData, ISqlTableRefExpression tableRefExpression) {
+        return new SqlColumnExpression(fieldMetaData, tableRefExpression);
     }
 
     @Override
@@ -44,8 +44,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlFromExpression from(ISqlTableExpression sqlTable, AsName asName) {
-        return new SqlFromExpression(sqlTable, asName);
+    public ISqlFromExpression from(ISqlTableExpression sqlTable, ISqlTableRefExpression tableRefExpression) {
+        return new SqlFromExpression(sqlTable, tableRefExpression);
     }
 
     @Override
@@ -59,8 +59,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, AsName asName) {
-        return new SqlJoinExpression(joinType, joinTable, conditions, asName);
+    public ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, ISqlTableRefExpression tableRefExpression) {
+        return new SqlJoinExpression(joinType, joinTable, conditions, tableRefExpression);
     }
 
     @Override
@@ -169,7 +169,7 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, String parentId, String childId, int level) {
+    public ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, FieldMetaData parentId, FieldMetaData childId, int level) {
         return new SqlRecursionExpression(queryable, parentId, childId, level);
     }
 
@@ -184,7 +184,12 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlDynamicColumnExpression dynamicColumn(String column, Class<?> type, AsName tableAsName) {
-        return new SqlDynamicColumnExpression(column, type, tableAsName);
+    public ISqlDynamicColumnExpression dynamicColumn(String column, Class<?> type, ISqlTableRefExpression tableISqlTableRefExpression) {
+        return new SqlDynamicColumnExpression(column, type, tableISqlTableRefExpression);
+    }
+
+    @Override
+    public ISqlTableRefExpression tableRef(String name) {
+        return new SqlTableRefExpression(name);
     }
 }

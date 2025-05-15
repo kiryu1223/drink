@@ -18,15 +18,9 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
-import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.doGetAsName;
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getFirst;
 
 
 /**
@@ -56,18 +50,11 @@ public class UpdateSqlBuilder implements ISqlBuilder {
      * @param on       关联条件
      */
     public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlConditionsExpression on) {
-        String first = getFirst(table.getMainTableClass());
-        Set<String> stringSet = new HashSet<>(update.getJoins().getJoins().size() + 1);
-        stringSet.add(update.getFrom().getAsName().getName());
-        for (ISqlJoinExpression join : update.getJoins().getJoins()) {
-            stringSet.add(join.getAsName().getName());
-        }
-        AsName asName = doGetAsName(first,stringSet);
         ISqlJoinExpression join = factory.join(
                 joinType,
                 table,
                 on,
-                asName
+                factory.tableRef(table.getMainTableClass())
         );
         update.addJoin(join);
     }
@@ -97,16 +84,6 @@ public class UpdateSqlBuilder implements ISqlBuilder {
         return !update.getSets().isEmpty();
     }
 
-    @Override
-    public String getSql() {
-        return tryFilter(update).getSql(config);
-    }
-
-    @Override
-    public String getSqlAndValue(List<SqlValue> sqlValues) {
-        return tryFilter(update).getSqlAndValue(config, sqlValues);
-    }
-
     public IConfig getConfig() {
         return config;
     }
@@ -131,5 +108,10 @@ public class UpdateSqlBuilder implements ISqlBuilder {
 
     public void addIgnoreFilterId(String filterId) {
         ignoreFilterIds.add(filterId);
+    }
+
+    @Override
+    public ISqlExpression getSqlExpression() {
+        return update;
     }
 }

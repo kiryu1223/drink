@@ -98,12 +98,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     @Override
     public void setGroup(ISqlGroupByExpression group) {
         groupBy.setColumns(group.getColumns());
-        List<AsName> asNameList = new ArrayList<>(joins.getJoins().size() + 1);
-        asNameList.add(from.getAsName());
-        for (ISqlJoinExpression join : joins.getJoins()) {
-            asNameList.add(join.getAsName());
-        }
-        groupBy.setValueAsNames(asNameList);
     }
 
     @Override

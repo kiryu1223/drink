@@ -307,29 +307,6 @@ public class ExpressionUtil {
         }
     }
 
-    public static String getFirst(Class<?> c) {
-        MetaData metaData = MetaDataCache.getMetaData(c);
-        return metaData.getTableName().substring(0, 1).toLowerCase();
-    }
-
-    public static AsName doGetAsName(String as, Set<String> asNames) {
-//        Set<String> asNames = new HashSet<>();
-//        AsName asName = from.getAsName();
-//        asNames.add(asName.getName());
-//        joins.getJoins().forEach(join -> asNames.add(join.getAsName().getName()));
-        return doGetAsName0(asNames, as, 0);
-    }
-
-    private static AsName doGetAsName0(Set<String> asNameSet, String as, int offset) {
-        String next = offset == 0 ? as : as + offset;
-        if (asNameSet.contains(next)) {
-            return doGetAsName0(asNameSet, as, offset + 1);
-        }
-        else {
-            return new AsName(next);
-        }
-    }
-
     public static <T> List<T> buildTree(List<T> flatList, FieldMetaData child, FieldMetaData parent, FieldMetaData list, Func1<T, Collection<T>> func) {
         // 用 Map 存储所有节点，以便快速查找
         Map<Object, T> nodeMap = new HashMap<>();

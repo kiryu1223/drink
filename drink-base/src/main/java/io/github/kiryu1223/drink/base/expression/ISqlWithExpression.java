@@ -34,6 +34,6 @@ public interface ISqlWithExpression extends ISqlTableExpression {
     @Override
     default ISqlWithExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.with(getQueryable(), withTableName());
+        return factory.with(getQueryable().copy(config), withTableName());
     }
 }

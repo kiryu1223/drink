@@ -18,6 +18,9 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
+import io.github.kiryu1223.drink.base.session.SqlValue;
+
+import java.util.List;
 
 /**
  * from表达式
@@ -46,19 +49,20 @@ public interface ISqlFromExpression extends ISqlExpression {
         return metaData.getTableName();
     }
 
-    /**
-     * 获取表别名
-     */
-    AsName getAsName();
+    ISqlTableRefExpression getTableRefExpression();
 
     @Override
     default Class<?> getType() {
         return getSqlTableExpression().getType();
     }
 
+    String normalTable(IConfig config, List<SqlValue> values);
+
+    String emptyTable(IConfig config, List<SqlValue> values);
+
     @Override
     default ISqlFromExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.from(getSqlTableExpression().copy(config), getAsName());
+        return factory.from(getSqlTableExpression().copy(config), getTableRefExpression());
     }
 }

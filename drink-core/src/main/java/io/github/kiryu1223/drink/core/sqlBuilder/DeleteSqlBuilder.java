@@ -17,17 +17,10 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.*;
-import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.doGetAsName;
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.getFirst;
 
 
 /**
@@ -61,28 +54,14 @@ public class DeleteSqlBuilder implements ISqlBuilder {
      * @param on       关联条件
      */
     public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlConditionsExpression on) {
-        String first = getFirst(table.getMainTableClass());
-        Set<String> stringSet = new HashSet<>(delete.getJoins().getJoins().size() + 1);
-        stringSet.add(delete.getFrom().getAsName().getName());
-        for (ISqlJoinExpression join : delete.getJoins().getJoins()) {
-            stringSet.add(join.getAsName().getName());
-        }
-        AsName asName = doGetAsName(first,stringSet);
         ISqlJoinExpression join = factory.join(
                 joinType,
                 table,
                 on,
-                asName
+                factory.tableRef(table.getMainTableClass())
         );
         delete.addJoin(join);
     }
-
-    /**
-     * 添加指定删除的表
-     */
-//    public void addExclude(Class<?> c) {
-//        excludes.add(orderedClasses.indexOf(c));
-//    }
 
     /**
      * 添加删除的where条件
@@ -104,12 +83,8 @@ public class DeleteSqlBuilder implements ISqlBuilder {
     }
 
     @Override
-    public String getSql() {
-        return tryFilter(delete).getSql(null);
-    }
-
-    public String getSqlAndValue(List<SqlValue> values) {
-        return tryFilter(delete).getSqlAndValue(config, values);
+    public ISqlExpression getSqlExpression() {
+        return delete;
     }
 
     @Override

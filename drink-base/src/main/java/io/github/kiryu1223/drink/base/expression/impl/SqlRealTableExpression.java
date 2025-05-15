@@ -42,14 +42,14 @@ public class SqlRealTableExpression implements ISqlRealTableExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        String fullName = "";
+        StringBuilder builder=new StringBuilder();
         MetaData metaData = MetaDataCache.getMetaData(getMainTableClass());
         IDialect dbConfig = config.getDisambiguation();
         String schema = metaData.getSchema();
         if (!schema.isEmpty()) {
-            fullName += dbConfig.disambiguationTableName(schema) + ".";
+            builder.append(dbConfig.disambiguationTableName(schema)).append(".");
         }
-        fullName += dbConfig.disambiguationTableName(metaData.getTableName());
-        return fullName;
+        builder.append(dbConfig.disambiguationTableName(metaData.getTableName()));
+        return builder.toString();
     }
 }

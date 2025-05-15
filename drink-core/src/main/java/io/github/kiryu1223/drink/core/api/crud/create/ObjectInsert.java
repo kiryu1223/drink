@@ -27,7 +27,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class ObjectInsert<T> extends InsertBase {
+public class ObjectInsert<T> extends InsertBase<T> {
     private final List<T> tObjects = new ArrayList<>();
     private final Class<T> tableType;
 

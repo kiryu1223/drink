@@ -34,6 +34,7 @@ import java.util.List;
  * @since 3.0
  */
 public interface ISqlBuilder {
+    ISqlExpression getSqlExpression();
     /**
      * 获取配置
      */
@@ -42,12 +43,19 @@ public interface ISqlBuilder {
     /**
      * 获取SQL
      */
-    String getSql();
+    default String getSql() {
+        return getSqlAndValue(null);
+    }
 
     /**
      * 获取SQL和参数
      */
-    String getSqlAndValue(List<SqlValue> values);
+    default String getSqlAndValue(List<SqlValue> values) {
+        AsNameManager.start();
+        String sql = tryFilter(getSqlExpression()).getSqlAndValue(getConfig(), values);
+        AsNameManager.clear();
+        return sql;
+    }
 
     boolean isIgnoreFilterAll();
 
@@ -87,7 +95,7 @@ public interface ISqlBuilder {
                         ISqlWhereExpression where = query.getWhere();
                         SqlVisitor sqlVisitor = new SqlVisitor(config, query);
                         ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                        query.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(where.getConditions()),expression))));
+                        query.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(where.getConditions()), expression))));
                     }
                 }
                 ISqlJoinsExpression joins = query.getJoins();
@@ -103,7 +111,7 @@ public interface ISqlBuilder {
                             ISqlConditionsExpression conditions = join.getConditions();
                             SqlVisitor sqlVisitor = new SqlVisitor(config, query, index++);
                             ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                            join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions),expression)));
+                            join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression)));
                         }
                     }
                 }

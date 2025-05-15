@@ -49,7 +49,7 @@ public class SqlDeleteExpression implements ISqlDeleteExpression {
         IDialect disambiguation = config.getDisambiguation();
         List<String> strings = new ArrayList<>();
         strings.add("DELETE");
-        strings.add(disambiguation.disambiguation(from.getAsName().getName()));
+        strings.add(disambiguation.disambiguation(from.getTableRefExpression().getDisPlayName()));
         strings.add(from.getSqlAndValue(config, values));
         if (!joins.isEmpty()) {
             strings.add(joins.getSqlAndValue(config, values));

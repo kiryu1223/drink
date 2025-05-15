@@ -30,13 +30,13 @@ public class SqlJoinExpression implements ISqlJoinExpression {
     protected final JoinType joinType;
     protected final ISqlTableExpression joinTable;
     protected ISqlConditionsExpression conditions;
-    protected final AsName asName;
+    protected final ISqlTableRefExpression tableRefExpression;
 
-    protected SqlJoinExpression(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, AsName asName) {
+    public SqlJoinExpression(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, ISqlTableRefExpression tableRefExpression) {
         this.joinType = joinType;
         this.joinTable = joinTable;
-        this.asName = asName;
         this.conditions = conditions;
+        this.tableRefExpression = tableRefExpression;
     }
 
     @Override
@@ -60,8 +60,8 @@ public class SqlJoinExpression implements ISqlJoinExpression {
     }
 
     @Override
-    public AsName getAsName() {
-        return asName;
+    public ISqlTableRefExpression getTableRefExpression() {
+        return tableRefExpression;
     }
 
     @Override
@@ -70,22 +70,16 @@ public class SqlJoinExpression implements ISqlJoinExpression {
         IDialect disambiguation = config.getDisambiguation();
         builder.append(joinType.getJoin());
         builder.append(" ");
-        if (joinTable instanceof ISqlRealTableExpression) {
-            builder.append(joinTable.getSqlAndValue(config, values));
-        }
-        else if (joinTable instanceof ISqlWithExpression) {
+        if (joinTable instanceof ISqlWithExpression) {
             ISqlWithExpression table = (ISqlWithExpression) joinTable;
             builder.append(disambiguation.disambiguationTableName(table.withTableName()));
         }
         else {
             builder.append("(").append(joinTable.getSqlAndValue(config, values)).append(")");
         }
-        if (getAsName() != null) {
-            builder.append(" AS ").append(disambiguation.disambiguation(getAsName().getName()));
-        }
+        builder.append(" AS ").append(disambiguation.disambiguation(tableRefExpression.getDisPlayName()));
         if (conditions != null) {
-            builder.append(" ON ");
-            builder.append(conditions.getSqlAndValue(config, values));
+            builder.append(" ON ").append(conditions.getSqlAndValue(config, values));
         }
         return builder.toString();
     }

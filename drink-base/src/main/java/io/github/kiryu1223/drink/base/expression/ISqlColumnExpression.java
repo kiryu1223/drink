@@ -34,13 +34,13 @@ public interface ISqlColumnExpression extends ISqlExpression {
         return getFieldMetaData().getType();
     }
 
-    void setTableAsName(AsName tableAsName);
+    ISqlTableRefExpression getTableRefExpression();
 
-    AsName getTableAsName();
+    void setTableRefExpression(ISqlTableRefExpression tableRefExpression);
 
     @Override
     default ISqlColumnExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.column(getFieldMetaData(), getTableAsName());
+        return factory.column(getFieldMetaData(), getTableRefExpression());
     }
 }

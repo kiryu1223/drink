@@ -61,7 +61,7 @@ public class SqlUpdateExpression implements ISqlUpdateExpression {
         strings.add("UPDATE");
         strings.add(from.getTableName());
         strings.add("AS");
-        strings.add(from.getAsName().getName());
+        strings.add(from.getTableRefExpression().getDisPlayName());
         if (!joins.isEmpty()) {
             strings.add(joins.getSqlAndValue(config, values));
         }

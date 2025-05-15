@@ -1,23 +1,22 @@
 package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 public interface ISqlRecursionExpression extends ISqlWithExpression {
     ISqlQueryableExpression getQueryable();
 
-    String recursionKeyword();
-
     String withTableName();
 
-    String parentId();
+    FieldMetaData parentId();
 
-    String childId();
+    FieldMetaData childId();
 
     int level();
 
     @Override
     default ISqlRecursionExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.recursion(getQueryable(),parentId(),childId(),level());
+        return factory.recursion(getQueryable().copy(config),parentId(),childId(),level());
     }
 }

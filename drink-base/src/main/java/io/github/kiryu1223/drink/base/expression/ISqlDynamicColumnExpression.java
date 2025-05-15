@@ -3,17 +3,20 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 
 public interface ISqlDynamicColumnExpression extends ISqlExpression {
-    void setTableAsName(AsName tableAsName);
 
-    AsName getTableAsName();
+    ISqlTableRefExpression getTableRefExpression();
 
     String getColumn();
 
-    Class<?> getType();
+    Class<?> getColumnType();
+
+    default Class<?> getType() {
+        return getColumnType();
+    }
 
     @Override
     default ISqlDynamicColumnExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.dynamicColumn(getColumn(), getType(), getTableAsName());
+        return factory.dynamicColumn(getColumn(), getColumnType(), getTableRefExpression());
     }
 }

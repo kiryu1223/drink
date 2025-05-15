@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTableExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlWithExpression;
 import io.github.kiryu1223.drink.base.expression.impl.SqlFromExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;
@@ -33,15 +34,19 @@ import java.util.List;
  * @since 3.0
  */
 public class OracleFromExpression extends SqlFromExpression {
-    public OracleFromExpression(ISqlTableExpression sqlTableExpression, AsName asName) {
-        super(sqlTableExpression, asName);
+    public OracleFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
+        super(sqlTableExpression, tableRefExpression);
     }
 
     @Override
-    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+    public String emptyTable(IConfig config, List<SqlValue> values) {
         // oracle 不支持 无 from 查询
         // 所以我们要加上DUAL表
-        if (isEmptyTable()) return "FROM " + config.getDisambiguation().disambiguationTableName("DUAL");
+        return "FROM " + config.getDisambiguation().disambiguationTableName("DUAL");
+    }
+
+    @Override
+    public String normalTable(IConfig config, List<SqlValue> values) {
         StringBuilder builder = new StringBuilder();
         if (sqlTableExpression instanceof ISqlWithExpression) {
             ISqlWithExpression withExpression = (ISqlWithExpression) sqlTableExpression;
@@ -55,11 +60,7 @@ public class OracleFromExpression extends SqlFromExpression {
             builder.insert(0, "(");
             builder.append(")");
         }
-        if (asName != null) {
-            return "FROM " + builder + config.getDisambiguation().disambiguation(asName.getName());
-        }
-        else {
-            return "FROM " + builder;
-        }
+
+        return "FROM " + builder + config.getDisambiguation().disambiguation(tableRefExpression.getDisPlayName());
     }
 }

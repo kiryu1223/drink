@@ -20,6 +20,11 @@ public class UnionBuilder implements ISqlBuilder {
         this.unionQueryable = unionQueryable;
     }
 
+    @Override
+    public ISqlExpression getSqlExpression() {
+        return unionQueryable;
+    }
+
     public ISqlUnionQueryableExpression getUnionQueryable() {
         return unionQueryable;
     }
@@ -61,15 +66,5 @@ public class UnionBuilder implements ISqlBuilder {
     @Override
     public IConfig getConfig() {
         return config;
-    }
-
-    @Override
-    public String getSql() {
-        return tryFilter(unionQueryable).getSql(config);
-    }
-
-    @Override
-    public String getSqlAndValue(List<SqlValue> values) {
-        return tryFilter(unionQueryable).getSqlAndValue(config, values);
     }
 }

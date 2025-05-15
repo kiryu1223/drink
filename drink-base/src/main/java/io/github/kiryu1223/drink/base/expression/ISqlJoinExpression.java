@@ -45,14 +45,11 @@ public interface ISqlJoinExpression extends ISqlExpression {
 
     void setConditions(ISqlConditionsExpression condition);
 
-    /**
-     * 获取别名
-     */
-    AsName getAsName();
+    ISqlTableRefExpression getTableRefExpression();
 
     @Override
     default ISqlJoinExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.join(getJoinType(), getJoinTable().copy(config), getConditions().copy(config), getAsName());
+        return factory.join(getJoinType(), getJoinTable().copy(config), getConditions().copy(config), getTableRefExpression());
     }
 }
