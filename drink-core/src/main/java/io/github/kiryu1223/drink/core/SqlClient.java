@@ -20,7 +20,6 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
-import io.github.kiryu1223.drink.core.visitor.ExpressionUtil;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.math.BigDecimal;
@@ -149,8 +148,8 @@ public class SqlClient {
         throw new SqLinkException("insert内容为空");
     }
 
-    {
-
+//    {
+//
 //        class User implements ITable {
 //            int id;
 //            int age;
@@ -207,6 +206,7 @@ public class SqlClient {
 //                    String name=a.getName();
 //                })
 //                .select(g -> new Result() {
+//                    Group<? extends Grouper, Area> gg=g;
 //                    String name = g.key.name;
 //                    long count1 = g.count(g.value1.id);
 //                    long count2 = g.count(gg -> gg.id);
@@ -240,5 +240,5 @@ public class SqlClient {
 //        Area first = query(Area.class)
 //                .where(a -> a.query(a.users).where(u -> u.age > 20).any())
 //                .first();
-    }
+//    }
 }
