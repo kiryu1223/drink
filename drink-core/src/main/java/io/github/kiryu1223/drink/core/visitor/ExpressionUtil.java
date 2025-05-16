@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.base.expression.AsName;
+import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
@@ -62,7 +63,7 @@ public class ExpressionUtil {
     /**
      * 判断是否为属性表达式
      */
-    public static boolean isProperty(Map<ParameterExpression, AsName> asNameMap, MethodCallExpression methodCall) {
+    public static boolean isProperty(Map<ParameterExpression, ISqlTableRefExpression> asNameMap, MethodCallExpression methodCall) {
         if (methodCall.getExpr().getKind() != Kind.Parameter) return false;
         ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
         return asNameMap.containsKey(parameter);
@@ -71,7 +72,7 @@ public class ExpressionUtil {
     /**
      * 判断是否为属性表达式
      */
-    public static boolean isProperty(Map<ParameterExpression, AsName> asNameMap, FieldSelectExpression fieldSelect) {
+    public static boolean isProperty(Map<ParameterExpression, ISqlTableRefExpression> asNameMap, FieldSelectExpression fieldSelect) {
         if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
         ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
         return asNameMap.containsKey(parameter);
@@ -80,7 +81,7 @@ public class ExpressionUtil {
     /**
      * 判断是否为分组键
      */
-    public static boolean isGroupKey(Map<ParameterExpression, AsName> parameters, Expression expression) {
+    public static boolean isGroupKey(Map<ParameterExpression, ISqlTableRefExpression> parameters, Expression expression) {
         if (expression.getKind() != Kind.FieldSelect) return false;
         FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
         if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
@@ -91,7 +92,7 @@ public class ExpressionUtil {
                 && field.getName().equals("key");
     }
 
-    public static boolean isGroupValue(Map<ParameterExpression, AsName> parameters, Expression expression) {
+    public static boolean isGroupValue(Map<ParameterExpression, ISqlTableRefExpression> parameters, Expression expression) {
         if (expression.getKind() != Kind.FieldSelect) return false;
         FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
         if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;

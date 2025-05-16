@@ -123,8 +123,7 @@ public class SqlClient {
      */
     public <T> LUpdate<T> update(@Recode Class<T> c) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        String first = ExpressionUtil.getFirst(c);
-        return new LUpdate<>(new UpdateSqlBuilder(config, factory.update(c, new AsName(first))));
+        return new LUpdate<>(new UpdateSqlBuilder(config, factory.update(c)));
     }
 
     /**

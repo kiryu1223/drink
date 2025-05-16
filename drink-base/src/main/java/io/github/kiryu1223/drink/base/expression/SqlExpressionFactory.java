@@ -350,10 +350,18 @@ public interface SqlExpressionFactory {
         return update(from(table(target), tableRefExpression), Joins(), sets(), where());
     }
 
+    default ISqlUpdateExpression update(Class<?> target) {
+        return update(target,tableRef(target));
+    }
+
     ISqlDeleteExpression delete(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where);
 
     default ISqlDeleteExpression delete(Class<?> target, ISqlTableRefExpression tableRefExpression) {
         return delete(from(table(target), tableRefExpression), Joins(), where());
+    }
+
+    default ISqlDeleteExpression delete(Class<?> target) {
+        return delete(target,tableRef(target));
     }
 
     ISqlDynamicColumnExpression dynamicColumn(String column, Class<?> type, ISqlTableRefExpression tableISqlTableRefExpression);

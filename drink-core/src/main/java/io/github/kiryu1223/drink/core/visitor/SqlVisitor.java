@@ -61,7 +61,7 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
 public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 {
 
-    //    protected Deque<AsName> asNameDeque = new ArrayDeque<>();
+    //    protected Deque<ISqlTableRefExpression> asNameDeque = new ArrayDeque<>();
     protected final IConfig config;
     protected final SqlExpressionFactory factory;
     //    protected final ISqlFromExpression fromExpression;
@@ -69,11 +69,11 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //    protected boolean isFirst = true;
 //    protected boolean isGroup = false;
     protected int index = -1;
-    //    protected final List<AsName> asNameList = new ArrayList<>();
+    //    protected final List<ISqlTableRefExpression> asNameList = new ArrayList<>();
 //    protected final List<ParameterExpression> parameterExpressionList = new ArrayList<>();
 //    protected final Map<String,ISqlGroupByExpression> groupMap=new HashMap<>();
-    protected final Deque<List<AsName>> asNameListDeque = new ArrayDeque<>();
-    protected final Map<ParameterExpression, AsName> asNameMap = new HashMap<>();
+    protected final Deque<List<ISqlTableRefExpression>> asNameListDeque = new ArrayDeque<>();
+    protected final Map<ParameterExpression, ISqlTableRefExpression> asNameMap = new HashMap<>();
     protected final Deque<ISqlGroupByExpression> groupDeque = new ArrayDeque<>();
     protected final Map<ParameterExpression, ISqlGroupByExpression> groupMap = new HashMap<>();
 
@@ -101,11 +101,11 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
     {
         this.config = config;
         this.factory = config.getSqlExpressionFactory();
-        List<AsName> asNameList = new ArrayList<>();
-        asNameList.add(fromExpression.getAsName());
+        List<ISqlTableRefExpression> asNameList = new ArrayList<>();
+        asNameList.add(fromExpression.getTableRefExpression());
         for (ISqlJoinExpression join : joinsExpression.getJoins())
         {
-            asNameList.add(join.getAsName());
+            asNameList.add(join.getTableRefExpression());
         }
         asNameListDeque.add(asNameList);
         groupDeque.push(groupByExpression);
@@ -123,12 +123,12 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //            isFirst = false;
 //            for (int i = 0; i < parameters.size(); i++) {
 //                ParameterExpression parameter = parameters.get(i);
-//                AsName asName;
+//                ISqlTableRefExpression asName;
 //                if (i == 0) {
-//                    asName = fromExpression.getAsName();
+//                    asName = fromExpression.getISqlTableRefExpression();
 //                }
 //                else {
-//                    asName = joinsExpression.getJoins().get(i - 1).getAsName();
+//                    asName = joinsExpression.getJoins().get(i - 1).getISqlTableRefExpression();
 //                }
 //                asNameMap.put(parameter, asName);
 //            }
@@ -162,7 +162,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
         // (a,b,c) -> ...
         else
         {
-            List<AsName> peek = asNameListDeque.peek();
+            List<ISqlTableRefExpression> peek = asNameListDeque.peek();
             for (int i = 0; i < parameters.size(); i++)
             {
                 asNameMap.put(parameters.get(i), peek.get(i));
@@ -176,14 +176,14 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
         }
     }
 
-//    protected String doGetAsName(String as) {
-//        return doGetAsName(as, 0);
+//    protected String doGetISqlTableRefExpression(String as) {
+//        return doGetISqlTableRefExpression(as, 0);
 //    }
 //
-//    protected String doGetAsName(String as, int offset) {
+//    protected String doGetISqlTableRefExpression(String as, int offset) {
 //        String next = offset == 0 ? as : as + offset;
 //        if (asNameSet.contains(next)) {
-//            return doGetAsName(as, offset + 1);
+//            return doGetISqlTableRefExpression(as, offset + 1);
 //        }
 //        else {
 //            asNameSet.add(next);
@@ -218,7 +218,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
             ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
             Field field = fieldSelect.getField();
             MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
-            AsName asName = getAsNameByIndex(parameter);
+            ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
             return factory.column(metaData.getFieldMetaDataByFieldName(field.getName()), asName);
         }
         else if (isGroupKey(asNameMap, fieldSelect.getExpr())) // g.key.field
@@ -233,8 +233,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
             FieldSelectExpression expr = (FieldSelectExpression) fieldSelect.getExpr();
             String vname = expr.getField().getName();
             int valueIndex = Integer.parseInt(vname.replace("value", ""));
-            List<AsName> asNameList = asNameListDeque.peek();
-            AsName asName = asNameList.get(valueIndex);
+            List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
+            ISqlTableRefExpression asName = asNameList.get(valueIndex);
             Field field = fieldSelect.getField();
             MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
             return factory.column(metaData.getFieldMetaDataByFieldName(field.getName()), asName);
@@ -412,8 +412,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //                    ISqlColumnExpression columnExpression = (ISqlColumnExpression) visit;
 //                    ISqlQueryableExpression query = columnToQuery(columnExpression);
 //                    // 在子查询发起的地方压入
-//                    List<AsName> asNames = new ArrayList<>();
-//                    asNames.add(query.getFrom().getAsName());
+//                    List<ISqlTableRefExpression> asNames = new ArrayList<>();
+//                    asNames.add(query.getFrom().getISqlTableRefExpression());
 //                    asNameListDeque.push(asNames);
 //                    groupDeque.push(factory.groupBy());
 //                    return query;
@@ -423,8 +423,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //                    ISqlQueryableExpression queryableExpression = (ISqlQueryableExpression) visit;
 //                    ISqlQueryableExpression query = queryToQuery(queryableExpression, method);
 //                    // 在子查询发起的地方压入
-//                    List<AsName> asNames = new ArrayList<>();
-//                    asNames.add(query.getFrom().getAsName());
+//                    List<ISqlTableRefExpression> asNames = new ArrayList<>();
+//                    asNames.add(query.getFrom().getISqlTableRefExpression());
 //                    asNameListDeque.push(asNames);
 //                    return query;
 //                }
@@ -573,7 +573,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
                 ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
                 ISqlExpression select = visit(methodCall.getArgs().get(0));
                 queryable.setSelect(factory.select(Collections.singletonList(select), queryable.getMainTableClass()));
-                return factory.queryable(queryable.getSelect(), factory.from(queryable, queryable.getFrom().getAsName()));
+                return factory.queryable(queryable.getSelect(), factory.from(queryable, queryable.getFrom().getISqlTableRefExpression()));
             }
             else if (method.getName().equals("distinct"))
             {
@@ -1109,7 +1109,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
 //                    Method getter = methodCall.getMethod();
 //                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
-//                    AsName asName = getAsNameByIndex(parameter);
+//                    ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
 //                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
 //                }
 //                else if (isGroupValue(asNameMap, methodCall.getExpr())) // g.value?.field
@@ -1117,8 +1117,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //                    FieldSelectExpression expr = (FieldSelectExpression) methodCall.getExpr();
 //                    String vname = expr.getField().getName();
 //                    int valueIndex = Integer.parseInt(vname.replace("value", ""));
-//                    List<AsName> asNameList = asNameListDeque.peek();
-//                    AsName asName = asNameList.get(valueIndex);
+//                    List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
+//                    ISqlTableRefExpression asName = asNameList.get(valueIndex);
 //                    Method getter = methodCall.getMethod();
 //                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
 //                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
@@ -1139,7 +1139,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //                    String columnName = expression.getValue().toString();
 //                    Expression expression1 = args.get(1);
 //                    Class<?> value = (Class<?>) expression1.getValue();
-//                    AsName asName = getAsNameByIndex(parameter);
+//                    ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
 //                    return factory.dynamicColumn(columnName, value, asName);
 //                }
 //                else {
@@ -1192,10 +1192,10 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
                     if (getter.hasNavigate())
                     {
                         // select * from target as t where t.targetField = s.selfField
-                        ISqlQueryableExpression query = getterToQueryable(getter, getAsNameByIndex((ParameterExpression) expression));
+                        ISqlQueryableExpression query = getterToQueryable(getter, getISqlTableRefExpressionByIndex((ParameterExpression) expression));
                         //  在子查询发起的地方压入
-                        List<AsName> asNames = new ArrayList<>();
-                        asNames.add(query.getFrom().getAsName());
+                        List<ISqlTableRefExpression> asNames = new ArrayList<>();
+                        asNames.add(query.getFrom().getISqlTableRefExpression());
                         asNameListDeque.push(asNames);
                         groupDeque.push(factory.groupBy());
                         return query;
@@ -1203,7 +1203,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
                     else
                     {
                         ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-                        AsName asName = getAsNameByIndex(parameter);
+                        ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
                         return factory.column(getter, asName);
                     }
                 }
@@ -1232,8 +1232,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
                             asNameListDeque.pop();
                             groupDeque.pop();
                             //  在子查询发起的地方压入
-                            List<AsName> asNames = new ArrayList<>();
-                            asNames.add(query.getFrom().getAsName());
+                            List<ISqlTableRefExpression> asNames = new ArrayList<>();
+                            asNames.add(query.getFrom().getISqlTableRefExpression());
                             asNameListDeque.push(asNames);
                             groupDeque.push(factory.groupBy());
                             return query;
@@ -1242,7 +1242,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
                         {
                             // select ? from table ...
                             // select table.getter from table ...
-                            leftQuery.setSelect(factory.select(Collections.singletonList(factory.column(getter, leftQuery.getFrom().getAsName())), getter.getType()));
+                            leftQuery.setSelect(factory.select(Collections.singletonList(factory.column(getter, leftQuery.getFrom().getISqlTableRefExpression())), getter.getType()));
                             return leftQuery;
                         }
                     }
@@ -1398,22 +1398,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
     @Override
     public ISqlExpression visit(ParameterExpression parameter)
     {
-        if (asNameMap.containsKey(parameter))
-        {
-            Class<?> type = parameter.getType();
-            MetaData metaData = MetaDataCache.getMetaData(type);
-            //propertyMetaData.addAll(metaData.getColumns().values());
-            List<ISqlExpression> expressions = new ArrayList<>();
-            for (FieldMetaData pm : metaData.getNotIgnorePropertys())
-            {
-                expressions.add(factory.column(pm, asNameMap.get(parameter)));
-            }
-            return factory.select(expressions, parameter.getType());
-        }
-        else
-        {
-            throw new SqLinkException(String.format("非lambda内部的ParameterExpression,名称:%s 类型:%s ", parameter.getName(), parameter.getType()));
-        }
+        return getISqlTableRefExpressionByIndex(parameter);
     }
 
     @Override
@@ -1536,7 +1521,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
         return paramMatcher;
     }
 
-    protected ISqlQueryableExpression getterToQueryable(FieldMetaData getter, AsName selfAsName)
+    protected ISqlQueryableExpression getterToQueryable(FieldMetaData getter, ISqlTableRefExpression selfISqlTableRefExpression)
     {
         // A.B();
         // FROM A WHERE (SELECT ... FROM B WHERE B.ID = (SELECT A.ID FROM A))
@@ -1546,34 +1531,34 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
 //        FieldMetaData fieldMetaData = columnExpression.getFieldMetaData();
 //        ISqlRealTableExpression table;
 //        ISqlConditionsExpression condition = null;
-//        AsName mainTableAsName = columnExpression.getTableAsName();
-//        AsName subTableAsName;
+//        ISqlTableRefExpression mainTableISqlTableRefExpression = columnExpression.getTableISqlTableRefExpression();
+//        ISqlTableRefExpression subTableISqlTableRefExpression;
 //        Set<String> stringSet = new HashSet<>();
-//        stringSet.add(fromExpression.getAsName().getName());
+//        stringSet.add(fromExpression.getISqlTableRefExpression().getName());
 //        for (ISqlJoinExpression join : joinsExpression.getJoins()) {
-//            stringSet.add(join.getAsName().getName());
+//            stringSet.add(join.getISqlTableRefExpression().getName());
 //        }
-//        for (AsName asName : asNameDeque) {
+//        for (ISqlTableRefExpression asName : asNameDeque) {
 //            stringSet.add(asName.getName());
 //        }
-//        //String subTableAsName = doGetAsName(MetaDataCache.getMetaData(getTargetType(fieldMetaData.getGenericType())).getTableName().toLowerCase().substring(0, 1));
+//        //String subTableISqlTableRefExpression = doGetISqlTableRefExpression(MetaDataCache.getMetaData(getTargetType(fieldMetaData.getGenericType())).getTableName().toLowerCase().substring(0, 1));
 //        if (fieldMetaData.hasNavigate()) {
 //            NavigateData navigateData = fieldMetaData.getNavigateData();
 //            Class<?> targetType = navigateData.getNavigateTargetType();
 //            table = factory.table(targetType);
-//            subTableAsName = doGetAsName(getFirst(targetType), stringSet);
+//            subTableISqlTableRefExpression = doGetISqlTableRefExpression(getFirst(targetType), stringSet);
 //            MetaData targetMetaData = MetaDataCache.getMetaData(targetType);
 //            condition = factory.condition();
 //            FieldMetaData targetFieldMetaData = targetMetaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
 //            FieldMetaData selfFieldMetaData = MetaDataCache.getMetaData(fieldMetaData.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-//            condition.addCondition(factory.binary(SqlOperator.EQ, factory.column(targetFieldMetaData, subTableAsName), factory.column(selfFieldMetaData, mainTableAsName)));
+//            condition.addCondition(factory.binary(SqlOperator.EQ, factory.column(targetFieldMetaData, subTableISqlTableRefExpression), factory.column(selfFieldMetaData, mainTableISqlTableRefExpression)));
 //        }
 //        else {
 //            Type genericType = fieldMetaData.getGenericType();
 //            table = factory.table(getTargetType(genericType));
-//            subTableAsName = doGetAsName(getFirst(table.getMainTableClass()), stringSet);
+//            subTableISqlTableRefExpression = doGetISqlTableRefExpression(getFirst(table.getMainTableClass()), stringSet);
 //        }
-//        ISqlQueryableExpression queryable = factory.queryable(factory.from(table, subTableAsName));
+//        ISqlQueryableExpression queryable = factory.queryable(factory.from(table, subTableISqlTableRefExpression));
 //        if (condition != null) {
 //            queryable.addWhere(condition);
 //        }
@@ -1588,9 +1573,9 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
         FieldMetaData targetField = getter;
         RelationType relationType = navigateData.getRelationType();
 
-        List<AsName> asNameList = asNameListDeque.peek();
-        AsName subAsName = doGetAsName(getFirst(targetType), toSet(asNameList));
-        ISqlQueryableExpression subQuery = factory.queryable(targetType, subAsName);
+        List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
+        ISqlTableRefExpression subISqlTableRefExpression = doGetISqlTableRefExpression(getFirst(targetType), toSet(asNameList));
+        ISqlQueryableExpression subQuery = factory.queryable(targetType, subISqlTableRefExpression);
         // A.B
         // 一对一，一对多，多对一的场合 [A = B]
         // SELECT B.* FROM B WHERE B.targetField = A.selfField
@@ -1598,7 +1583,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
         // SELECT B.* FROM B WHERE B.targetField = A.selfField
         if (relationType == RelationType.ManyToOne || relationType == RelationType.OneToOne || relationType == RelationType.OneToMany)
         {
-            subQuery.addWhere(factory.binary(SqlOperator.EQ, factory.column(targetField, subAsName), factory.column(selfField, selfAsName)));
+            subQuery.addWhere(factory.binary(SqlOperator.EQ, factory.column(targetField, subISqlTableRefExpression), factory.column(selfField, selfISqlTableRefExpression)));
         }
         // many to many的场合
         // SELECT B.* FROM B WHERE B.targetField IN (SELECT M.targetMapping FROM M WHERE M.selfMapping = A.selfField)
@@ -1609,11 +1594,11 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
             FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData();
             FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData();
             Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
-            AsName mappingAsName = doGetAsName(getFirst(targetType), toSet(asNameList));
-            ISqlQueryableExpression mappingQuery = factory.queryable(mappingType, mappingAsName);
-            mappingQuery.addWhere(factory.binary(SqlOperator.EQ, factory.column(selfMappingField, mappingAsName), factory.column(selfField, selfAsName)));
-            mappingQuery.setSelect(factory.select(new ArrayList<>(Collections.singletonList(factory.column(targetMappingField, mappingAsName))), targetMappingField.getType()));
-            subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subAsName), mappingQuery));
+            ISqlTableRefExpression mappingISqlTableRefExpression = doGetISqlTableRefExpression(getFirst(targetType), toSet(asNameList));
+            ISqlQueryableExpression mappingQuery = factory.queryable(mappingType, mappingISqlTableRefExpression);
+            mappingQuery.addWhere(factory.binary(SqlOperator.EQ, factory.column(selfMappingField, mappingISqlTableRefExpression), factory.column(selfField, selfISqlTableRefExpression)));
+            mappingQuery.setSelect(factory.select(new ArrayList<>(Collections.singletonList(factory.column(targetMappingField, mappingISqlTableRefExpression))), targetMappingField.getType()));
+            subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subISqlTableRefExpression), mappingQuery));
         }
         return subQuery;
     }
@@ -1624,26 +1609,26 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
         RelationType relationType = navigateData.getRelationType();
         Class<?> targetType = targetField.getType();
         FieldMetaData selfField = MetaDataCache.getMetaData(targetField.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-        List<AsName> asNameList = asNameListDeque.peek();
-        AsName subAsName = doGetAsName(getFirst(targetType), toSet(asNameList));
+        List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
+        ISqlTableRefExpression subISqlTableRefExpression = doGetISqlTableRefExpression(getFirst(targetType), toSet(asNameList));
 
-        left.setSelect(factory.select(Collections.singletonList(factory.column(selfField, left.getFrom().getAsName())), selfField.getType()));
-        ISqlQueryableExpression subQuery = factory.queryable(targetType, subAsName);
+        left.setSelect(factory.select(Collections.singletonList(factory.column(selfField, left.getFrom().getISqlTableRefExpression())), selfField.getType()));
+        ISqlQueryableExpression subQuery = factory.queryable(targetType, subISqlTableRefExpression);
 
         if (relationType == RelationType.ManyToOne || relationType == RelationType.OneToOne || relationType == RelationType.OneToMany)
         {
-            subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subAsName), left));
+            subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subISqlTableRefExpression), left));
         }
         else
         {
             FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData();
             FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData();
             Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
-            AsName mappingAsName = doGetAsName(getFirst(targetType), toSet(asNameList));
-            ISqlQueryableExpression mappingQuery = factory.queryable(mappingType, mappingAsName);
-            mappingQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(selfMappingField, mappingAsName), left));
-            mappingQuery.setSelect(factory.select(new ArrayList<>(Collections.singletonList(factory.column(targetMappingField, mappingAsName))), targetMappingField.getType()));
-            subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subAsName), mappingQuery));
+            ISqlTableRefExpression mappingISqlTableRefExpression = doGetISqlTableRefExpression(getFirst(targetType), toSet(asNameList));
+            ISqlQueryableExpression mappingQuery = factory.queryable(mappingType, mappingISqlTableRefExpression);
+            mappingQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(selfMappingField, mappingISqlTableRefExpression), left));
+            mappingQuery.setSelect(factory.select(new ArrayList<>(Collections.singletonList(factory.column(targetMappingField, mappingISqlTableRefExpression))), targetMappingField.getType()));
+            subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subISqlTableRefExpression), mappingQuery));
         }
 
         return subQuery;
@@ -1755,9 +1740,9 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
         return column;
     }
 
-    protected AsName getAsNameByIndex(ParameterExpression parameter)
+    protected ISqlTableRefExpression getISqlTableRefExpressionByIndex(ParameterExpression parameter)
     {
-        AsName asName;
+        ISqlTableRefExpression asName;
         if (index >= 0)
         {
             asName = asNameListDeque.peek().get(index);
@@ -1767,10 +1752,5 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression>
             asName = asNameMap.get(parameter);
         }
         return asName;
-    }
-
-    public Set<String> toSet(Collection<AsName> collection)
-    {
-        return collection.stream().map(a -> a.getName()).collect(Collectors.toSet());
     }
 }
