@@ -19,7 +19,7 @@ public class SqlRecursionExpression implements ISqlRecursionExpression {
     protected final FieldMetaData childField;
     protected final int level;
 
-    public SqlRecursionExpression(ISqlQueryableExpression queryable, FieldMetaData parentField, FieldMetaData childField, int level) {
+    protected SqlRecursionExpression(ISqlQueryableExpression queryable, FieldMetaData parentField, FieldMetaData childField, int level) {
         this.queryable = queryable;
         this.parentField = parentField;
         this.childField = childField;

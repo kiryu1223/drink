@@ -29,7 +29,7 @@ import java.util.List;
 public class SqlParensExpression implements ISqlParensExpression {
     private final ISqlExpression expression;
 
-    public SqlParensExpression(ISqlExpression expression) {
+    protected SqlParensExpression(ISqlExpression expression) {
         this.expression = expression;
     }
 

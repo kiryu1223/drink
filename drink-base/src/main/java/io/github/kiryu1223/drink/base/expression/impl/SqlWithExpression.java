@@ -13,7 +13,7 @@ public class SqlWithExpression implements ISqlWithExpression {
     protected final ISqlQueryableExpression queryable;
     protected final String name;
 
-    public SqlWithExpression(ISqlQueryableExpression queryable, String name) {
+    protected SqlWithExpression(ISqlQueryableExpression queryable, String name) {
         this.queryable = queryable;
         this.name = name;
     }

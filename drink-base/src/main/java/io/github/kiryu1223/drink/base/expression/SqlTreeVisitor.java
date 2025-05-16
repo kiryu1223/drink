@@ -97,6 +97,9 @@ public class SqlTreeVisitor {
         else if (expr instanceof ISqlDeleteExpression) {
             visit((ISqlDeleteExpression) expr);
         }
+        else if (expr instanceof ISqlTableRefExpression) {
+            visit((ISqlTableRefExpression) expr);
+        }
     }
 
     public void visit(ISqlAsExpression expr) {
@@ -254,5 +257,9 @@ public class SqlTreeVisitor {
         visit(expr.getFrom());
         visit(expr.getJoins());
         visit(expr.getWhere());
+    }
+
+    public void visit(ISqlTableRefExpression expr) {
+
     }
 }

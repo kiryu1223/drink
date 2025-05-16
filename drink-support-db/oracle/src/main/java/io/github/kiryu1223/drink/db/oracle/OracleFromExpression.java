@@ -17,7 +17,6 @@ package io.github.kiryu1223.drink.db.oracle;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTableExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
@@ -34,7 +33,7 @@ import java.util.List;
  * @since 3.0
  */
 public class OracleFromExpression extends SqlFromExpression {
-    public OracleFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
+    protected OracleFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
         super(sqlTableExpression, tableRefExpression);
     }
 

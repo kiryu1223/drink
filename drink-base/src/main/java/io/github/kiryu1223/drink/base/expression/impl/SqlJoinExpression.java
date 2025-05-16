@@ -32,7 +32,7 @@ public class SqlJoinExpression implements ISqlJoinExpression {
     protected ISqlConditionsExpression conditions;
     protected final ISqlTableRefExpression tableRefExpression;
 
-    public SqlJoinExpression(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, ISqlTableRefExpression tableRefExpression) {
+    protected SqlJoinExpression(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, ISqlTableRefExpression tableRefExpression) {
         this.joinType = joinType;
         this.joinTable = joinTable;
         this.conditions = conditions;

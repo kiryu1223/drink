@@ -30,7 +30,7 @@ public class SqlTemplateExpression implements ISqlTemplateExpression {
     private final List<String> functions;
     private final List<? extends ISqlExpression> expressions;
 
-    public SqlTemplateExpression(List<String> functions, List<? extends ISqlExpression> expressions) {
+    protected SqlTemplateExpression(List<String> functions, List<? extends ISqlExpression> expressions) {
         this.functions = functions;
         this.expressions = expressions;
     }

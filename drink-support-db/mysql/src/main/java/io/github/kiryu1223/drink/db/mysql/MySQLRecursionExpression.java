@@ -9,7 +9,7 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 public class MySQLRecursionExpression extends SqlRecursionExpression {
 
-    public MySQLRecursionExpression(ISqlQueryableExpression queryable, FieldMetaData parentField, FieldMetaData childField, int level) {
+    protected MySQLRecursionExpression(ISqlQueryableExpression queryable, FieldMetaData parentField, FieldMetaData childField, int level) {
         super(queryable, parentField, childField, level);
     }
 

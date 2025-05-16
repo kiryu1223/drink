@@ -28,7 +28,7 @@ public class SqlTypeCastExpression implements ISqlTypeCastExpression
     private final Class<?> type;
     private final ISqlExpression expression;
 
-    public SqlTypeCastExpression(Class<?> type, ISqlExpression expression)
+    protected SqlTypeCastExpression(Class<?> type, ISqlExpression expression)
     {
         this.type = type;
         this.expression = expression;

@@ -13,7 +13,7 @@ public class SqlDynamicColumnExpression implements ISqlDynamicColumnExpression {
     private final Class<?> type;
     private final ISqlTableRefExpression tableRefExpression;
 
-    public SqlDynamicColumnExpression(String column, Class<?> type, ISqlTableRefExpression tableRefExpression) {
+    protected SqlDynamicColumnExpression(String column, Class<?> type, ISqlTableRefExpression tableRefExpression) {
         this.column = column;
         this.type = type;
         this.tableRefExpression = tableRefExpression;

@@ -32,7 +32,7 @@ public class SqlColumnExpression implements ISqlColumnExpression {
     private final FieldMetaData fieldMetaData;
     private ISqlTableRefExpression tableRefExpression;
 
-    public SqlColumnExpression(FieldMetaData fieldMetaData, ISqlTableRefExpression tableRefExpression) {
+    protected SqlColumnExpression(FieldMetaData fieldMetaData, ISqlTableRefExpression tableRefExpression) {
         this.fieldMetaData = fieldMetaData;
         this.tableRefExpression = tableRefExpression;
     }

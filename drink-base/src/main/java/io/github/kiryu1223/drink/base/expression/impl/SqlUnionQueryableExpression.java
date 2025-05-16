@@ -13,7 +13,7 @@ public class SqlUnionQueryableExpression implements ISqlUnionQueryableExpression
     protected final List<ISqlQueryableExpression> queryable;
     protected final List<Boolean> unions;
 
-    public SqlUnionQueryableExpression(List<ISqlQueryableExpression> queryable, List<Boolean> unions) {
+    protected SqlUnionQueryableExpression(List<ISqlQueryableExpression> queryable, List<Boolean> unions) {
         this.queryable = queryable;
         this.unions = unions;
     }

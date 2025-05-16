@@ -13,7 +13,7 @@ public class SqlUpdateExpression implements ISqlUpdateExpression {
     protected final ISqlSetsExpression sets;
     protected final ISqlWhereExpression where;
 
-    public SqlUpdateExpression(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlSetsExpression sets, ISqlWhereExpression where) {
+    protected SqlUpdateExpression(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlSetsExpression sets, ISqlWhereExpression where) {
         this.from = from;
         this.joins = joins;
         this.sets = sets;

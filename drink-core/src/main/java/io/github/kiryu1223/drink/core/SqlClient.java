@@ -4,7 +4,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.Empty;
 import io.github.kiryu1223.drink.base.annotation.Navigate;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
-import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.transaction.Transaction;
 import io.github.kiryu1223.drink.core.api.ITable;
@@ -87,7 +86,8 @@ public class SqlClient {
      * @return 查询过程对象
      */
     public EmptyQuery queryEmptyTable() {
-        return new EmptyQuery(new QuerySqlBuilder(config, config.getSqlExpressionFactory().queryable(Empty.class, new AsName())));
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        return new EmptyQuery(new QuerySqlBuilder(config, factory.queryable(Empty.class)));
     }
 
     /**
@@ -135,8 +135,7 @@ public class SqlClient {
      */
     public <T> LDelete<T> delete(@Recode Class<T> c) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        String first = ExpressionUtil.getFirst(c);
-        return new LDelete<>(new DeleteSqlBuilder(config, factory.delete(c, new AsName(first))));
+        return new LDelete<>(new DeleteSqlBuilder(config, factory.delete(c)));
     }
 
     public IConfig getConfig() {
@@ -152,94 +151,94 @@ public class SqlClient {
 
     {
 
-        class User implements ITable {
-            int id;
-            int age;
-            int areaId;
-            String name;
-            BigDecimal amount;
-        }
-
-        class Area implements ITable {
-            int id;
-            String name;
-            @Navigate(
-                    value = RelationType.OneToMany,
-                    self = "id",
-                    target = "areaId"
-            )
-            List<User> users;
-
-            public int getId() {
-                return id;
-            }
-
-            public void setId(int id) {
-                this.id = id;
-            }
-
-            public String getName() {
-                return name;
-            }
-
-            public void setName(String name) {
-                this.name = name;
-            }
-
-            public List<User> getUsers() {
-                return users;
-            }
-
-            public void setUsers(List<User> users) {
-                this.users = users;
-            }
-        }
-
-        BigDecimal sumMoney = query(Area.class)
-                .where(a -> a.name.contains("华东"))
-                .selectMany(a -> a.users)
-                .where(a -> a.age >= 20 && a.age <= 30)
-                .sum(u -> u.amount);
-
-        List<? extends Result> list = query(Area.class)
-                .groupBy(a->new Grouper()
-                {
-                    int id=a.getId();
-                    String name=a.getName();
-                })
-                .select(g -> new Result() {
-                    String name = g.key.name;
-                    long count1 = g.count(g.value1.id);
-                    long count2 = g.count(gg -> gg.id);
-                    BigDecimal avg1 = g.avg(gg -> gg.id);
-                    BigDecimal avg2 = g.avg(g.key.id);
-                    int sum1 = g.sum(a -> a.id);
-                    int sum2 = g.sum(g.key.id);
-                    String max1 = g.max(g.key.name);
-                    String max2 = g.max(gg -> gg.name);
-                    String min1 = g.min(g.key.name);
-                    String min2 = g.min(gg -> gg.name);
-                }).toList();
-
-        List<Long> list1 = query(Area.class)
-                .selectAggregate(g -> g.count())
-                .toList();
-
-        query(Area.class)
-                .where(a -> a.query(a.users)
-                        .where(u -> u.age > 20)
-                        .groupBy(u -> new Grouper() {
-                            int id = u.id;
-                        })
-                        .select(g -> g.sum(g.value1.age))
-                        .toList()
-                        .contains(a.getId())
-                )
-                .toList();
-
-
-        Area first = query(Area.class)
-                .where(a -> a.query(a.users).where(u -> u.age > 20).any())
-                .first();
+//        class User implements ITable {
+//            int id;
+//            int age;
+//            int areaId;
+//            String name;
+//            BigDecimal amount;
+//        }
+//
+//        class Area implements ITable {
+//            int id;
+//            String name;
+//            @Navigate(
+//                    value = RelationType.OneToMany,
+//                    self = "id",
+//                    target = "areaId"
+//            )
+//            List<User> users;
+//
+//            public int getId() {
+//                return id;
+//            }
+//
+//            public void setId(int id) {
+//                this.id = id;
+//            }
+//
+//            public String getName() {
+//                return name;
+//            }
+//
+//            public void setName(String name) {
+//                this.name = name;
+//            }
+//
+//            public List<User> getUsers() {
+//                return users;
+//            }
+//
+//            public void setUsers(List<User> users) {
+//                this.users = users;
+//            }
+//        }
+//
+//        BigDecimal sumMoney = query(Area.class)
+//                .where(a -> a.name.contains("华东"))
+//                .selectMany(a -> a.users)
+//                .where(a -> a.age >= 20 && a.age <= 30)
+//                .sum(u -> u.amount);
+//
+//        List<? extends Result> list = query(Area.class)
+//                .groupBy(a->new Grouper()
+//                {
+//                    int id=a.getId();
+//                    String name=a.getName();
+//                })
+//                .select(g -> new Result() {
+//                    String name = g.key.name;
+//                    long count1 = g.count(g.value1.id);
+//                    long count2 = g.count(gg -> gg.id);
+//                    BigDecimal avg1 = g.avg(gg -> gg.id);
+//                    BigDecimal avg2 = g.avg(g.key.id);
+//                    int sum1 = g.sum(a -> a.id);
+//                    int sum2 = g.sum(g.key.id);
+//                    String max1 = g.max(g.key.name);
+//                    String max2 = g.max(gg -> gg.name);
+//                    String min1 = g.min(g.key.name);
+//                    String min2 = g.min(gg -> gg.name);
+//                }).toList();
+//
+//        List<Long> list1 = query(Area.class)
+//                .selectAggregate(g -> g.count())
+//                .toList();
+//
+//        query(Area.class)
+//                .where(a -> a.query(a.users)
+//                        .where(u -> u.age > 20)
+//                        .groupBy(u -> new Grouper() {
+//                            int id = u.id;
+//                        })
+//                        .select(g -> g.sum(g.value1.age))
+//                        .toList()
+//                        .contains(a.getId())
+//                )
+//                .toList();
+//
+//
+//        Area first = query(Area.class)
+//                .where(a -> a.query(a.users).where(u -> u.age > 20).any())
+//                .first();
     }
 }

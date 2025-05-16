@@ -28,7 +28,7 @@ import java.util.List;
 public class SqlConstStringExpression implements ISqlConstStringExpression {
     private final String string;
 
-    public SqlConstStringExpression(String string) {
+    protected SqlConstStringExpression(String string) {
         this.string = string;
     }
 

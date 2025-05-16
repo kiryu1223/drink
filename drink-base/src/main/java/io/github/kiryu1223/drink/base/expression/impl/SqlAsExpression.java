@@ -31,7 +31,7 @@ public class SqlAsExpression implements ISqlAsExpression {
     private final ISqlExpression expression;
     private final String asName;
 
-    public SqlAsExpression(ISqlExpression expression, String asName) {
+    protected SqlAsExpression(ISqlExpression expression, String asName) {
         this.expression = expression;
         this.asName = asName;
     }

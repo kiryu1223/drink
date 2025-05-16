@@ -13,7 +13,7 @@ public class SqlDeleteExpression implements ISqlDeleteExpression {
     private final ISqlJoinsExpression joins;
     private final ISqlWhereExpression where;
 
-    public SqlDeleteExpression(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where) {
+    protected SqlDeleteExpression(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where) {
         this.from = from;
         this.joins = joins;
         this.where = where;

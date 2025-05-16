@@ -32,7 +32,7 @@ public class SqlGroupByExpression implements ISqlGroupByExpression
 {
     protected final LinkedHashMap<String, ISqlExpression> columns;
 
-    public SqlGroupByExpression(LinkedHashMap<String, ISqlExpression> columns) {
+    protected SqlGroupByExpression(LinkedHashMap<String, ISqlExpression> columns) {
         this.columns = columns;
     }
 

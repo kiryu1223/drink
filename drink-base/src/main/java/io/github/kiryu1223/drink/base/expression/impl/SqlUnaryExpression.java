@@ -32,7 +32,7 @@ public class SqlUnaryExpression implements ISqlUnaryExpression {
     private final SqlOperator operator;
     private final ISqlExpression expression;
 
-    public SqlUnaryExpression(SqlOperator operator, ISqlExpression expression) {
+    protected SqlUnaryExpression(SqlOperator operator, ISqlExpression expression) {
         this.operator = operator;
         this.expression = expression;
     }

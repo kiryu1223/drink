@@ -31,7 +31,7 @@ public class SqlCollectedValueExpression implements ISqlCollectedValueExpression
     private final Collection<?> collection;
     private String delimiter = ",";
 
-    public SqlCollectedValueExpression(Collection<?> collection) {
+    protected SqlCollectedValueExpression(Collection<?> collection) {
         this.collection = collection;
     }
 

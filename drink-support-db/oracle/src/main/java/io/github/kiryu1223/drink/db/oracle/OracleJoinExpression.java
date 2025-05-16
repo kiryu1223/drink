@@ -31,7 +31,7 @@ import java.util.List;
  * @since 3.0
  */
 public class OracleJoinExpression extends SqlJoinExpression {
-    protected OracleJoinExpression(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, AsName asName) {
+    protected OracleJoinExpression(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, ISqlTableRefExpression asName) {
         super(joinType, joinTable, conditions, asName);
     }
 
@@ -51,9 +51,7 @@ public class OracleJoinExpression extends SqlJoinExpression {
         else {
             builder.append("(").append(joinTable.getSqlAndValue(config, values)).append(")");
         }
-        if (getAsName() != null) {
-            builder.append(" ").append(disambiguation.disambiguation(getAsName().getName())).append(" ");
-        }
+        builder.append(" ").append(disambiguation.disambiguation(tableRefExpression.getDisPlayName())).append(" ");
         builder.append(" ON ");
         builder.append(conditions.getSqlAndValue(config, values));
         return builder.toString();

@@ -33,7 +33,7 @@ public class SqlSelectExpression implements ISqlSelectExpression {
     protected Class<?> target;
     protected boolean isSingle;
 
-    SqlSelectExpression(List<ISqlExpression> columns, Class<?> target, boolean isSingle, boolean isDistinct) {
+    protected SqlSelectExpression(List<ISqlExpression> columns, Class<?> target, boolean isSingle, boolean isDistinct) {
         this.columns = columns;
         this.target = target;
         this.isSingle = isSingle;

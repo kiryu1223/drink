@@ -27,12 +27,12 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
  */
 public class OracleExpressionFactory extends DefaultSqlExpressionFactory {
     @Override
-    public ISqlFromExpression from(ISqlTableExpression sqlTable, AsName asName) {
+    public ISqlFromExpression from(ISqlTableExpression sqlTable, ISqlTableRefExpression asName) {
         return new OracleFromExpression(sqlTable, asName);
     }
 
     @Override
-    public ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, AsName asName) {
+    public ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlConditionsExpression conditions, ISqlTableRefExpression asName) {
         return new OracleJoinExpression(joinType, joinTable,conditions, asName);
     }
 

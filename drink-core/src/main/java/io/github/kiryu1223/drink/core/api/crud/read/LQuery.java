@@ -470,16 +470,16 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         return new LQuery<>(toMany(expr.getTree()));
     }
 
-    public <R> EndQuery<R> selectAggregate(@Expr(Expr.BodyType.Expr) Func1<Group<T, T>, R> expr)
-    {
-        throw new NotCompiledException();
-    }
-
-    public <R> EndQuery<R> selectAggregate(ExprTree<Func1<Group<T, T>, R>> expr)
-    {
-        select(expr.getTree());
-        return new EndQuery<>(getSqlBuilder());
-    }
+//    public <R> EndQuery<R> selectAggregate(@Expr(Expr.BodyType.Expr) Func1<Group<T, T>, R> expr)
+//    {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <R> EndQuery<R> selectAggregate(ExprTree<Func1<Group<T, T>, R>> expr)
+//    {
+//        select(expr.getTree());
+//        return new EndQuery<>(getSqlBuilder());
+//    }
 
     // endregion
 
@@ -492,12 +492,12 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
      * @param expr 返回需要抓取的字段的lambda表达式，这个字段需要被Navigate修饰
      * @return 抓取过程对象
      */
-    public <R> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr)
+    public <R extends ITable> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr)
+    public <R extends ITable> LQuery<T> include(ExprTree<Func1<T, R>> expr)
     {
         include(expr.getTree());
         return this;
@@ -511,12 +511,12 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
      * @param then 简单的过滤条件
      * @return 抓取过程对象
      */
-    public <R> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, Action1<LQuery<R>> then)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> include(ExprTree<Func1<T, R>> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> include(ExprTree<Func1<T, R>> expr, Action1<LQuery<R>> then)
     {
         LambdaExpression<Func1<T, R>> tree = expr.getTree();
         Class<?> targetType = tree.getReturnType();
@@ -534,12 +534,12 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     /**
      * include的集合版本
      */
-    public <R> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr)
+    public <R extends ITable> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr)
+    public <R extends ITable> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr)
     {
         include(expr.getTree());
         return this;
@@ -548,12 +548,12 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     /**
      * include的集合版本
      */
-    public <R> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, Action1<LQuery<R>> then)
     {
         throw new NotCompiledException();
     }
 
-    public <R> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr, Action1<LQuery<R>> then)
     {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());

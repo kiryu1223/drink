@@ -30,7 +30,7 @@ public class SqlFromExpression implements ISqlFromExpression {
     protected final ISqlTableExpression sqlTableExpression;
     protected final ISqlTableRefExpression tableRefExpression;
 
-    public SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
+    protected SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
         this.sqlTableExpression = sqlTableExpression;
         this.tableRefExpression = tableRefExpression;
     }

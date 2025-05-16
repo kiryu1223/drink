@@ -30,7 +30,7 @@ import java.util.List;
 public class SqlHavingExpression implements ISqlHavingExpression {
     private final ISqlConditionsExpression conditions;
 
-    public SqlHavingExpression(ISqlConditionsExpression conditions) {
+    protected SqlHavingExpression(ISqlConditionsExpression conditions) {
         this.conditions = conditions;
     }
 

@@ -34,7 +34,7 @@ public class SqlSetExpression implements ISqlSetExpression {
     private final ISqlColumnExpression column;
     private final ISqlExpression value;
 
-    SqlSetExpression(ISqlColumnExpression column, ISqlExpression value) {
+    protected SqlSetExpression(ISqlColumnExpression column, ISqlExpression value) {
         this.column = column;
         this.value = value;
     }

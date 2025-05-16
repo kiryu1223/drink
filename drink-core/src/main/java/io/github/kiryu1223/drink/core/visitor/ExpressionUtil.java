@@ -15,11 +15,8 @@
  */
 package io.github.kiryu1223.drink.core.visitor;
 
-import io.github.kiryu1223.drink.base.expression.AsName;
 import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.core.api.crud.read.IDynamicColumn;
@@ -45,12 +42,12 @@ import java.util.*;
  */
 public class ExpressionUtil {
 
-    public static boolean isDynamicColumn(Method method) {
-        String name = method.getName();
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        return IDynamicColumn.class.isAssignableFrom(method.getDeclaringClass())
-                && name.equals("column") && parameterTypes.length == 2 && isString(parameterTypes[0]);
-    }
+//    public static boolean isDynamicColumn(Method method) {
+//        String name = method.getName();
+//        Class<?>[] parameterTypes = method.getParameterTypes();
+//        return IDynamicColumn.class.isAssignableFrom(method.getDeclaringClass())
+//                && name.equals("column") && parameterTypes.length == 2 && isString(parameterTypes[0]);
+//    }
 
     public static boolean isEquals(MethodCallExpression methodCall) {
         Method method = methodCall.getMethod();
@@ -63,46 +60,46 @@ public class ExpressionUtil {
     /**
      * 判断是否为属性表达式
      */
-    public static boolean isProperty(Map<ParameterExpression, ISqlTableRefExpression> asNameMap, MethodCallExpression methodCall) {
-        if (methodCall.getExpr().getKind() != Kind.Parameter) return false;
-        ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-        return asNameMap.containsKey(parameter);
-    }
-
-    /**
-     * 判断是否为属性表达式
-     */
-    public static boolean isProperty(Map<ParameterExpression, ISqlTableRefExpression> asNameMap, FieldSelectExpression fieldSelect) {
-        if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
-        ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
-        return asNameMap.containsKey(parameter);
-    }
+//    public static boolean isProperty(Map<ParameterExpression, ISqlTableRefExpression> asNameMap, MethodCallExpression methodCall) {
+//        if (methodCall.getExpr().getKind() != Kind.Parameter) return false;
+//        ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
+//        return asNameMap.containsKey(parameter);
+//    }
+//
+//    /**
+//     * 判断是否为属性表达式
+//     */
+//    public static boolean isProperty(Map<ParameterExpression, ISqlTableRefExpression> asNameMap, FieldSelectExpression fieldSelect) {
+//        if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
+//        ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
+//        return asNameMap.containsKey(parameter);
+//    }
 
     /**
      * 判断是否为分组键
      */
-    public static boolean isGroupKey(Map<ParameterExpression, ISqlTableRefExpression> parameters, Expression expression) {
-        if (expression.getKind() != Kind.FieldSelect) return false;
-        FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
-        if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
-        ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
-        Field field = fieldSelect.getField();
-        return parameters.containsKey(parameter)
-                && IGroup.class.isAssignableFrom(field.getDeclaringClass())
-                && field.getName().equals("key");
-    }
-
-    public static boolean isGroupValue(Map<ParameterExpression, ISqlTableRefExpression> parameters, Expression expression) {
-        if (expression.getKind() != Kind.FieldSelect) return false;
-        FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
-        if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
-        ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
-        Field field = fieldSelect.getField();
-        String fieldName = field.getName();
-        return parameters.containsKey(parameter)
-                && IGroup.class.isAssignableFrom(field.getDeclaringClass())
-                && fieldName.startsWith("value");
-    }
+//    public static boolean isGroupKey(Map<ParameterExpression, ISqlTableRefExpression> parameters, Expression expression) {
+//        if (expression.getKind() != Kind.FieldSelect) return false;
+//        FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
+//        if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
+//        ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
+//        Field field = fieldSelect.getField();
+//        return parameters.containsKey(parameter)
+//                && IGroup.class.isAssignableFrom(field.getDeclaringClass())
+//                && field.getName().equals("key");
+//    }
+//
+//    public static boolean isGroupValue(Map<ParameterExpression, ISqlTableRefExpression> parameters, Expression expression) {
+//        if (expression.getKind() != Kind.FieldSelect) return false;
+//        FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
+//        if (fieldSelect.getExpr().getKind() != Kind.Parameter) return false;
+//        ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
+//        Field field = fieldSelect.getField();
+//        String fieldName = field.getName();
+//        return parameters.containsKey(parameter)
+//                && IGroup.class.isAssignableFrom(field.getDeclaringClass())
+//                && fieldName.startsWith("value");
+//    }
 
     /**
      * 判断是否为getter方法
@@ -152,13 +149,6 @@ public class ExpressionUtil {
 //        }
 //        return original;
 //    }
-
-    /**
-     * 强制类型转换
-     */
-    public static <R> R cast(Object o) {
-        return (R) o;
-    }
 
     public static Class<?> getTargetType(Type type) {
         if (type instanceof Class) {

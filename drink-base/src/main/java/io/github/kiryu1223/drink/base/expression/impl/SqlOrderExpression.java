@@ -30,7 +30,7 @@ public class SqlOrderExpression implements ISqlOrderExpression {
     private final ISqlExpression expression;
     private final boolean asc;
 
-    public SqlOrderExpression(ISqlExpression expression, boolean asc) {
+    protected SqlOrderExpression(ISqlExpression expression, boolean asc) {
         this.expression = expression;
         this.asc = asc;
     }

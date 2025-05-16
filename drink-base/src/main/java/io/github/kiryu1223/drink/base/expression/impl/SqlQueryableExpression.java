@@ -37,7 +37,7 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     protected final ISqlOrderByExpression orderBy;
     protected final ISqlLimitExpression limit;
 
-    public SqlQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+    protected SqlQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
         this.select = select;
         this.from = from;
         this.joins = joins;

@@ -36,7 +36,7 @@ import java.util.List;
  * @since 3.0
  */
 public class OracleQueryableExpression extends SqlQueryableExpression {
-    public OracleQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+    protected OracleQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
         super(select, from, joins, where, groupBy, having, orderBy, limit);
     }
 
@@ -90,7 +90,7 @@ public class OracleQueryableExpression extends SqlQueryableExpression {
             }
             SqlExpressionFactory factory = config.getSqlExpressionFactory();
             ISqlOrderByExpression sqlOrderByExpression = factory.orderBy();
-            sqlOrderByExpression.addOrder(factory.order(factory.column(primary,from.getAsName())));
+            sqlOrderByExpression.addOrder(factory.order(factory.column(primary,from.getTableRefExpression())));
             strings.add(sqlOrderByExpression.getSqlAndValue(config, values));
         }
     }

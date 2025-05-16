@@ -28,7 +28,7 @@ import java.util.List;
 public class SqlWhereExpression implements ISqlWhereExpression {
     private ISqlConditionsExpression conditions;
 
-    SqlWhereExpression(ISqlConditionsExpression conditions) {
+    protected SqlWhereExpression(ISqlConditionsExpression conditions) {
         this.conditions = conditions;
     }
 
