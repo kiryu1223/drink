@@ -1207,8 +1207,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 return factory.groupBy(contextMap);
             }
-            // SELECT
-            else if (Result.class.isAssignableFrom(type)) {
+            // new {...}
+            else if (type.isAnonymousClass()) {
                 List<ISqlExpression> expressions = new ArrayList<>();
                 for (Expression expression : classBody.getExpressions()) {
                     if (expression.getKind() == Kind.Variable) {
