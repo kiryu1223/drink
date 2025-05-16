@@ -172,7 +172,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected boolean select(LambdaExpression<?> lambda) {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
-        ISqlSelectExpression select = sqlVisitor.toSelect(lambda);
+        ISqlSelectExpression select = sqlVisitor.toSelect(lambda, sqlBuilder.getQueryable());
         sqlBuilder.setSelect(select);
         return sqlBuilder.isSingle();
     }
