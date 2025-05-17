@@ -4,30 +4,31 @@ package io.github.kiryu1223.drink.base.toBean.Include;
 
 import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class IncludeSet
 {
-    private final ISqlColumnExpression columnExpression;
+    private final FieldMetaData columnMetaData;
     private final ISqlExpression cond;
     private final List<IncludeSet> includeSets = new ArrayList<>();
 
-    public IncludeSet(ISqlColumnExpression columnExpression, ISqlExpression cond)
+    public IncludeSet(FieldMetaData columnMetaData, ISqlExpression cond)
     {
-        this.columnExpression = columnExpression;
+        this.columnMetaData = columnMetaData;
         this.cond = cond;
     }
 
-    public IncludeSet(ISqlColumnExpression columnExpression)
+    public IncludeSet(FieldMetaData columnMetaData)
     {
-        this(columnExpression,null);
+        this(columnMetaData,null);
     }
 
-    public ISqlColumnExpression getColumnExpression()
+    public FieldMetaData getColumnMetaData()
     {
-        return columnExpression;
+        return columnMetaData;
     }
 
     public ISqlExpression getCond()

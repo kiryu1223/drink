@@ -175,6 +175,10 @@ public class MetaData {
         return propertys.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter.toGenericString()));
     }
 
+    public FieldMetaData getFieldMetaDataByGetterName(String getter) {
+        return propertys.stream().filter(f -> f.getGetter().getName().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter));
+    }
+
     /**
      * 根据setter获取字段元数据
      *

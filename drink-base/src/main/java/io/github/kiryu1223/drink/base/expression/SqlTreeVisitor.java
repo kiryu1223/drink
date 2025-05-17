@@ -7,6 +7,9 @@ public class SqlTreeVisitor {
         if (expr instanceof ISqlAsExpression) {
             visit((ISqlAsExpression) expr);
         }
+        else if (expr instanceof ISqlUnaryExpression) {
+            visit((ISqlUnaryExpression) expr);
+        }
         else if (expr instanceof ISqlBinaryExpression) {
             visit((ISqlBinaryExpression) expr);
         }
@@ -100,6 +103,10 @@ public class SqlTreeVisitor {
         else if (expr instanceof ISqlTableRefExpression) {
             visit((ISqlTableRefExpression) expr);
         }
+    }
+
+    public void visit(ISqlUnaryExpression expr) {
+        visit(expr.getExpression());
     }
 
     public void visit(ISqlAsExpression expr) {

@@ -1,14 +1,17 @@
 package io.github.kiryu1223.project.pojos;
 
-import io.github.kiryu1223.drink.annotation.Column;
-import io.github.kiryu1223.drink.annotation.Table;
+import io.github.kiryu1223.drink.base.annotation.Column;
+import io.github.kiryu1223.drink.base.annotation.Table;
+import io.github.kiryu1223.drink.core.api.ITable;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDate;
 
 @Data
 @Table("salaries")
-public class Salary
+@FieldNameConstants
+public class Salary implements ITable, ITenant
 {
     @Column("emp_no")
     private int empNumber;
@@ -17,4 +20,6 @@ public class Salary
     private LocalDate from;
     @Column("to_date")
     private LocalDate to;
+
+    private int tenantId;
 }

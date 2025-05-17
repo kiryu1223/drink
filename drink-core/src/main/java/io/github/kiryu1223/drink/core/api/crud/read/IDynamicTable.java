@@ -4,7 +4,8 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 
-public interface IDynamicColumn {
+public interface IDynamicTable
+{
     default <T> T column(String name, Class<T> type) {
         MetaData metaData = MetaDataCache.getMetaData(getClass());
         FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(name);

@@ -1,9 +1,7 @@
 package io.github.kiryu1223.drink.pojos;
 
-import io.github.kiryu1223.drink.base.annotation.Column;
-import io.github.kiryu1223.drink.base.annotation.Navigate;
-import io.github.kiryu1223.drink.base.annotation.RelationType;
-import io.github.kiryu1223.drink.base.annotation.Table;
+import io.github.kiryu1223.drink.base.annotation.*;
+import io.github.kiryu1223.drink.handler.GenderHandler;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -24,7 +22,7 @@ public class Employee
     private String firstName;
     @Column("last_name")
     private String lastName;
-    @Column(converter = GenderConverter.class)
+    @UseTypeHandler(GenderHandler.class)
     private Gender gender;
     @Column("hire_date")
     private LocalDate hireDay;

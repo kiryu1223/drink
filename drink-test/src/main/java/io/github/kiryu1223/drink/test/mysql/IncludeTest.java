@@ -24,7 +24,9 @@ public class IncludeTest extends BaseTest
     public void oneManyCondTest()
     {
         Employee employee = client.query(Employee.class)
-                .includes(e -> e.getSalaries(), s -> s.getTo().isBefore(LocalDate.of(9999, 1, 1)))
+                .includes(e -> e.getSalaries(),
+                        then -> then.where(e->e.getTo().isBefore(LocalDate.of(9999, 1, 1)))
+                )
                 .first();
 
         Assert.assertEquals(16, employee.getSalaries().size());

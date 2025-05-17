@@ -1,13 +1,13 @@
 package io.github.kiryu1223.drink.test.mysql;
 
-import io.github.kiryu1223.drink.core.sqlExt.SqlFunctions;
+import io.github.kiryu1223.drink.func.SqlFunctions;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.github.kiryu1223.drink.core.sqlExt.SqlFunctions.Case;
-import static io.github.kiryu1223.drink.core.sqlExt.SqlFunctions.when;
+import static io.github.kiryu1223.drink.func.SqlFunctions.*;
+
 
 @SuppressWarnings("all")
 public class ControlTest extends BaseTest
@@ -18,7 +18,7 @@ public class ControlTest extends BaseTest
     public void ifTest()
     {
         String res = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.If(2 > 1, "二比一大", "一比二大"))
+                .select(() -> If(2 > 1, "二比一大", "一比二大"))
                 .first();
 
         Assert.assertEquals("二比一大", res);
@@ -28,13 +28,13 @@ public class ControlTest extends BaseTest
     public void ifNullTest()
     {
         String notnullres = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.ifNull("我不是空", null))
+                .select(() -> SqlFunctions.ifNull("我不是空", null))
                 .first();
 
         Assert.assertEquals("我不是空", notnullres);
 
         String nullres = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.ifNull(null, "我是空"))
+                .select(() -> SqlFunctions.ifNull(null, "我是空"))
                 .first();
 
         Assert.assertEquals("我是空", nullres);
@@ -44,13 +44,13 @@ public class ControlTest extends BaseTest
     public void nullIfTest()
     {
         String eq = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.nullIf("我们都一样", "我们都一样"))
+                .select(() -> SqlFunctions.nullIf("我们都一样", "我们都一样"))
                 .first();
 
         Assert.assertEquals(null, eq);
 
         String notEq = client.queryEmptyTable()
-                .endSelect(() -> SqlFunctions.nullIf("我们不一样", "我们都一样"))
+                .select(() -> SqlFunctions.nullIf("我们不一样", "我们都一样"))
                 .first();
 
         Assert.assertEquals("我们不一样", notEq);
@@ -62,7 +62,7 @@ public class ControlTest extends BaseTest
         char a = 'a';
         char b = 'b';
         int cmp = client.queryEmptyTable()
-                .endSelect(() -> Case(
+                .select(() -> Case(
                         0,
                         when(a > b, 1),
                         when(a < b, -1)

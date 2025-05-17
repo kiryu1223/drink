@@ -12,8 +12,8 @@
     <artifactId>sample</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>springboot</module>
-        <module>solon</module>
+<!--        <module>springboot</module>-->
+<!--        <module>solon</module>-->
         <module>project</module>
     </modules>
 

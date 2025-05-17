@@ -51,8 +51,8 @@ class Config implements IConfig {
         this.sqlSessionFactory = sqlSessionFactory;
 
         this.disambiguation=dbSupport.getIDialect();
-        this.transformer=dbSupport.getTransformer(this);
         this.sqlExpressionFactory=dbSupport.getSqlExpressionFactory();
+        this.transformer=dbSupport.getTransformer(this);
         this.includeFactory=dbSupport.getIncludeFactory();
     }
 

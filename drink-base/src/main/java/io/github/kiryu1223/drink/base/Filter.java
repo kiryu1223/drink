@@ -50,14 +50,20 @@ public class Filter {
     }
 
     public <T> List<LambdaExpression<?>> getApplyList(Class<T> targetType, List<String> ignoreFilterIds) {
-        Map<String, Pair<Func0<Boolean>, LambdaExpression<?>>> stringPairMap = applyIfMap.get(targetType);
-        if (stringPairMap != null) {
-            return stringPairMap.entrySet().stream()
-                    .filter(e -> ignoreFilterIds.isEmpty() || !ignoreFilterIds.contains(e.getKey()))
-                    .map(e -> e.getValue())
-                    .filter(p -> p.getKey().invoke())
-                    .map(p -> p.getValue())
-                    .collect(Collectors.toList());
+        for (Map.Entry<Class<?>, Map<String, Pair<Func0<Boolean>, LambdaExpression<?>>>> classMapEntry : applyIfMap.entrySet())
+        {
+            if(classMapEntry.getKey().isAssignableFrom(targetType))
+            {
+                Map<String, Pair<Func0<Boolean>, LambdaExpression<?>>> stringPairMap=classMapEntry.getValue();
+                if (stringPairMap != null) {
+                    return stringPairMap.entrySet().stream()
+                            .filter(e -> ignoreFilterIds.isEmpty() || !ignoreFilterIds.contains(e.getKey()))
+                            .map(e -> e.getValue())
+                            .filter(p -> p.getKey().invoke())
+                            .map(p -> p.getValue())
+                            .collect(Collectors.toList());
+                }
+            }
         }
         return Collections.emptyList();
     }

@@ -15,12 +15,11 @@
  */
 package io.github.kiryu1223.drink.core.visitor;
 
-import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
-import io.github.kiryu1223.drink.core.api.crud.read.IDynamicColumn;
-import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
+import io.github.kiryu1223.drink.core.api.ITable;
+import io.github.kiryu1223.drink.core.api.crud.read.IDynamicTable;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.*;
@@ -42,12 +41,13 @@ import java.util.*;
  */
 public class ExpressionUtil {
 
-//    public static boolean isDynamicColumn(Method method) {
-//        String name = method.getName();
-//        Class<?>[] parameterTypes = method.getParameterTypes();
-//        return IDynamicColumn.class.isAssignableFrom(method.getDeclaringClass())
-//                && name.equals("column") && parameterTypes.length == 2 && isString(parameterTypes[0]);
-//    }
+    public static boolean isDynamicColumn(Method method) {
+        String name = method.getName();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        return IDynamicTable.class.isAssignableFrom(method.getDeclaringClass())
+                && name.equals("column") && parameterTypes.length == 2 && isString(parameterTypes[0])
+                && parameterTypes[1] == Class.class;
+    }
 
     public static boolean isEquals(MethodCallExpression methodCall) {
         Method method = methodCall.getMethod();
@@ -118,6 +118,11 @@ public class ExpressionUtil {
         if (method.getParameterCount() != 1) return false;
         String name = method.getName();
         return name.startsWith("set");
+    }
+
+    public static boolean isStartQuery(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        return ITable.class.isAssignableFrom(declaringClass)&&method.getName().equals("query")&&method.getParameterCount()==1;
     }
 
     /**

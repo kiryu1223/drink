@@ -188,8 +188,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     protected QuerySqlBuilder toMany(LambdaExpression<?> tree) {
         ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
-        ISqlColumnExpression column = sqlVisitor.toColumn(tree);
-        FieldMetaData fieldMetaData = column.getFieldMetaData();
+        FieldMetaData fieldMetaData = sqlVisitor.toField(tree);
         if (!fieldMetaData.hasNavigate()) {
             throw new DrinkException(String.format("%s字段需要被@Navigate修饰", fieldMetaData.getField()));
         }
@@ -368,7 +367,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     protected void orderBy(LambdaExpression<?> lambda, boolean asc) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
-        ISqlExpression expression = sqlVisitor.visit(lambda);
+        ISqlColumnExpression expression = sqlVisitor.toColumn(lambda);
         sqlBuilder.addOrder(factory.order(expression, asc));
     }
 
@@ -405,19 +404,19 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected void include(LambdaExpression<?> lambda, ISqlExpression cond, List<IncludeSet> includeSets) {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
-        ISqlColumnExpression columnExpression = sqlVisitor.toColumn(lambda);
-        if (!columnExpression.getFieldMetaData().hasNavigate()) {
+        FieldMetaData fieldMetaData = sqlVisitor.toField(lambda);
+        if (!fieldMetaData.hasNavigate()) {
             throw new RuntimeException("include指定的字段需要被@Navigate修饰");
         }
-        relationTypeCheck(columnExpression.getFieldMetaData().getNavigateData());
+        relationTypeCheck(fieldMetaData.getNavigateData());
         IncludeSet includeSet;
         if (cond != null) {
             SqlVisitor coVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
             //ISqlExpression condition = coVisitor.visit(cond);
-            includeSet = new IncludeSet(columnExpression, cond);
+            includeSet = new IncludeSet(fieldMetaData, cond);
         }
         else {
-            includeSet = new IncludeSet(columnExpression);
+            includeSet = new IncludeSet(fieldMetaData);
         }
         includeSets.add(includeSet);
     }

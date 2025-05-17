@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.base.annotation.Column;
 import io.github.kiryu1223.drink.base.annotation.Navigate;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.annotation.Table;
+import io.github.kiryu1223.drink.core.api.ITable;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
  */
 @Data
 @Table(value = "salaries")
-public class Salary
+public class Salary implements ITable
 {
     @Column(value = "emp_no",primaryKey = true)
     private int empNumber;

@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.base.expression;
 
 
+import io.github.kiryu1223.drink.base.expression.impl.SqlGroupRef;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
@@ -383,5 +384,10 @@ public interface SqlExpressionFactory {
 
     default ISqlTableRefExpression tableRef(Class<?> c) {
         return tableRef(DrinkUtil.getFirst(c));
+    }
+
+    default ISqlGroupRef groupRef()
+    {
+        return new SqlGroupRef();
     }
 }

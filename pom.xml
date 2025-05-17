@@ -17,7 +17,7 @@
 
         <!--        &lt;!&ndash; skip &ndash;&gt;-->
 <!--        <module>drink-test</module>-->
-<!--        <module>sample</module>-->
+        <module>sample</module>
     </modules>
 
     <properties>

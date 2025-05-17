@@ -36,7 +36,7 @@ public class Builder {
         return new Builder();
     }
 
-    private DbType dbType = DbType.Any;
+    private DbType dbType = DbType.MySQL;
     /**
      * 配置
      */
@@ -89,7 +89,7 @@ public class Builder {
                 return support;
             }
         }
-        throw new RuntimeException("找不到对应的数据库支持");
+        throw new RuntimeException(String.format("找不到%s数据库支持",dbType));
     }
 
     /**

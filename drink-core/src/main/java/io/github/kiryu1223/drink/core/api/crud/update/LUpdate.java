@@ -127,11 +127,11 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
-    public <R> LUpdate<T> setInDbIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> func, Func1<T, R> value) {
+    public <R> LUpdate<T> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> func, Func1<T, R> value) {
         throw new NotCompiledException();
     }
 
-    public <R> LUpdate<T> setInDbIf(boolean condition, ExprTree<Func1<T, R>> func, ExprTree<Func1<T, R>> value) {
+    public <R> LUpdate<T> setColumnIf(boolean condition, ExprTree<Func1<T, R>> func, ExprTree<Func1<T, R>> value) {
         if (condition) set(func.getTree(), value.getTree());
         return this;
     }

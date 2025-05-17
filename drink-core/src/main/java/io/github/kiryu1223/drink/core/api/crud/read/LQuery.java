@@ -42,6 +42,8 @@ import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
 
@@ -553,8 +555,8 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     public <R extends ITable> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr, Action1<LQuery<R>> then)
     {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
-        ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
-        Class<?> targetType = getTargetType(column.getFieldMetaData().getNavigateData().getNavigateTargetType());
+        FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
+        Class<?> targetType = getTargetType(fieldMetaData.getNavigateData().getNavigateTargetType());
         LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType)));
         then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
@@ -670,8 +672,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     public List<T> toTreeList(ExprTree<Func1<T, Collection<T>>> expr)
     {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
-        ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
-        FieldMetaData fieldMetaData = column.getFieldMetaData();
+        FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
         if (!fieldMetaData.hasNavigate())
         {
             throw new SqLinkException("toTreeList指定的字段需要被@Navigate修饰");
@@ -861,8 +862,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     {
         ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
-        ISqlColumnExpression column = sqlVisitor.toColumn(expr.getTree());
-        FieldMetaData fieldMetaData = column.getFieldMetaData();
+        FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
         if (!fieldMetaData.hasNavigate())
         {
             throw new SqLinkException("asTreeCTE指定的字段需要被@Navigate修饰");
