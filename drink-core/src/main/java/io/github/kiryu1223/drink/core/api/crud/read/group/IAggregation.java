@@ -19,6 +19,7 @@ package io.github.kiryu1223.drink.core.api.crud.read.group;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 
 import static io.github.kiryu1223.drink.base.exception.Winner.boom;
 
@@ -65,5 +66,10 @@ public interface IAggregation {
     default <R> R min(R r) {
         boom();
         return (R) new Object();
+    }
+
+    default <R> String join(R r) {
+        boom();
+        return "";
     }
 }

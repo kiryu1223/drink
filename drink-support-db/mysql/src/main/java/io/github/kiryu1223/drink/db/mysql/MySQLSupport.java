@@ -23,9 +23,9 @@ public class MySQLSupport implements IDbSupport
     }
 
     @Override
-    public SqlExpressionFactory getSqlExpressionFactory()
+    public SqlExpressionFactory getSqlExpressionFactory(IConfig config)
     {
-        return new MySQLExpressionFactory();
+        return new MySQLExpressionFactory(config);
     }
 
     @Override

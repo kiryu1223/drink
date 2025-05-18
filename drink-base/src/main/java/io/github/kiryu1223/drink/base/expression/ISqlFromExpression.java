@@ -17,7 +17,6 @@ package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.List;
@@ -37,15 +36,15 @@ public interface ISqlFromExpression extends ISqlExpression {
     /**
      * 判断是否为无from查询
      */
-    default boolean isEmptyTable() {
+    default boolean isEmptyTable(IConfig config) {
         Class<?> tableClass = getSqlTableExpression().getMainTableClass();
-        MetaData metaData = MetaDataCache.getMetaData(tableClass);
+        MetaData metaData = config.getMetaData(tableClass);
         return metaData.isEmptyTable();
     }
 
-    default String getTableName() {
+    default String getTableName(IConfig config) {
         Class<?> mainTableClass = getSqlTableExpression().getMainTableClass();
-        MetaData metaData = MetaDataCache.getMetaData(mainTableClass);
+        MetaData metaData = config.getMetaData(mainTableClass);
         return metaData.getTableName();
     }
 

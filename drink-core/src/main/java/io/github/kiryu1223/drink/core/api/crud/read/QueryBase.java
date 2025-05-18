@@ -25,6 +25,7 @@ import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeSet;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
+import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
@@ -32,7 +33,7 @@ import io.github.kiryu1223.drink.core.page.PagedResult;
 import io.github.kiryu1223.drink.core.page.Pager;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
-import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
+import io.github.kiryu1223.expressionTree.expressions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,10 +115,11 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         String sql = sqlBuilder.getSqlAndValue(values);
         boolean single = sqlBuilder.isSingle();
         List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
+        ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession(config);
         List<R> ts = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config).createList(),
+                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config,typeHandler).createList(),
                 sql,
                 values
         );
@@ -130,6 +132,24 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             }
         }
         return ts;
+    }
+
+    private ITypeHandler<R> getSingleTypeHandler(boolean single)
+    {
+        ITypeHandler<R> typeHandler=null;
+        if (single)
+        {
+            List<ISqlExpression> columns = sqlBuilder.getQueryable().getSelect().getColumns();
+            for (ISqlExpression column : columns)
+            {
+                if (column instanceof ISqlColumnExpression)
+                {
+                    ISqlColumnExpression columnExpression = (ISqlColumnExpression) column;
+                    typeHandler= (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
+                }
+            }
+        }
+        return typeHandler;
     }
 
     // endregion
@@ -177,6 +197,10 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         return sqlBuilder.isSingle();
     }
 
+    protected void select2(LambdaExpression<?> lambda) {
+
+    }
+
     protected void select0(Class<?> c) {
         sqlBuilder.setSelect(c);
     }
@@ -198,8 +222,8 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         ISqlQueryableExpression boxedQueryable;
         Class<?> targetType = navigateData.getNavigateTargetType();
-        FieldMetaData target = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-        FieldMetaData self = MetaDataCache.getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+        FieldMetaData target = getConfig().getMetaData(targetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+        FieldMetaData self = getConfig().getMetaData(queryable.getMainTableClass()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         if (relationType == RelationType.OneToMany) {
             // SELECT s.* FROM selfTable s ...
             ISqlQueryableExpression copy = queryable.copy(getConfig());
@@ -215,7 +239,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
             String selfMappingName = navigateData.getSelfMappingFieldName();
             String targetMappingName = navigateData.getTargetMappingFieldName();
-            MetaData mappingData = MetaDataCache.getMetaData(mappingType);
+            MetaData mappingData = getConfig().getMetaData(mappingType);
             FieldMetaData selfMapping = mappingData.getFieldMetaDataByFieldName(selfMappingName);
             FieldMetaData targetMapping = mappingData.getFieldMetaDataByFieldName(targetMappingName);
             // SELECT s.* FROM selfTable s ...

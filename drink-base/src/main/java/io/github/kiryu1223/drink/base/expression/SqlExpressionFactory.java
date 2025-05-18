@@ -16,10 +16,10 @@
 package io.github.kiryu1223.drink.base.expression;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.impl.SqlGroupRef;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
 import java.util.ArrayList;
@@ -34,6 +34,8 @@ import java.util.List;
  * @since 3.0
  */
 public interface SqlExpressionFactory {
+
+    IConfig getConfig();
     /**
      * 创建别名表达式
      *
@@ -371,8 +373,8 @@ public interface SqlExpressionFactory {
      * 将实体类转换为列表达式集合
      */
     default List<ISqlExpression> getColumnByClass(Class<?> target, ISqlTableRefExpression tableRefExpression) {
-        MetaData metaData = MetaDataCache.getMetaData(target);
-        List<FieldMetaData> property = metaData.getNotIgnorePropertys();
+        MetaData metaData = getConfig().getMetaData(target);
+        List<FieldMetaData> property = metaData.getNotIgnoreAndNavigateFields();
         List<ISqlExpression> columns = new ArrayList<>(property.size());
         for (FieldMetaData data : property) {
             columns.add(column(data, tableRefExpression));
@@ -383,7 +385,7 @@ public interface SqlExpressionFactory {
     ISqlTableRefExpression tableRef(String name);
 
     default ISqlTableRefExpression tableRef(Class<?> c) {
-        return tableRef(DrinkUtil.getFirst(c));
+        return tableRef(DrinkUtil.getFirst(getConfig(),c));
     }
 
     default ISqlGroupRef groupRef()

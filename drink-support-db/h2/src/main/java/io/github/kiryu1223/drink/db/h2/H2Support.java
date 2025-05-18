@@ -23,9 +23,9 @@ public class H2Support implements IDbSupport
     }
 
     @Override
-    public SqlExpressionFactory getSqlExpressionFactory()
+    public SqlExpressionFactory getSqlExpressionFactory(IConfig config)
     {
-        return new H2ExpressionFactory();
+        return new H2ExpressionFactory(config);
     }
 
     @Override

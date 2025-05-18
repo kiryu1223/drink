@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.db.oracle;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
 
@@ -26,6 +27,11 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
  * @since 3.0
  */
 public class OracleExpressionFactory extends DefaultSqlExpressionFactory {
+    protected OracleExpressionFactory(IConfig config)
+    {
+        super(config);
+    }
+
     @Override
     public ISqlFromExpression from(ISqlTableExpression sqlTable, ISqlTableRefExpression asName) {
         return new OracleFromExpression(sqlTable, asName);

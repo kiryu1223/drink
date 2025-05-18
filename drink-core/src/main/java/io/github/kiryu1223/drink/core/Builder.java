@@ -17,6 +17,7 @@ package io.github.kiryu1223.drink.core;
 
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IDbSupport;
+import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
@@ -58,6 +59,8 @@ public class Builder {
      */
     private BeanCreatorFactory beanCreatorFactory;
 
+    private NameConverter nameConverter;
+
     /**
      * 构建Client对象
      */
@@ -74,8 +77,12 @@ public class Builder {
         if (beanCreatorFactory == null) {
             beanCreatorFactory = new BeanCreatorFactory();
         }
+        if (nameConverter == null)
+        {
+            nameConverter=new NameConverter();
+        }
 
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory,getSpi());
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory,getSpi(),nameConverter);
         return new SqlClient(config);
     }
 
@@ -137,6 +144,12 @@ public class Builder {
      */
     public Builder setDbType(DbType dbType) {
         this.dbType = dbType;
+        return this;
+    }
+
+    public Builder setNameConverter(NameConverter nameConverter)
+    {
+        this.nameConverter=nameConverter;
         return this;
     }
 }

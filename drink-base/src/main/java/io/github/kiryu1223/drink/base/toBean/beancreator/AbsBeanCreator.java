@@ -1,17 +1,21 @@
 package io.github.kiryu1223.drink.base.toBean.beancreator;
 
+import io.github.kiryu1223.drink.base.IConfig;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public abstract class AbsBeanCreator<T>
 {
+    protected final IConfig config;
     protected final Class<T> target;
     protected final Supplier<T> supplier;
     protected final Map<String, ISetterCaller<T>> setters = new ConcurrentHashMap<>();
 
-    protected AbsBeanCreator(Class<T> target)
+    protected AbsBeanCreator(IConfig config, Class<T> target)
     {
+        this.config = config;
         this.target = target;
         this.supplier = initBeanCreator(target);
     }

@@ -23,9 +23,9 @@ public class SQLServerSupport implements IDbSupport
     }
 
     @Override
-    public SqlExpressionFactory getSqlExpressionFactory()
+    public SqlExpressionFactory getSqlExpressionFactory(IConfig config)
     {
-        return new SQLServerExpressionFactory();
+        return new SQLServerExpressionFactory(config);
     }
 
     @Override

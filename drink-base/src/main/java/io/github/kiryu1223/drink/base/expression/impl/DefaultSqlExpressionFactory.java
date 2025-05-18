@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.base.expression.impl;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
@@ -28,6 +29,20 @@ import java.util.List;
  * @since 3.0
  */
 public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
+
+    private final IConfig config;
+
+    protected DefaultSqlExpressionFactory(IConfig config)
+    {
+        this.config = config;
+    }
+
+    @Override
+    public IConfig getConfig()
+    {
+        return config;
+    }
+
     @Override
     public ISqlAsExpression as(ISqlExpression expression, String asName) {
         return new SqlAsExpression(expression, asName);

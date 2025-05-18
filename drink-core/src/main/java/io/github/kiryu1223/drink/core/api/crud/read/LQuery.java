@@ -18,11 +18,11 @@ package io.github.kiryu1223.drink.core.api.crud.read;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
+import io.github.kiryu1223.drink.core.api.crud.read.group.Group;
 import io.github.kiryu1223.drink.core.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
@@ -33,6 +33,7 @@ import io.github.kiryu1223.drink.core.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Action1;
+import io.github.kiryu1223.expressionTree.delegate.Action2;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -42,8 +43,6 @@ import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
 
@@ -424,6 +423,17 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         return super.select(r);
     }
 
+    public <R> EndQuery<R> select(@Recode Class<R> r,@Expr(Expr.BodyType.Expr) Action2<T,R> action)
+    {
+        throw new NotCompiledException();
+    }
+
+//    public <R> EndQuery<R> select(@Recode Class<R> r,ExprTree<Action2<T,R>> expr)
+//    {
+//        select(expr.getTree());
+//        return new EndQuery<>(getSqlBuilder());
+//    }
+
     /**
      * 设置select<p>
      * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
@@ -432,12 +442,12 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
      * @param <R>  Result
      * @return 基于Result类型的新查询过程对象
      */
-    public <R> EndQuery<R> select(@Expr(Expr.BodyType.Expr) Func1<T, R> expr)
+    public <R> EndQuery<? extends R> select(@Expr(Expr.BodyType.Expr) Func1<T, R> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<R> select(ExprTree<Func1<T, R>> expr)
+    public <R> EndQuery<? extends R> select(ExprTree<Func1<T, R>> expr)
     {
         select(expr.getTree());
         return new EndQuery<>(getSqlBuilder());
@@ -468,6 +478,11 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     {
         return new LQuery<>(toMany(expr.getTree()));
     }
+
+//    public <R> EndQuery<R> selectAggregate(Class<R> r,@Expr(Expr.BodyType.Expr) Action2<Group<T, T>, R> expr)
+//    {
+//        throw new NotCompiledException();
+//    }
 
 //    public <R> EndQuery<R> selectAggregate(@Expr(Expr.BodyType.Expr) Func1<Group<T, T>, R> expr)
 //    {
@@ -593,22 +608,22 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         return super.toList();
     }
 
-    /**
-     * list集合形式返回数据，并且执行你想要对已写入内存中的数据进行的操作，执行后再返回list
-     *
-     * @param func 执行操作的lambda
-     * @return List
-     */
-    public <R> List<R> toList(Func1<T, R> func)
-    {
-        List<T> list = toList();
-        List<R> rList = new ArrayList<>(list.size());
-        for (T t : list)
-        {
-            rList.add(func.invoke(t));
-        }
-        return rList;
-    }
+//    /**
+//     * list集合形式返回数据，并且执行你想要对已写入内存中的数据进行的操作，执行后再返回list
+//     *
+//     * @param func 执行操作的lambda
+//     * @return List
+//     */
+//    public <R> List<R> toList(Func1<T, R> func)
+//    {
+//        List<T> list = toList();
+//        List<R> rList = new ArrayList<>(list.size());
+//        for (T t : list)
+//        {
+//            rList.add(func.invoke(t));
+//        }
+//        return rList;
+//    }
 
     /**
      * Map形式返回数据，无数据则返回空Map
@@ -678,7 +693,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
             throw new SqLinkException("toTreeList指定的字段需要被@Navigate修饰");
         }
         NavigateData navigateData = fieldMetaData.getNavigateData();
-        MetaData metaData = MetaDataCache.getMetaData(fieldMetaData.getParentType());
+        MetaData metaData = getConfig().getMetaData(fieldMetaData.getParentType());
         FieldMetaData parent = metaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
         FieldMetaData child = metaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         return buildTree(toList(), child, parent, fieldMetaData, expr.getDelegate());
@@ -869,7 +884,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         }
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         NavigateData navigateData = fieldMetaData.getNavigateData();
-        MetaData metaData = MetaDataCache.getMetaData(fieldMetaData.getParentType());
+        MetaData metaData = getConfig().getMetaData(fieldMetaData.getParentType());
         FieldMetaData parent = metaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
         FieldMetaData child = metaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         ISqlSelectExpression select = queryable.getSelect().copy(getConfig());

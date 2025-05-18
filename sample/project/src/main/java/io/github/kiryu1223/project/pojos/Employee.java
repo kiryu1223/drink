@@ -23,7 +23,6 @@ public class Employee implements ITable, ITenant
     private String firstName;
     @Column("last_name")
     private String lastName;
-    @UseTypeHandler(GenderHandler.class)
     private Gender gender;
     @Column("hire_date")
     private LocalDate hireDay;

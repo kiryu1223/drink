@@ -23,9 +23,9 @@ public class PostgreSQLSupport implements IDbSupport
     }
 
     @Override
-    public SqlExpressionFactory getSqlExpressionFactory()
+    public SqlExpressionFactory getSqlExpressionFactory(IConfig config)
     {
-        return new PostgreSQLExpressionFactory();
+        return new PostgreSQLExpressionFactory(config);
     }
 
     @Override

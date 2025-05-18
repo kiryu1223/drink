@@ -8,7 +8,7 @@ public interface IDbSupport
 {
     DbType getDbType();
     IDialect getIDialect();
-    SqlExpressionFactory getSqlExpressionFactory();
+    SqlExpressionFactory getSqlExpressionFactory(IConfig config);
     IncludeFactory getIncludeFactory();
     Transformer getTransformer(IConfig config);
 }

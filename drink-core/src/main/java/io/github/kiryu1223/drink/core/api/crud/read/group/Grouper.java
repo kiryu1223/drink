@@ -17,10 +17,10 @@ package io.github.kiryu1223.drink.core.api.crud.read.group;
 
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +36,12 @@ public abstract class Grouper {
     public String toString() {
         try {
             List<String> strings = new ArrayList<>();
-            MetaData metaData = MetaDataCache.getMetaData(this.getClass());
-            for (FieldMetaData fieldMetaData : metaData.getPropertys()) {
-                strings.add(fieldMetaData.getProperty() + "=" + fieldMetaData.getGetter().invoke(this));
+            for (Field field : getClass().getDeclaredFields()) {
+                strings.add(field.getName() + "=" + field.get(this));
             }
             return "(" + String.join(",", strings) + ")";
         }
-        catch (IllegalAccessException | InvocationTargetException e) {
+        catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

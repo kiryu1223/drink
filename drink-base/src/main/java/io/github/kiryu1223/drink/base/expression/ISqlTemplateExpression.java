@@ -41,7 +41,11 @@ public interface ISqlTemplateExpression extends ISqlExpression {
     default ISqlTemplateExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> newFunctions = new ArrayList<>(getTemplateStrings());
-        List<? extends ISqlExpression> newExpressions = new ArrayList<>(getExpressions());
+        List<? extends ISqlExpression> newExpressions = new ArrayList<>(getExpressions().size());
+        for (ISqlExpression expression : getExpressions())
+        {
+            newExpressions.add(expression.copy(config));
+        }
         return factory.template(newFunctions, newExpressions);
     }
 }

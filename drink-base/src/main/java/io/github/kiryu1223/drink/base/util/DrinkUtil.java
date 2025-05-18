@@ -1,8 +1,8 @@
 package io.github.kiryu1223.drink.base.util;
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 
 import java.math.BigDecimal;
 import java.sql.Time;
@@ -15,8 +15,8 @@ import java.util.Date;
 import java.util.Set;
 
 public class DrinkUtil {
-    public static String getFirst(Class<?> c) {
-        MetaData metaData = MetaDataCache.getMetaData(c);
+    public static String getFirst(IConfig config, Class<?> c) {
+        MetaData metaData = config.getMetaData(c);
         return metaData.getTableName().substring(0, 1).toLowerCase();
     }
 

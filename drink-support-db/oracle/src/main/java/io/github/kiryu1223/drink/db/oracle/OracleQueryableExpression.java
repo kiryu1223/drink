@@ -23,7 +23,6 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.SqlQueryableExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ public class OracleQueryableExpression extends SqlQueryableExpression {
             if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
             String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
             if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-            if (!from.isEmptyTable()) {
+            if (!from.isEmptyTable(config)) {
                 limitAndOrderCheck(strings, values, config);
                 String limitSqlAndValue = limit.getSqlAndValue(config, values);
                 if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
@@ -83,7 +82,7 @@ public class OracleQueryableExpression extends SqlQueryableExpression {
 
     private void limitAndOrderCheck(List<String> strings, List<SqlValue> values, IConfig config) {
         if (limit.hasRowsOrOffset() && orderBy.isEmpty()) {
-            MetaData metaData = MetaDataCache.getMetaData(from.getSqlTableExpression().getMainTableClass());
+            MetaData metaData = config.getMetaData(from.getSqlTableExpression().getMainTableClass());
             FieldMetaData primary = metaData.getPrimary();
             if (primary == null) {
                 throw new DrinkException(DbType.Oracle.name());

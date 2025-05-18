@@ -23,9 +23,9 @@ public class OracleSupport implements IDbSupport
     }
 
     @Override
-    public SqlExpressionFactory getSqlExpressionFactory()
+    public SqlExpressionFactory getSqlExpressionFactory(IConfig config)
     {
-        return new OracleExpressionFactory();
+        return new OracleExpressionFactory(config);
     }
 
     @Override

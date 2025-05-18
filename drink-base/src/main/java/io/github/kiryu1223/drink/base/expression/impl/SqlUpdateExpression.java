@@ -59,7 +59,7 @@ public class SqlUpdateExpression implements ISqlUpdateExpression {
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         List<String> strings=new ArrayList<>();
         strings.add("UPDATE");
-        strings.add(from.getTableName());
+        strings.add(from.getTableName(config));
         strings.add("AS");
         strings.add(from.getTableRefExpression().getDisPlayName());
         if (!joins.isEmpty()) {

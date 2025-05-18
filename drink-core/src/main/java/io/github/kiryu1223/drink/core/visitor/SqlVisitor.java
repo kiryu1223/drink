@@ -254,7 +254,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         else if (left instanceof ISqlTableRefExpression)
         {
             ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
-            MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
+            MetaData metaData = config.getMetaData(field.getDeclaringClass());
             FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(field.getName());
             if (fieldMetaData.hasNavigate())
             {
@@ -288,13 +288,13 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 ////            List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
 ////            ISqlTableRefExpression asName = asNameList.get(valueIndex);
 ////            Field field = fieldSelect.getField();
-////            MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
+////            MetaData metaData = config.getMetaData(field.getDeclaringClass());
 ////            return factory.column(metaData.getFieldMetaDataByFieldName(field.getName()), asName);
 //        }
 //        else if (isProperty(asNameMap, fieldSelect)) {
 //            ParameterExpression parameter = (ParameterExpression) fieldSelect.getExpr();
 //            Field field = fieldSelect.getField();
-//            MetaData metaData = MetaDataCache.getMetaData(field.getDeclaringClass());
+//            MetaData metaData = config.getMetaData(field.getDeclaringClass());
 //            ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
 //            return factory.column(metaData.getFieldMetaDataByFieldName(field.getName()), asName);
 //        }
@@ -432,14 +432,14 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         {
             Method method = methodCall.getMethod();
             String methodName = method.getName();
-            if (methodName.equals("query")) {
-                Class<?> table = (Class<?>)methodCall.getArgs().get(0).getValue();
-                return factory.queryable(table);
+            Expression expression = methodCall.getArgs().get(0);
+            if (methodName.equals("query")&&expression.getKind()==Kind.StaticClass) {
+                StaticClassExpression staticClass = (StaticClassExpression) expression;
+                ISqlQueryableExpression queryable = factory.queryable(staticClass.getType());
+                push(queryable);
+                return queryable;
             }
-            else
-            {
-                return checkAndReturnValue(methodCall);
-            }
+            return checkAndReturnValue(methodCall);
         }
         // 子查询
         else if (QueryBase.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
@@ -1110,7 +1110,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 //                if (isGetter(methodCall.getMethod())) {
 //                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
 //                    Method getter = methodCall.getMethod();
-//                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
+//                    MetaData metaData = config.getMetaData(getter.getDeclaringClass());
 //                    ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
 //                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
 //                }
@@ -1122,13 +1122,13 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 //                    List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
 //                    ISqlTableRefExpression asName = asNameList.get(valueIndex);
 //                    Method getter = methodCall.getMethod();
-//                    MetaData metaData = MetaDataCache.getMetaData(getter.getDeclaringClass());
+//                    MetaData metaData = config.getMetaData(getter.getDeclaringClass());
 //                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
 //                }
 //                else if (isSetter(methodCall.getMethod())) {
 //                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
 //                    Method setter = methodCall.getMethod();
-//                    MetaData metaData = MetaDataCache.getMetaData(setter.getDeclaringClass());
+//                    MetaData metaData = config.getMetaData(setter.getDeclaringClass());
 //                    FieldMetaData fieldMetaData = metaData.getFieldMetaDataBySetter(setter);
 //                    ISqlColumnExpression columnExpression = factory.column(fieldMetaData, asNameMap.get(parameter));
 //                    ISqlExpression value = visit(methodCall.getArgs().get(0));
@@ -1220,7 +1220,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 // ?.table().getter()
                 if (isGetter(method))
                 {
-                    MetaData metaData = MetaDataCache.getMetaData(method.getDeclaringClass());
+                    MetaData metaData = config.getMetaData(method.getDeclaringClass());
                     FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
                     if (getter.hasNavigate())
                     {
@@ -1506,16 +1506,16 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 //        for (ISqlTableRefExpression asName : asNameDeque) {
 //            stringSet.add(asName.getName());
 //        }
-//        //String subTableISqlTableRefExpression = doGetISqlTableRefExpression(MetaDataCache.getMetaData(getTargetType(fieldMetaData.getGenericType())).getTableName().toLowerCase().substring(0, 1));
+//        //String subTableISqlTableRefExpression = doGetISqlTableRefExpression(config.getMetaData(getTargetType(fieldMetaData.getGenericType())).getTableName().toLowerCase().substring(0, 1));
 //        if (fieldMetaData.hasNavigate()) {
 //            NavigateData navigateData = fieldMetaData.getNavigateData();
 //            Class<?> targetType = navigateData.getNavigateTargetType();
 //            table = factory.table(targetType);
 //            subTableISqlTableRefExpression = doGetISqlTableRefExpression(getFirst(targetType), stringSet);
-//            MetaData targetMetaData = MetaDataCache.getMetaData(targetType);
+//            MetaData targetMetaData = config.getMetaData(targetType);
 //            condition = factory.condition();
 //            FieldMetaData targetFieldMetaData = targetMetaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-//            FieldMetaData selfFieldMetaData = MetaDataCache.getMetaData(fieldMetaData.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+//            FieldMetaData selfFieldMetaData = config.getMetaData(fieldMetaData.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
 //            condition.addCondition(factory.binary(SqlOperator.EQ, factory.column(targetFieldMetaData, subTableISqlTableRefExpression), factory.column(selfFieldMetaData, mainTableISqlTableRefExpression)));
 //        }
 //        else {
@@ -1534,8 +1534,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         String targetFieldName = navigateData.getTargetFieldName();
         Class<?> selfType = getter.getParentType();
         Class<?> targetType = navigateData.getNavigateTargetType();
-        FieldMetaData selfField = MetaDataCache.getMetaData(selfType).getFieldMetaDataByFieldName(selfFieldName);
-        FieldMetaData targetField = MetaDataCache.getMetaData(targetType).getFieldMetaDataByFieldName(targetFieldName);
+        FieldMetaData selfField = config.getMetaData(selfType).getFieldMetaDataByFieldName(selfFieldName);
+        FieldMetaData targetField = config.getMetaData(targetType).getFieldMetaDataByFieldName(targetFieldName);
         RelationType relationType = navigateData.getRelationType();
 
         ISqlQueryableExpression subQuery = factory.queryable(targetType);
@@ -1552,8 +1552,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         // TODO:优化成以下
         // SELECT B.* FROM B INNER JOIN M ON B.targetField = M.targetMapping WHERE M.selfMapping = A.selfField
         else {
-            FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData();
-            FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData();
+            FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData(config);
+            FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData(config);
             Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
             ISqlQueryableExpression mappingQuery = factory.queryable(mappingType);
             ISqlTableRefExpression mappingTableRef = mappingQuery.getFrom().getTableRefExpression();
@@ -1568,7 +1568,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         NavigateData navigateData = targetField.getNavigateData();
         RelationType relationType = navigateData.getRelationType();
         Class<?> targetType = targetField.getType();
-        FieldMetaData selfField = MetaDataCache.getMetaData(targetField.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+        FieldMetaData selfField = config.getMetaData(targetField.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
 
         left.setSelect(factory.select(Collections.singletonList(factory.column(selfField, left.getFrom().getTableRefExpression())), selfField.getType()));
@@ -1578,8 +1578,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             subQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, subQuery.getFrom().getTableRefExpression()), left));
         }
         else {
-            FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData();
-            FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData();
+            FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData(config);
+            FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData(config);
             Class<? extends IMappingTable> mappingType = navigateData.getMappingTableType();
             ISqlQueryableExpression mappingQuery = factory.queryable(mappingType);
             mappingQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(selfMappingField, mappingQuery.getFrom().getTableRefExpression()), left));
@@ -1705,7 +1705,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             if (fieldSelect.getExpr() instanceof ParameterExpression)
             {
                 ParameterExpression expr = (ParameterExpression) fieldSelect.getExpr();
-                return MetaDataCache.getMetaData(expr.getType()).getFieldMetaDataByFieldName(fieldSelect.getField().getName());
+                return config.getMetaData(expr.getType()).getFieldMetaDataByFieldName(fieldSelect.getField().getName());
             }
         }
         else if (body instanceof MethodCallExpression)
@@ -1714,7 +1714,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             if (methodCall.getExpr() instanceof ParameterExpression)
             {
                 ParameterExpression expr = (ParameterExpression) methodCall.getExpr();
-                return MetaDataCache.getMetaData(expr.getType()).getFieldMetaDataByGetter(methodCall.getMethod());
+                return config.getMetaData(expr.getType()).getFieldMetaDataByGetter(methodCall.getMethod());
             }
         }
         throw new DrinkException(lambda.toString());
@@ -1753,12 +1753,12 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             else {
                 tableClass = joinsDeque.peek().getJoins().get(index-1).getJoinTable().getType();
             }
-            MetaData metaData = MetaDataCache.getMetaData(tableClass);
+            MetaData metaData = config.getMetaData(tableClass);
             return metaData.getFieldMetaDataByGetterName(method.getName());
         }
         else
         {
-            MetaData metaData = MetaDataCache.getMetaData(declaringClass);
+            MetaData metaData = config.getMetaData(declaringClass);
             return metaData.getFieldMetaDataByGetter(method);
         }
     }

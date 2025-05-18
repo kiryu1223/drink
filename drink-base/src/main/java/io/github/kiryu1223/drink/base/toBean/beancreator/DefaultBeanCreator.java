@@ -1,7 +1,7 @@
 package io.github.kiryu1223.drink.base.toBean.beancreator;
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.*;
@@ -27,9 +27,9 @@ public class DefaultBeanCreator<T> extends AbsBeanCreator<T>
         }
     }
 
-    public DefaultBeanCreator(Class<T> target)
+    public DefaultBeanCreator(Class<T> target, IConfig config)
     {
-        super(target);
+        super(config, target);
     }
 
     @Override
@@ -96,14 +96,14 @@ public class DefaultBeanCreator<T> extends AbsBeanCreator<T>
 
     protected ISetterCaller<T> methodBeanSetter(String property)
     {
-        FieldMetaData propertyMetaData = MetaDataCache.getMetaData(target).getFieldMetaDataByFieldName(property);
+        FieldMetaData propertyMetaData = config.getMetaData(target).getFieldMetaDataByFieldName(property);
         Method setter = propertyMetaData.getSetter();
         return (t, v) -> setter.invoke(t, v);
     }
 
     protected ISetterCaller<T> methodHandleBeanSetter(String property)
     {
-        FieldMetaData propertyMetaData = MetaDataCache.getMetaData(target).getFieldMetaDataByFieldName(property);
+        FieldMetaData propertyMetaData = config.getMetaData(target).getFieldMetaDataByFieldName(property);
         Class<?> propertyType = propertyMetaData.getType();
 
         MethodHandles.Lookup caller = MethodHandles.lookup();

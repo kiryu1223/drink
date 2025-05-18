@@ -23,7 +23,6 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.SqlQueryableExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class SQLServerQueryableExpression extends SqlQueryableExpression {
             if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
             String orderBySqlAndValue = orderBy.getSqlAndValue(config, values);
             if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-            if (!from.isEmptyTable() && limit.hasRowsAndOffset() && orderBy.isEmpty()) {
+            if (!from.isEmptyTable(config) && limit.hasRowsAndOffset() && orderBy.isEmpty()) {
                 addOrder(strings, values, config);
             }
             String limitSqlAndValue = limit.getSqlAndValue(config, values);
@@ -67,7 +66,7 @@ public class SQLServerQueryableExpression extends SqlQueryableExpression {
     }
 
     private void addOrder(List<String> strings, List<SqlValue> values, IConfig config) {
-        MetaData metaData = MetaDataCache.getMetaData(from.getSqlTableExpression().getMainTableClass());
+        MetaData metaData = config.getMetaData(from.getSqlTableExpression().getMainTableClass());
         FieldMetaData primary = metaData.getPrimary();
         if (primary == null) {
             throw new DrinkException(DbType.SQLServer.name());
@@ -84,7 +83,7 @@ public class SQLServerQueryableExpression extends SqlQueryableExpression {
         if (select.isDistinct()) {
             result.add("DISTINCT");
         }
-        if (!from.isEmptyTable() && limit.onlyHasRows()) {
+        if (!from.isEmptyTable(config) && limit.onlyHasRows()) {
             result.add("TOP(" + limit.getRows() + ")");
         }
         List<ISqlExpression> columns = select.getColumns();

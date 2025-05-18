@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.base.metaData;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.Navigate;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 
@@ -64,13 +65,13 @@ public class NavigateData
         return navigate.targetMapping();
     }
 
-    public FieldMetaData getSelfMappingFieldMetaData()
+    public FieldMetaData getSelfMappingFieldMetaData(IConfig config)
     {
-        return MetaDataCache.getMetaData(getMappingTableType()).getFieldMetaDataByFieldName(getSelfMappingFieldName());
+        return config.getMetaData(getMappingTableType()).getFieldMetaDataByFieldName(getSelfMappingFieldName());
     }
 
-    public FieldMetaData getTargetMappingFieldMetaData()
+    public FieldMetaData getTargetMappingFieldMetaData(IConfig config)
     {
-        return MetaDataCache.getMetaData(getMappingTableType()).getFieldMetaDataByFieldName(getTargetMappingFieldName());
+        return config.getMetaData(getMappingTableType()).getFieldMetaDataByFieldName(getTargetMappingFieldName());
     }
 }

@@ -16,13 +16,18 @@
 package io.github.kiryu1223.drink.core;
 
 import io.github.kiryu1223.drink.base.*;
+import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.base.transform.Transformer;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author kiryu1223
@@ -30,7 +35,7 @@ import io.github.kiryu1223.drink.base.transform.Transformer;
  */
 class Config implements IConfig {
     private final Option option;
-    private DbType dbType;
+    private final DbType dbType;
     private final TransactionManager transactionManager;
     private final DataSourceManager dataSourceManager;
     private final SqlSessionFactory sqlSessionFactory;
@@ -40,8 +45,9 @@ class Config implements IConfig {
     private final Transformer transformer;
     private final SqlExpressionFactory sqlExpressionFactory;
     private final IncludeFactory includeFactory;
+    private final NameConverter nameConverter;
 
-    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory,IDbSupport dbSupport) {
+    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory, IDbSupport dbSupport, NameConverter nameConverter) {
         this.option = option;
         this.dbType = dbType;
         this.beanCreatorFactory = beanCreatorFactory;
@@ -51,9 +57,10 @@ class Config implements IConfig {
         this.sqlSessionFactory = sqlSessionFactory;
 
         this.disambiguation=dbSupport.getIDialect();
-        this.sqlExpressionFactory=dbSupport.getSqlExpressionFactory();
+        this.sqlExpressionFactory=dbSupport.getSqlExpressionFactory(this);
         this.transformer=dbSupport.getTransformer(this);
         this.includeFactory=dbSupport.getIncludeFactory();
+        this.nameConverter = nameConverter;
     }
 
     public DataSourceManager getDataSourceManager() {
@@ -111,5 +118,22 @@ class Config implements IConfig {
     @Override
     public Transformer getTransformer() {
         return transformer;
+    }
+
+    @Override
+    public NameConverter getNameConverter()
+    {
+        return nameConverter;
+    }
+
+    private static final Map<Class<?>, MetaData> metaDataCache = new ConcurrentHashMap<>();
+
+    public MetaData getMetaData(Class<?> c)
+    {
+        if (!metaDataCache.containsKey(c))
+        {
+            metaDataCache.put(c, new MetaData(c,this));
+        }
+        return metaDataCache.get(c);
     }
 }

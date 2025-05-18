@@ -19,7 +19,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeSet;
 
 import java.util.ArrayList;
@@ -118,14 +117,14 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public void setSelect(Class<?> c)
     {
-        MetaData metaData = MetaDataCache.getMetaData(c);
+        MetaData metaData = config.getMetaData(c);
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         ISqlFromExpression from = queryable.getFrom();
         ISqlJoinsExpression joins = queryable.getJoins();
         List<ISqlExpression> expressions = new ArrayList<>();
         if (from.getSqlTableExpression().getMainTableClass() == c)
         {
-            for (FieldMetaData notIgnoreProperty : metaData.getNotIgnorePropertys())
+            for (FieldMetaData notIgnoreProperty : metaData.getNotIgnoreAndNavigateFields())
             {
                 expressions.add(factory.column(notIgnoreProperty, from.getTableRefExpression()));
             }
@@ -136,7 +135,7 @@ public class QuerySqlBuilder implements ISqlBuilder
             {
                 if (join.getJoinTable().getMainTableClass() == c)
                 {
-                    for (FieldMetaData notIgnoreProperty : metaData.getNotIgnorePropertys())
+                    for (FieldMetaData notIgnoreProperty : metaData.getNotIgnoreAndNavigateFields())
                     {
                         expressions.add(factory.column(notIgnoreProperty, join.getTableRefExpression()));
                     }
@@ -147,10 +146,10 @@ public class QuerySqlBuilder implements ISqlBuilder
         else
         {
             GOTO:
-            for (FieldMetaData sel : metaData.getNotIgnorePropertys())
+            for (FieldMetaData sel : metaData.getNotIgnoreAndNavigateFields())
             {
-                MetaData mainTableMetaData = MetaDataCache.getMetaData(from.getSqlTableExpression().getMainTableClass());
-                for (FieldMetaData noi : mainTableMetaData.getNotIgnorePropertys())
+                MetaData mainTableMetaData = config.getMetaData(from.getSqlTableExpression().getMainTableClass());
+                for (FieldMetaData noi : mainTableMetaData.getNotIgnoreAndNavigateFields())
                 {
                     if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType()))
                     {
@@ -160,8 +159,8 @@ public class QuerySqlBuilder implements ISqlBuilder
                 }
                 for (ISqlJoinExpression join : joins.getJoins())
                 {
-                    MetaData joinTableMetaData = MetaDataCache.getMetaData(join.getJoinTable().getMainTableClass());
-                    for (FieldMetaData noi : joinTableMetaData.getNotIgnorePropertys())
+                    MetaData joinTableMetaData = config.getMetaData(join.getJoinTable().getMainTableClass());
+                    for (FieldMetaData noi : joinTableMetaData.getNotIgnoreAndNavigateFields())
                     {
                         if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType()))
                         {
@@ -193,7 +192,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public List<FieldMetaData> getMappingData()
     {
-        return queryable.getMappingData();
+        return queryable.getMappingData(config);
     }
 
     public boolean isSingle()
@@ -269,7 +268,7 @@ public class QuerySqlBuilder implements ISqlBuilder
     }
 
     public DeleteSqlBuilder toDeleteSqlBuilder() {
-        MetaData metaData = MetaDataCache.getMetaData(queryable.getMainTableClass());
+        MetaData metaData = config.getMetaData(queryable.getMainTableClass());
         FieldMetaData primary = metaData.getPrimary();
         ISqlDeleteExpression delete = factory.delete(queryable.getMainTableClass(),factory.tableRef(queryable.getFrom().getTableRefExpression().getName()));
         ISqlQueryableExpression copy = queryable.copy(config);
@@ -283,7 +282,7 @@ public class QuerySqlBuilder implements ISqlBuilder
 
     public UpdateSqlBuilder toUpdateSqlBuilder()
     {
-        MetaData metaData = MetaDataCache.getMetaData(queryable.getMainTableClass());
+        MetaData metaData = config.getMetaData(queryable.getMainTableClass());
         FieldMetaData primary = metaData.getPrimary();
         ISqlUpdateExpression update = factory.update(queryable.getMainTableClass(), factory.tableRef(queryable.getFrom().getTableRefExpression().getName()));
         ISqlQueryableExpression copy = queryable.copy(getConfig());

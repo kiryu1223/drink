@@ -19,7 +19,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
@@ -72,7 +71,7 @@ public abstract class InsertBase<C> extends CRUD<C> {
 
     public String toSql() {
         if (!getObjects().isEmpty()) {
-            return makeByObjects(MetaDataCache.getMetaData(getTableType()).getNotIgnorePropertys(), null);
+            return makeByObjects(getConfig().getMetaData(getTableType()).getNotIgnoreAndNavigateFields(), null);
         }
         else {
             return sqlBuilder.getSql();
@@ -86,8 +85,8 @@ public abstract class InsertBase<C> extends CRUD<C> {
     protected abstract <T> Class<T> getTableType();
 
     private long objectsExecuteRows() {
-        MetaData metaData = MetaDataCache.getMetaData(getTableType());
-        List<FieldMetaData> notIgnorePropertys = metaData.getNotIgnorePropertys();
+        MetaData metaData = getConfig().getMetaData(getTableType());
+        List<FieldMetaData> notIgnorePropertys = metaData.getNotIgnoreAndNavigateFields();
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = makeByObjects(notIgnorePropertys, sqlValues);
@@ -107,7 +106,7 @@ public abstract class InsertBase<C> extends CRUD<C> {
 
     private String makeByObjects(List<FieldMetaData> notIgnorePropertys, List<SqlValue> sqlValues) {
         IDialect disambiguation = getConfig().getDisambiguation();
-        MetaData metaData = MetaDataCache.getMetaData(getTableType());
+        MetaData metaData = getConfig().getMetaData(getTableType());
         List<String> tableFields = new ArrayList<>();
         List<String> tableValues = new ArrayList<>();
         for (FieldMetaData fieldMetaData : notIgnorePropertys) {
@@ -124,7 +123,7 @@ public abstract class InsertBase<C> extends CRUD<C> {
                     ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();
                     // 值为空同时设置了notNull且没有默认值注解的情况
                     if (value == null && fieldMetaData.isNotNull()) {
-                        throw new SqLinkException(String.format("%s类的%s字段被设置为notnull，但是字段值为空且没有设置默认值注解", fieldMetaData.getParentType(), fieldMetaData.getProperty()));
+                        throw new SqLinkException(String.format("%s类的%s字段被设置为notnull，但是字段值为空且没有设置默认值注解", fieldMetaData.getParentType(), fieldMetaData.getFieldName()));
                     }
                     sqlValues.add(new SqlValue(value, typeHandler));
                 }

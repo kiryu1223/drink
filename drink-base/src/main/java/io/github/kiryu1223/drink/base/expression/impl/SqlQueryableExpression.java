@@ -66,7 +66,7 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
         if (!havingSqlAndValue.isEmpty()) strings.add(havingSqlAndValue);
         String orderBySqlAndValue = getOrderBy().getSqlAndValue(config, values);
         if (!orderBySqlAndValue.isEmpty()) strings.add(orderBySqlAndValue);
-        if (!getFrom().isEmptyTable()) {
+        if (!getFrom().isEmptyTable(config)) {
             String limitSqlAndValue = getLimit().getSqlAndValue(config, values);
             if (!limitSqlAndValue.isEmpty()) strings.add(limitSqlAndValue);
         }

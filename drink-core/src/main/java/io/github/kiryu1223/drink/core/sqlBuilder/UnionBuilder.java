@@ -56,7 +56,7 @@ public class UnionBuilder implements ISqlBuilder {
     }
 
     public List<FieldMetaData> getMappingData() {
-        return unionQueryable.getQueryable().get(0).getMappingData();
+        return unionQueryable.getQueryable().get(0).getMappingData(config);
     }
 
     public <T> Class<T> getTargetClass() {

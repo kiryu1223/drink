@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.db.h2;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
 
 /**
@@ -25,4 +26,8 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
  * @since 3.0
  */
 public class H2ExpressionFactory extends DefaultSqlExpressionFactory {
+    public H2ExpressionFactory(IConfig config)
+    {
+        super(config);
+    }
 }

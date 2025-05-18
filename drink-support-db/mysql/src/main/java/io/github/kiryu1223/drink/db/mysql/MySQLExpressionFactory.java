@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.db.mysql;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlRecursionExpression;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
@@ -28,6 +29,11 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
  * @since 3.0
  */
 public class MySQLExpressionFactory extends DefaultSqlExpressionFactory {
+
+    public MySQLExpressionFactory(IConfig config)
+    {
+        super(config);
+    }
 
     @Override
     public ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, FieldMetaData parentId, FieldMetaData childId, int level) {

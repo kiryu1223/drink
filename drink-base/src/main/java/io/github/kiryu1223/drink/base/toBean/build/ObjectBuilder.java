@@ -6,10 +6,8 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
-import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -26,13 +24,19 @@ public class ObjectBuilder<T>
     private final List<FieldMetaData> propertyMetaDataList;
     private final boolean isSingle;
     private final IConfig config;
+    private final ITypeHandler<T> singleTypeHandler;
 
     public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config)
     {
-        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle, config);
+        return start(resultSet, target, propertyMetaDataList, isSingle, config,null);
     }
 
-    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config)
+    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config,ITypeHandler<T> singleTypeHandler)
+    {
+        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle, config,singleTypeHandler);
+    }
+
+    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler)
     {
         this.resultSet = resultSet;
         this.target = target;
@@ -40,11 +44,12 @@ public class ObjectBuilder<T>
         this.isSingle = isSingle;
         this.config = config;
         //this.valueGetter = config.getValueGetter();
+        this.singleTypeHandler = singleTypeHandler;
     }
 
     public <Key> Map<Key, T> createMap(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target,config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         Map<Key, T> hashMap = new HashMap<>();
@@ -68,7 +73,7 @@ public class ObjectBuilder<T>
 
     public <Key> Map<Key, List<T>> createMapList(String keyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target,config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         // System.out.println(indexMap);
@@ -107,7 +112,7 @@ public class ObjectBuilder<T>
 
     public <Key> Map<Key, List<T>> createMapListByAnotherKey(FieldMetaData anotherKeyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target,config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         int anotherKeyIndex = indexMap.get(anotherKeyColumn.getColumn());
@@ -159,10 +164,9 @@ public class ObjectBuilder<T>
     private List<T> getSingleList() throws SQLException, NoSuchFieldException, IllegalAccessException
     {
         List<T> list = new ArrayList<>();
-        ITypeHandler<T> typeHandler = TypeHandlerManager.get(target);
         while (resultSet.next())
         {
-            T t = typeHandler.getValue(resultSet, 1,target);
+            T t = singleTypeHandler.getValue(resultSet, 1,target);
             list.add(t);
         }
         return list;
@@ -170,7 +174,7 @@ public class ObjectBuilder<T>
 
     private List<T> getClassList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException
     {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target,config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         List<T> list = new ArrayList<>();
@@ -182,7 +186,7 @@ public class ObjectBuilder<T>
                 Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
                 if (value != null)
                 {
-                    ISetterCaller<T> beanSetter = beanCreator.getBeanSetter(metaData.getProperty());
+                    ISetterCaller<T> beanSetter = beanCreator.getBeanSetter(metaData.getFieldName());
                     beanSetter.call(t, value);
                     //metaData.getSetter().invoke(t, value);
                 }

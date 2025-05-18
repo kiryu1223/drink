@@ -18,7 +18,6 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 
 import java.util.List;
 
@@ -128,8 +127,8 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
     /**
      * 获取映射的列
      */
-    default List<FieldMetaData> getMappingData() {
-        return getMappingData0();
+    default List<FieldMetaData> getMappingData(IConfig config) {
+        return getMappingData0(config);
 //        if (getChanged()) {
 //            return getMappingData0();
 //        }
@@ -145,9 +144,9 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
 //        }
     }
 
-    default List<FieldMetaData> getMappingData0() {
-        MetaData metaData = MetaDataCache.getMetaData(getMainTableClass());
-        return metaData.getNotIgnorePropertys();
+    default List<FieldMetaData> getMappingData0(IConfig config) {
+        MetaData metaData = config.getMetaData(getMainTableClass());
+        return metaData.getNotIgnoreAndNavigateFields();
 //        List<Class<?>> orderedClass = new ArrayList<>(getJoins().getJoins().size() + 1);
 //        Class<?> mainTableClass = getFrom().getSqlTableExpression().getMainTableClass();
 //        System.out.println(mainTableClass);

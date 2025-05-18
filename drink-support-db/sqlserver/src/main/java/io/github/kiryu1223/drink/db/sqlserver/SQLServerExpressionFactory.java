@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.db.sqlserver;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
 
@@ -26,6 +27,12 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
  * @since 3.0
  */
 public class SQLServerExpressionFactory extends DefaultSqlExpressionFactory {
+
+    protected SQLServerExpressionFactory(IConfig config)
+    {
+        super(config);
+    }
+
     @Override
     public ISqlLimitExpression limit() {
         return new SQLServerLimitExpression();

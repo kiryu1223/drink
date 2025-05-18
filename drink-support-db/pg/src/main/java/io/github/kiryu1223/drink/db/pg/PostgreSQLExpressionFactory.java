@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.db.pg;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
 
 /**
@@ -26,4 +27,8 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
  */
 public class PostgreSQLExpressionFactory extends DefaultSqlExpressionFactory {
 
+    public PostgreSQLExpressionFactory(IConfig config)
+    {
+        super(config);
+    }
 }

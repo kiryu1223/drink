@@ -4,4 +4,6 @@ public enum Gender
 {
     M,
     F,
+    男,
+    女,
 }

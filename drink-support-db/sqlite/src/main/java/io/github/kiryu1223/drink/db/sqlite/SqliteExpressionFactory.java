@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.db.sqlite;
 
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
 
 /**
@@ -26,4 +27,8 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
  */
 public class SqliteExpressionFactory extends DefaultSqlExpressionFactory {
 
+    public SqliteExpressionFactory(IConfig config)
+    {
+        super(config);
+    }
 }

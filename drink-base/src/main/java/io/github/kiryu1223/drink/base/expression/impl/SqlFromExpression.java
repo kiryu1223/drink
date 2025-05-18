@@ -72,7 +72,7 @@ public class SqlFromExpression implements ISqlFromExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        if (isEmptyTable()) {
+        if (isEmptyTable(config)) {
             return emptyTable(config, values);
         }
         else {

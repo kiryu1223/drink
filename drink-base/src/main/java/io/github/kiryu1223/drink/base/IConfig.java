@@ -1,7 +1,9 @@
 package io.github.kiryu1223.drink.base;
 
+import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
@@ -25,6 +27,10 @@ public interface IConfig
     BeanCreatorFactory getBeanCreatorFactory();
 
     Transformer getTransformer();
+
+    NameConverter getNameConverter();
+
+    MetaData getMetaData(Class<?> c);
 
     Filter getFilter();
 

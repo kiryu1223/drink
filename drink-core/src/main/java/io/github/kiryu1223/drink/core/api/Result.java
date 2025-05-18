@@ -15,13 +15,11 @@
  */
 package io.github.kiryu1223.drink.core.api;
 
-import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
+import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,18 +31,18 @@ import java.util.List;
  */
 @Getter
 @Setter
-public abstract class Result {
+public abstract class Result
+{
     @Override
-    public String toString() {
-        try {
-            List<String> strings = new ArrayList<>();
-            MetaData metaData = MetaDataCache.getMetaData(this.getClass());
-            for (FieldMetaData property : metaData.getPropertys()) {
-                strings.add(property.getProperty() + "=" + property.getGetter().invoke(this));
-            }
-            return "(" + String.join(",", strings) + ")";
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+    public String toString()
+    {
+        List<String> strings = new ArrayList<>();
+        for (Field field : getClass().getDeclaredFields())
+        {
+            String fieldName = field.getName();
+            if (fieldName.startsWith("val$")) continue;
+            strings.add(fieldName + "=" + ReflectUtil.getFieldValue(this, fieldName));
         }
+        return "(" + String.join(",", strings) + ")";
     }
 }

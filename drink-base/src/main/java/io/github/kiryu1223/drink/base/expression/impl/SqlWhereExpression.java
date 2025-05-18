@@ -51,6 +51,7 @@ public class SqlWhereExpression implements ISqlWhereExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+        if(isEmpty()) return "";
         return "WHERE " + getConditions().getSqlAndValue(config, values);
     }
 }

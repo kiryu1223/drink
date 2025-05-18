@@ -60,14 +60,14 @@ public class IncludeBuilder<T> {
      * 执行抓取
      */
     public void include() throws InvocationTargetException, IllegalAccessException {
-        MetaData targetClassMetaData = MetaDataCache.getMetaData(targetClass);
+        MetaData targetClassMetaData = config.getMetaData(targetClass);
         Map<FieldMetaData, Map<Object, List<T>>> cache = new HashMap<>();
 
         for (IncludeSet include : includes) {
             NavigateData navigateData = include.getColumnMetaData().getNavigateData();
             Class<?> navigateTargetType = navigateData.getNavigateTargetType();
             FieldMetaData selfFieldMetaData = targetClassMetaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-            FieldMetaData targetFieldMetaData = MetaDataCache.getMetaData(navigateTargetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+            FieldMetaData targetFieldMetaData = config.getMetaData(navigateTargetType).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
             FieldMetaData includeFieldMetaData = include.getColumnMetaData();
 
             Map<Object, List<T>> sourcesMapList = cache.get(selfFieldMetaData);
@@ -129,7 +129,7 @@ public class IncludeBuilder<T> {
 
         tryPrint(sql);
 
-        List<FieldMetaData> mappingData = tempQueryable.getMappingData();
+        List<FieldMetaData> mappingData = tempQueryable.getMappingData(config);
         // 获取从表的map
         Map<Object, Object> objectMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMap(targetFieldMetaData.getColumn()),
@@ -177,7 +177,7 @@ public class IncludeBuilder<T> {
 
         tryPrint(sql);
 
-        List<FieldMetaData> mappingData = tempQueryable.getMappingData();
+        List<FieldMetaData> mappingData = tempQueryable.getMappingData(config);
         // 查询从表数据，按key进行list归类的map构建
         Map<Object, List<Object>> targetMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMapList(targetFieldMetaData.getColumn()),
@@ -231,7 +231,7 @@ public class IncludeBuilder<T> {
 
         tryPrint(sql);
 
-        List<FieldMetaData> mappingData = tempQueryable.getMappingData();
+        List<FieldMetaData> mappingData = tempQueryable.getMappingData(config);
         // 获取目标表的map
         Map<Object, Object> objectMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMap(targetFieldMetaData.getColumn()),
@@ -253,7 +253,7 @@ public class IncludeBuilder<T> {
     protected void manyToMany(Map<Object, List<T>> sourcesMapList, IncludeSet include, NavigateData navigateData, FieldMetaData selfFieldMetaData, FieldMetaData targetFieldMetaData, FieldMetaData includeFieldMetaData) throws InvocationTargetException, IllegalAccessException {
         Class<?> navigateTargetType = navigateData.getNavigateTargetType();
         Class<? extends IMappingTable> mappingTableType = navigateData.getMappingTableType();
-        MetaData mappingTableMetadata = MetaDataCache.getMetaData(mappingTableType);
+        MetaData mappingTableMetadata = config.getMetaData(mappingTableType);
         String selfMappingPropertyName = navigateData.getSelfMappingFieldName();
         FieldMetaData selfMappingFieldMetaData = mappingTableMetadata.getFieldMetaDataByFieldName(selfMappingPropertyName);
         String targetMappingPropertyName = navigateData.getTargetMappingFieldName();
@@ -298,7 +298,7 @@ public class IncludeBuilder<T> {
 
         tryPrint(sql);
 
-        List<FieldMetaData> mappingData = tempQueryable.getMappingData();
+        List<FieldMetaData> mappingData = tempQueryable.getMappingData(config);
         //mappingData.add(selfMappingFieldMetaData);
         Map<Object, List<Object>> targetMap = session.executeQuery(
                 r -> ObjectBuilder.start(r, cast(navigateTargetType), mappingData, false, config).createMapListByAnotherKey(selfMappingFieldMetaData),

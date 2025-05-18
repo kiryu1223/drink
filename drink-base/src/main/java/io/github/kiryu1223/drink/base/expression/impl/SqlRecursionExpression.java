@@ -5,7 +5,6 @@ import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.table.TreeCte;
 
@@ -33,8 +32,7 @@ public class SqlRecursionExpression implements ISqlRecursionExpression {
 
     @Override
     public String withTableName() {
-        MetaData treeCteMetaData = MetaDataCache.getMetaData(TreeCte.class);
-        return treeCteMetaData.getTableName();
+        return "as_tree_cte";
     }
 
     @Override

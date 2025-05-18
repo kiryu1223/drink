@@ -33,7 +33,7 @@ public class FieldMetaData {
     /**
      * 字段名
      */
-    private final String property;
+    private final String fieldName;
     /**
      * 列名
      */
@@ -54,10 +54,6 @@ public class FieldMetaData {
      * 是否是泛型类型
      */
     private final boolean isGenericType;
-    /**
-     * 是否显示指定类型处理器
-     */
-    private final boolean useTypeHandler;
     /**
      * 类型处理器
      */
@@ -83,9 +79,9 @@ public class FieldMetaData {
      */
     private final Type genericType;
 
-    public FieldMetaData(boolean notNull, String property, String column, Method getter, Method setter, Field field, boolean useTypeHandler, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey) {
+    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey) {
         this.notNull = notNull;
-        this.property = property;
+        this.fieldName = fieldName;
         this.column = column;
         this.ignoreColumn = ignoreColumn;
         this.isPrimaryKey = isPrimaryKey;
@@ -96,7 +92,6 @@ public class FieldMetaData {
         this.setter = setter;
         field.setAccessible(true);
         this.field = field;
-        this.useTypeHandler = useTypeHandler;
         this.typeHandler = typeHandler;
         this.navigateData = navigateData;
         this.genericType = field.getGenericType();
@@ -106,8 +101,8 @@ public class FieldMetaData {
     /**
      * 属性名
      */
-    public String getProperty() {
-        return property;
+    public String getFieldName() {
+        return fieldName;
     }
 
     /**
@@ -199,13 +194,6 @@ public class FieldMetaData {
      */
     public ITypeHandler<?> getTypeHandler() {
         return typeHandler;
-    }
-
-    /**
-     * 是否显示指定类型处理器
-     */
-    public boolean isUseTypeHandler() {
-        return useTypeHandler;
     }
 
     /**

@@ -19,7 +19,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.ISqlRealTableExpression;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaDataCache;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.List;
@@ -43,7 +42,7 @@ public class SqlRealTableExpression implements ISqlRealTableExpression {
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         StringBuilder builder=new StringBuilder();
-        MetaData metaData = MetaDataCache.getMetaData(getMainTableClass());
+        MetaData metaData = config.getMetaData(getMainTableClass());
         IDialect dbConfig = config.getDisambiguation();
         String schema = metaData.getSchema();
         if (!schema.isEmpty()) {
