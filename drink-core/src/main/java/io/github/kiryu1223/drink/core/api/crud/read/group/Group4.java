@@ -28,79 +28,79 @@ import static io.github.kiryu1223.drink.base.exception.Winner.boom;
 public class Group4<Key, T1, T2, T3, T4> extends Group3<Key, T1, T2, T3> {
     public T4 value4;
 
-    /**
-     * 等价于聚合函数COUNT(expr)
-     *
-     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 符合的条数
-     */
-    public <R> long count(Func4<T1, T2, T3, T4, R> expr) {
-        boom();
-        return 0;
-    }
-
-    /**
-     * 等价于聚合函数SUM(expr)
-     *
-     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 总和的值，类型为BigDecimal
-     */
-    public <R> R sum(Func4<T1, T2, T3, T4, R> expr) {
-        boom();
-        return (R) new Object();
-    }
-
-    /**
-     * 等价于聚合函数AVG(expr)
-     *
-     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 平均的值，类型为BigDecimal
-     */
-    public BigDecimal avg(Func4<T1, T2, T3, T4, Number> expr) {
-        boom();
-        return BigDecimal.ZERO;
-    }
-
-    /**
-     * 等价于聚合函数MAX(expr)
-     *
-     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 最大值，类型与lambda的返回值一致
-     */
-    public <R> R max(Func4<T1, T2, T3, T4, R> expr) {
-        boom();
-        return (R) new Object();
-    }
-
-    /**
-     * 等价于聚合函数MIN(expr)
-     *
-     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     * @return 最小值，类型与lambda的返回值一致
-     */
-    public <R> R min(Func4<T1, T2, T3, T4, R> expr) {
-        boom();
-        return (R) new Object();
-    }
-
-    /**
-     * 将同一分组中的多个值连接成一个字符串，使用逗号分隔
-     *
-     * @param expr 选择的字段(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     */
-    public <R> String groupJoin(Func4<T1, T2, T3, T4, R> expr) {
-        boom();
-        return "";
-    }
-
-    /**
-     * 将同一分组中的多个值连接成一个字符串，并且使用指定的字符分隔
-     *
-     * @param delimiter 分隔符
-     * @param expr      选择的字段(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-     */
-    public <R> String groupJoin(String delimiter, Func4<T1, T2, T3, T4, R> expr) {
-        boom();
-        return "";
-    }
+//    /**
+//     * 等价于聚合函数COUNT(expr)
+//     *
+//     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 符合的条数
+//     */
+//    public <R> long count(Func4<T1, T2, T3, T4, R> expr) {
+//        boom();
+//        return 0;
+//    }
+//
+//    /**
+//     * 等价于聚合函数SUM(expr)
+//     *
+//     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 总和的值，类型为BigDecimal
+//     */
+//    public <R> R sum(Func4<T1, T2, T3, T4, R> expr) {
+//        boom();
+//        return (R) new Object();
+//    }
+//
+//    /**
+//     * 等价于聚合函数AVG(expr)
+//     *
+//     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 平均的值，类型为BigDecimal
+//     */
+//    public BigDecimal avg(Func4<T1, T2, T3, T4, Number> expr) {
+//        boom();
+//        return BigDecimal.ZERO;
+//    }
+//
+//    /**
+//     * 等价于聚合函数MAX(expr)
+//     *
+//     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 最大值，类型与lambda的返回值一致
+//     */
+//    public <R> R max(Func4<T1, T2, T3, T4, R> expr) {
+//        boom();
+//        return (R) new Object();
+//    }
+//
+//    /**
+//     * 等价于聚合函数MIN(expr)
+//     *
+//     * @param expr 指定字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     * @return 最小值，类型与lambda的返回值一致
+//     */
+//    public <R> R min(Func4<T1, T2, T3, T4, R> expr) {
+//        boom();
+//        return (R) new Object();
+//    }
+//
+//    /**
+//     * 将同一分组中的多个值连接成一个字符串，使用逗号分隔
+//     *
+//     * @param expr 选择的字段(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     */
+//    public <R> String groupJoin(Func4<T1, T2, T3, T4, R> expr) {
+//        boom();
+//        return "";
+//    }
+//
+//    /**
+//     * 将同一分组中的多个值连接成一个字符串，并且使用指定的字符分隔
+//     *
+//     * @param delimiter 分隔符
+//     * @param expr      选择的字段(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+//     */
+//    public <R> String groupJoin(String delimiter, Func4<T1, T2, T3, T4, R> expr) {
+//        boom();
+//        return "";
+//    }
 }

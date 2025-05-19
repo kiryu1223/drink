@@ -17,23 +17,17 @@ package io.github.kiryu1223.drink.func;
 
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.exception.Winner;
-import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
-import io.github.kiryu1223.drink.base.sqlExt.SqlTimeUnit;
-import io.github.kiryu1223.drink.func.h2.H2CastExtension;
-import io.github.kiryu1223.drink.func.mysql.MySqlCastExtension;
+import io.github.kiryu1223.drink.base.sqlExt.*;
 import io.github.kiryu1223.drink.func.mysql.MySqlDateTimeDiffExtension;
 import io.github.kiryu1223.drink.func.oracle.OracleAddOrSubDateExtension;
-import io.github.kiryu1223.drink.func.oracle.OracleCastExtension;
 import io.github.kiryu1223.drink.func.oracle.OracleDateTimeDiffExtension;
 import io.github.kiryu1223.drink.func.oracle.OracleJoinExtension;
 import io.github.kiryu1223.drink.func.pgsql.PostgreSQLAddOrSubDateExtension;
-import io.github.kiryu1223.drink.func.pgsql.PostgreSQLCastExtension;
 import io.github.kiryu1223.drink.func.pgsql.PostgreSQLDateTimeDiffExtension;
 import io.github.kiryu1223.drink.func.sqlite.SqliteAddOrSubDateExtension;
-import io.github.kiryu1223.drink.func.sqlite.SqliteCastExtension;
 import io.github.kiryu1223.drink.func.sqlite.SqliteDateTimeDiffExtension;
 import io.github.kiryu1223.drink.func.sqlite.SqliteJoinExtension;
-import io.github.kiryu1223.drink.func.sqlserver.SQLServerCastExtension;
+import io.github.kiryu1223.drink.func.types.TypeCastExtension;
 import io.github.kiryu1223.drink.func.types.SqlTypes;
 
 import java.time.LocalDate;
@@ -47,7 +41,11 @@ import java.time.LocalTime;
  * @author kiryu1223
  * @since 3.0
  */
-public class SqlFunctions {
+public final class SqlFunctions {
+
+    private static <Error> Error error() {
+        return Winner.error();
+    }
 
     // region [聚合函数]
 
@@ -129,6 +127,35 @@ public class SqlFunctions {
 
     // endregion
 
+    // region [窗口函数]
+
+    @SqlExtensionExpression(template = "OVER ()")
+    public static IAggregation.Over over() {
+        return Winner.error();
+    }
+
+    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition})")
+    public static <P> IAggregation.Over over(P partition) {
+        return Winner.error();
+    }
+
+    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy})")
+    public static <P, O> IAggregation.Over over(P partition, O orderBy) {
+        return Winner.error();
+    }
+
+    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} ROWS BETWEEN {start} AND {end})")
+    public static <P, O> IAggregation.Over over(P partition, O orderBy, Rows start, Rows end) {
+        return Winner.error();
+    }
+
+    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} RANGE BETWEEN {start} AND {end})")
+    public static <P, O> IAggregation.Over over(P partition, O orderBy, Range start, Range end) {
+        return Winner.error();
+    }
+
+    //endregion
+
     // region [时间]
 
     /**
@@ -141,8 +168,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DATETIME('now','localtime')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "NOW()")
     public static LocalDateTime now() {
-        Winner.boom();
-        return LocalDateTime.now();
+        return error();
     }
 
     /**
@@ -155,8 +181,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DATETIME('now')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')")
     public static LocalDateTime utcNow() {
-        Winner.boom();
-        return LocalDateTime.now();
+        return error();
     }
 
     /**
@@ -169,8 +194,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DATE('now','localtime')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CURRENT_DATE")
     public static LocalDate nowDate() {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -183,8 +207,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "TIME('now','localtime')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CURRENT_TIME")
     public static LocalTime nowTime() {
-        Winner.boom();
-        return LocalTime.now();
+        return error();
     }
 
     /**
@@ -197,8 +220,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DATE('now')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::DATE")
     public static LocalDate utcNowDate() {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -211,8 +233,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "TIME('now')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::TIME")
     public static LocalTime utcNowTime() {
-        Winner.boom();
-        return LocalTime.now();
+        return error();
     }
 
     /**
@@ -229,8 +250,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDateTime addDate(LocalDateTime time, SqlTimeUnit unit, int num) {
-        Winner.boom();
-        return LocalDateTime.now();
+        return error();
     }
 
     /**
@@ -247,8 +267,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDate addDate(LocalDate time, SqlTimeUnit unit, int num) {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -264,8 +283,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDateTime addDate(LocalDateTime time, int days) {
-        Winner.boom();
-        return LocalDateTime.now();
+        return error();
     }
 
     /**
@@ -281,8 +299,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDate addDate(LocalDate time, int days) {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -299,8 +316,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDateTime subDate(LocalDateTime time, SqlTimeUnit unit, int num) {
-        Winner.boom();
-        return LocalDateTime.now();
+        return error();
     }
 
     /**
@@ -317,8 +333,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDate subDate(LocalDate time, SqlTimeUnit unit, int num) {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -334,8 +349,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDateTime subDate(LocalDateTime time, int days) {
-        Winner.boom();
-        return LocalDateTime.now();
+        return error();
     }
 
     /**
@@ -351,8 +365,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLAddOrSubDateExtension.class)
     public static LocalDate subDate(LocalDate time, int days) {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -369,8 +382,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime from, LocalDateTime to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -387,8 +399,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime from, LocalDate to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -405,8 +416,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDateTime from, String to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -423,8 +433,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate from, LocalDate to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -441,8 +450,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate from, LocalDateTime to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -459,8 +467,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, LocalDate from, String to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -477,8 +484,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, String from, String to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -495,8 +501,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, String from, LocalDate to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -513,8 +518,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLDateTimeDiffExtension.class)
     public static long dateTimeDiff(SqlTimeUnit unit, String from, LocalDateTime to) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -530,8 +534,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "STRFTIME({format},{time})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TO_CHAR({time},{format})")
     public static String dateFormat(LocalDateTime time, String format) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -547,8 +550,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "STRFTIME({format},{time})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TO_CHAR({time},{format})")
     public static String dateFormat(LocalDate time, String format) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -564,8 +566,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "STRFTIME({format},{time})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TO_CHAR({time}::TIMESTAMP,{format})")
     public static String dateFormat(String time, String format) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -580,8 +581,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(DAY FROM {time})::INT4")
     public static int getDay(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -596,8 +596,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(DAY FROM {time})::INT4")
     public static int getDay(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -612,8 +611,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(DAY FROM {time}::TIMESTAMP)::INT4")
     public static int getDay(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -628,8 +626,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRIM(TO_CHAR({time},'Day'))")
     public static String getDayName(LocalDateTime time) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -644,8 +641,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRIM(TO_CHAR({time},'Day'))")
     public static String getDayName(LocalDate time) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -660,8 +656,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRIM(TO_CHAR({time}::TIMESTAMP,'Day'))")
     public static String getDayName(String time) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -676,8 +671,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%w',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(EXTRACT(DOW FROM {time}) + 1)::INT4")
     public static int getDayOfWeek(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -692,8 +686,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%w',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(EXTRACT(DOW FROM {time}) + 1)::INT4")
     public static int getDayOfWeek(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -708,8 +701,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%w',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(EXTRACT(DOW FROM {time}::TIMESTAMP) + 1)::INT4")
     public static int getDayOfWeek(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -724,8 +716,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(DOY FROM {time})::INT4")
     public static int getDayOfYear(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -740,8 +731,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(DOY FROM {time})::INT4")
     public static int getDayOfYear(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -756,8 +746,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(DOY FROM {time}::TIMESTAMP)::INT4")
     public static int getDayOfYear(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, template = "SEC_TO_TIME({second})")
@@ -818,8 +807,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(EXTRACT(EPOCH FROM {time})::INT4 / 86400 + 719528)")
     public static int dateToDays(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -834,8 +822,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(EXTRACT(EPOCH FROM {time})::INT4 / 86400 + 719528)")
     public static int dateToDays(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -850,8 +837,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(EXTRACT(EPOCH FROM {time}::TIMESTAMP)::INT4 / 86400 + 719528)")
     public static int dateToDays(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, template = "TIME_TO_SEC({time})")
@@ -896,8 +882,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(HOUR FROM {time})::INT4")
     public static int getHour(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -912,8 +897,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(HOUR FROM {time})::INT4")
     public static int getHour(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -928,8 +912,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(HOUR FROM {time}::TIMESTAMP)::INT4")
     public static int getHour(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -944,8 +927,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DATE({time},'start of month','+1 month','-1 day')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(DATE_TRUNC('MONTH',{time}) + INTERVAL '1' MONTH - INTERVAL '1' DAY)::DATE")
     public static LocalDate getLastDay(LocalDateTime time) {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -960,8 +942,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DATE({time},'start of month','+1 month','-1 day')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(DATE_TRUNC('MONTH',{time}) + INTERVAL '1' MONTH - INTERVAL '1' DAY)::DATE")
     public static LocalDate getLastDay(LocalDate time) {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
     /**
@@ -976,8 +957,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DATE({time},'start of month','+1 month','-1 day')")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(DATE_TRUNC('MONTH',{time}::TIMESTAMP) + INTERVAL '1' MONTH - INTERVAL '1' DAY)::DATE")
     public static LocalDate getLastDay(String time) {
-        Winner.boom();
-        return LocalDate.now();
+        return error();
     }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, template = "MAKEDATE({},{})")
@@ -1008,8 +988,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MINUTE FROM {time})::INT4")
     public static int getMinute(LocalTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1024,8 +1003,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MINUTE FROM {time})::INT4")
     public static int getMinute(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1040,8 +1018,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MINUTE FROM {time}::TIMESTAMP)::INT4")
     public static int getMinute(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1056,8 +1033,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MONTH FROM {time})::INT4")
     public static int getMonth(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1072,8 +1048,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MONTH FROM {time})::INT4")
     public static int getMonth(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1088,8 +1063,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MONTH FROM {time}::TIMESTAMP)::INT4")
     public static int getMonth(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1104,8 +1078,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRIM(TO_CHAR({time},'Month'))")
     public static String getMonthName(LocalDate time) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -1120,8 +1093,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRIM(TO_CHAR({time},'Month'))")
     public static String getMonthName(LocalDateTime time) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -1136,8 +1108,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRIM(TO_CHAR({time}::TIMESTAMP,'Month'))")
     public static String getMonthName(String time) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -1152,8 +1123,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "((strftime('%m',{time}) + 2) / 3)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(QUARTER FROM {time})::INT4")
     public static int getQuarter(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1168,8 +1138,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "((strftime('%m',{time}) + 2) / 3)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(QUARTER FROM {time})::INT4")
     public static int getQuarter(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1184,8 +1153,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "((strftime('%m',{time}) + 2) / 3)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(QUARTER FROM {time}::TIMESTAMP)::INT4")
     public static int getQuarter(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1200,8 +1168,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(SECOND FROM {time})::INT4")
     public static int getSecond(LocalTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1216,8 +1183,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(SECOND FROM {time})::INT4")
     public static int getSecond(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1232,8 +1198,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(SECOND FROM {time}::TIMESTAMP)::INT4")
     public static int getSecond(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1248,8 +1213,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%f',{time}) * 1000)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MILLISECOND from {time})::INT4")
     public static int getMilliSecond(LocalTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1264,8 +1228,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%f',{time}) * 1000)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MILLISECOND from {time})::INT4")
     public static int getMilliSecond(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1280,8 +1243,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%f',{time}) * 1000)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(MILLISECOND from {time}::TIMESTAMP)::INT4")
     public static int getMilliSecond(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1296,8 +1258,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%W',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(WEEK from {time})::INT4")
     public static int getWeek(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1312,8 +1273,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%W',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(WEEK from {time})::INT4")
     public static int getWeek(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1328,8 +1288,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%W',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(WEEK from {time}::TIMESTAMP)::INT4")
     public static int getWeek(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, template = "WEEK({time},{firstDayofweek})")
@@ -1352,8 +1311,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "((EXTRACT(DOW FROM {time}) + 6) % 7)::INT4")
     public static int getWeekDay(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1368,8 +1326,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "((EXTRACT(DOW FROM {time}) + 6) % 7)::INT4")
     public static int getWeekDay(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1384,8 +1341,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "((EXTRACT(DOW FROM {time}::TIMESTAMP) + 6) % 7)::INT4")
     public static int getWeekDay(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1400,8 +1356,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%W',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(WEEK FROM {time})::INT4")
     public static int getWeekOfYear(LocalDate time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1416,8 +1371,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%W',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(WEEK FROM {time})::INT4")
     public static int getWeekOfYear(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1432,8 +1386,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(STRFTIME('%W',{time}) + 1)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(WEEK FROM {time}::TIMESTAMP)::INT4")
     public static int getWeekOfYear(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1448,8 +1401,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(YEAR FROM {time})::INT4")
     public static int getYear(LocalDateTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1464,8 +1416,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(YEAR FROM {time})::INT4")
     public static int getYear(LocalTime time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1480,8 +1431,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXTRACT(YEAR FROM {time}::TIMESTAMP)::INT4")
     public static int getYear(String time) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     // endregion
@@ -1498,8 +1448,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ABS({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ABS({a})")
     public static <T extends Number> T abs(T a) {
-        Winner.boom();
-        return (T) new Num();
+        return error();
     }
 
     /**
@@ -1512,8 +1461,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "COS({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "COS({a})")
     public static <T extends Number> double cos(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1526,8 +1474,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "SIN({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "SIN({a})")
     public static <T extends Number> double sin(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1540,8 +1487,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "TAN({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TAN({a})")
     public static <T extends Number> double tan(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1554,8 +1500,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ACOS({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ACOS({a})")
     public static <T extends Number> double acos(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1568,8 +1513,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ASIN({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ASIN({a})")
     public static <T extends Number> double asin(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1582,8 +1526,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ATAN({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ATAN({a})")
     public static <T extends Number> double atan(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1596,8 +1539,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ATAN2({a},{b})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ATAN2({a},{b})")
     public static <T extends Number> double atan2(T a, T b) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1610,8 +1552,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CEIL({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CEIL({a})::INT4")
     public static <T extends Number> int ceil(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1624,8 +1565,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "FLOOR({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "FLOOR({a})::INT4")
     public static <T extends Number> int floor(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1638,8 +1578,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "COT({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "COT({a})")
     public static <T extends Number> double cot(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1652,8 +1591,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "DEGREES({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "DEGREES({a})")
     public static <T extends Number> double degrees(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1666,8 +1604,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "EXP({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "EXP({a})")
     public static <T extends Number> double exp(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1680,8 +1617,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "MAX({a},{b})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "GREATEST({a},{b})")
     public static <T extends Number> T big(T a, T b) {
-        Winner.boom();
-        return (T) new Num();
+        return error();
     }
 
     /**
@@ -1695,8 +1631,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "MAX({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "GREATEST({a},{b},{cs})")
     public static <T extends Number> T big(T a, T b, T... cs) {
-        Winner.boom();
-        return (T) new Num();
+        return error();
     }
 
     /**
@@ -1709,8 +1644,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "MIN({a},{b})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LEAST({a},{b})")
     public static <T extends Number> T small(T a, T b) {
-        Winner.boom();
-        return (T) new Num();
+        return error();
     }
 
     /**
@@ -1724,8 +1658,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "MIN({a},{b},{cs})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LEAST({a},{b},{cs})")
     public static <T extends Number> T small(T a, T b, T... cs) {
-        Winner.boom();
-        return (T) new Num();
+        return error();
     }
 
 
@@ -1739,8 +1672,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LN({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LN({a})")
     public static <T extends Number> double ln(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1756,8 +1688,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LOG({base},{a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LOG({base},{a})::FLOAT8")
     public static <T extends Number, Base extends Number> double log(T a, Base base) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1770,8 +1701,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LOG2({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LOG(2,{a})::FLOAT8")
     public static <T extends Number> double log2(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1784,8 +1714,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LOG10({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LOG10({a})::FLOAT8")
     public static <T extends Number> double log10(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1798,8 +1727,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "MOD({a},{b})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "MOD({a},{b})")
     public static <T extends Number> T mod(T a, T b) {
-        Winner.boom();
-        return (T) new Num();
+        return error();
     }
 
     /**
@@ -1812,8 +1740,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "PI()")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "PI()")
     public static double pi() {
-        Winner.boom();
-        return 3.14159;
+        return error();
     }
 
     /**
@@ -1826,8 +1753,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "POWER({a},{b})")
     public static <T extends Number> double pow(T a, T b) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1840,8 +1766,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "RADIANS({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "RADIANS({a})")
     public static <T extends Number> double radians(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1854,8 +1779,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ABS(RANDOM() / 10000000000000000000.0)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "RANDOM()")
     public static double random() {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, template = "RAND({a})")
@@ -1879,8 +1803,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ROUND({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ROUND({a})::INT4")
     public static <T extends Number> int round(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1893,8 +1816,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ROUND({a}::NUMERIC,{b})::FLOAT8")
     public static <T extends Number> T round(T a, int b) {
-        Winner.boom();
-        return (T) new Num();
+        return error();
     }
 
     /**
@@ -1907,8 +1829,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "SIGN({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "SIGN({a})::INT4")
     public static <T extends Number> int sign(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1921,8 +1842,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "SQRT({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "SQRT({a})")
     public static <T extends Number> double sqrt(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1935,8 +1855,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST(SUBSTR({a} * 1.0,1,INSTR({a} * 1.0,'.') + {b}) AS REAL)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRUNC({a}::NUMERIC,{b})::FLOAT8")
     public static <T extends Number> double truncate(T a, int b) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1949,8 +1868,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "TRUNC({a})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRUNC({a})::INT4")
     public static <T extends Number> int truncate(T a) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     // endregion
@@ -1967,8 +1885,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(LENGTH({str}) = 0)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(LENGTH({str}) = 0)")
     public static boolean isEmpty(String str) {
-        Winner.boom();
-        return true;
+        return error();
     }
 
     /**
@@ -1981,8 +1898,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "UNICODE({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "ASCII({str})")
     public static int strToAscii(String str) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -1995,8 +1911,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CHAR({t})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CHR({t})")
     public static String asciiToStr(int t) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2009,8 +1924,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LENGTH({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LENGTH({str})")
     public static int length(String str) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -2025,8 +1939,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LENGTH(CAST({str} AS BLOB))")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "OCTET_LENGTH({str})")
     public static int byteLength(String str) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -2039,8 +1952,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "({s1}||{s2})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CONCAT({s1},{s2})")
     public static String concat(String s1, String s2) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2053,8 +1965,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "({s1}||{s2}||{ss})", separator = "||")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CONCAT({s1},{s2},{ss})")
     public static String concat(String s1, String s2, String... ss) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2069,8 +1980,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "({s1}||{separator}||{s2})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CONCAT_WS({separator},{s1},{s2})")
     public static String join(String separator, String s1, String s2) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2085,8 +1995,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteJoinExtension.class)
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "CONCAT_WS({separator},{s1},{s2},{ss})")
     public static String join(String separator, String s1, String s2, String... ss) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
 //    todo
@@ -2112,8 +2021,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "INSTR({str},{subStr})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "STRPOS({str},{subStr})")
     public static int indexOf(String str, String subStr) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -2126,8 +2034,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(INSTR(SUBSTR({str},{offset} + 1),{subStr}) + {offset})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(STRPOS(SUBSTR({str},{offset} + 1),{subStr}) + {offset})")
     public static int indexOf(String str, String subStr, int offset) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -2140,8 +2047,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LOWER({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LOWER({str})")
     public static String toLowerCase(String str) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2154,8 +2060,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "UPPER({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "UPPER({str})")
     public static String toUpperCase(String str) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2170,8 +2075,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "SUBSTR({str},1,{length})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LEFT({str},{length})")
     public static String left(String str, int length) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2186,8 +2090,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "SUBSTR({str},LENGTH({str}) - ({length} - 1),{length})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "RIGHT({str},{length})")
     public static String right(String str, int length) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2203,8 +2106,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "IIF({length} - LENGTH({str}) <= 0,{str},(REPLICATE({lpadStr},{length} - LENGTH({str}))||{str}))")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LPAD({str},{length},{lpadStr})")
     public static String leftPad(String str, int length, String lpadStr) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2220,8 +2122,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "IIF({length} - LENGTH({str}) <= 0,{str},({str}||REPLICATE({rpadStr},{length} - LENGTH({str}))))")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "RPAD({str},{length},{rpadStr})")
     public static String rightPad(String str, int length, String rpadStr) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2234,8 +2135,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "TRIM({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "TRIM({str})")
     public static String trim(String str) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2248,8 +2148,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "LTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "LTRIM({str})")
     public static String trimStart(String str) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2262,8 +2161,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "RTRIM({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "RTRIM({str})")
     public static String trimEnd(String str) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2276,8 +2174,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "REPLACE({cur},{subs},{news})")
     public static String replace(String cur, String subs, String news) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2292,8 +2189,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "REVERSE({str})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "REVERSE({str})")
     public static String reverse(String str) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2306,8 +2202,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     public static int compare(String s1, String s2) {
-        Winner.boom();
-        return 0;
+        return error();
     }
 
     /**
@@ -2320,8 +2215,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "SUBSTR({str},{beginIndex})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "SUBSTR({str},{beginIndex})")
     public static String subString(String str, int beginIndex) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     /**
@@ -2334,8 +2228,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "SUBSTR({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "SUBSTR({str},{beginIndex},{endIndex})")
     public static String subString(String str, int beginIndex, int endIndex) {
-        Winner.boom();
-        return "";
+        return error();
     }
 
     // endregion
@@ -2347,8 +2240,7 @@ public class SqlFunctions {
      */
     @SqlExtensionExpression(template = "CASE {when} END")
     public static <R> R Case(When<R> when) {
-        Winner.boom();
-        return when.getResult();
+        return error();
     }
 
     /**
@@ -2357,8 +2249,7 @@ public class SqlFunctions {
     @SafeVarargs
     @SqlExtensionExpression(template = "CASE {when} {rs} END")
     public static <R> R Case(When<R> when, When<R>... rs) {
-        Winner.boom();
-        return when.getResult();
+        return error();
     }
 
     /**
@@ -2366,8 +2257,7 @@ public class SqlFunctions {
      */
     @SqlExtensionExpression(template = "CASE {when} ELSE {elsePart} END")
     public static <R> R Case(R elsePart, When<R> when) {
-        Winner.boom();
-        return when.getResult();
+        return error();
     }
 
     /**
@@ -2376,8 +2266,7 @@ public class SqlFunctions {
     @SafeVarargs
     @SqlExtensionExpression(template = "CASE {when} {rs} ELSE {elsePart} END", separator = " ")
     public static <R> R Case(R elsePart, When<R> when, When<R>... rs) {
-        Winner.boom();
-        return elsePart;
+        return error();
     }
 
     /**
@@ -2385,8 +2274,7 @@ public class SqlFunctions {
      */
     @SqlExtensionExpression(template = "WHEN {condition} THEN {then}")
     public static <R> When<R> when(boolean condition, R then) {
-        Winner.boom();
-        return new When<>();
+        return error();
     }
 
     /**
@@ -2401,8 +2289,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "IIF({condition},{truePart},{falsePart})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "(CASE WHEN {condition} THEN {truePart} ELSE {falsePart} END)")
     public static <T> T If(boolean condition, T truePart, T falsePart) {
-        Winner.boom();
-        return (T) new Object();
+        return error();
     }
 
     /**
@@ -2418,8 +2305,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "IFNULL({valueNotNull},{valueIsNull})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "COALESCE({valueNotNull},{valueIsNull})")
     public static <T> T ifNull(T valueNotNull, T valueIsNull) {
-        Winner.boom();
-        return (T) new Object();
+        return error();
     }
 
     /**
@@ -2432,22 +2318,20 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "NULLIF({t1},{t2})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "NULLIF({t1},{t2})")
     public static <T> T nullIf(T t1, T t2) {
-        Winner.boom();
-        return (T) new Object();
+        return error();
     }
 
     /**
      * 类型转换
      */
-    @SqlExtensionExpression(dbType = DbType.H2, template = "", extension = H2CastExtension.class)
-    @SqlExtensionExpression(dbType = DbType.MySQL, template = "", extension = MySqlCastExtension.class)
-    @SqlExtensionExpression(dbType = DbType.Oracle, template = "", extension = OracleCastExtension.class)
-    @SqlExtensionExpression(dbType = DbType.SQLServer, template = "", extension = SQLServerCastExtension.class)
-    @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = SqliteCastExtension.class)
-    @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = PostgreSQLCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.H2, template = "", extension = TypeCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.MySQL, template = "", extension = TypeCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.Oracle, template = "", extension = TypeCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.SQLServer, template = "", extension = TypeCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.SQLite, template = "", extension = TypeCastExtension.class)
+    @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "", extension = TypeCastExtension.class)
     public static <T> T cast(Object value, Class<T> targetType) {
-        Winner.boom();
-        return (T) new Object();
+        return error();
     }
 
     /**
@@ -2460,8 +2344,7 @@ public class SqlFunctions {
     @SqlExtensionExpression(dbType = DbType.SQLite, template = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "{value}::{targetType}")
     public static <T> T cast(Object value, SqlTypes<T> targetType) {
-        Winner.boom();
-        return (T) new Object();
+        return error();
     }
 
 //    @SqlExtensionExpression(dbType = DbType.H2, template = "CAST({value} AS {targetType})")
@@ -2479,8 +2362,7 @@ public class SqlFunctions {
      */
     @SqlExtensionExpression(template = "{t} IS NULL")
     public static <T> boolean isNull(T t) {
-        Winner.boom();
-        return false;
+        return error();
     }
 
     /**
@@ -2488,47 +2370,13 @@ public class SqlFunctions {
      */
     @SqlExtensionExpression(template = "{t} IS NOT NULL")
     public static <T> boolean isNotNull(T t) {
-        Winner.boom();
-        return false;
+        return error();
     }
 
     // endregion
 
-    /**
-     * 请勿使用
-     */
-    private final static class Num extends Number {
-        private Num() {
-        }
-
-        @Override
-        public int intValue() {
-            return 0;
-        }
-
-        @Override
-        public long longValue() {
-            return 0;
-        }
-
-        @Override
-        public float floatValue() {
-            return 0;
-        }
-
-        @Override
-        public double doubleValue() {
-            return 0;
-        }
-    }
-
-    /**
-     * 请勿使用
-     */
     public final static class When<R> {
-        public R getResult() {
-            Winner.boom();
-            return (R) new Object();
+        private When() {
         }
     }
 }

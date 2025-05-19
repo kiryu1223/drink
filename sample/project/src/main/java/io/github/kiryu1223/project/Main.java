@@ -5,24 +5,29 @@ import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
+import io.github.kiryu1223.drink.base.sqlExt.Rows;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.Builder;
 import io.github.kiryu1223.drink.core.SqlClient;
-import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.func.SqlFunctions;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Course;
 import io.github.kiryu1223.project.pojos.Student;
 
+import java.util.EnumSet;
 import java.util.List;
 
-public class Main
-{
-    public static SqlClient boot()
-    {
+import static io.github.kiryu1223.drink.base.sqlExt.Rows.first;
+import static io.github.kiryu1223.drink.base.sqlExt.Rows.last;
+import static io.github.kiryu1223.drink.func.SqlFunctions.*;
+
+public class Main {
+    public static SqlClient boot() {
         TypeHandlerManager.set(new GenderHandler());
 
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/stu?rewriteBatchedStatements=true");
+        dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true");
         dataSource.setUsername("root");
         dataSource.setPassword("root");
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -33,33 +38,49 @@ public class Main
                 .build();
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         SqlClient client = boot();
 
         Filter filter = client.getConfig().getFilter();
 
 
-        List<Student> list = client.query(Student.class)
-                .where(s -> s.query(s.getCourses())
-                        .any(c -> c.getCourseName() == "数据库原理")
-                )
-                .toList();
+//        List<Student> list = client.query(Student.class)
+//                .where(s -> s.query(s.getCourses())
+//                        .any(c -> c.getCourseName()=="A003")
+//                )
+//                .toList();
 
-        for (Student student : list)
-        {
-            System.out.println(student);
-        }
+//        String sql = client.query(Student.class)
+//                .where(e -> client.query(Course.class)
+//                        .any(c -> c.getCourseId() == e.getStudentId() && c.getCourseName()=="A003")
+//                )
+//                .toSql();
+//
+//        System.out.println(sql);
+//
+//        for (Student student : list)
+//        {
+//            System.out.println(student);
+//        }
+//
+//        List<Student> list1 = client.query(Course.class)
+//                .where(c -> c.getCourseName().equals("深度学习"))
+//                .selectMany(c -> c.getStudents())
+//                .toList();
+//
+//        for (Student student : list1)
+//        {
+//            System.out.println(student);
+//        }
+//
+        String sql = client.query(Course.class)
+                .select(c -> new Result() {
+                    int id = c.getCourseId();
+                    long number = SqlFunctions.over(c.getCourseId()).rowNumber();
+                })
+                .toSql();
 
-        List<Student> list1 = client.query(Course.class)
-                .where(c -> c.getCourseName().equals("深度学习"))
-                .selectMany(c -> c.getStudents())
-                .toList();
-
-        for (Student student : list1)
-        {
-            System.out.println(student);
-        }
+        System.out.println(sql);
 
 //        List<Course> list2 = client.query(Course.class)
 //                .selectAggregate(Course.class, (c, s) ->

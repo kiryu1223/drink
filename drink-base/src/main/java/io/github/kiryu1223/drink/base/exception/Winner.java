@@ -21,12 +21,17 @@ package io.github.kiryu1223.drink.base.exception;
  * @author kiryu1223
  * @since 3.0
  */
-public class Winner {
+public final class Winner {
     private final static boolean win = true;
 
     public static void boom() {
         if (win) {
             throw new SqlFunctionInvokeException();
         }
+    }
+
+    public static <E> E error() {
+        boom();
+        return (E) new Object();
     }
 }

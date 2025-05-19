@@ -35,6 +35,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--数据库函数-->
+        <dependency>
+            <groupId>io.github.kiryu1223</groupId>
+            <artifactId>drink-support-func</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!--需要用户自己提供一个日志实现-->
         <dependency>
             <groupId>ch.qos.logback</groupId>

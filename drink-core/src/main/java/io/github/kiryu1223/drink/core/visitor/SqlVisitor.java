@@ -26,12 +26,8 @@ import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.base.transform.*;
 import io.github.kiryu1223.drink.core.SqlClient;
-import io.github.kiryu1223.drink.core.api.ITable;
-import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
-import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.core.api.crud.read.group.IAggregation;
 import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.exception.SqLinkIllegalExpressionException;
@@ -312,38 +308,6 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         if (isEquals(methodCall)) {
             return factory.binary(SqlOperator.EQ, visit(methodCall.getExpr()), visit(methodCall.getArgs().get(0)));
         }
-        // 分组对象的聚合函数
-        else if (IAggregation.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            String name = methodCall.getMethod().getName();
-            List<Expression> args = methodCall.getArgs();
-            Transformer transformer = config.getTransformer();
-            switch (name) {
-                case "count":
-                    ISqlTemplateExpression count = transformer.count(args.isEmpty() ? null : visit(args.get(0)));
-                    return count;
-                case "sum":
-                    ISqlTemplateExpression sum = transformer.sum(visit(args.get(0)));
-                    return sum;
-                case "avg":
-                    ISqlTemplateExpression avg = transformer.avg(visit(args.get(0)));
-                    return avg;
-                case "max":
-                    ISqlTemplateExpression max = transformer.max(visit(args.get(0)));
-                    return max;
-                case "min":
-                    ISqlTemplateExpression min = transformer.min(visit(args.get(0)));
-                    return min;
-                case "groupConcat":
-                    List<ISqlExpression> visit = new ArrayList<>();
-                    for (Expression arg : args) {
-                        visit.add(visit(arg));
-                    }
-                    ISqlTemplateExpression iSqlTemplateExpression = transformer.groupConcat(visit);
-                    return iSqlTemplateExpression;
-                default:
-                    throw new SqLinkException("不支持的聚合函数:" + name);
-            }
-        }
         // SQL扩展函数
         else if (isSqlExtensionExpressionMethod(methodCall.getMethod())) {
             Method sqlFunction = methodCall.getMethod();
@@ -367,23 +331,29 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     strings.add(functions.get(i));
                     if (i < params.size()) {
                         String param = params.get(i);
-                        Parameter targetParam = methodParameters.stream()
-                                .filter(f -> f.getName().equals(param))
-                                .findFirst()
-                                .orElseThrow(() -> new SqLinkException("无法在" + sqlFuncExt.template() + "中找到" + param));
-                        int index = methodParameters.indexOf(targetParam);
-
-                        // 如果是可变参数
-                        if (targetParam.isVarArgs()) {
-                            while (index < args.size()) {
-                                expressions.add(visit(args.get(index)));
-                                if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
-                                index++;
-                            }
+                        // this应该获取前一步的结果
+                        if (param.equals("super")) {
+                            expressions.add(visit(methodCall.getExpr()));
                         }
-                        // 正常情况
                         else {
-                            expressions.add(visit(args.get(index)));
+                            Parameter targetParam = methodParameters.stream()
+                                    .filter(f -> f.getName().equals(param))
+                                    .findFirst()
+                                    .orElseThrow(() -> new DrinkException(String.format("无法在%s中找到%s", sqlFuncExt.template(), param)));
+                            int index = methodParameters.indexOf(targetParam);
+
+                            // 如果是可变参数
+                            if (targetParam.isVarArgs()) {
+                                while (index < args.size()) {
+                                    expressions.add(visit(args.get(index)));
+                                    if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
+                                    index++;
+                                }
+                            }
+                            // 正常情况
+                            else {
+                                expressions.add(visit(args.get(index)));
+                            }
                         }
                     }
                 }

@@ -15,9 +15,73 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
+import io.github.kiryu1223.drink.base.sqlExt.GroupJoinExtension;
+import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
+
+import java.math.BigDecimal;
+
+import static io.github.kiryu1223.drink.base.exception.Winner.boom;
+
 /**
  * @author kiryu1223
  * @since 3.0
  */
 public interface IGroup {
+    /**
+     * 等价于聚合函数COUNT(*)
+     *
+     * @return 符合的条数
+     */
+    @SqlExtensionExpression(template = "COUNT(*)")
+    default long count() {
+        boom();
+        return 0;
+    }
+
+    /**
+     * 等价于聚合函数COUNT(i)
+     *
+     * @return 符合的条数
+     */
+    @SqlExtensionExpression(template = "COUNT({r})")
+    default <R> long count(R r) {
+        boom();
+        return 0;
+    }
+
+    @SqlExtensionExpression(template = "SUM({r})")
+    default <R> R sum(R r) {
+        boom();
+        return (R) new Object();
+    }
+
+    @SqlExtensionExpression(template = "AVG({r})")
+    default BigDecimal avg(Number r) {
+        boom();
+        return BigDecimal.ZERO;
+    }
+
+    @SqlExtensionExpression(template = "MAX({r})")
+    default <R> R max(R r) {
+        boom();
+        return (R) new Object();
+    }
+
+    @SqlExtensionExpression(template = "MIN({r})")
+    default <R> R min(R r) {
+        boom();
+        return (R) new Object();
+    }
+
+    @SqlExtensionExpression(template = "", extension = GroupJoinExtension.class)
+    default <R> String groupJoin(R r) {
+        boom();
+        return "";
+    }
+
+    @SqlExtensionExpression(template = "", extension = GroupJoinExtension.class)
+    default <R> String groupJoin(String delimiter,R r) {
+        boom();
+        return "";
+    }
 }
