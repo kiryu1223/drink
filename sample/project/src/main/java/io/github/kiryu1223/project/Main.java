@@ -74,9 +74,9 @@ public class Main {
 //        }
 //
         String sql = client.query(Course.class)
-                .select(c -> new Result() {
-                    int id = c.getCourseId();
-                    long number = SqlFunctions.over(c.getCourseId()).rowNumber();
+                .selectAggregate(a -> new Result() {
+                    long id = a.count(0);
+                    long number = a.over(a.value.getCourseId(),a.value.getClassroom()).rowNumber();
                 })
                 .toSql();
 

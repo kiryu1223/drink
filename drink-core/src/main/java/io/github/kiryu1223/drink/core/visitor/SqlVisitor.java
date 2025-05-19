@@ -27,6 +27,7 @@ import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.base.transform.*;
 import io.github.kiryu1223.drink.core.SqlClient;
+import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
@@ -244,14 +245,21 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             return group.getColumns().get(fieldName);
         }
         else if (left instanceof ISqlTableRefExpression) {
-            ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
-            MetaData metaData = config.getMetaData(field.getDeclaringClass());
-            FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(field.getName());
-            if (fieldMetaData.hasNavigate()) {
-                return getterToSqlAst(fieldMetaData, tableRef);
+            if (Aggregate.class.isAssignableFrom(field.getDeclaringClass()))
+            {
+                return left;
             }
-            else {
-                return factory.column(fieldMetaData, tableRef);
+            else
+            {
+                ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
+                MetaData metaData = config.getMetaData(field.getDeclaringClass());
+                FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(field.getName());
+                if (fieldMetaData.hasNavigate()) {
+                    return getterToSqlAst(fieldMetaData, tableRef);
+                }
+                else {
+                    return factory.column(fieldMetaData, tableRef);
+                }
             }
         }
         else {
@@ -1209,6 +1217,10 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     public ISqlExpression visit(ParameterExpression parameter) {
         if (IGroup.class.isAssignableFrom(parameter.getType())) {
             return new SqlGroupRef();
+        }
+        else if(Aggregate.class.isAssignableFrom(parameter.getType()))
+        {
+            return asNameListDeque.peek().get(0);
         }
         else {
             return getISqlTableRefExpressionByIndex(parameter);

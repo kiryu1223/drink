@@ -479,21 +479,17 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         return new LQuery<>(toMany(expr.getTree()));
     }
 
-//    public <R> EndQuery<R> selectAggregate(Class<R> r,@Expr(Expr.BodyType.Expr) Action2<Group<T, T>, R> expr)
-//    {
-//        throw new NotCompiledException();
-//    }
 
-//    public <R> EndQuery<R> selectAggregate(@Expr(Expr.BodyType.Expr) Func1<Group<T, T>, R> expr)
-//    {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <R> EndQuery<R> selectAggregate(ExprTree<Func1<Group<T, T>, R>> expr)
-//    {
-//        select(expr.getTree());
-//        return new EndQuery<>(getSqlBuilder());
-//    }
+    public <R> EndQuery<? extends R> selectAggregate(@Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, R> expr)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> EndQuery<? extends R> selectAggregate(ExprTree<Func1<Aggregate<T>, R>> expr)
+    {
+        select(expr.getTree());
+        return new EndQuery<>(getSqlBuilder());
+    }
 
     // endregion
 
