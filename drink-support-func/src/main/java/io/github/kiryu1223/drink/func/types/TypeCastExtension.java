@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class TypeCastExtension extends BaseSqlExtension {
     @Override
-    public ISqlExpression parse(IConfig config, Method method, List<ISqlExpression> args) {
+    public ISqlExpression parse(IConfig config, Method method, List<ISqlExpression> args,boolean[] useSuper) {
         ISqlExpression typeExpression = args.get(1);
         if (typeExpression instanceof ISqlSingleValueExpression) {
             ISqlSingleValueExpression singleValueExpression = (ISqlSingleValueExpression) typeExpression;

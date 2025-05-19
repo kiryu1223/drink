@@ -6,9 +6,9 @@ import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class GroupJoinExtension extends BaseSqlExtension{
+public class GroupJoinExtension extends BaseSqlExtension {
     @Override
-    public ISqlExpression parse(IConfig config, Method sqlFunc, List<ISqlExpression> args) {
+    public ISqlExpression parse(IConfig config, Method sqlFunc, List<ISqlExpression> args, boolean[] useSuper) {
         return config.getTransformer().groupConcat(args);
     }
 }

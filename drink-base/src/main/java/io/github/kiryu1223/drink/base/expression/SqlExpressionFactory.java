@@ -387,9 +387,4 @@ public interface SqlExpressionFactory {
     default ISqlTableRefExpression tableRef(Class<?> c) {
         return tableRef(DrinkUtil.getFirst(getConfig(),c));
     }
-
-    default ISqlGroupRef groupRef()
-    {
-        return new SqlGroupRef();
-    }
 }

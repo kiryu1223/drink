@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class OracleAddOrSubDateExtension extends BaseSqlExtension {
     @Override
-    public ISqlExpression parse(IConfig config, Method method, List<ISqlExpression> args) {
+    public ISqlExpression parse(IConfig config, Method method, List<ISqlExpression> args,boolean[] useSuper) {
         List<String> templates = new ArrayList<>();
         List<ISqlExpression> sqlExpressions = new ArrayList<>();
         if (method.getParameterCount() == 2) {

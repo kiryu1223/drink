@@ -15,12 +15,11 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
+import io.github.kiryu1223.drink.base.exception.Winner;
 import io.github.kiryu1223.drink.base.sqlExt.GroupJoinExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 
 import java.math.BigDecimal;
-
-import static io.github.kiryu1223.drink.base.exception.Winner.boom;
 
 /**
  * @author kiryu1223
@@ -34,8 +33,7 @@ public interface IGroup {
      */
     @SqlExtensionExpression(template = "COUNT(*)")
     default long count() {
-        boom();
-        return 0;
+        return Winner.error();
     }
 
     /**
@@ -45,43 +43,36 @@ public interface IGroup {
      */
     @SqlExtensionExpression(template = "COUNT({r})")
     default <R> long count(R r) {
-        boom();
-        return 0;
+        return Winner.error();
     }
 
     @SqlExtensionExpression(template = "SUM({r})")
     default <R> R sum(R r) {
-        boom();
-        return (R) new Object();
+        return Winner.error();
     }
 
     @SqlExtensionExpression(template = "AVG({r})")
     default BigDecimal avg(Number r) {
-        boom();
-        return BigDecimal.ZERO;
+        return Winner.error();
     }
 
     @SqlExtensionExpression(template = "MAX({r})")
     default <R> R max(R r) {
-        boom();
-        return (R) new Object();
+        return Winner.error();
     }
 
     @SqlExtensionExpression(template = "MIN({r})")
     default <R> R min(R r) {
-        boom();
-        return (R) new Object();
+        return Winner.error();
     }
 
     @SqlExtensionExpression(template = "", extension = GroupJoinExtension.class)
     default <R> String groupJoin(R r) {
-        boom();
-        return "";
+        return Winner.error();
     }
 
     @SqlExtensionExpression(template = "", extension = GroupJoinExtension.class)
-    default <R> String groupJoin(String delimiter,R r) {
-        boom();
-        return "";
+    default <R> String groupJoin(String delimiter, R r) {
+        return Winner.error();
     }
 }
