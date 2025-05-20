@@ -26,109 +26,109 @@ import java.math.BigDecimal;
  */
 public interface IAggregation {
 
-    interface Over {
+    final class Over {
         @SqlExtensionExpression(template = "COUNT(*) {super}")
-        default long count() {
+        public long count() {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "COUNT({r}) {super}")
-        default <R> long count(R r) {
+        public <R> long count(R r) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "SUM({r}) {super}")
-        default <R> R sum(R r) {
+        public <R> R sum(R r) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "AVG({r}) {super}")
-        default BigDecimal avg(Number r) {
+        public BigDecimal avg(Number r) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "MAX({r}) {super}")
-        default <R> R max(R r) {
+        public <R> R max(R r) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "MIN({r}) {super}")
-        default <R> R min(R r) {
+        public <R> R min(R r) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "ROW_NUMBER() {super}")
-        default long rowNumber() {
+        public long rowNumber() {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "RANK() {super}")
-        default long rank() {
+        public long rank() {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "DENSE_RANK() {super}")
-        default long denseRank() {
+        public long denseRank() {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "PERCENT_RANK() {super}")
-        default double percentRank() {
+        public double percentRank() {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "NTILE({n}) {super}")
-        default long ntile(long n) {
+        public long ntile(long n) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "CUME_DIST({n}) {super}")
-        default double cumeDist() {
+        public double cumeDist() {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "LAG({expr}) {super}")
-        default <R> R lag(R expr) {
+        public <R> R lag(R expr) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "LAG({expr},{offset}) {super}")
-        default <R> R lag(R expr, long offset) {
+        public <R> R lag(R expr, long offset) {
             return Winner.error();
         }
 
-        @SqlExtensionExpression(template = "LAG({expr},{offset},{defaultValue}) {super}")
-        default <R> R lag(R expr, long offset, R defaultValue) {
+        @SqlExtensionExpression(template = "LAG({expr},{offset},{publicValue}) {super}")
+        public <R> R lag(R expr, long offset, R publicValue) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "LEAD({expr}) {super}")
-        default <R> R lead(R expr) {
+        public <R> R lead(R expr) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "LEAD({expr},{offset}) {super}")
-        default <R> R lead(R expr, long offset) {
+        public <R> R lead(R expr, long offset) {
             return Winner.error();
         }
 
-        @SqlExtensionExpression(template = "LEAD({expr},{offset},{defaultValue}) {super}")
-        default <R> R lead(R expr, long offset, R defaultValue) {
+        @SqlExtensionExpression(template = "LEAD({expr},{offset},{publicValue}) {super}")
+        public <R> R lead(R expr, long offset, R publicValue) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "FIRST_VALUE({expr}) {super}")
-        default <R> R firstValue(R expr) {
+        public <R> R firstValue(R expr) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "LAST_VALUE({expr}) {super}")
-        default <R> R lastValue(R expr) {
+        public <R> R lastValue(R expr) {
             return Winner.error();
         }
 
         @SqlExtensionExpression(template = "NTH_VALUE({expr},{n}) {super}")
-        default <R> R nthValue(R expr, long n) {
+        public <R> R nthValue(R expr, long n) {
             return Winner.error();
         }
     }

@@ -245,12 +245,10 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             return group.getColumns().get(fieldName);
         }
         else if (left instanceof ISqlTableRefExpression) {
-            if (Aggregate.class.isAssignableFrom(field.getDeclaringClass()))
-            {
+            if (Aggregate.class.isAssignableFrom(field.getDeclaringClass())) {
                 return left;
             }
-            else
-            {
+            else {
                 ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
                 MetaData metaData = config.getMetaData(field.getDeclaringClass());
                 FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(field.getName());
@@ -1218,8 +1216,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         if (IGroup.class.isAssignableFrom(parameter.getType())) {
             return new SqlGroupRef();
         }
-        else if(Aggregate.class.isAssignableFrom(parameter.getType()))
-        {
+        else if (Aggregate.class.isAssignableFrom(parameter.getType())) {
             return asNameListDeque.peek().get(0);
         }
         else {

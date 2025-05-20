@@ -30,6 +30,7 @@ import io.github.kiryu1223.drink.func.sqlite.SqliteJoinExtension;
 import io.github.kiryu1223.drink.func.types.TypeCastExtension;
 import io.github.kiryu1223.drink.func.types.SqlTypes;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -47,83 +48,74 @@ public final class SqlFunctions {
         return Winner.error();
     }
 
+    // region [原始sql]
+
+    @SqlExtensionExpression(template = "{sql}")
+    public static <T> T rawSql(String sql) {
+        return error();
+    }
+
+    // endregion
+
     // region [聚合函数]
 
-//    /**
-//     * 聚合函数COUNT(*)
-//     */
-//    @SqlExtensionExpression(template = "COUNT(*)")
-//    public static long count() {
-//        boom();
-//        return 0;
-//    }
-//
-//    /**
-//     * 聚合函数COUNT(t)
-//     */
-//    @SqlExtensionExpression(template = "COUNT({t})")
-//    public static <T> long count(T t) {
-//        boom();
-//        return 0;
-//    }
-//
-//    /**
-//     * 聚合函数SUM(t)
-//     */
-//    @SqlExtensionExpression(template = "SUM({t})")
-//    public static <T> BigDecimal sum(T t) {
-//        boom();
-//        return BigDecimal.ZERO;
-//    }
-//
-//    /**
-//     * 聚合函数AVG(t)
-//     */
-//    @SqlExtensionExpression(template = "AVG({t})")
-//    public static <T extends Number> BigDecimal avg(T t) {
-//        boom();
-//        return BigDecimal.ZERO;
-//    }
-//
-//    /**
-//     * 聚合函数MIN(t)
-//     */
-//    @SqlExtensionExpression(template = "MIN({t})")
-//    public static <T> T min(T t) {
-//        boom();
-//        return (T) new Object();
-//    }
-//
-//    /**
-//     * 聚合函数MAX(t)
-//     */
-//    @SqlExtensionExpression(template = "MAX({t})")
-//    public static <T> T max(T t) {
-//        boom();
-//        return (T) new Object();
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, template = "GROUP_CONCAT({property})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, template = "GROUP_CONCAT({property})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, template = "LISTAGG({property}) WITHIN GROUP (ORDER BY {property})")
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, template = "STRING_AGG({property},',')")
-//    @SqlExtensionExpression(dbType = DbType.SQLite, template = "GROUP_CONCAT({property})")
-//    @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "STRING_AGG({property}::TEXT,',')")
-//    public static String groupJoin(String property) {
-//        boom();
-//        return "";
-//    }
-//
-//    @SqlExtensionExpression(dbType = DbType.H2, template = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
-//    @SqlExtensionExpression(dbType = DbType.MySQL, template = "GROUP_CONCAT({property} SEPARATOR {delimiter})")
-//    @SqlExtensionExpression(dbType = DbType.Oracle, template = "LISTAGG({property},{delimiter}) WITHIN GROUP (ORDER BY {property})")
-//    @SqlExtensionExpression(dbType = DbType.SQLServer, template = "STRING_AGG({property},{delimiter})")
-//    @SqlExtensionExpression(dbType = DbType.SQLite, template = "GROUP_CONCAT({property},{delimiter})")
-//    @SqlExtensionExpression(dbType = DbType.PostgreSQL, template = "STRING_AGG({property}::TEXT,{delimiter})")
-//    public static <T> String groupJoin(String delimiter, T property) {
-//        boom();
-//        return "";
-//    }
+    /**
+     * 聚合函数COUNT(*)
+     */
+    @SqlExtensionExpression(template = "COUNT(*)")
+    public static long count() {
+        return error();
+    }
+
+    /**
+     * 聚合函数COUNT(t)
+     */
+    @SqlExtensionExpression(template = "COUNT({t})")
+    public static <T> long count(T t) {
+        return error();
+    }
+
+    /**
+     * 聚合函数SUM(t)
+     */
+    @SqlExtensionExpression(template = "SUM({t})")
+    public static <T> BigDecimal sum(T t) {
+        return error();
+    }
+
+    /**
+     * 聚合函数AVG(t)
+     */
+    @SqlExtensionExpression(template = "AVG({t})")
+    public static <T extends Number> BigDecimal avg(T t) {
+        return error();
+    }
+
+    /**
+     * 聚合函数MIN(t)
+     */
+    @SqlExtensionExpression(template = "MIN({t})")
+    public static <T> T min(T t) {
+        return error();
+    }
+
+    /**
+     * 聚合函数MAX(t)
+     */
+    @SqlExtensionExpression(template = "MAX({t})")
+    public static <T> T max(T t) {
+        return error();
+    }
+
+    @SqlExtensionExpression(template = "",extension = GroupJoinExtension.class)
+    public static String groupJoin(String property) {
+        return error();
+    }
+
+    @SqlExtensionExpression(template = "",extension = GroupJoinExtension.class)
+    public static <T> String groupJoin(String delimiter, T property) {
+        return error();
+    }
 
     // endregion
 

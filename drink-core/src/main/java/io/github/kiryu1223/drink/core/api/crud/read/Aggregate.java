@@ -4,5 +4,5 @@ import io.github.kiryu1223.drink.base.sqlExt.IAggregation;
 
 public final class Aggregate<T> implements IAggregation
 {
-    public T value;
+    public T table;
 }

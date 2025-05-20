@@ -179,14 +179,14 @@ public class GroupedQuery<Key, T> extends QueryBase<GroupedQuery<Key, T>,Key> {
 //        return new EndQuery<>(boxedQuerySqlBuilder());
 //    }
 
-    public <R> GroupedQuery<Key, T> includes(@Expr(Expr.BodyType.Expr) Func1<Key, Collection<R>> expr) {
-        throw new NotCompiledException();
-    }
-
-    public <R> GroupedQuery<Key, T> includes(ExprTree<Func1<Key, Collection<R>>> expr) {
-        include(expr.getTree());
-        return this;
-    }
+//    public <R> GroupedQuery<Key, T> includes(@Expr(Expr.BodyType.Expr) Func1<Key, Collection<R>> expr) {
+//        throw new NotCompiledException();
+//    }
+//
+//    public <R> GroupedQuery<Key, T> includes(ExprTree<Func1<Key, Collection<R>>> expr) {
+//        include(expr.getTree());
+//        return this;
+//    }
 
     // endregion
 

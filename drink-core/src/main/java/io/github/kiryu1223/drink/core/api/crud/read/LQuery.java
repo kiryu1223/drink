@@ -15,6 +15,7 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read;
 
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
@@ -22,7 +23,6 @@ import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
-import io.github.kiryu1223.drink.core.api.crud.read.group.Group;
 import io.github.kiryu1223.drink.core.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
@@ -31,8 +31,8 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.page.DefaultPager;
 import io.github.kiryu1223.drink.core.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
-import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Action2;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
@@ -509,7 +509,10 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public <R extends ITable> LQuery<T> include(ExprTree<Func1<T, R>> expr)
     {
-        include(expr.getTree());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        FieldMetaData include = sqlVisitor.toField(expr.getTree());
+        if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
+        include(include,null);
         return this;
     }
 
@@ -521,22 +524,26 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
      * @param then 简单的过滤条件
      * @return 抓取过程对象
      */
-    public <R extends ITable> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> include(@Expr(Expr.BodyType.Expr) Func1<T, R> expr, Func1<LQuery<R>,LQuery<R>> then)
     {
         throw new NotCompiledException();
     }
 
-    public <R extends ITable> LQuery<T> include(ExprTree<Func1<T, R>> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> include(ExprTree<Func1<T, R>> expr, Func1<LQuery<R>,LQuery<R>> then)
     {
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        FieldMetaData include = sqlVisitor.toField(expr.getTree());
+        if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
         LambdaExpression<Func1<T, R>> tree = expr.getTree();
         Class<?> targetType = tree.getReturnType();
         LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType)));
-        then.invoke(lQuery);
+        lQuery= then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
-        include(tree, sqlBuilder.getQueryable());
-        if (!sqlBuilder.getIncludeSets().isEmpty())
+        include(include,sqlBuilder.getQueryable());
+        if (!sqlBuilder.getSubQueryList().isEmpty())
         {
-            getSqlBuilder().getLastIncludeSet().getIncludeSets().addAll(sqlBuilder.getIncludeSets());
+            List<SubQueryBuilder> subQueryList = getSqlBuilder().getSubQueryList();
+            subQueryList.get(subQueryList.size() - 1).getSubQueryList().addAll(sqlBuilder.getSubQueryList());
         }
         return this;
     }
@@ -544,37 +551,43 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     /**
      * include的集合版本
      */
-    public <R extends ITable> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr)
+    public <R extends ITable> LQuery<T> includeMany(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr)
     {
         throw new NotCompiledException();
     }
 
-    public <R extends ITable> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr)
+    public <R extends ITable> LQuery<T> includeMany(ExprTree<Func1<T, Collection<R>>> expr)
     {
-        include(expr.getTree());
+        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        FieldMetaData include = sqlVisitor.toField(expr.getTree());
+        if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
+        include(include,null);
         return this;
     }
 
     /**
      * include的集合版本
      */
-    public <R extends ITable> LQuery<T> includes(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> includeMany(@Expr(Expr.BodyType.Expr) Func1<T, Collection<R>> expr, Func1<LQuery<R>,LQuery<R>> then)
     {
         throw new NotCompiledException();
     }
 
-    public <R extends ITable> LQuery<T> includes(ExprTree<Func1<T, Collection<R>>> expr, Action1<LQuery<R>> then)
+    public <R extends ITable> LQuery<T> includeMany(ExprTree<Func1<T, Collection<R>>> expr, Func1<LQuery<R>,LQuery<R>> then)
     {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        FieldMetaData include = sqlVisitor.toField(expr.getTree());
+        if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
         FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
-        Class<?> targetType = getTargetType(fieldMetaData.getNavigateData().getNavigateTargetType());
+        Class<?> targetType = fieldMetaData.getNavigateData().getNavigateTargetType();
         LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType)));
         then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
-        include(expr.getTree(), sqlBuilder.getQueryable());
-        if (!sqlBuilder.getIncludeSets().isEmpty())
+        include(include, sqlBuilder.getQueryable());
+        if (!sqlBuilder.getSubQueryList().isEmpty())
         {
-            getSqlBuilder().getLastIncludeSet().getIncludeSets().addAll(sqlBuilder.getIncludeSets());
+            List<SubQueryBuilder> subQueryList = getSqlBuilder().getSubQueryList();
+            subQueryList.get(subQueryList.size() - 1).getSubQueryList().addAll(sqlBuilder.getSubQueryList());
         }
         return this;
     }

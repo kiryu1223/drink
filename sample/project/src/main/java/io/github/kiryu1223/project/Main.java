@@ -5,7 +5,6 @@ import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
-import io.github.kiryu1223.drink.base.sqlExt.Rows;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.Builder;
 import io.github.kiryu1223.drink.core.SqlClient;
@@ -15,12 +14,7 @@ import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Course;
 import io.github.kiryu1223.project.pojos.Student;
 
-import java.util.EnumSet;
 import java.util.List;
-
-import static io.github.kiryu1223.drink.base.sqlExt.Rows.first;
-import static io.github.kiryu1223.drink.base.sqlExt.Rows.last;
-import static io.github.kiryu1223.drink.func.SqlFunctions.*;
 
 public class Main {
     public static SqlClient boot() {
@@ -74,9 +68,13 @@ public class Main {
 //        }
 //
         String sql = client.query(Course.class)
+                .includeMany(c -> c.getStudents(), then -> then)
                 .selectAggregate(a -> new Result() {
-                    long id = a.count(0);
-                    long number = a.over(a.value.getCourseId(),a.value.getClassroom()).rowNumber();
+                    long id = SqlFunctions.rawSql("(select c.id from courses as c)");
+                    long number = a.over(a.table.getCourseId(), a.table.getClassroom()).rowNumber();
+                    List<Student> students = client.query(Student.class)
+                            .where(s -> s.getStudentId() == a.table.getCourseId())
+                            .toList();
                 })
                 .toSql();
 

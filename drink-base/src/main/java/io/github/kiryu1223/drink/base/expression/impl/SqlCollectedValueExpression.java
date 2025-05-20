@@ -18,6 +18,8 @@ package io.github.kiryu1223.drink.base.expression.impl;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlCollectedValueExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,10 +55,16 @@ public class SqlCollectedValueExpression implements ISqlCollectedValueExpression
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         List<String> strings = new ArrayList<>(getCollection().size());
-        for (Object obj : getCollection()) {
+        ITypeHandler<?> typeHandler = null;
+        for (Object obj : collection) {
             strings.add("?");
-            if (values != null) values.add(new SqlValue(obj));
+            if (values != null) {
+                if (typeHandler == null) {
+                    typeHandler = obj == null ? TypeHandlerManager.getUnKnowTypeHandler() : TypeHandlerManager.get(obj.getClass())
+                }
+                values.add(new SqlValue(obj, typeHandler));
+            }
         }
-        return "(" + String.join(getDelimiter(), strings) + ")";
+        return "(" + String.join(delimiter, strings) + ")";
     }
 }

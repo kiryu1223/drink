@@ -32,6 +32,7 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.page.PagedResult;
 import io.github.kiryu1223.drink.core.page.Pager;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.*;
 import org.slf4j.Logger;
@@ -119,7 +120,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession(config);
         List<R> ts = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config,typeHandler).createList(),
+                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler).createList(),
                 sql,
                 values
         );
@@ -134,18 +135,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         return ts;
     }
 
-    private ITypeHandler<R> getSingleTypeHandler(boolean single)
-    {
-        ITypeHandler<R> typeHandler=null;
-        if (single)
-        {
+    private ITypeHandler<R> getSingleTypeHandler(boolean single) {
+        ITypeHandler<R> typeHandler = null;
+        if (single) {
             List<ISqlExpression> columns = sqlBuilder.getQueryable().getSelect().getColumns();
-            for (ISqlExpression column : columns)
-            {
-                if (column instanceof ISqlColumnExpression)
-                {
+            for (ISqlExpression column : columns) {
+                if (column instanceof ISqlColumnExpression) {
                     ISqlColumnExpression columnExpression = (ISqlColumnExpression) column;
-                    typeHandler= (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
+                    typeHandler = (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
                 }
             }
         }
@@ -426,31 +423,36 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // region [include]
 
-    protected void include(LambdaExpression<?> lambda, ISqlExpression cond, List<IncludeSet> includeSets) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
-        FieldMetaData fieldMetaData = sqlVisitor.toField(lambda);
-        if (!fieldMetaData.hasNavigate()) {
-            throw new RuntimeException("include指定的字段需要被@Navigate修饰");
-        }
-        relationTypeCheck(fieldMetaData.getNavigateData());
-        IncludeSet includeSet;
-        if (cond != null) {
-            SqlVisitor coVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
-            //ISqlExpression condition = coVisitor.visit(cond);
-            includeSet = new IncludeSet(fieldMetaData, cond);
-        }
-        else {
-            includeSet = new IncludeSet(fieldMetaData);
-        }
-        includeSets.add(includeSet);
-    }
+//    protected void include(LambdaExpression<?> lambda, ISqlExpression cond, List<IncludeSet> includeSets) {
+//        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+//        FieldMetaData fieldMetaData = sqlVisitor.toField(lambda);
+//        if (!fieldMetaData.hasNavigate()) {
+//            throw new RuntimeException("include指定的字段需要被@Navigate修饰");
+//        }
+//        relationTypeCheck(fieldMetaData.getNavigateData());
+//        IncludeSet includeSet;
+//        if (cond != null) {
+//            SqlVisitor coVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+//            //ISqlExpression condition = coVisitor.visit(cond);
+//            includeSet = new IncludeSet(fieldMetaData, cond);
+//        }
+//        else {
+//            includeSet = new IncludeSet(fieldMetaData);
+//        }
+//        includeSets.add(includeSet);
+//    }
+//
+//    protected void include(LambdaExpression<?> lambda, ISqlExpression cond) {
+//        include(lambda, cond, sqlBuilder.getIncludeSets());
+//    }
 
-    protected void include(LambdaExpression<?> lambda, ISqlExpression cond) {
-        include(lambda, cond, sqlBuilder.getIncludeSets());
-    }
-
-    protected void include(LambdaExpression<?> lambda) {
-        include(lambda, null, sqlBuilder.getIncludeSets());
+    protected void include(FieldMetaData include,ISqlQueryableExpression query) {
+        SubQueryBuilder subQueryBuilder = new SubQueryBuilder();
+        subQueryBuilder.setInclude(include);
+        if (query != null) {
+            subQueryBuilder.setQuery(query);
+        }
+        sqlBuilder.addSubQuery(subQueryBuilder);
     }
 
     // endregion

@@ -157,7 +157,6 @@ public class MetaData
         {
             throw new RuntimeException(e);
         }
-
     }
 
     private boolean hasTableName(Table table)
