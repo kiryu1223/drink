@@ -54,8 +54,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlConditionsExpression condition() {
-        return new SqlConditionsExpression();
+    public ISqlConditionsExpression condition(boolean and) {
+        return new SqlConditionsExpression(and);
     }
 
     @Override

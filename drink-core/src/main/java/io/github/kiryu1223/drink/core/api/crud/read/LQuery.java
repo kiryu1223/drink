@@ -31,7 +31,7 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.page.DefaultPager;
 import io.github.kiryu1223.drink.core.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Action2;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
@@ -540,10 +540,10 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         lQuery= then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
         include(include,sqlBuilder.getQueryable());
-        if (!sqlBuilder.getSubQueryList().isEmpty())
+        if (!sqlBuilder.getIncludes().isEmpty())
         {
-            List<SubQueryBuilder> subQueryList = getSqlBuilder().getSubQueryList();
-            subQueryList.get(subQueryList.size() - 1).getSubQueryList().addAll(sqlBuilder.getSubQueryList());
+            List<IncludeBuilder> subQueryList = getSqlBuilder().getIncludes();
+            subQueryList.get(subQueryList.size() - 1).getIncludes().addAll(sqlBuilder.getIncludes());
         }
         return this;
     }
@@ -584,10 +584,10 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
         include(include, sqlBuilder.getQueryable());
-        if (!sqlBuilder.getSubQueryList().isEmpty())
+        if (!sqlBuilder.getIncludes().isEmpty())
         {
-            List<SubQueryBuilder> subQueryList = getSqlBuilder().getSubQueryList();
-            subQueryList.get(subQueryList.size() - 1).getSubQueryList().addAll(sqlBuilder.getSubQueryList());
+            List<IncludeBuilder> subQueryList = getSqlBuilder().getIncludes();
+            subQueryList.get(subQueryList.size() - 1).getIncludes().addAll(sqlBuilder.getIncludes());
         }
         return this;
     }

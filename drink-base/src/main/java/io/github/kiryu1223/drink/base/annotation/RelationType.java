@@ -5,5 +5,10 @@ public enum RelationType
     OneToOne,
     OneToMany,
     ManyToOne,
-    ManyToMany
+    ManyToMany;
+
+    public boolean toMany()
+    {
+        return this == OneToMany || this == ManyToMany;
+    }
 }

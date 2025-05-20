@@ -29,6 +29,11 @@ import java.util.List;
  */
 public class SqlConditionsExpression implements ISqlConditionsExpression {
     protected final List<ISqlExpression> conditions = new ArrayList<>();
+    protected final boolean and;
+
+    public SqlConditionsExpression(boolean and) {
+        this.and = and;
+    }
 
     @Override
     public List<ISqlExpression> getConditions() {
@@ -42,6 +47,6 @@ public class SqlConditionsExpression implements ISqlConditionsExpression {
         for (ISqlExpression expression : getConditions()) {
             whereStr.add(expression.getSqlAndValue(config, values));
         }
-        return String.join(" AND ", whereStr);
+        return String.join(String.format(" %s ", and ? "AND" : "OR"), whereStr);
     }
 }

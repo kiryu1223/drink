@@ -23,7 +23,6 @@ import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
-import io.github.kiryu1223.drink.base.toBean.Include.IncludeSet;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.transform.Transformer;
@@ -32,7 +31,7 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.page.PagedResult;
 import io.github.kiryu1223.drink.core.page.Pager;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.*;
 import org.slf4j.Logger;
@@ -447,12 +446,66 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 //    }
 
     protected void include(FieldMetaData include,ISqlQueryableExpression query) {
-        SubQueryBuilder subQueryBuilder = new SubQueryBuilder();
-        subQueryBuilder.setInclude(include);
-        if (query != null) {
-            subQueryBuilder.setQuery(query);
+        NavigateData navigateData = include.getNavigateData();
+        relationTypeCheck(navigateData);
+        RelationType relationType = navigateData.getRelationType();
+        IConfig config = getConfig();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        FieldMetaData selfField = config.getMetaData(include.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+        FieldMetaData targetField = config.getMetaData(navigateData.getNavigateTargetType()).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+        ISqlQueryableExpression targetQuery = factory.queryable(navigateData.getNavigateTargetType());
+        ISqlTableRefExpression targetRef = targetQuery.getFrom().getTableRefExpression();
+        // 等待后续填充
+        ISqlCollectedValueExpression ids = factory.value(new ArrayList<>());
+        // A.B
+        switch (relationType)
+        {
+
+            // 一对一，一对多，多对一的场合
+            // SELECT B.* FROM B WHERE B.targetField IN (?...)
+            case OneToOne:
+            case ManyToOne:
+            case OneToMany:
+            {
+                targetQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(targetField,targetRef),ids));
+            }
+            break;
+            // SELECT B.* FROM B WHERE B.targetField IN
+            // (SELECT M.targetMapping FROM M WHERE M.selfMapping IN (?...))
+            case ManyToMany:
+            {
+                FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData(config);
+                FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData(config);
+                ISqlQueryableExpression mappingQuery = factory.queryable(navigateData.getMappingTableType());
+                ISqlTableRefExpression mappingRef = mappingQuery.getFrom().getTableRefExpression();
+                mappingQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(selfMappingField,mappingRef),ids));
+                mappingQuery.setSelect(factory.select(Collections.singletonList(factory.column(targetMappingField, mappingRef)),targetMappingField.getType()));
+                targetQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(targetField,targetRef),mappingQuery));
+            }
+            break;
         }
-        sqlBuilder.addSubQuery(subQueryBuilder);
+        if(query!=null)
+        {
+            ISqlWhereExpression where = query.getWhere();
+            if(!where.isEmpty())
+            {
+                targetQuery.addWhere(where.getConditions());
+            }
+            ISqlOrderByExpression orderBy = query.getOrderBy();
+            if(!orderBy.isEmpty())
+            {
+                for (ISqlOrderExpression order : orderBy.getSqlOrders())
+                {
+                    targetQuery.addOrder(order);
+                }
+            }
+            ISqlLimitExpression limit = query.getLimit();
+            if (limit.hasRowsOrOffset())
+            {
+                targetQuery.setLimit(limit.getOffset(),limit.getRows());
+            }
+        }
+        sqlBuilder.addSubQuery(new IncludeBuilder(config,targetQuery,ids,relationType.toMany()));
     }
 
     // endregion

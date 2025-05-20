@@ -19,7 +19,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.toBean.Include.IncludeSet;
 
 import java.util.*;
 
@@ -35,7 +34,7 @@ public class QuerySqlBuilder implements ISqlBuilder {
 //    private final List<IncludeSet> includeSets = new ArrayList<>();
     private final List<String> ignoreFilterIds = new ArrayList<>();
     private boolean ignoreFilterAll = false;
-    private final List<SubQueryBuilder> subQueryList =new ArrayList<>();
+    private final List<IncludeBuilder> includes =new ArrayList<>();
 
     public QuerySqlBuilder(IConfig config, ISqlQueryableExpression queryable) {
         this.config = config;
@@ -43,12 +42,12 @@ public class QuerySqlBuilder implements ISqlBuilder {
         this.factory = config.getSqlExpressionFactory();
     }
 
-    public List<SubQueryBuilder> getSubQueryList() {
-        return subQueryList;
+    public List<IncludeBuilder> getIncludes() {
+        return includes;
     }
 
-    public void addSubQuery(SubQueryBuilder subQuery) {
-        subQueryList.add(subQuery);
+    public void addSubQuery(IncludeBuilder subQuery) {
+        includes.add(subQuery);
     }
 
     public void addWhere(ISqlExpression cond) {

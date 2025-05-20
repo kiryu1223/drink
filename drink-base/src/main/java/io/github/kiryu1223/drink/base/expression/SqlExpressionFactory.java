@@ -55,7 +55,12 @@ public interface SqlExpressionFactory {
     /**
      * 创建条件表达式
      */
-    ISqlConditionsExpression condition();
+    ISqlConditionsExpression condition(boolean and);
+
+    default ISqlConditionsExpression condition()
+    {
+        return condition(true);
+    }
 
     default ISqlConditionsExpression condition(Collection<ISqlExpression> expressions) {
         ISqlConditionsExpression conditions = condition();
