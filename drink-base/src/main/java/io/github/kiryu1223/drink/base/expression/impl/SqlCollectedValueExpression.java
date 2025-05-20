@@ -60,7 +60,7 @@ public class SqlCollectedValueExpression implements ISqlCollectedValueExpression
             strings.add("?");
             if (values != null) {
                 if (typeHandler == null) {
-                    typeHandler = obj == null ? TypeHandlerManager.getUnKnowTypeHandler() : TypeHandlerManager.get(obj.getClass())
+                    typeHandler = obj == null ? TypeHandlerManager.getUnKnowTypeHandler() : TypeHandlerManager.get(obj.getClass());
                 }
                 values.add(new SqlValue(obj, typeHandler));
             }
