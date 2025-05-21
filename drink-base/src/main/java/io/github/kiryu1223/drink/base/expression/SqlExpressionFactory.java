@@ -412,4 +412,11 @@ public interface SqlExpressionFactory {
     default ISqlTableRefExpression tableRef(Class<?> c) {
         return tableRef(DrinkUtil.getFirst(getConfig(),c));
     }
+
+    ISqlStarExpression star(ISqlTableRefExpression tableRefExpression);
+
+    default ISqlStarExpression star()
+    {
+        return star(null);
+    }
 }

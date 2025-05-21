@@ -207,4 +207,10 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     public ISqlTableRefExpression tableRef(String name) {
         return new SqlTableRefExpression(name);
     }
+
+    @Override
+    public ISqlStarExpression star(ISqlTableRefExpression tableRefExpression)
+    {
+        return new SqlStarExpression(tableRefExpression);
+    }
 }

@@ -13,6 +13,8 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -23,6 +25,7 @@ import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
 
 public class IncludeBuilder {
 
+    private static final Logger log = LoggerFactory.getLogger(IncludeBuilder.class);
     private final IConfig config;
     private final ISqlQueryableExpression subQuery;
     private final ISqlCollectedValueExpression collectedValue;
@@ -42,11 +45,23 @@ public class IncludeBuilder {
         return includes;
     }
 
+    private void tryPrintSql(String sql) {
+        if (config.isPrintSql()) {
+            log.info("includeQuery: ==> {}",sql);
+        }
+    }
+
     public void include(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
         NavigateData navigateData = includeField.getNavigateData();
         BeanCreatorFactory beanCreatorFactory = config.getBeanCreatorFactory();
         AbsBeanCreator<?> sourceBeanCreator = beanCreatorFactory.get(includeField.getParentType(), config);
         IGetterCaller<?, ?> sourceGetter = sourceBeanCreator.getBeanGetter(navigateData.getSelfFieldName());
+
+        RelationType relationType = navigateData.getRelationType();
+        Class<?> targetType = navigateData.getNavigateTargetType();
+        AbsBeanCreator<?> targetBeanCreator = beanCreatorFactory.get(targetType, config);
+        IGetterCaller<?, ?> targetGetter = targetBeanCreator.getBeanGetter(navigateData.getTargetFieldName());
+        ISetterCaller<?> includeSetter = sourceBeanCreator.getBeanSetter(includeField.getFieldName());
 
         Collection<?> collection = collectedValue.getCollection();
         collection.clear();
@@ -56,11 +71,7 @@ public class IncludeBuilder {
         List<SqlValue> sqlValues = new ArrayList<>(source.size());
         String sql = subQuery.getSqlAndValue(config, sqlValues);
 
-        RelationType relationType = navigateData.getRelationType();
-        Class<?> targetType = navigateData.getNavigateTargetType();
-        AbsBeanCreator<?> targetBeanCreator = beanCreatorFactory.get(targetType, config);
-        IGetterCaller<?, ?> targetGetter = targetBeanCreator.getBeanGetter(navigateData.getTargetFieldName());
-        ISetterCaller<?> includeSetter = sourceBeanCreator.getBeanSetter(includeField.getFieldName());
+        tryPrintSql(sql);
 
         switch (relationType) {
             case OneToOne:

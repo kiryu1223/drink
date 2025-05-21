@@ -199,7 +199,7 @@ public class GroupedQuery2<Key, T1, T2> extends QueryBase<GroupedQuery2<Key, T1,
      * @return 分页数据
      */
     public PagedResult<Key> toPagedResult(long pageIndex, long pageSize) {
-        return toPagedResult0(pageIndex, pageSize, DefaultPager.instance);
+        return toPagedResult0(pageIndex, pageSize);
     }
 
     /**

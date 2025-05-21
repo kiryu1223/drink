@@ -103,6 +103,10 @@ public class SqlTreeVisitor {
         else if (expr instanceof ISqlTableRefExpression) {
             visit((ISqlTableRefExpression) expr);
         }
+        else if (expr instanceof ISqlStarExpression)
+        {
+            visit((ISqlStarExpression) expr);
+        }
     }
 
     public void visit(ISqlUnaryExpression expr) {
@@ -267,6 +271,11 @@ public class SqlTreeVisitor {
     }
 
     public void visit(ISqlTableRefExpression expr) {
+
+    }
+
+    public void visit(ISqlStarExpression expr)
+    {
 
     }
 }

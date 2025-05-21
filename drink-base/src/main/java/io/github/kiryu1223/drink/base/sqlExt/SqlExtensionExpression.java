@@ -1,7 +1,6 @@
 package io.github.kiryu1223.drink.base.sqlExt;
 
 import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.base.annotation.Empty;
 
 import java.lang.annotation.*;
 

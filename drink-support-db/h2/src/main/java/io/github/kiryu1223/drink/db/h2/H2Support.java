@@ -5,7 +5,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDbSupport;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 
 public class H2Support implements IDbSupport
@@ -26,12 +25,6 @@ public class H2Support implements IDbSupport
     public SqlExpressionFactory getSqlExpressionFactory(IConfig config)
     {
         return new H2ExpressionFactory(config);
-    }
-
-    @Override
-    public IncludeFactory getIncludeFactory()
-    {
-        return new H2IncludeFactory();
     }
 
     @Override

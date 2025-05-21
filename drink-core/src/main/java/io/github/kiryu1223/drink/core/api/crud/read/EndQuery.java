@@ -60,7 +60,7 @@ public class EndQuery<T> extends QueryBase<EndQuery<T>,T> {
      * @return 分页数据
      */
     public PagedResult<T> toPagedResult(long pageIndex, long pageSize) {
-        return toPagedResult0(pageIndex, pageSize, DefaultPager.instance);
+        return toPagedResult0(pageIndex, pageSize);
     }
 
     /**

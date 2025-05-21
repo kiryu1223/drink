@@ -6,7 +6,6 @@ import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
-import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.base.transform.Transformer;
@@ -22,8 +21,6 @@ public interface IConfig
     TransactionManager getTransactionManager();
 
     SqlSessionFactory getSqlSessionFactory();
-
-    IncludeFactory getIncludeFactory();
 
     BeanCreatorFactory getBeanCreatorFactory();
 

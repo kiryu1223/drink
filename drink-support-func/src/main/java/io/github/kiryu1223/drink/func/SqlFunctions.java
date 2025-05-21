@@ -52,7 +52,7 @@ public final class SqlFunctions {
 
     // region [原始sql]
 
-    @SqlExtensionExpression(template = "{sql}")
+    @SqlExtensionExpression(template = "{$sql}")
     public static <T, SQL> T rawSql(SQL sql) {
         return error();
     }

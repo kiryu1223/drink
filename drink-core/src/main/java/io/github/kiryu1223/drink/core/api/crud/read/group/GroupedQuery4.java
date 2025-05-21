@@ -198,7 +198,7 @@ public class GroupedQuery4<Key, T1, T2, T3, T4> extends QueryBase<GroupedQuery4<
      * @return 分页数据
      */
     public PagedResult<Key> toPagedResult(long pageIndex, long pageSize) {
-        return toPagedResult0(pageIndex, pageSize, DefaultPager.instance);
+        return toPagedResult0(pageIndex, pageSize);
     }
 
     /**

@@ -22,7 +22,6 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
-import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.transform.Transformer;
@@ -107,7 +106,6 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     // endregion
 
     // region [toList]
-
     protected List<R> toList() {
         IConfig config = getConfig();
         Class<R> targetClass = sqlBuilder.getTargetClass();
@@ -118,20 +116,23 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession(config);
-        List<R> ts = session.executeQuery(
+        List<R> result = session.executeQuery(
                 r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler).createList(),
                 sql,
                 values
         );
-//        if (!sqlBuilder.getIncludeSets().isEmpty()) {
-//            try {
-//                IncludeFactory includeFactory = config.getIncludeFactory();
-//                includeFactory.getBuilder(getConfig(), session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
-//            } catch (InvocationTargetException | IllegalAccessException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-        return ts;
+        List<IncludeBuilder> includes = sqlBuilder.getIncludes();
+        if (!includes.isEmpty()) {
+            try {
+                for (IncludeBuilder include : includes) {
+                    include.include(session,result);
+                }
+            }
+            catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
     }
 
     private ITypeHandler<R> getSingleTypeHandler(boolean single) {
@@ -518,9 +519,9 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 }
             }
             // limit需要包装成窗口函数逻辑才能正确
-            // SELECT * FROM
+            // SELECT window.* FROM
             // (SELECT
-            //  *,
+            //  ...,
             //  ROW_NUMBER() OVER () AS `<rn>`
             //  ...
             //  ) as window
@@ -546,13 +547,11 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ISqlQueryableExpression warpedQuery = factory.queryable(sourceQuery);
         ISqlTableRefExpression warpedRef = warpedQuery.getFrom().getTableRefExpression();
         // 设置为 SELECT * 防止丢失映射表字段信息
-        ISqlDynamicColumnExpression star = factory.dynamicColumn("*", int.class, warpedRef);
-        star.setUseDialect(false);
-        warpedQuery.setSelect(factory.select(Collections.singletonList(star), warpedQuery.getMainTableClass()));
+        warpedQuery.setSelect(factory.select(Collections.singletonList(factory.star(warpedRef)), warpedQuery.getMainTableClass()));
         warpedQuery.addWhere(factory.binary(
                 SqlOperator.BETWEEN,
                 factory.dynamicColumn(rowNumberAsName, long.class, warpedRef),
-                factory.binary(SqlOperator.AND, factory.constString(offset), factory.constString(offset + rows))
+                factory.binary(SqlOperator.AND, factory.constString(offset + 1), factory.constString(offset + rows + 1))
         ));
 
         return warpedQuery;

@@ -19,6 +19,7 @@ import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IDbSupport;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.page.DefaultPager;
 import io.github.kiryu1223.drink.base.page.Pager;
@@ -28,6 +29,7 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 
+import javax.sql.DataSource;
 import java.util.ServiceLoader;
 
 /**
@@ -66,6 +68,8 @@ public class Builder {
 
     private Pager pager;
 
+    private IDbSupport dbSupport;
+
     /**
      * 构建Client对象
      */
@@ -88,7 +92,10 @@ public class Builder {
         if (pager == null) {
             pager = new DefaultPager();
         }
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory, getSpi(), nameConverter, pager);
+        if (dbSupport == null) {
+            dbSupport = getSpi();
+        }
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory, dbSupport, nameConverter, pager);
         return new SqlClient(config);
     }
 
@@ -102,11 +109,21 @@ public class Builder {
         throw new DrinkException(String.format("找不到%s数据库支持", dbType));
     }
 
+    public void setDbSupport(IDbSupport dbSupport)
+    {
+        this.dbSupport = dbSupport;
+    }
+
     /**
      * 设置数据源管理器
      */
     public Builder setDataSourceManager(DataSourceManager dataSourceManager) {
         this.dataSourceManager = dataSourceManager;
+        return this;
+    }
+
+    public Builder setDataSource(DataSource dataSource) {
+        this.dataSourceManager = new DefaultDataSourceManager(dataSource);
         return this;
     }
 

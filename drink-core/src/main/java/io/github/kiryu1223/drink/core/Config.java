@@ -22,7 +22,6 @@ import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
-import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.base.transform.Transformer;
@@ -45,7 +44,6 @@ class Config implements IConfig {
     private final IDialect disambiguation;
     private final Transformer transformer;
     private final SqlExpressionFactory sqlExpressionFactory;
-    private final IncludeFactory includeFactory;
     private final NameConverter nameConverter;
     private final Pager pager;
 
@@ -61,7 +59,6 @@ class Config implements IConfig {
         this.disambiguation=dbSupport.getIDialect();
         this.sqlExpressionFactory=dbSupport.getSqlExpressionFactory(this);
         this.transformer=dbSupport.getTransformer(this);
-        this.includeFactory=dbSupport.getIncludeFactory();
         this.nameConverter = nameConverter;
         this.pager = pager;
     }
@@ -108,10 +105,6 @@ class Config implements IConfig {
 
     public SqlExpressionFactory getSqlExpressionFactory() {
         return sqlExpressionFactory;
-    }
-
-    public IncludeFactory getIncludeFactory() {
-        return includeFactory;
     }
 
     public BeanCreatorFactory getBeanCreatorFactory() {

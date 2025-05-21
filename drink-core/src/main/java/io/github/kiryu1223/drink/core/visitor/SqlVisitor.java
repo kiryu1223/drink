@@ -23,6 +23,7 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.SqlGroupRef;
 import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
+import io.github.kiryu1223.drink.base.sqlExt.ISqlKeywords;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.base.transform.*;
@@ -339,23 +340,39 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                             expressions.add(visit(methodCall.getExpr()));
                         }
                         else {
+                            boolean is$=param.startsWith("$");
+                            String paramFinal=is$?param.substring(1):param;
                             Parameter targetParam = methodParameters.stream()
-                                    .filter(f -> f.getName().equals(param))
+                                    .filter(f -> f.getName().equals(paramFinal))
                                     .findFirst()
-                                    .orElseThrow(() -> new DrinkException(String.format("无法在%s中找到%s", sqlFuncExt.template(), param)));
+                                    .orElseThrow(() -> new DrinkException(String.format("无法在%s中找到%s", sqlFuncExt.template(), paramFinal)));
                             int index = methodParameters.indexOf(targetParam);
 
                             // 如果是可变参数
                             if (targetParam.isVarArgs()) {
                                 while (index < args.size()) {
-                                    expressions.add(visit(args.get(index)));
-                                    if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
-                                    index++;
+                                    if (is$)
+                                    {
+                                        parse$(args.get(index), strings);
+                                    }
+                                    else
+                                    {
+                                        expressions.add(visit(args.get(index)));
+                                        if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
+                                        index++;
+                                    }
                                 }
                             }
                             // 正常情况
                             else {
-                                expressions.add(visit(args.get(index)));
+                                if (is$)
+                                {
+                                    parse$(args.get(index), strings);
+                                }
+                                else
+                                {
+                                    expressions.add(visit(args.get(index)));
+                                }
                             }
                         }
                     }
@@ -1588,6 +1605,25 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         else {
             MetaData metaData = config.getMetaData(declaringClass);
             return metaData.getFieldMetaDataByGetter(method);
+        }
+    }
+
+    protected void parse$(Expression arg, List<String> strings)
+    {
+        ISqlExpression visit = visit(arg);
+        if (visit instanceof ISqlSingleValueExpression)
+        {
+            ISqlSingleValueExpression singleValue = (ISqlSingleValueExpression) visit;
+            strings.add(singleValue.getValue().toString());
+        }
+        else if (visit instanceof ISqlCollectedValueExpression)
+        {
+            ISqlCollectedValueExpression collectedValue = (ISqlCollectedValueExpression) visit;
+            strings.add(collectedValue.getCollection().toString());
+        }
+        else
+        {
+            throw new DrinkException("raw参数必须是求值的");
         }
     }
 }
