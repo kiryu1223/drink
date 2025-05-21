@@ -68,9 +68,9 @@ public class Main {
 //        }
 //
         String sql = client.query(Course.class)
-                .includeMany(c -> c.getStudents(), then -> then)
+                .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
                 .selectAggregate(a -> new Result() {
-                    long id = SqlFunctions.rawSql("(select c.id from courses as c)");
+                    long id = SqlFunctions.rawSql("select c.id from courses as c");
                     long number = a.over(a.table.getCourseId(), a.table.getClassroom()).rowNumber();
                     List<Student> students = client.query(Student.class)
                             .where(s -> s.getStudentId() == a.table.getCourseId())

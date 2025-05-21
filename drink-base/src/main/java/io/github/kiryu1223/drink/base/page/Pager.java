@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.kiryu1223.drink.core.page;
+package io.github.kiryu1223.drink.base.page;
 
 import java.util.List;
 

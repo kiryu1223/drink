@@ -78,6 +78,10 @@ public interface SqlExpressionFactory {
      */
     ISqlFromExpression from(ISqlTableExpression sqlTable, ISqlTableRefExpression tableRefExpression);
 
+    default ISqlFromExpression from(ISqlQueryableExpression queryable) {
+        return from(queryable, tableRef(queryable.getFrom().getTableRefExpression().getName()));
+    }
+
     /**
      * 创建分组group by表达式
      */
@@ -103,6 +107,14 @@ public interface SqlExpressionFactory {
 
     default ISqlJoinExpression join(JoinType joinType, ISqlTableExpression joinTable, ISqlTableRefExpression tableRefExpression) {
         return join(joinType, joinTable, condition(), tableRefExpression);
+    }
+
+    default ISqlJoinExpression join(JoinType joinType, Class<?> joinTable) {
+        return join(joinType, table(joinTable), tableRef(joinTable));
+    }
+
+    default ISqlJoinExpression join(JoinType joinType, ISqlQueryableExpression queryable) {
+        return join(joinType, queryable, tableRef(queryable.getFrom().getTableRefExpression().getName()));
     }
 
     /**
@@ -161,6 +173,10 @@ public interface SqlExpressionFactory {
 
     default ISqlQueryableExpression queryable(Class<?> target) {
         return queryable(from(table(target),tableRef(target)));
+    }
+
+    default ISqlQueryableExpression queryable(ISqlQueryableExpression queryable) {
+        return queryable(from(queryable, tableRef(queryable.getFrom().getTableRefExpression().getName())));
     }
 
     /**
@@ -336,6 +352,10 @@ public interface SqlExpressionFactory {
      * @param s 字符串
      */
     ISqlConstStringExpression constString(String s);
+
+    default ISqlConstStringExpression constString(Object o) {
+        return constString(String.valueOf(o));
+    }
 
     /**
      * 创建类型表达式

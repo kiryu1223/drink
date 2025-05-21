@@ -202,7 +202,7 @@ public class QuerySqlBuilder implements ISqlBuilder {
 
     public QuerySqlBuilder getCopy() {
         QuerySqlBuilder querySqlBuilder = new QuerySqlBuilder(config, queryable.copy(config));
-        querySqlBuilder.includeSets.addAll(includeSets);
+        querySqlBuilder.includes.addAll(includes);
         querySqlBuilder.ignoreFilterAll = ignoreFilterAll;
         querySqlBuilder.ignoreFilterIds.addAll(ignoreFilterIds);
         return querySqlBuilder;

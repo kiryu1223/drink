@@ -94,7 +94,7 @@ public class SQLServerTransformer implements Transformer
         return factory.template(templates, sqlExpressions);
     }
 
-    public ISqlTemplateExpression groupConcat(List<ISqlExpression> expressions) {
+    public ISqlTemplateExpression groupJoin(List<ISqlExpression> expressions) {
         List<String> strings;
         List<ISqlExpression> args;
         //无分隔符

@@ -44,6 +44,8 @@ import java.time.LocalTime;
  */
 public final class SqlFunctions {
 
+    private SqlFunctions() {}
+
     private static <Error> Error error() {
         return Winner.error();
     }
@@ -51,7 +53,7 @@ public final class SqlFunctions {
     // region [原始sql]
 
     @SqlExtensionExpression(template = "{sql}")
-    public static <T> T rawSql(String sql) {
+    public static <T, SQL> T rawSql(SQL sql) {
         return error();
     }
 
@@ -107,12 +109,12 @@ public final class SqlFunctions {
         return error();
     }
 
-    @SqlExtensionExpression(template = "",extension = GroupJoinExtension.class)
+    @SqlExtensionExpression(template = "", extension = GroupJoinExtension.class)
     public static String groupJoin(String property) {
         return error();
     }
 
-    @SqlExtensionExpression(template = "",extension = GroupJoinExtension.class)
+    @SqlExtensionExpression(template = "", extension = GroupJoinExtension.class)
     public static <T> String groupJoin(String delimiter, T property) {
         return error();
     }

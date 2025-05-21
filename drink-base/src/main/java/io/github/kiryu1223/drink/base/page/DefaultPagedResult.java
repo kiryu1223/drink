@@ -13,24 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.kiryu1223.drink.core.page;
+package io.github.kiryu1223.drink.base.page;
 
 import java.util.List;
 
 /**
- * 分页结果
+ * 默认分页结果
  *
  * @author kiryu1223
  * @since 3.0
  */
-public interface PagedResult<T> {
-    /**
-     * 获取总数
-     */
-    long getTotal();
+public class DefaultPagedResult<T> implements PagedResult<T> {
+    private final long total;
+    private final List<T> data;
 
-    /**
-     * 获取数据
-     */
-    List<T> getData();
+    public DefaultPagedResult(long total, List<T> data) {
+        this.total = total;
+        this.data = data;
+    }
+
+    @Override
+    public long getTotal() {
+        return total;
+    }
+
+    @Override
+    public List<T> getData() {
+        return data;
+    }
 }

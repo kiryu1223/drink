@@ -1,7 +1,8 @@
 package io.github.kiryu1223.drink.base.util;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlTemplateExpression;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 
 import java.math.BigDecimal;
@@ -10,9 +11,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 public class DrinkUtil {
     public static String getFirst(IConfig config, Class<?> c) {
@@ -22,6 +21,16 @@ public class DrinkUtil {
 
     public static <T> T cast(Object o) {
         return (T) o;
+    }
+
+    public static ISqlTemplateExpression mergeTemplates(IConfig config, ISqlTemplateExpression left, ISqlTemplateExpression right) {
+        List<String> strings = new ArrayList<>(left.getTemplateStrings().size() + right.getTemplateStrings().size());
+        strings.addAll(left.getTemplateStrings());
+        strings.addAll(right.getTemplateStrings());
+        List<ISqlExpression> expressions = new ArrayList<>(left.getExpressions().size() + right.getExpressions().size());
+        expressions.addAll(left.getExpressions());
+        expressions.addAll(right.getExpressions());
+        return config.getSqlExpressionFactory().template(strings, expressions);
     }
 
     /**

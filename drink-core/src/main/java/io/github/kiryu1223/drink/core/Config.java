@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
@@ -46,8 +47,9 @@ class Config implements IConfig {
     private final SqlExpressionFactory sqlExpressionFactory;
     private final IncludeFactory includeFactory;
     private final NameConverter nameConverter;
+    private final Pager pager;
 
-    public Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory, IDbSupport dbSupport, NameConverter nameConverter) {
+    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory, IDbSupport dbSupport, NameConverter nameConverter, Pager pager) {
         this.option = option;
         this.dbType = dbType;
         this.beanCreatorFactory = beanCreatorFactory;
@@ -61,6 +63,7 @@ class Config implements IConfig {
         this.transformer=dbSupport.getTransformer(this);
         this.includeFactory=dbSupport.getIncludeFactory();
         this.nameConverter = nameConverter;
+        this.pager = pager;
     }
 
     public DataSourceManager getDataSourceManager() {
@@ -118,6 +121,10 @@ class Config implements IConfig {
     @Override
     public Transformer getTransformer() {
         return transformer;
+    }
+
+    public Pager getPager() {
+        return pager;
     }
 
     @Override

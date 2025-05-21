@@ -15,10 +15,9 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read;
 
-import io.github.kiryu1223.drink.core.page.DefaultPager;
-import io.github.kiryu1223.drink.core.page.PagedResult;
+import io.github.kiryu1223.drink.base.page.DefaultPager;
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.List;
 

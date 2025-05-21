@@ -26,10 +26,10 @@ import io.github.kiryu1223.drink.base.toBean.Include.IncludeFactory;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.transform.Transformer;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.core.page.PagedResult;
-import io.github.kiryu1223.drink.core.page.Pager;
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
@@ -123,14 +123,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 sql,
                 values
         );
-        if (!sqlBuilder.getIncludeSets().isEmpty()) {
-            try {
-                IncludeFactory includeFactory = config.getIncludeFactory();
-                includeFactory.getBuilder(getConfig(), session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
+//        if (!sqlBuilder.getIncludeSets().isEmpty()) {
+//            try {
+//                IncludeFactory includeFactory = config.getIncludeFactory();
+//                includeFactory.getBuilder(getConfig(), session, targetClass, ts, sqlBuilder.getIncludeSets(), sqlBuilder.getQueryable()).include();
+//            } catch (InvocationTargetException | IllegalAccessException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
         return ts;
     }
 
@@ -445,67 +445,115 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 //        include(lambda, cond, sqlBuilder.getIncludeSets());
 //    }
 
-    protected void include(FieldMetaData include,ISqlQueryableExpression query) {
-        NavigateData navigateData = include.getNavigateData();
+    protected void include(FieldMetaData includeField, ISqlQueryableExpression query) {
+        NavigateData navigateData = includeField.getNavigateData();
         relationTypeCheck(navigateData);
         RelationType relationType = navigateData.getRelationType();
         IConfig config = getConfig();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        FieldMetaData selfField = config.getMetaData(include.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+        FieldMetaData selfField = config.getMetaData(includeField.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         FieldMetaData targetField = config.getMetaData(navigateData.getNavigateTargetType()).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
         ISqlQueryableExpression targetQuery = factory.queryable(navigateData.getNavigateTargetType());
         ISqlTableRefExpression targetRef = targetQuery.getFrom().getTableRefExpression();
         // 等待后续填充
         ISqlCollectedValueExpression ids = factory.value(new ArrayList<>());
+        String mappingKeyName = "<mappingKeyName>";
         // A.B
-        switch (relationType)
-        {
-
+        switch (relationType) {
             // 一对一，一对多，多对一的场合
-            // SELECT B.* FROM B WHERE B.targetField IN (?...)
+            // SELECT B.* FROM B WHERE B.targetField IN (...)
             case OneToOne:
             case ManyToOne:
-            case OneToMany:
-            {
-                targetQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(targetField,targetRef),ids));
+            case OneToMany: {
+                targetQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(targetField, targetRef), ids));
             }
             break;
-            // SELECT B.* FROM B WHERE B.targetField IN
-            // (SELECT M.targetMapping FROM M WHERE M.selfMapping IN (?...))
-            case ManyToMany:
-            {
+            // SELECT B.*, M.aid
+            // FROM B
+            // INNER JOIN M ON M.bid = B.id
+            // INNER JOIN (SELECT A.* FROM A WHERE A.id IN (...)) ON A.id = M.aid
+
+            // SELECT B.*, M.aid
+            // FROM B
+            // INNER JOIN M ON M.bid = B.id AND M.aid IN (...)
+            case ManyToMany: {
                 FieldMetaData selfMappingField = navigateData.getSelfMappingFieldMetaData(config);
                 FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData(config);
-                ISqlQueryableExpression mappingQuery = factory.queryable(navigateData.getMappingTableType());
-                ISqlTableRefExpression mappingRef = mappingQuery.getFrom().getTableRefExpression();
-                mappingQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(selfMappingField,mappingRef),ids));
-                mappingQuery.setSelect(factory.select(Collections.singletonList(factory.column(targetMappingField, mappingRef)),targetMappingField.getType()));
-                targetQuery.addWhere(factory.binary(SqlOperator.IN,factory.column(targetField,targetRef),mappingQuery));
+
+//                ISqlJoinExpression mappingJoin = factory.join(JoinType.INNER, navigateData.getMappingTableType());
+//                ISqlTableRefExpression mappingRef = mappingJoin.getTableRefExpression();
+//                mappingJoin.addConditions(factory.binary(SqlOperator.EQ, factory.column(targetMappingField, mappingRef), factory.column(targetField, targetRef)));
+//                targetQuery.addJoin(mappingJoin);
+//
+//                ISqlQueryableExpression selfTempQuery = factory.queryable(includeField.getParentType());
+//                ISqlTableRefExpression selfRef = selfTempQuery.getFrom().getTableRefExpression();
+//                selfTempQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(selfField, selfRef), ids));
+//
+//                ISqlJoinExpression selfJoin = factory.join(JoinType.INNER, selfTempQuery);
+//                ISqlTableRefExpression selfJoinRef = selfJoin.getTableRefExpression();
+//                selfJoin.addConditions(factory.binary(SqlOperator.EQ, factory.column(selfField, selfJoinRef), factory.column(selfMappingField, mappingRef)));
+//
+//                targetQuery.addJoin(selfJoin);
+
+                ISqlJoinExpression mappingJoin = factory.join(JoinType.INNER, navigateData.getMappingTableType());
+                ISqlTableRefExpression mappingRef = mappingJoin.getTableRefExpression();
+                ISqlBinaryExpression eq = factory.binary(SqlOperator.EQ, factory.column(targetMappingField, mappingRef), factory.column(targetField, targetRef));
+                ISqlBinaryExpression in = factory.binary(SqlOperator.IN, factory.column(selfMappingField, targetRef), ids);
+                mappingJoin.addConditions(eq);
+                mappingJoin.addConditions(in);
+                targetQuery.addJoin(mappingJoin);
+                targetQuery.getSelect().addColumn(factory.as(factory.column(selfMappingField, mappingRef), mappingKeyName));
             }
             break;
         }
-        if(query!=null)
-        {
+        if (query != null) {
             ISqlWhereExpression where = query.getWhere();
-            if(!where.isEmpty())
-            {
+            if (!where.isEmpty()) {
                 targetQuery.addWhere(where.getConditions());
             }
             ISqlOrderByExpression orderBy = query.getOrderBy();
-            if(!orderBy.isEmpty())
-            {
-                for (ISqlOrderExpression order : orderBy.getSqlOrders())
-                {
+            if (!orderBy.isEmpty()) {
+                for (ISqlOrderExpression order : orderBy.getSqlOrders()) {
                     targetQuery.addOrder(order);
                 }
             }
+            // limit需要包装成窗口函数逻辑才能正确
+            // SELECT * FROM
+            // (SELECT
+            //  *,
+            //  ROW_NUMBER() OVER () AS `<rn>`
+            //  ...
+            //  ) as window
+            // WHERE window.`<rn>` BETWEEN 1 AND 10
             ISqlLimitExpression limit = query.getLimit();
-            if (limit.hasRowsOrOffset())
-            {
-                targetQuery.setLimit(limit.getOffset(),limit.getRows());
+            if (limit.hasRowsOrOffset()) {
+                targetQuery = warpToRowNumber(targetQuery, limit.getOffset(), limit.getRows());
             }
         }
-        sqlBuilder.addSubQuery(new IncludeBuilder(config,targetQuery,ids,relationType.toMany()));
+        sqlBuilder.addSubQuery(new IncludeBuilder(config, targetQuery, ids, includeField, mappingKeyName));
+    }
+
+    private ISqlQueryableExpression warpToRowNumber(ISqlQueryableExpression sourceQuery, long offset, long rows) {
+        String rowNumberAsName = "<rn>";
+        IConfig config = getConfig();
+        Transformer transformer = config.getTransformer();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        ISqlTemplateExpression over = transformer.over(Collections.emptyList());
+        ISqlConstStringExpression rowNumber = transformer.rowNumber();
+        ISqlTemplateExpression merged = DrinkUtil.mergeTemplates(config, over, factory.template(Collections.singletonList(rowNumber.getString()), Collections.emptyList()));
+        sourceQuery.getSelect().addColumn(factory.as(merged, rowNumberAsName));
+
+        ISqlQueryableExpression warpedQuery = factory.queryable(sourceQuery);
+        ISqlTableRefExpression warpedRef = warpedQuery.getFrom().getTableRefExpression();
+        // 设置为 SELECT * 防止丢失映射表字段信息
+        warpedQuery.setSelect(factory.select(Collections.singletonList(factory.dynamicColumn("*", int.class, warpedRef)), warpedQuery.getMainTableClass()));
+        warpedQuery.addWhere(factory.binary(
+                SqlOperator.BETWEEN,
+                factory.dynamicColumn(rowNumberAsName, long.class, warpedRef),
+                factory.binary(SqlOperator.AND, factory.constString(offset), factory.constString(offset + rows))
+        ));
+
+        return warpedQuery;
     }
 
     // endregion
@@ -545,24 +593,23 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // region [page]
 
-    protected <T> PagedResult<T> toPagedResult0(long pageIndex, long pageSize, Pager pager) {
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+    protected <T> PagedResult<T> toPagedResult0(long pageIndex, long pageSize) {
+        IConfig config = getConfig();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
         QuerySqlBuilder boxedQuerySqlBuilder = sqlBuilder.getCopy();
         boxedQuerySqlBuilder.boxed();
-        Transformer transformer = getConfig().getTransformer();
+        Transformer transformer = config.getTransformer();
         //SELECT COUNT(*) ...
         boxedQuerySqlBuilder.setSelect(factory.select(Collections.singletonList(transformer.count()), long.class, true, false));
         LQuery<Long> countQuery = new LQuery<>(boxedQuerySqlBuilder);
         long total = countQuery.toList().get(0);
-        QuerySqlBuilder dataQuerySqlBuilder = new QuerySqlBuilder(getConfig(), getSqlBuilder().getQueryable().copy(getConfig()));
-        //拷贝Include
-        dataQuerySqlBuilder.getIncludeSets().addAll(dataQuerySqlBuilder.getIncludeSets());
+        QuerySqlBuilder dataQuerySqlBuilder = getSqlBuilder().getCopy();
         LQuery<T> dataQuery = new LQuery<>(dataQuerySqlBuilder);
         long take = Math.max(pageSize, 1);
         long index = Math.max(pageIndex, 1);
         long offset = (index - 1) * take;
         List<T> list = dataQuery.limit(offset, take).toList();
-        return pager.getPagedResult(total, list);
+        return config.getPager().getPagedResult(total, list);
     }
 
     // endregion

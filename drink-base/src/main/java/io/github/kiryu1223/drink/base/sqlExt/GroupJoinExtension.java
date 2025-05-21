@@ -9,6 +9,6 @@ import java.util.List;
 public class GroupJoinExtension extends BaseSqlExtension {
     @Override
     public ISqlExpression parse(IConfig config, Method sqlFunc, List<ISqlExpression> args, boolean[] useSuper) {
-        return config.getTransformer().groupConcat(args);
+        return config.getTransformer().groupJoin(args);
     }
 }

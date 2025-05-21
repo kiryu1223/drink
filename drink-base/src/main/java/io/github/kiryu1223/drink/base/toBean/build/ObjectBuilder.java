@@ -12,10 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class ObjectBuilder<T> {
@@ -96,38 +93,30 @@ public class ObjectBuilder<T> {
         return hashMap;
     }
 
-    public <Key> Map<Key, List<T>> createMapListByAnotherKey(FieldMetaData anotherKeyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+    public <Key> Map<Key, List<T>> createMapListByAnotherKey(FieldMetaData mappingKey, String mappingKeyName) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
-        int anotherKeyIndex = indexMap.get(anotherKeyColumn.getColumn());
-        Map<Key, List<T>> hashMap = new HashMap<>();
+        int anotherKeyIndex = indexMap.get(mappingKeyName);
+        Map<Key, List<T>> map = new HashMap<>();
         while (resultSet.next()) {
             T t = creator.get();
-            //Key key = resultSet.getObject(anotherKeyColumn.getColumn(), (Class<? extends Key>) upperClass(anotherKeyColumn.getType()));
-            Key key = (Key) convertValue(anotherKeyColumn, anotherKeyIndex);
-            for (FieldMetaData metaData : propertyMetaDataList) {
-                Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
-                if (value != null) metaData.getSetter().invoke(t, value);
-//                if (anotherKeyColumn.equals(metaData.getColumn()))
-//                {
-//                    key = (Key) value;
-//                }
-//                else
-//                {
-//                    metaData.getSetter().invoke(t, value);
-//                }
-            }
-            if (!hashMap.containsKey(key)) {
-                List<T> tempList = new ArrayList<>();
-                tempList.add(t);
-                hashMap.put(key, tempList);
-            }
-            else {
-                hashMap.get(key).add(t);
+            Key key = (Key) convertValue(mappingKey, anotherKeyIndex);
+            foreach(beanCreator, indexMap, t);
+            List<T> list = map.computeIfAbsent(key, k -> new ArrayList<>());
+            list.add(t);
+        }
+        return map;
+    }
+
+    private void foreach(AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap, T t) throws SQLException, InvocationTargetException, IllegalAccessException {
+        for (FieldMetaData metaData : propertyMetaDataList) {
+            Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
+            if (value != null) {
+                ISetterCaller<T> setter = beanCreator.getBeanSetter(metaData.getFieldName());
+                setter.call(t, value);
             }
         }
-        return hashMap;
     }
 
     public List<T> createList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
@@ -159,14 +148,7 @@ public class ObjectBuilder<T> {
         List<T> list = new ArrayList<>();
         while (resultSet.next()) {
             T t = creator.get();
-            for (FieldMetaData metaData : propertyMetaDataList) {
-                Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
-                if (value != null) {
-                    ISetterCaller<T> beanSetter = beanCreator.getBeanSetter(metaData.getFieldName());
-                    beanSetter.call(t, value);
-                    //metaData.getSetter().invoke(t, value);
-                }
-            }
+            foreach(beanCreator, indexMap, t);
             list.add(t);
         }
 
@@ -183,7 +165,7 @@ public class ObjectBuilder<T> {
         return indexMap;
     }
 
-    private Object convertValue(FieldMetaData metaData, int index) throws SQLException, NoSuchFieldException, IllegalAccessException {
+    private Object convertValue(FieldMetaData metaData, int index) throws SQLException {
         ITypeHandler<?> typeHandler = metaData.getTypeHandler();
         return typeHandler.getValue(resultSet, index, metaData.getGenericType());
     }

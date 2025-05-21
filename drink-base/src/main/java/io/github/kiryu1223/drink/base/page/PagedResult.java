@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.kiryu1223.drink.core.page;
+package io.github.kiryu1223.drink.base.page;
 
 import java.util.List;
 
 /**
- * 默认分页器
+ * 分页结果
  *
  * @author kiryu1223
  * @since 3.0
  */
-public class DefaultPager implements Pager {
-    public static final DefaultPager instance = new DefaultPager();
+public interface PagedResult<T> {
+    /**
+     * 获取总数
+     */
+    long getTotal();
 
-    @Override
-    public <T> PagedResult<T> getPagedResult(long total, List<T> data) {
-        return new DefaultPagedResult<>(total, data);
-    }
+    /**
+     * 获取数据
+     */
+    List<T> getData();
 }

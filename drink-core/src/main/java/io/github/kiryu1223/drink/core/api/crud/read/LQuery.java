@@ -28,8 +28,7 @@ import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.core.page.DefaultPager;
-import io.github.kiryu1223.drink.core.page.PagedResult;
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
@@ -670,19 +669,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
      */
     public PagedResult<T> toPagedResult(long pageIndex, long pageSize)
     {
-        return toPagedResult0(pageIndex, pageSize, DefaultPager.instance);
-    }
-
-    /**
-     * 分页返回数据，无数据则返回空List
-     *
-     * @param pageIndex 页编号 默认1开始
-     * @param pageSize  页长度 默认大于等于1
-     * @return 分页数据
-     */
-    public PagedResult<T> toPagedResult(int pageIndex, int pageSize)
-    {
-        return toPagedResult((long) pageIndex, (long) pageSize);
+        return toPagedResult0(pageIndex, pageSize);
     }
 
     /**

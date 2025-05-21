@@ -16,13 +16,11 @@
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
 
-import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
-import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
-import io.github.kiryu1223.drink.core.page.DefaultPager;
-import io.github.kiryu1223.drink.core.page.PagedResult;
+import io.github.kiryu1223.drink.base.page.DefaultPager;
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func3;

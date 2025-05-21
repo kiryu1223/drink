@@ -19,6 +19,9 @@ import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IDbSupport;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
+import io.github.kiryu1223.drink.base.page.DefaultPager;
+import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
@@ -61,6 +64,8 @@ public class Builder {
 
     private NameConverter nameConverter;
 
+    private Pager pager;
+
     /**
      * 构建Client对象
      */
@@ -77,26 +82,24 @@ public class Builder {
         if (beanCreatorFactory == null) {
             beanCreatorFactory = new BeanCreatorFactory();
         }
-        if (nameConverter == null)
-        {
-            nameConverter=new NameConverter();
+        if (nameConverter == null) {
+            nameConverter = new NameConverter();
         }
-
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory,getSpi(),nameConverter);
+        if (pager == null) {
+            pager = new DefaultPager();
+        }
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory, getSpi(), nameConverter, pager);
         return new SqlClient(config);
     }
 
-    private IDbSupport getSpi()
-    {
+    private IDbSupport getSpi() {
         ServiceLoader<IDbSupport> load = ServiceLoader.load(IDbSupport.class);
-        for (IDbSupport support : load)
-        {
-            if (support.getDbType() == dbType)
-            {
+        for (IDbSupport support : load) {
+            if (support.getDbType() == dbType) {
                 return support;
             }
         }
-        throw new RuntimeException(String.format("找不到%s数据库支持",dbType));
+        throw new DrinkException(String.format("找不到%s数据库支持", dbType));
     }
 
     /**
@@ -147,9 +150,12 @@ public class Builder {
         return this;
     }
 
-    public Builder setNameConverter(NameConverter nameConverter)
-    {
-        this.nameConverter=nameConverter;
+    public Builder setNameConverter(NameConverter nameConverter) {
+        this.nameConverter = nameConverter;
         return this;
+    }
+
+    public void setPager(Pager pager) {
+        this.pager = pager;
     }
 }

@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.base.transform;
 
+import io.github.kiryu1223.drink.base.expression.ISqlConstStringExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTemplateExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
@@ -12,11 +13,10 @@ public interface IAggregateMethods {
 
     SqlExpressionFactory getSqlExpressionFactory();
 
-    default ISqlTemplateExpression count()
-    {
+    default ISqlTemplateExpression count() {
         return count(null);
     }
-    
+
     default ISqlTemplateExpression count(ISqlExpression expression) {
         SqlExpressionFactory factory = getSqlExpressionFactory();
         ISqlTemplateExpression templateExpression;
@@ -64,7 +64,7 @@ public interface IAggregateMethods {
     /**
      * GROUP_CONCAT
      */
-    default ISqlTemplateExpression groupConcat(List<ISqlExpression> expressions) {
+    default ISqlTemplateExpression groupJoin(List<ISqlExpression> expressions) {
         SqlExpressionFactory factory = getSqlExpressionFactory();
         List<String> strings;
         List<ISqlExpression> args;
@@ -82,5 +82,44 @@ public interface IAggregateMethods {
             args = Arrays.asList(property, delimiter);
         }
         return factory.template(strings, args);
+    }
+
+    default ISqlTemplateExpression over(List<ISqlExpression> expressions) {
+        return over(expressions, true);
+    }
+
+    default ISqlTemplateExpression over(List<ISqlExpression> expressions, boolean rows) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        List<String> strings;
+        List<ISqlExpression> args;
+        if (expressions.isEmpty()) {
+            strings = Collections.singletonList("OVER ()");
+            args = Collections.emptyList();
+        }
+        else if (expressions.size() == 1) {
+            ISqlExpression partition = expressions.get(0);
+            strings = Arrays.asList("OVER (PARTITION BY", ")");
+            args = Collections.singletonList(partition);
+        }
+        else if (expressions.size() == 2) {
+            ISqlExpression partition = expressions.get(0);
+            ISqlExpression orderBy = expressions.get(1);
+            strings = Arrays.asList("OVER (PARTITION BY", "ORDER BY", ")");
+            args = Arrays.asList(partition, orderBy);
+        }
+        else {
+            ISqlExpression partition = expressions.get(0);
+            ISqlExpression orderBy = expressions.get(1);
+            ISqlExpression start = expressions.get(2);
+            ISqlExpression end = expressions.get(3);
+            strings = Arrays.asList("OVER (PARTITION BY", "ORDER BY", (rows ? "ROWS" : "RANGE") + " BETWEEN", "AND", ")");
+            args = Arrays.asList(partition, orderBy, start, end);
+        }
+        return factory.template(strings, args);
+    }
+
+    default ISqlConstStringExpression rowNumber() {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.constString("ROW_NUMBER()");
     }
 }

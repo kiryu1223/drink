@@ -40,7 +40,7 @@ public interface ISqlCollectedValueExpression extends ISqlValueExpression {
             return collection.iterator().next().getClass();
         }
         else {
-            return void.class;
+            return ISqlValueExpression.super.getType();
         }
     }
 
