@@ -12,6 +12,7 @@ public class SqlDynamicColumnExpression implements ISqlDynamicColumnExpression {
     private final String column;
     private final Class<?> type;
     private final ISqlTableRefExpression tableRefExpression;
+    private boolean useDialect = true;
 
     protected SqlDynamicColumnExpression(String column, Class<?> type, ISqlTableRefExpression tableRefExpression) {
         this.column = column;
@@ -35,9 +36,19 @@ public class SqlDynamicColumnExpression implements ISqlDynamicColumnExpression {
     }
 
     @Override
+    public boolean useDialect() {
+        return useDialect;
+    }
+
+    @Override
+    public void setUseDialect(boolean use) {
+        useDialect = use;
+    }
+
+    @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         IDialect dialect = config.getDisambiguation();
-        String columnName = dialect.disambiguation(column);
+        String columnName = useDialect ? dialect.disambiguation(column) : column;
         return dialect.disambiguation(tableRefExpression.getDisPlayName()) + "." + columnName;
     }
 }

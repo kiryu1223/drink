@@ -546,7 +546,9 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ISqlQueryableExpression warpedQuery = factory.queryable(sourceQuery);
         ISqlTableRefExpression warpedRef = warpedQuery.getFrom().getTableRefExpression();
         // 设置为 SELECT * 防止丢失映射表字段信息
-        warpedQuery.setSelect(factory.select(Collections.singletonList(factory.dynamicColumn("*", int.class, warpedRef)), warpedQuery.getMainTableClass()));
+        ISqlDynamicColumnExpression star = factory.dynamicColumn("*", int.class, warpedRef);
+        star.setUseDialect(false);
+        warpedQuery.setSelect(factory.select(Collections.singletonList(star), warpedQuery.getMainTableClass()));
         warpedQuery.addWhere(factory.binary(
                 SqlOperator.BETWEEN,
                 factory.dynamicColumn(rowNumberAsName, long.class, warpedRef),
