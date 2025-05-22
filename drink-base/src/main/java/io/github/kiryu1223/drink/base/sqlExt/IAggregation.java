@@ -27,6 +27,9 @@ import java.math.BigDecimal;
 public interface IAggregation {
 
     final class Over {
+        private Over() {
+        }
+
         @SqlExtensionExpression(template = "COUNT(*) {super}")
         public long count() {
             return Winner.error();

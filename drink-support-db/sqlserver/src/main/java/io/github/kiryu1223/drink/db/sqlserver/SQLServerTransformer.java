@@ -160,4 +160,10 @@ public class SQLServerTransformer implements Transformer
     public ISqlTemplateExpression substring(ISqlExpression thisStr, ISqlExpression beginIndex, ISqlExpression endIndex) {
         return factory.template(Arrays.asList("SUBSTRING(", ",", ",", ")"), Arrays.asList(thisStr, beginIndex, endIndex));
     }
+
+    @Override
+    public ISqlExpression boxBool(ISqlExpression result) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return If(result, factory.constString(1), factory.constString(0));
+    }
 }

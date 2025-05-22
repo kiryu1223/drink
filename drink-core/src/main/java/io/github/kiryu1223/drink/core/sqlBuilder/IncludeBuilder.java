@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
+import io.github.kiryu1223.drink.base.expression.AsNameManager;
 import io.github.kiryu1223.drink.base.expression.ISqlCollectedValueExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
@@ -69,7 +70,9 @@ public class IncludeBuilder {
             collection.add(cast(sourceGetter.apply(cast(o))));
         }
         List<SqlValue> sqlValues = new ArrayList<>(source.size());
+        AsNameManager.start();
         String sql = subQuery.getSqlAndValue(config, sqlValues);
+        AsNameManager.clear();
 
         tryPrintSql(sql);
 

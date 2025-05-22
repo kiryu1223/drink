@@ -52,8 +52,8 @@ public final class SqlFunctions {
 
     // region [原始sql]
 
-    @SqlExtensionExpression(template = "{$sql}")
-    public static <T, SQL> T rawSql(SQL sql) {
+    @SqlExtensionExpression(template = "{&sql}")
+    public static <T> T rawSql(Object sql) {
         return error();
     }
 

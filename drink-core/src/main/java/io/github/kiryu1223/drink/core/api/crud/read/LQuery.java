@@ -422,17 +422,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         return super.select(r);
     }
 
-    public <R> EndQuery<R> select(@Recode Class<R> r,@Expr(Expr.BodyType.Expr) Action2<T,R> action)
-    {
-        throw new NotCompiledException();
-    }
-
-//    public <R> EndQuery<R> select(@Recode Class<R> r,ExprTree<Action2<T,R>> expr)
-//    {
-//        select(expr.getTree());
-//        return new EndQuery<>(getSqlBuilder());
-//    }
-
     /**
      * 设置select<p>
      * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
@@ -511,7 +500,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         FieldMetaData include = sqlVisitor.toField(expr.getTree());
         if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
-        include(include,null);
+        include(include,getConfig().getSqlExpressionFactory().tableRef(include.getNavigateData().getNavigateTargetType()), null);
         return this;
     }
 
@@ -538,7 +527,8 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType)));
         lQuery= then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
-        include(include,sqlBuilder.getQueryable());
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        include(include,queryable.getFrom().getTableRefExpression(), queryable);
         if (!sqlBuilder.getIncludes().isEmpty())
         {
             List<IncludeBuilder> subQueryList = getSqlBuilder().getIncludes();
@@ -560,7 +550,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         FieldMetaData include = sqlVisitor.toField(expr.getTree());
         if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
-        include(include,null);
+        include(include,getConfig().getSqlExpressionFactory().tableRef(include.getNavigateData().getNavigateTargetType()), null);
         return this;
     }
 
@@ -582,7 +572,8 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         LQuery<R> lQuery = new LQuery<>(new QuerySqlBuilder(getConfig(), getConfig().getSqlExpressionFactory().queryable(targetType)));
         then.invoke(lQuery);
         QuerySqlBuilder sqlBuilder = lQuery.getSqlBuilder();
-        include(include, sqlBuilder.getQueryable());
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        include(include,queryable.getFrom().getTableRefExpression(), queryable);
         if (!sqlBuilder.getIncludes().isEmpty())
         {
             List<IncludeBuilder> subQueryList = getSqlBuilder().getIncludes();

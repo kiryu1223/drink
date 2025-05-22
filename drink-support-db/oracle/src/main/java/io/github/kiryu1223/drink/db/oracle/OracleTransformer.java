@@ -154,4 +154,10 @@ public class OracleTransformer implements Transformer
         functions.add(")");
         return factory.template(functions, sqlExpressions);
     }
+
+    @Override
+    public ISqlExpression boxBool(ISqlExpression result) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return If(result, factory.constString(1), factory.constString(0));
+    }
 }

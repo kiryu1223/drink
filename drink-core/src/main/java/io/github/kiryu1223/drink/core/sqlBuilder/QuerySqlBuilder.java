@@ -31,16 +31,20 @@ public class QuerySqlBuilder implements ISqlBuilder {
     private final IConfig config;
     private ISqlQueryableExpression queryable;
     private final SqlExpressionFactory factory;
-//    private final List<IncludeSet> includeSets = new ArrayList<>();
     private final List<String> ignoreFilterIds = new ArrayList<>();
     private boolean ignoreFilterAll = false;
     private final List<IncludeBuilder> includes =new ArrayList<>();
+//    private final Map<String, ISqlQueryableExpression> subQueryMap=new HashMap<>();
 
     public QuerySqlBuilder(IConfig config, ISqlQueryableExpression queryable) {
         this.config = config;
         this.queryable = queryable;
         this.factory = config.getSqlExpressionFactory();
     }
+
+//    public Map<String, ISqlQueryableExpression> getSubQueryMap() {
+//        return subQueryMap;
+//    }
 
     public List<IncludeBuilder> getIncludes() {
         return includes;

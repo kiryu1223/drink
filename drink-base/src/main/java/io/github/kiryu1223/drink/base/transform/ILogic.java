@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.base.transform;
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 
@@ -17,6 +18,10 @@ public interface ILogic {
         List<String> function = Arrays.asList("IF(", ",", ",", ")");
         List<ISqlExpression> args = Arrays.asList(cond, truePart, falsePart);
         return factory.template(function, args);
+    }
+
+    default ISqlExpression boxBool(ISqlExpression result) {
+        return result;
     }
 
     /**

@@ -23,7 +23,6 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.SqlGroupRef;
 import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
-import io.github.kiryu1223.drink.base.sqlExt.ISqlKeywords;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.base.transform.*;
@@ -75,6 +74,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     protected final Deque<ISqlFromExpression> fromDeque = new ArrayDeque<>();
     protected final Deque<ISqlJoinsExpression> joinsDeque = new ArrayDeque<>();
     protected final Map<ParameterExpression, ISqlGroupByExpression> groupMap = new HashMap<>();
+    protected final Map<String,ISqlQueryableExpression> subQueryMap = new HashMap<>();
 
     public SqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression) {
         this(config, sqlQueryableExpression.getFrom(), sqlQueryableExpression.getJoins(), sqlQueryableExpression.getGroupBy(), -1);
@@ -340,8 +340,8 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                             expressions.add(visit(methodCall.getExpr()));
                         }
                         else {
-                            boolean is$=param.startsWith("$");
-                            String paramFinal=is$?param.substring(1):param;
+                            boolean isAnd=param.startsWith("&");
+                            String paramFinal=isAnd?param.substring(1):param;
                             Parameter targetParam = methodParameters.stream()
                                     .filter(f -> f.getName().equals(paramFinal))
                                     .findFirst()
@@ -351,7 +351,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                             // 如果是可变参数
                             if (targetParam.isVarArgs()) {
                                 while (index < args.size()) {
-                                    if (is$)
+                                    if (isAnd)
                                     {
                                         parse$(args.get(index), strings);
                                     }
@@ -365,7 +365,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                             }
                             // 正常情况
                             else {
-                                if (is$)
+                                if (isAnd)
                                 {
                                     parse$(args.get(index), strings);
                                 }
@@ -1210,13 +1210,22 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 for (Expression expression : classBody.getExpressions()) {
                     if (expression.getKind() == Kind.Variable) {
                         VariableExpression variable = (VariableExpression) expression;
-                        String name = variable.getName();
+                        String varName = variable.getName();
                         Expression init = variable.getInit();
                         if (init != null) {
-                            ISqlExpression context = visit(variable.getInit());
-                            // 某些数据库不支持直接返回bool类型，所以需要做一下包装
-                            context = boxTheBool(variable.getInit(), context);
-                            setAs(expressions, context, name);
+                            ISqlExpression visit = visit(variable.getInit());
+                            // a.b() 导航属性
+                            // a.query(a.b()).where(...)...toList()/first() 导航属性后附带条件
+                            // client.query(...)...toList()/first() 子查询
+                            if (visit instanceof ISqlQueryableExpression) {
+                                ISqlQueryableExpression queryableExpression = (ISqlQueryableExpression) visit;
+                                subQueryMap.put(varName, queryableExpression);
+                            }
+                            else {
+                                // 某些数据库不支持直接返回bool类型，所以需要做一下包装
+                                visit = tryToBool(variable.getInit(), visit);
+                                setAs(expressions, visit, varName);
+                            }
                         }
                     }
                 }
@@ -1459,28 +1468,21 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         }
     }
 
-    protected ISqlExpression boxTheBool(Expression init, ISqlExpression result) {
+    protected ISqlExpression tryToBool(Expression init, ISqlExpression result) {
         if (init instanceof MethodCallExpression) {
             MethodCallExpression methodCall = (MethodCallExpression) init;
-            return boxTheBool(isBool(methodCall.getMethod().getReturnType()), result);
+            return tryToBool(isBool(methodCall.getMethod().getReturnType()), result);
         }
         else if (init instanceof UnaryExpression) {
             UnaryExpression unary = (UnaryExpression) init;
-            return boxTheBool(unary.getOperatorType() == OperatorType.NOT, result);
+            return tryToBool(unary.getOperatorType() == OperatorType.NOT, result);
         }
         return result;
     }
 
-    protected ISqlExpression boxTheBool(boolean condition, ISqlExpression result) {
+    protected ISqlExpression tryToBool(boolean condition, ISqlExpression result) {
         if (!condition) return result;
-        switch (config.getDbType()) {
-            case SQLServer:
-            case Oracle:
-                ILogic logic = config.getTransformer();
-                return logic.If(result, factory.constString("1"), factory.constString("0"));
-            default:
-                return result;
-        }
+        return config.getTransformer().boxBool(result);
     }
 
     public ISqlSelectExpression toSelect(LambdaExpression<?> lambda, ISqlQueryableExpression queryable) {
@@ -1523,6 +1525,10 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             selectExpression = factory.select(Collections.singletonList(expression), lambda.getReturnType(), true, false);
         }
         return selectExpression;
+    }
+
+    public Map<String, ISqlQueryableExpression> getSubQueryMap() {
+        return subQueryMap;
     }
 
     public ISqlGroupByExpression toGroup(LambdaExpression<?> lambda) {

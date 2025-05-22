@@ -132,6 +132,10 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 throw new RuntimeException(e);
             }
         }
+//        Map<String, ISqlQueryableExpression> subQueryMap = sqlBuilder.getSubQueryMap();
+//        if (!subQueryMap.isEmpty()) {
+//
+//        }
         return result;
     }
 
@@ -184,18 +188,23 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
      */
     protected <N> EndQuery<N> select(Class<N> r) {
         select0(r);
-        return new EndQuery<>(getSqlBuilder());
+        Class<R> targetClass = sqlBuilder.getTargetClass();
+        // 非继承类需要清空Include
+        if (!targetClass.isAssignableFrom(r)) {
+            sqlBuilder.getIncludes().clear();
+        }
+        return new EndQuery<>(sqlBuilder);
     }
 
-    protected boolean select(LambdaExpression<?> lambda) {
+    protected void select(LambdaExpression<?> lambda) {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlSelectExpression select = sqlVisitor.toSelect(lambda, sqlBuilder.getQueryable());
         sqlBuilder.setSelect(select);
-        return sqlBuilder.isSingle();
-    }
 
-    protected void select2(LambdaExpression<?> lambda) {
-
+//        Map<String, ISqlQueryableExpression> subQueryMap = sqlVisitor.getSubQueryMap();
+//        if (!subQueryMap.isEmpty()) {
+//            sqlBuilder.getSubQueryMap().putAll(subQueryMap);
+//        }
     }
 
     protected void select0(Class<?> c) {
@@ -415,11 +424,11 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // endregion
 
-    protected void singleCheck(boolean single) {
-        if (single) {
-            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素, 单元素请使用endSelect");
-        }
-    }
+//    protected void singleCheck(boolean single) {
+//        if (single) {
+//            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素, 单元素请使用endSelect");
+//        }
+//    }
 
     // region [include]
 
@@ -446,7 +455,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 //        include(lambda, cond, sqlBuilder.getIncludeSets());
 //    }
 
-    protected void include(FieldMetaData includeField, ISqlQueryableExpression query) {
+    protected void include(FieldMetaData includeField,ISqlTableRefExpression targetRef, ISqlQueryableExpression query) {
         NavigateData navigateData = includeField.getNavigateData();
         relationTypeCheck(navigateData);
         RelationType relationType = navigateData.getRelationType();
@@ -454,8 +463,8 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         FieldMetaData selfField = config.getMetaData(includeField.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         FieldMetaData targetField = config.getMetaData(navigateData.getNavigateTargetType()).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-        ISqlQueryableExpression targetQuery = factory.queryable(navigateData.getNavigateTargetType());
-        ISqlTableRefExpression targetRef = targetQuery.getFrom().getTableRefExpression();
+        ISqlQueryableExpression targetQuery = factory.queryable(navigateData.getNavigateTargetType(),targetRef);
+        //ISqlTableRefExpression targetRef = targetQuery.getFrom().getTableRefExpression();
         // 等待后续填充
         ISqlCollectedValueExpression ids = factory.value(new ArrayList<>());
         String mappingKeyName = "<mappingKeyName>";
