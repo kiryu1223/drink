@@ -5,23 +5,33 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.kiryu1223</groupId>
-        <artifactId>drink-all</artifactId>
+        <artifactId>drink-support</artifactId>
         <version>1.0.14</version>
     </parent>
 
-    <artifactId>drink-support</artifactId>
+    <artifactId>drink-support-db</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>drink-support-framework</module>
-        <module>drink-support-db</module>
-        <module>drink-support-func</module>
+        <module>support-db-mysql</module>
+        <module>support-db-oracle</module>
+        <module>support-db-pg</module>
+        <module>support-db-sqlite</module>
+        <module>support-db-h2</module>
+        <module>support-db-sqlserver</module>
     </modules>
-
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.kiryu1223</groupId>
+            <artifactId>drink-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

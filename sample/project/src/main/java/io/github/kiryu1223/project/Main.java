@@ -4,20 +4,14 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
-import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
-import io.github.kiryu1223.drink.core.Builder;
+import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.func.SqlFunctions;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Course;
 import io.github.kiryu1223.project.pojos.Student;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Main {
     public static SqlClient boot() {
@@ -28,7 +22,7 @@ public class Main {
         dataSource.setUsername("root");
         dataSource.setPassword("root");
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        return Builder.bootStrap()
+        return SqlBuilder.bootStrap()
                 // 数据库
                 .setDbType(DbType.MySQL)
                 // 名称转换风格

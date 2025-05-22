@@ -31,7 +31,7 @@
         <!--mysql数据库方言-->
         <dependency>
             <groupId>io.github.kiryu1223</groupId>
-            <artifactId>mysql</artifactId>
+            <artifactId>support-db-mysql</artifactId>
             <version>${project.version}</version>
         </dependency>
 

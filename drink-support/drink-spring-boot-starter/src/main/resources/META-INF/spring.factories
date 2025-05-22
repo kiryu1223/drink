@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.github.kiryu1223.drink.starter.configuration.DynamicDataSourceAutoConfiguration,\
-io.github.kiryu1223.drink.starter.configuration.DrinkAutoConfiguration

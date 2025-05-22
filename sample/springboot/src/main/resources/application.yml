@@ -32,8 +32,8 @@ server:
   port: 8080
 
 # 不配置的情况下默认以database: mysql和print-sql: true模式运行
-#drink:
-#  database: mysql
-#  print-sql: true
+drink:
+  database: mysql
+  print-sql: true
 
 

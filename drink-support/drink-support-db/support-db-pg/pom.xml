@@ -5,18 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.kiryu1223</groupId>
-        <artifactId>drink-all</artifactId>
+        <artifactId>drink-support-db</artifactId>
         <version>1.0.14</version>
     </parent>
 
-    <artifactId>drink-support</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>drink-support-framework</module>
-        <module>drink-support-db</module>
-        <module>drink-support-func</module>
-    </modules>
-
+    <artifactId>support-db-pg</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
