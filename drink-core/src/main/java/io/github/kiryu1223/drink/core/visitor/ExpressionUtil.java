@@ -125,6 +125,11 @@ public class ExpressionUtil {
         return ITable.class.isAssignableFrom(declaringClass)&&method.getName().equals("query")&&method.getParameterCount()==1;
     }
 
+    public static boolean isList(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        return io.github.kiryu1223.drink.base.util.List.class.isAssignableFrom(declaringClass);
+    }
+
     /**
      * 判断是否为sql操作符方法
      */

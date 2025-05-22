@@ -651,6 +651,203 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 return checkAndReturnValue(methodCall);
             }
         }
+        // 框架内List函数
+        else if (isList(methodCall.getMethod())) {
+            Method method = methodCall.getMethod();
+            String methodName = method.getName();
+            if (methodName.equals("count")) {
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                ISqlExpression column = null;
+                if (!methodCall.getArgs().isEmpty()) {
+                    column = visit(methodCall.getArgs().get(0));
+                }
+                IAggregateMethods agg = config.getTransformer();
+                queryable.setSelect(factory.select(Collections.singletonList(agg.count(column)), long.class));
+                // 在终结的地方弹出
+                pop();
+                return queryable;
+            }
+            else if (methodName.equals("sum")) {
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                ISqlExpression column = visit(methodCall.getArgs().get(0));
+                IAggregateMethods agg = config.getTransformer();
+                queryable.setSelect(factory.select(Collections.singletonList(agg.sum(column)), BigDecimal.class));
+                // 在终结的地方弹出
+                pop();
+                return queryable;
+            }
+            else if (methodName.equals("avg")) {
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                ISqlExpression column = visit(methodCall.getArgs().get(0));
+                IAggregateMethods agg = config.getTransformer();
+                queryable.setSelect(factory.select(Collections.singletonList(agg.avg(column)), BigDecimal.class));
+                // 在终结的地方弹出
+                pop();
+                return queryable;
+            }
+            else if (methodName.equals("min")) {
+
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                ISqlExpression column = visit(methodCall.getArgs().get(0));
+                IAggregateMethods agg = config.getTransformer();
+                queryable.setSelect(factory.select(Collections.singletonList(agg.min(column)), BigDecimal.class));
+                // 在终结的地方弹出
+                pop();
+                return queryable;
+            }
+            else if (methodName.equals("max")) {
+
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                ISqlExpression column = visit(methodCall.getArgs().get(0));
+                IAggregateMethods agg = config.getTransformer();
+                queryable.setSelect(factory.select(Collections.singletonList(agg.max(column)), BigDecimal.class));
+                // 在终结的地方弹出
+                pop();
+                return queryable;
+            }
+            else if (methodName.equals("any")) {
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                List<Expression> args = methodCall.getArgs();
+                if (!args.isEmpty()) {
+                    Expression expression = args.get(0);
+                    ISqlExpression cond = visit(expression);
+                    queryable.addWhere(cond);
+                }
+                queryable.setSelect(factory.select(Collections.singletonList(factory.constString("1")), int.class));
+                ISqlUnaryExpression any = factory.unary(SqlOperator.EXISTS, queryable);
+                // 在终结的地方弹出
+                pop();
+                return any;
+            }
+            else if (methodName.equals("where")) {
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                ISqlExpression cond = visit(methodCall.getArgs().get(0));
+                queryable.addWhere(cond);
+                return queryable;
+            }
+            else if (methodName.equals("select")) {
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                ISqlExpression select = visit(methodCall.getArgs().get(0));
+                queryable.setSelect(factory.select(Collections.singletonList(select), queryable.getMainTableClass()));
+                return factory.queryable(queryable.getSelect(), factory.from(queryable, queryable.getFrom().getTableRefExpression()));
+            }
+            else if (methodName.equals("distinct")) {
+
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                List<Expression> args = methodCall.getArgs();
+                if (args.isEmpty()) {
+                    queryable.setDistinct(true);
+                }
+                else {
+                    ISqlExpression value = visit(args.get(0));
+                    if (value instanceof ISqlSingleValueExpression) {
+                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) value;
+                        queryable.setDistinct((boolean) iSqlSingleValueExpression.getValue());
+                    }
+                    else {
+                        throw new SqLinkException("不支持的表达式:" + methodCall);
+                    }
+                }
+                return queryable;
+            }
+            else if (methodName.equals("orderBy")) {
+
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+                List<Expression> args = methodCall.getArgs();
+                ISqlExpression orderByColumn = visit(args.get(0));
+
+                if (args.size() > 1) {
+                    ISqlExpression value = visit(args.get(1));
+                    if (value instanceof ISqlSingleValueExpression) {
+                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) value;
+                        queryable.addOrder(factory.order(orderByColumn, (boolean) iSqlSingleValueExpression.getValue()));
+                    }
+                    else {
+                        throw new SqLinkException("不支持的表达式:" + methodCall);
+                    }
+                }
+                else {
+                    queryable.addOrder(factory.order(orderByColumn));
+                }
+                return queryable;
+            }
+            else if (methodName.equals("limit")) {
+
+                ISqlExpression visit = visit(methodCall.getExpr());
+                if (!(visit instanceof ISqlQueryableExpression)) {
+                    throw new SqLinkException("不支持的表达式:" + methodCall);
+                }
+                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
+
+                List<Expression> args = methodCall.getArgs();
+                if (args.size() == 1) {
+                    ISqlExpression rows = visit(args.get(0));
+                    if (rows instanceof ISqlSingleValueExpression) {
+                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) rows;
+                        queryable.setLimit(0, (long) iSqlSingleValueExpression.getValue());
+                    }
+                    else {
+                        throw new SqLinkException("不支持的表达式:" + methodCall);
+                    }
+                }
+                else if (args.size() == 2) {
+                    ISqlExpression offset = visit(args.get(0));
+                    ISqlExpression rows = visit(args.get(1));
+                    if (rows instanceof ISqlSingleValueExpression && offset instanceof ISqlSingleValueExpression) {
+                        ISqlSingleValueExpression rowsValue = (ISqlSingleValueExpression) rows;
+                        ISqlSingleValueExpression offsetValue = (ISqlSingleValueExpression) offset;
+                        queryable.setLimit((long) offsetValue.getValue(), (long) rowsValue.getValue());
+                    }
+                    else {
+                        throw new SqLinkException("不支持的表达式:" + methodCall);
+                    }
+                }
+                return queryable;
+            }
+            else {
+                return checkAndReturnValue(methodCall);
+            }
+        }
         // 集合的函数
         else if (Collection.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
@@ -1515,12 +1712,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             SqlExpressionFactory factory = config.getSqlExpressionFactory();
             // 用于包装某些数据库不支持直接返回bool
             if (isBool(lambda.getReturnType())) {
-                switch (config.getDbType()) {
-                    case SQLServer:
-                    case Oracle:
-                        ILogic logic = config.getTransformer();
-                        expression = logic.If(expression, factory.constString("1"), factory.constString("0"));
-                }
+                expression = config.getTransformer().boxBool(expression);
             }
             selectExpression = factory.select(Collections.singletonList(expression), lambda.getReturnType(), true, false);
         }

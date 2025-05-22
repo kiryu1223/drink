@@ -3,12 +3,12 @@ package io.github.kiryu1223.project.pojos;
 import io.github.kiryu1223.drink.base.annotation.Navigate;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.annotation.Table;
+import io.github.kiryu1223.drink.base.util.List;
 import io.github.kiryu1223.drink.core.api.ITable;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Table("students")

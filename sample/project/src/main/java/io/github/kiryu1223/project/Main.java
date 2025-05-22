@@ -44,19 +44,20 @@ public class Main {
         Filter filter = client.getConfig().getFilter();
 
 
-//        List<Student> list = client.query(Student.class)
-//                .where(s -> s.query(s.getCourses())
-//                        .any(c -> c.getCourseName()=="A003")
-//                )
-//                .toList();
+        String sql = client.query(Student.class)
+                .where(s -> s.getCourses()
+                        .where(c -> c.getCourseName()=="A003")
+                        .any()
+                )
+                .toSql();
 
 //        String sql = client.query(Student.class)
 //                .where(e -> client.query(Course.class)
 //                        .any(c -> c.getCourseId() == e.getStudentId() && c.getCourseName()=="A003")
 //                )
 //                .toSql();
-//
-//        System.out.println(sql);
+
+        System.out.println(sql);
 //
 //        for (Student student : list)
 //        {
@@ -73,7 +74,7 @@ public class Main {
 //            System.out.println(student);
 //        }
 //
-        String sql = client.query(Course.class)
+        String sql2 = client.query(Course.class)
                 .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
                 .selectAggregate(a -> new Result() {
                     long id = SqlFunctions.<Long>rawSql("(select c.id from courses as c)")+1L;
@@ -93,7 +94,7 @@ public class Main {
                 })
                 .toSql();
 
-        System.out.println(sql);
+        System.out.println(sql2);
 //        List<Course> list2 = client.query(Course.class)
 //                .selectAggregate(Course.class, (c, s) ->
 //                {
