@@ -127,7 +127,7 @@ public class ExpressionUtil {
 
     public static boolean isList(Method method) {
         Class<?> declaringClass = method.getDeclaringClass();
-        return io.github.kiryu1223.drink.base.util.List.class.isAssignableFrom(declaringClass);
+        return io.github.kiryu1223.drink.core.util.List.class.isAssignableFrom(declaringClass);
     }
 
     /**

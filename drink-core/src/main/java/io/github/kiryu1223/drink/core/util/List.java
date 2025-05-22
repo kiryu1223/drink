@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.base.util;
+package io.github.kiryu1223.drink.core.util;
 
 import io.github.kiryu1223.drink.base.exception.Winner;
 
