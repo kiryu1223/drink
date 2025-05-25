@@ -7,14 +7,17 @@ import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
-import io.github.kiryu1223.drink.core.api.Result;
-import io.github.kiryu1223.drink.func.SqlFunctions;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Course;
 import io.github.kiryu1223.project.pojos.Student;
 
-public class Main {
-    public static SqlClient boot() {
+import java.math.BigDecimal;
+import java.util.List;
+
+public class Main
+{
+    public static SqlClient boot()
+    {
         TypeHandlerManager.set(new GenderHandler());
 
         HikariDataSource dataSource = new HikariDataSource();
@@ -32,7 +35,8 @@ public class Main {
                 .build();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         SqlClient client = boot();
 
         Filter filter = client.getConfig().getFilter();
@@ -40,9 +44,33 @@ public class Main {
 
         String sql = client.query(Student.class)
                 .where(s -> s.getCourses()
-                        .where(c -> c.getCourseName()=="A003")
+                        .where(c -> c.getCourseName() == "A003")
                         .any()
                 )
+                .includeMany(s->s.getCourses())
+                .select(s -> new Course()
+                {
+                    {
+                        setTop5(s.getMajor());
+                        setTeacher(s.getName());
+                        setCourseName(s.getName());
+                        setCount(s.getStudentId());
+                        setCredit(BigDecimal.ZERO);
+                    }
+
+                    //                    List<Course> courses1 = s.getCourses();
+//                    List<Course> courses2 = s.query(s.getCourses()).toList();
+                    List<Course> courses3 = client.query(Course.class)
+                            .where(c->c.getCourseId()==s.getStudentId())
+                            .toList();
+
+//                    List<? extends Course> courses4 = client.query(Course.class)
+//                            .select(c -> new Course()
+//                            {
+//                                // ???
+//                            })
+//                            .toList();
+                })
                 .toSql();
 
 //        String sql = client.query(Student.class)
@@ -68,27 +96,15 @@ public class Main {
 //            System.out.println(student);
 //        }
 //
-        String sql2 = client.query(Course.class)
-                .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
-                .selectAggregate(a -> new Result() {
-                    long id = SqlFunctions.<Long>rawSql("(select c.id from courses as c)")+1L;
-                    long number = a.over(a.table.getCourseId(), a.table.getClassroom()).rowNumber();
-//                    List<Student> students = client.query(Student.class)
-//                            .where(s -> s.getStudentId() == a.table.getCourseId())
-//                            .toList();
-//                    List<? extends Student> studentAndCourses = client.query(Student.class)
-//                            .where(s -> s.getStudentId() == a.table.getCourseId())
-//                            .select(s -> new Student(){
-//                                {
-//                                    setStudentId(s.getStudentId());
-//                                    setCourses(s.getCourses());
-//                                }
-//                            })
-//                            .toList();
-                })
-                .toSql();
-
-        System.out.println(sql2);
+//        String sql2 = client.query(Course.class)
+//                .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
+//                .selectAggregate(a -> new Result() {
+//                    long id = SqlFunctions.rawSql("(select c.id from courses as c)");
+//                    long number = a.over(a.table.getCourseId(), a.table.getClassroom()).rowNumber();
+//                })
+//                .toSql();
+//
+//        System.out.println(sql2);
 //        List<Course> list2 = client.query(Course.class)
 //                .selectAggregate(Course.class, (c, s) ->
 //                {

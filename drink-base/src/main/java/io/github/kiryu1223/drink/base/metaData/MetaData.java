@@ -20,13 +20,12 @@ import io.github.kiryu1223.drink.base.annotation.*;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
+import java.beans.*;
 import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,7 +80,8 @@ public class MetaData
             if (type.isInterface()) return;
             for (PropertyDescriptor descriptor : propertyDescriptors(type))
             {
-                Field field = type.getDeclaredField(descriptor.getName());
+                String name = descriptor.getName();
+                Field field = type.isAnonymousClass()?type.getSuperclass().getDeclaredField(name):type.getDeclaredField(name);
                 Column column = field.getAnnotation(Column.class);
                 UseTypeHandler useTypeHandler = field.getAnnotation(UseTypeHandler.class);
                 IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
@@ -89,7 +89,7 @@ public class MetaData
 
                 boolean notNull;
                 String columnName;
-                String fieldName = descriptor.getName();
+                String fieldName = name;
                 Method getter = descriptor.getReadMethod();
                 Method setter = descriptor.getWriteMethod();
                 ITypeHandler<?> typeHandler;
@@ -124,7 +124,9 @@ public class MetaData
                     Class<?> navigateTargetType;
                     if (Collection.class.isAssignableFrom(field.getType())) {
                         Class<? extends Collection<?>> collectionType = (Class<? extends Collection<?>>) field.getType();
-                        if (type.isAnonymousClass()) {
+                        Type genericType = field.getGenericType();
+                        if(genericType instanceof Class<?>)
+                        {
                             Class<?> aClass = navigate.targetType();
                             if (aClass != Empty.class) {
                                 navigateTargetType = aClass;
@@ -134,9 +136,9 @@ public class MetaData
                                 throw new RuntimeException("匿名类字段上的@Navigate注解的targetType不能为空:" + field);
                             }
                         }
-                        else {
-                            Type genericType = field.getGenericType();
-                            navigateTargetType = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
+                        else
+                        {
+                            navigateTargetType = DrinkUtil.getTargetType(genericType);
                             navigateData = new NavigateData(navigate, navigateTargetType, collectionType);
                         }
                     }
@@ -153,8 +155,9 @@ public class MetaData
                 propertys.add(fieldMetaData);
             }
         }
-        catch (NoSuchFieldException | NoSuchMethodException e)
+        catch (NoSuchMethodException | NoSuchFieldException e)
         {
+
             throw new RuntimeException(e);
         }
     }

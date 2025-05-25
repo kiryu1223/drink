@@ -441,7 +441,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         return new EndQuery<>(getSqlBuilder());
     }
 
-    //    /**
+//    /**
 //     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
 //     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
 //     *

@@ -69,10 +69,9 @@ public class IncludeBuilder {
         for (Object o : source) {
             collection.add(cast(sourceGetter.apply(cast(o))));
         }
+        QuerySqlBuilder builder = new QuerySqlBuilder(config, subQuery);
         List<SqlValue> sqlValues = new ArrayList<>(source.size());
-        AsNameManager.start();
-        String sql = subQuery.getSqlAndValue(config, sqlValues);
-        AsNameManager.clear();
+        String sql = builder.getSqlAndValue(sqlValues);
 
         tryPrintSql(sql);
 

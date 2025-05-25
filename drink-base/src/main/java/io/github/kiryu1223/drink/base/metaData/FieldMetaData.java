@@ -158,7 +158,7 @@ public class FieldMetaData {
      * 父类类型
      */
     public Class<?> getParentType() {
-        return field.getDeclaringClass();
+        return getter.getDeclaringClass();
     }
 
     /**

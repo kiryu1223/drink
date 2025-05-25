@@ -28,7 +28,7 @@ import java.util.List;
  * @since 3.0
  */
 public class SqlSingleValueExpression extends SqlValueExpression implements ISqlSingleValueExpression {
-    private final Object value;
+    private Object value;
 
     protected SqlSingleValueExpression(Object value) {
         this.value = value;
@@ -36,6 +36,11 @@ public class SqlSingleValueExpression extends SqlValueExpression implements ISql
 
     public Object getValue() {
         return value;
+    }
+
+    public void setValue(Object value)
+    {
+        this.value = value;
     }
 
     @Override

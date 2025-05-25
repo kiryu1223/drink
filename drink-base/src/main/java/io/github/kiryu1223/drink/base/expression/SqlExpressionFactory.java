@@ -17,7 +17,6 @@ package io.github.kiryu1223.drink.base.expression;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.impl.SqlGroupRef;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
@@ -306,6 +305,11 @@ public interface SqlExpressionFactory {
      * @param value 值
      */
     ISqlSingleValueExpression value(Object value);
+
+    default ISqlSingleValueExpression value()
+    {
+        return value((Object)null);
+    }
 
     /**
      * 创建集合值表达式

@@ -33,6 +33,8 @@ public interface ISqlSingleValueExpression extends ISqlValueExpression {
      */
     Object getValue();
 
+    void setValue(Object value);
+
     @Override
     default Class<?> getType() {
         Object value = getValue();

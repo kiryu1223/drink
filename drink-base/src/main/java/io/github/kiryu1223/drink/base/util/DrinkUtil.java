@@ -1,10 +1,13 @@
 package io.github.kiryu1223.drink.base.util;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTemplateExpression;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -129,5 +132,17 @@ public class DrinkUtil {
      */
     public static boolean isDecimal(Class<?> type) {
         return type == BigDecimal.class;
+    }
+
+    public static Class<?> getTargetType(Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        }
+        else if (type instanceof ParameterizedType) {
+            ParameterizedType pType = (ParameterizedType) type;
+            Type dbType = pType.getActualTypeArguments()[0];
+            return (Class<?>) dbType;
+        }
+        throw new DrinkException("无法获取集合的目标类型:" + type);
     }
 }

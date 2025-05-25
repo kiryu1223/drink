@@ -160,18 +160,6 @@ public class ExpressionUtil {
 //        return original;
 //    }
 
-    public static Class<?> getTargetType(Type type) {
-        if (type instanceof Class) {
-            return (Class<?>) type;
-        }
-        else if (type instanceof ParameterizedType) {
-            ParameterizedType pType = (ParameterizedType) type;
-            Type dbType = pType.getActualTypeArguments()[0];
-            return (Class<?>) dbType;
-        }
-        throw new SqLinkException("无法获取集合的目标类型:" + type);
-    }
-
     /**
      * 是否为void类型
      */

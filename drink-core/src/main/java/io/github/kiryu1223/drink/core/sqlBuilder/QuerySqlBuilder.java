@@ -34,6 +34,7 @@ public class QuerySqlBuilder implements ISqlBuilder {
     private final List<String> ignoreFilterIds = new ArrayList<>();
     private boolean ignoreFilterAll = false;
     private final List<IncludeBuilder> includes =new ArrayList<>();
+    private final Map<String, QuerySqlBuilder> subQueryMap=new HashMap<>();
 //    private final Map<String, ISqlQueryableExpression> subQueryMap=new HashMap<>();
 
     public QuerySqlBuilder(IConfig config, ISqlQueryableExpression queryable) {
@@ -48,6 +49,11 @@ public class QuerySqlBuilder implements ISqlBuilder {
 
     public List<IncludeBuilder> getIncludes() {
         return includes;
+    }
+
+    public Map<String, QuerySqlBuilder> getSubQueryMap()
+    {
+        return subQueryMap;
     }
 
     public void addSubQuery(IncludeBuilder subQuery) {

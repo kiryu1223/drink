@@ -132,10 +132,11 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 throw new RuntimeException(e);
             }
         }
-//        Map<String, ISqlQueryableExpression> subQueryMap = sqlBuilder.getSubQueryMap();
-//        if (!subQueryMap.isEmpty()) {
-//
-//        }
+        Map<String, QuerySqlBuilder> subQueryMap = sqlBuilder.getSubQueryMap();
+        if (!subQueryMap.isEmpty())
+        {
+
+        }
         return result;
     }
 
@@ -200,7 +201,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlSelectExpression select = sqlVisitor.toSelect(lambda, sqlBuilder.getQueryable());
         sqlBuilder.setSelect(select);
-
+        sqlBuilder.getSubQueryMap().putAll(sqlVisitor.getSubQueryMap());
 //        Map<String, ISqlQueryableExpression> subQueryMap = sqlVisitor.getSubQueryMap();
 //        if (!subQueryMap.isEmpty()) {
 //            sqlBuilder.getSubQueryMap().putAll(subQueryMap);

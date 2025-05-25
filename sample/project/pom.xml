@@ -83,6 +83,11 @@
                         <arg>-Xplugin:ExpressionTree</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.34</version>
+                        </path>
                         <!--apt路径配置-->
                         <path>
                             <groupId>io.github.kiryu1223</groupId>
@@ -90,11 +95,6 @@
                             <version>${project.version}</version>
                         </path>
                         <!--你的剩余apt路径配置，假设你的项目中还依赖了lombok等apt的话-->
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.34</version>
-                        </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
