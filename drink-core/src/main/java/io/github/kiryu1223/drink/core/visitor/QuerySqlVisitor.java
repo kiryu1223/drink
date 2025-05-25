@@ -1402,9 +1402,19 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                             if (visit instanceof QueryBox)
                             {
                                 QueryBox queryBox = (QueryBox) visit;
-                                QuerySqlBuilder builder = new QuerySqlBuilder(config, queryBox.getQueryable());
-                                builder.getIncludes().addAll(queryBox.getIncludes());
-                                subQueryMap.put(varName,builder);
+                                boolean aggResult = queryBox.isAggResult();
+                                boolean needParentValue = queryBox.isNeedParentValue();
+                                if (aggResult)
+                                {
+                                    if (!needParentValue)
+                                    {
+
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
                             }
                             else {
                                 // 某些数据库不支持直接返回bool类型，所以需要做一下包装
@@ -1859,6 +1869,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
         private final ISqlQueryableExpression queryable;
         private final List<IncludeBuilder> includes =new ArrayList<>();
         private boolean needParentValue;
+        private boolean isAggResult;
 
         private QueryBox(ISqlQueryableExpression queryable)
         {
@@ -1878,6 +1889,16 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
         public boolean isNeedParentValue()
         {
             return needParentValue;
+        }
+
+        public boolean isAggResult()
+        {
+            return isAggResult;
+        }
+
+        public void setAggResult(boolean aggResult)
+        {
+            isAggResult = aggResult;
         }
 
         public void setNeedParentValue(boolean needParentValue)
