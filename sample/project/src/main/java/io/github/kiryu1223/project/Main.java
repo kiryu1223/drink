@@ -14,10 +14,8 @@ import io.github.kiryu1223.project.pojos.Student;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class Main
-{
-    public static SqlClient boot()
-    {
+public class Main {
+    public static SqlClient boot() {
         TypeHandlerManager.set(new GenderHandler());
 
         HikariDataSource dataSource = new HikariDataSource();
@@ -35,8 +33,7 @@ public class Main
                 .build();
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         SqlClient client = boot();
 
         Filter filter = client.getConfig().getFilter();
@@ -47,29 +44,18 @@ public class Main
                         .where(c -> c.getCourseName() == "A003")
                         .any()
                 )
-                .includeMany(s->s.getCourses())
-                .select(s -> new Course()
-                {
-                    {
-                        setTop5(s.getMajor());
-                        setTeacher(s.getName());
-                        setCourseName(s.getName());
-                        setCount(s.getStudentId());
-                        setCredit(BigDecimal.ZERO);
-                    }
+                .includeMany(s -> s.getCourses())
+                .select(s -> new Course() {
+                    // s.*,
+                    // select count(*) from courses as c where c.id = s.id,
+                    // select ? from courses as c where c.id = s.id
 
-                    //                    List<Course> courses1 = s.getCourses();
-//                    List<Course> courses2 = s.query(s.getCourses()).toList();
-                    List<Course> courses3 = client.query(Course.class)
-                            .where(c->c.getCourseId()==s.getStudentId())
+                    long courses3 = client.query(Course.class)
+                            .where(c -> c.getCourseId() == s.getStudentId())
+                            .count();
+                    List<Course> courses4 = client.query(Course.class)
+                            .where(c -> c.getCourseId() == s.getStudentId())
                             .toList();
-
-//                    List<? extends Course> courses4 = client.query(Course.class)
-//                            .select(c -> new Course()
-//                            {
-//                                // ???
-//                            })
-//                            .toList();
                 })
                 .toSql();
 

@@ -28,7 +28,7 @@ import java.util.List;
  * @since 3.0
  */
 public class SqlAsExpression implements ISqlAsExpression {
-    private final ISqlExpression expression;
+    private ISqlExpression expression;
     private final String asName;
 
     protected SqlAsExpression(ISqlExpression expression, String asName) {
@@ -39,6 +39,11 @@ public class SqlAsExpression implements ISqlAsExpression {
     @Override
     public ISqlExpression getExpression() {
         return expression;
+    }
+
+    @Override
+    public void setExpression(ISqlExpression expression) {
+        this.expression = expression;
     }
 
     @Override

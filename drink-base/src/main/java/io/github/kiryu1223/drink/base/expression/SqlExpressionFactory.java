@@ -21,10 +21,7 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * 表达式工厂,所有表达式都应该从工厂创建
@@ -35,6 +32,7 @@ import java.util.List;
 public interface SqlExpressionFactory {
 
     IConfig getConfig();
+
     /**
      * 创建别名表达式
      *
@@ -56,8 +54,7 @@ public interface SqlExpressionFactory {
      */
     ISqlConditionsExpression condition(boolean and);
 
-    default ISqlConditionsExpression condition()
-    {
+    default ISqlConditionsExpression condition() {
         return condition(true);
     }
 
@@ -171,7 +168,7 @@ public interface SqlExpressionFactory {
     }
 
     default ISqlQueryableExpression queryable(Class<?> target) {
-        return queryable(from(table(target),tableRef(target)));
+        return queryable(from(table(target), tableRef(target)));
     }
 
     default ISqlQueryableExpression queryable(ISqlQueryableExpression queryable) {
@@ -246,6 +243,10 @@ public interface SqlExpressionFactory {
         return select(column, target, false, false);
     }
 
+    default ISqlSelectExpression singleSelect(ISqlExpression column, Class<?> target) {
+        return select(Collections.singletonList(column), target, true, false);
+    }
+
     /**
      * 创建select表达式
      *
@@ -306,9 +307,8 @@ public interface SqlExpressionFactory {
      */
     ISqlSingleValueExpression value(Object value);
 
-    default ISqlSingleValueExpression value()
-    {
-        return value((Object)null);
+    default ISqlSingleValueExpression value() {
+        return value((Object) null);
     }
 
     /**
@@ -366,7 +366,7 @@ public interface SqlExpressionFactory {
      *
      * @param c 类型
      */
-    ISqlTypeCastExpression typeCast(Class<?> c,ISqlExpression expression);
+    ISqlTypeCastExpression typeCast(Class<?> c, ISqlExpression expression);
 
     ISqlWithExpression with(ISqlQueryableExpression queryable, String name);
 
@@ -383,7 +383,7 @@ public interface SqlExpressionFactory {
     }
 
     default ISqlUpdateExpression update(Class<?> target) {
-        return update(target,tableRef(target));
+        return update(target, tableRef(target));
     }
 
     ISqlDeleteExpression delete(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where);
@@ -393,7 +393,7 @@ public interface SqlExpressionFactory {
     }
 
     default ISqlDeleteExpression delete(Class<?> target) {
-        return delete(target,tableRef(target));
+        return delete(target, tableRef(target));
     }
 
     ISqlDynamicColumnExpression dynamicColumn(String column, Class<?> type, ISqlTableRefExpression tableISqlTableRefExpression);
@@ -414,13 +414,12 @@ public interface SqlExpressionFactory {
     ISqlTableRefExpression tableRef(String name);
 
     default ISqlTableRefExpression tableRef(Class<?> c) {
-        return tableRef(DrinkUtil.getFirst(getConfig(),c));
+        return tableRef(DrinkUtil.getFirst(getConfig(), c));
     }
 
     ISqlStarExpression star(ISqlTableRefExpression tableRefExpression);
 
-    default ISqlStarExpression star()
-    {
+    default ISqlStarExpression star() {
         return star(null);
     }
 }

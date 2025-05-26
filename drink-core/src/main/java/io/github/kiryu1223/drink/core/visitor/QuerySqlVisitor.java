@@ -24,6 +24,7 @@ import io.github.kiryu1223.drink.core.exception.SqLinkIllegalExpressionException
 import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -42,8 +43,7 @@ import java.util.stream.Collectors;
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
 import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isBool;
 
-public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
-{
+public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     protected final IConfig config;
     protected final SqlExpressionFactory factory;
     //    protected final ISqlFromExpression fromExpression;
@@ -57,14 +57,14 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
     protected final List<List<ISqlTableRefExpression>> tableRefListList = new ArrayList<>();
     protected final Map<ParameterExpression, ISqlTableRefExpression> asNameMap = new HashMap<>();
     protected final List<ISqlQueryableExpression> queryableList = new ArrayList<>();
-    protected final Map<String, QuerySqlBuilder> subQueryMap = new HashMap<>();
+    protected final Deque<List<SubQueryBuilder>> subQueryBuilderDeque = new ArrayDeque<>();
     //protected final Map<String, QuerySqlBuilder> subQueryMap = new HashMap<>();
 //    protected final Deque<QuerySqlBuilder> subQueryDeque = new ArrayDeque<>();
 //    protected QuerySqlBuilder last;
 
     public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression) {
-        this.config=config;
-        factory= config.getSqlExpressionFactory();
+        this.config = config;
+        factory = config.getSqlExpressionFactory();
         push(sqlQueryableExpression);
     }
 
@@ -78,17 +78,18 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
         }
 
         tableRefListList.add(list);
-        queryableList.add(new QueryBox(queryable));
+        queryableList.add(new QueryBox(config, queryable));
+        subQueryBuilderDeque.push(new ArrayList<>());
     }
 
     protected void pop() {
-        tableRefListList.remove(tableRefListList.size()-1);
-        queryableList.remove(queryableList.size()-1);
+        tableRefListList.remove(tableRefListList.size() - 1);
+        queryableList.remove(queryableList.size() - 1);
+        subQueryBuilderDeque.pop();
     }
 
-    public Map<String, QuerySqlBuilder> getSubQueryMap()
-    {
-        return subQueryMap;
+    public List<SubQueryBuilder> getSubQueryBuilder() {
+        return subQueryBuilderDeque.pop();
     }
 
     /**
@@ -300,8 +301,8 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                             expressions.add(visit(methodCall.getExpr()));
                         }
                         else {
-                            boolean isAnd=param.startsWith("&");
-                            String paramFinal=isAnd?param.substring(1):param;
+                            boolean isAnd = param.startsWith("&");
+                            String paramFinal = isAnd ? param.substring(1) : param;
                             Parameter targetParam = methodParameters.stream()
                                     .filter(f -> f.getName().equals(paramFinal))
                                     .findFirst()
@@ -311,12 +312,10 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                             // 如果是可变参数
                             if (targetParam.isVarArgs()) {
                                 while (index < args.size()) {
-                                    if (isAnd)
-                                    {
+                                    if (isAnd) {
                                         parse$(args.get(index), strings);
                                     }
-                                    else
-                                    {
+                                    else {
                                         expressions.add(visit(args.get(index)));
                                         if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
                                         index++;
@@ -325,12 +324,10 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                             }
                             // 正常情况
                             else {
-                                if (isAnd)
-                                {
+                                if (isAnd) {
                                     parse$(args.get(index), strings);
                                 }
-                                else
-                                {
+                                else {
                                     expressions.add(visit(args.get(index)));
                                 }
                             }
@@ -408,6 +405,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                 queryable.setSelect(factory.select(Collections.singletonList(agg.count(column)), long.class));
                 // 在终结的地方弹出
                 pop();
+                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("sum")) {
@@ -421,6 +419,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                 queryable.setSelect(factory.select(Collections.singletonList(agg.sum(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 pop();
+                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("avg")) {
@@ -434,6 +433,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                 queryable.setSelect(factory.select(Collections.singletonList(agg.avg(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 pop();
+                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("min")) {
@@ -448,6 +448,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                 queryable.setSelect(factory.select(Collections.singletonList(agg.min(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 pop();
+                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("max")) {
@@ -462,6 +463,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                 queryable.setSelect(factory.select(Collections.singletonList(agg.max(column)), BigDecimal.class));
                 // 在终结的地方弹出
                 pop();
+                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("any")) {
@@ -480,6 +482,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                 ISqlUnaryExpression any = factory.unary(SqlOperator.EXISTS, queryable);
                 // 在终结的地方弹出
                 pop();
+                setSingleRow(queryable);
                 return any;
             }
             else if (methodName.equals("where")) {
@@ -1044,7 +1047,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
         }
         // BigDecimal||BigInteger的函数
         else if (BigDecimal.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())
-                || BigInteger.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
+                 || BigInteger.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
             INumberMethods number = config.getTransformer();
             switch (method.getName()) {
@@ -1215,7 +1218,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                         return getterToSqlAst(getter, tableRef);
                     }
                     else {
-                        ISqlColumnExpression column = factory.column(getter, tableRef);
+                       ISqlColumnExpression column= factory.column(getter, tableRef);
                         if(isSelect)
                         {
                             List<ISqlTableRefExpression> peek = last(tableRefListList);
@@ -1229,14 +1232,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
                                 }
                                 FieldMetaData fieldMetaData = column.getFieldMetaData();
                                 String name="sub:"+fieldMetaData.getColumn();
-                                QueryBox box = (QueryBox)queryableList.get(level);
-                                box.setNeedParentValue(true);
-                                ISqlSelectExpression selectExpression = box.getSelect();
-                                if (!hasAsName(selectExpression, name))
-                                {
-                                    selectExpression.addColumn(factory.as(factory.column(fieldMetaData,tableRef),name));
-                                }
-                                return new SubQueryValue(factory.value(),name,level);
+                                column= new SubQueryValue(column,name,level);
                             }
                         }
                         return column;
@@ -1387,72 +1383,89 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
             }
             // new {...}
             else if (type.isAnonymousClass()) {
+                Map<String,ISqlColumnExpression> keyNames = new HashMap<>();
                 List<ISqlExpression> expressions = new ArrayList<>();
                 MetaData metaData = config.getMetaData(type);
                 for (Expression expression : classBody.getExpressions()) {
                     if (expression.getKind() == Kind.Variable) {
                         VariableExpression variable = (VariableExpression) expression;
                         String varName = variable.getName();
+                        FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(varName);
                         Expression init = variable.getInit();
                         if (init != null) {
-                            ISqlExpression visit = visit(variable.getInit());
+                            ISqlExpression visit = visit(init);
                             // a.b() 导航属性
                             // a.query(a.b()).where(...)...toList()/first() 导航属性后附带条件
                             // client.query(...)...toList()/first() 子查询
-                            if (visit instanceof QueryBox)
-                            {
-                                QueryBox queryBox = (QueryBox) visit;
-                                boolean aggResult = queryBox.isAggResult();
-                                boolean needParentValue = queryBox.isNeedParentValue();
-                                if (aggResult)
-                                {
-                                    if (!needParentValue)
-                                    {
-
-                                    }
-                                    else
-                                    {
-
-                                    }
-                                }
-                            }
-                            else {
-                                // 某些数据库不支持直接返回bool类型，所以需要做一下包装
-                                visit = tryToBool(variable.getInit(), visit);
-                                setAs(expressions, visit, varName);
-                            }
+                            saveSelectOrSubQuery(visit, init, expressions, varName,fieldMetaData, keyNames);
                         }
                     }
-                    else if(expression.getKind() == Kind.Block)
-                    {
+                    else if (expression.getKind() == Kind.Block) {
                         BlockExpression blockExpression = (BlockExpression) expression;
-                        for (Expression bb : blockExpression.getExpressions())
-                        {
-                            if (bb.getKind() == Kind.MethodCall)
-                            {
+                        for (Expression bb : blockExpression.getExpressions()) {
+                            if (bb.getKind() == Kind.MethodCall) {
                                 MethodCallExpression methodCall = (MethodCallExpression) bb;
                                 Expression expr = methodCall.getExpr();
                                 Method method = methodCall.getMethod();
                                 // this == null
-                                if(expr == null && isSetter(method))
-                                {
+                                if (expr == null && isSetter(method)) {
                                     FieldMetaData setter = metaData.getFieldMetaDataBySetter(method);
-                                    String asName = setter.getFieldName();
+                                    String varName = setter.getFieldName();
+                                    FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(varName);
                                     Expression arg = methodCall.getArgs().get(0);
-                                    ISqlExpression visit = visit(arg);
-                                    // 某些数据库不支持直接返回bool类型，所以需要做一下包装
-                                    visit = tryToBool(arg, visit);
-                                    setAs(expressions, visit, asName);
+                                    if (arg != null) {
+                                        ISqlExpression visit = visit(arg);
+                                        saveSelectOrSubQuery(visit, arg, expressions, varName,fieldMetaData, keyNames);
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                // 子查询需要的额外字段
+                for (Map.Entry<String, ISqlColumnExpression> entry : keyNames.entrySet()) {
+                    expressions.add(factory.as(entry.getValue(), entry.getKey()));
                 }
                 return factory.select(expressions, newExpression.getType());
             }
             else {
                 return checkAndReturnValue(newExpression);
             }
+        }
+    }
+
+    private void saveSelectOrSubQuery(ISqlExpression visit, Expression variable, List<ISqlExpression> expressions, String varName,FieldMetaData fieldMetaData,Map<String,ISqlColumnExpression> keyNames) {
+        if (visit instanceof QueryBox) {
+            QueryBox queryBox = (QueryBox) visit;
+            boolean singleRowResult = queryBox.isSingleRowResult();
+            if (singleRowResult) {
+                // 聚合函数解包
+                visit = queryBox.getQueryable();
+                // 某些数据库不支持直接返回bool类型，所以需要做一下包装
+                visit = tryToBool(variable, visit);
+                setAs(expressions, visit, varName);
+            }
+            else {
+                subQueryBuilderDeque.peek().getSubMap().put(fieldMetaData, queryBox.getQuerySqlBuilder());
+                queryBox.getQueryable().accept(new SqlTreeVisitor(){
+                    @Override
+                    public void visit(ISqlColumnExpression expr) {
+                        super.visit(expr);
+                        if (expr instanceof SubQueryValue) {
+                            SubQueryValue subQueryValue = (SubQueryValue) expr;
+                            if (!subQueryValue.isKeyNameUsed()) {
+                                subQueryValue.setKeyNameUsed(true);
+                                keyNames.put(subQueryValue.getKeyName(),subQueryValue.getColumn());
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        else {
+        // 某些数据库不支持直接返回bool类型，所以需要做一下包装
+            visit = tryToBool(variable, visit);
+            setAs(expressions, visit, varName);
         }
     }
 
@@ -1687,10 +1700,10 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
         return config.getTransformer().boxBool(result);
     }
 
-    protected boolean isSelect=false;
+    protected boolean isSelect = false;
 
     public ISqlSelectExpression toSelect(LambdaExpression<?> lambda, ISqlQueryableExpression queryable) {
-        isSelect=true;
+        isSelect = true;
         ISqlExpression expression = visit(lambda);
         ISqlSelectExpression selectExpression;
         if (expression instanceof ISqlSelectExpression) {
@@ -1814,34 +1827,26 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
         }
     }
 
-    protected void parse$(Expression arg, List<String> strings)
-    {
+    protected void parse$(Expression arg, List<String> strings) {
         ISqlExpression visit = visit(arg);
-        if (visit instanceof ISqlSingleValueExpression)
-        {
+        if (visit instanceof ISqlSingleValueExpression) {
             ISqlSingleValueExpression singleValue = (ISqlSingleValueExpression) visit;
             strings.add(singleValue.getValue().toString());
         }
-        else if (visit instanceof ISqlCollectedValueExpression)
-        {
+        else if (visit instanceof ISqlCollectedValueExpression) {
             ISqlCollectedValueExpression collectedValue = (ISqlCollectedValueExpression) visit;
             strings.add(collectedValue.getCollection().toString());
         }
-        else
-        {
+        else {
             throw new DrinkException("raw参数必须是求值的");
         }
     }
 
-    private boolean hasAsName(ISqlSelectExpression selectExpression,String asName)
-    {
-        for (ISqlExpression column : selectExpression.getColumns())
-        {
-            if (column instanceof ISqlAsExpression)
-            {
+    private boolean hasAsName(ISqlSelectExpression selectExpression, String asName) {
+        for (ISqlExpression column : selectExpression.getColumns()) {
+            if (column instanceof ISqlAsExpression) {
                 ISqlAsExpression as = (ISqlAsExpression) column;
-                if(as.getAsName().equals(asName))
-                {
+                if (as.getAsName().equals(asName)) {
                     return true;
                 }
             }
@@ -1849,186 +1854,156 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression>
         return false;
     }
 
-    private static class SqlGroupRef implements ISqlExpression
-    {
+    private static class SqlGroupRef implements ISqlExpression {
         @Override
-        public String getSqlAndValue(IConfig config, List<SqlValue> values)
-        {
+        public String getSqlAndValue(IConfig config, List<SqlValue> values) {
             return "";
         }
 
         @Override
-        public <T extends ISqlExpression> T copy(IConfig config)
-        {
+        public <T extends ISqlExpression> T copy(IConfig config) {
             return null;
         }
     }
 
-    private static class QueryBox implements ISqlQueryableExpression
-    {
+    private static class QueryBox implements ISqlQueryableExpression {
         private final ISqlQueryableExpression queryable;
-        private final List<IncludeBuilder> includes =new ArrayList<>();
-        private boolean needParentValue;
-        private boolean isAggResult;
+        private final QuerySqlBuilder querySqlBuilder;
+        private boolean isSingleRowResult;
 
-        private QueryBox(ISqlQueryableExpression queryable)
-        {
+        private QueryBox(IConfig config, ISqlQueryableExpression queryable) {
             this.queryable = queryable;
+            querySqlBuilder = new QuerySqlBuilder(config, queryable);
         }
 
-        public ISqlQueryableExpression getQueryable()
-        {
+        public QuerySqlBuilder getQuerySqlBuilder() {
+            return querySqlBuilder;
+        }
+
+        public ISqlQueryableExpression getQueryable() {
             return queryable;
         }
 
-        public List<IncludeBuilder> getIncludes()
-        {
-            return includes;
+        public List<IncludeBuilder> getIncludes() {
+            return querySqlBuilder.getIncludes();
         }
 
-        public boolean isNeedParentValue()
-        {
-            return needParentValue;
+        public boolean isSingleRowResult() {
+            return isSingleRowResult;
         }
 
-        public boolean isAggResult()
-        {
-            return isAggResult;
-        }
-
-        public void setAggResult(boolean aggResult)
-        {
-            isAggResult = aggResult;
-        }
-
-        public void setNeedParentValue(boolean needParentValue)
-        {
-            this.needParentValue = needParentValue;
+        public void setSingleRowResult(boolean singleRowResult) {
+            isSingleRowResult = singleRowResult;
         }
 
         @Override
-        public String getSqlAndValue(IConfig config, List<SqlValue> values)
-        {
-            return queryable.getSqlAndValue(config,values);
+        public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+            return queryable.getSqlAndValue(config, values);
         }
 
         @Override
-        public void addWhere(ISqlExpression cond)
-        {
+        public void addWhere(ISqlExpression cond) {
             queryable.addWhere(cond);
         }
 
         @Override
-        public void setWhere(ISqlConditionsExpression conditions)
-        {
+        public void setWhere(ISqlConditionsExpression conditions) {
             queryable.setWhere(conditions);
         }
 
         @Override
-        public void addJoin(ISqlJoinExpression join)
-        {
+        public void addJoin(ISqlJoinExpression join) {
             queryable.addJoin(join);
         }
 
         @Override
-        public void setGroup(ISqlGroupByExpression group)
-        {
+        public void setGroup(ISqlGroupByExpression group) {
             queryable.setGroup(group);
         }
 
         @Override
-        public void addHaving(ISqlExpression cond)
-        {
+        public void addHaving(ISqlExpression cond) {
             queryable.addHaving(cond);
         }
 
         @Override
-        public void addOrder(ISqlOrderExpression order)
-        {
+        public void addOrder(ISqlOrderExpression order) {
             queryable.addOrder(order);
         }
 
         @Override
-        public void setSelect(ISqlSelectExpression newSelect)
-        {
+        public void setSelect(ISqlSelectExpression newSelect) {
             queryable.setSelect(newSelect);
         }
 
         @Override
-        public void setLimit(long offset, long rows)
-        {
-            queryable.setLimit(offset,rows);
+        public void setLimit(long offset, long rows) {
+            queryable.setLimit(offset, rows);
         }
 
         @Override
-        public void setDistinct(boolean distinct)
-        {
+        public void setDistinct(boolean distinct) {
             queryable.setDistinct(distinct);
         }
 
         @Override
-        public ISqlFromExpression getFrom()
-        {
+        public ISqlFromExpression getFrom() {
             return queryable.getFrom();
         }
 
         @Override
-        public int getOrderedCount()
-        {
+        public int getOrderedCount() {
             return queryable.getOrderedCount();
         }
 
         @Override
-        public ISqlWhereExpression getWhere()
-        {
+        public ISqlWhereExpression getWhere() {
             return queryable.getWhere();
         }
 
         @Override
-        public ISqlGroupByExpression getGroupBy()
-        {
+        public ISqlGroupByExpression getGroupBy() {
             return queryable.getGroupBy();
         }
 
         @Override
-        public ISqlJoinsExpression getJoins()
-        {
+        public ISqlJoinsExpression getJoins() {
             return queryable.getJoins();
         }
 
         @Override
-        public ISqlSelectExpression getSelect()
-        {
+        public ISqlSelectExpression getSelect() {
             return queryable.getSelect();
         }
 
         @Override
-        public ISqlOrderByExpression getOrderBy()
-        {
+        public ISqlOrderByExpression getOrderBy() {
             return queryable.getOrderBy();
         }
 
         @Override
-        public ISqlLimitExpression getLimit()
-        {
+        public ISqlLimitExpression getLimit() {
             return queryable.getLimit();
         }
 
         @Override
-        public ISqlHavingExpression getHaving()
-        {
+        public ISqlHavingExpression getHaving() {
             return queryable.getHaving();
         }
 
         @Override
-        public Class<?> getMainTableClass()
-        {
+        public Class<?> getMainTableClass() {
             return queryable.getMainTableClass();
         }
     }
 
-    private <T> T last(List<T> list)
-    {
-        return list.get(list.size()-1);
+    private <T> T last(List<T> list) {
+        return list.get(list.size() - 1);
+    }
+
+    private void setSingleRow(ISqlQueryableExpression queryable) {
+        if (isSelect) {
+            ((QueryBox) queryable).setSingleRowResult(true);
+        }
     }
 }

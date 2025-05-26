@@ -1268,29 +1268,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                         return getterToSqlAst(getter, tableRef);
                     }
                     else {
-                        ISqlColumnExpression column = factory.column(getter, tableRef);
-                        if(isSelect)
-                        {
-                            List<ISqlTableRefExpression> peek = asNameListDeque.peek();
-                            if(!peek.contains(tableRef))
-                            {
-                                int level=0;
-                                for (List<ISqlTableRefExpression> list : asNameListDeque)
-                                {
-                                    if(list.contains(tableRef))break;
-                                    level++;
-                                }
-                                FieldMetaData fieldMetaData = column.getFieldMetaData();
-                                String name="sub:"+fieldMetaData.getColumn();
-                                ISqlSelectExpression selectExpression = selectDeque.peek();
-                                if (!hasAsName(selectExpression, name))
-                                {
-                                    selectExpression.addColumn(factory.as(factory.column(fieldMetaData,tableRef),name));
-                                }
-                                return new SubQueryValue(factory.value(),name,level);
-                            }
-                        }
-                        return column;
+                        return factory.column(getter, tableRef);
                     }
                 }
                 // else if (isDynamicColumn(method)) {

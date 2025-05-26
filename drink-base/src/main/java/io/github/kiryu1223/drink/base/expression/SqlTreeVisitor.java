@@ -1,5 +1,7 @@
 package io.github.kiryu1223.drink.base.expression;
 
+import com.sun.tools.javac.tree.JCTree;
+
 import java.util.Map;
 
 public class SqlTreeVisitor {
@@ -103,8 +105,7 @@ public class SqlTreeVisitor {
         else if (expr instanceof ISqlTableRefExpression) {
             visit((ISqlTableRefExpression) expr);
         }
-        else if (expr instanceof ISqlStarExpression)
-        {
+        else if (expr instanceof ISqlStarExpression) {
             visit((ISqlStarExpression) expr);
         }
     }
@@ -274,8 +275,7 @@ public class SqlTreeVisitor {
 
     }
 
-    public void visit(ISqlStarExpression expr)
-    {
+    public void visit(ISqlStarExpression expr) {
 
     }
 }

@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.core.util;
 
 import io.github.kiryu1223.drink.base.exception.Winner;
+import io.github.kiryu1223.drink.core.api.ITable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +9,7 @@ import java.util.Comparator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class List<T> extends ArrayList<T> {
+public final class List<T> extends ArrayList<T> {
 
     public List() {
     }

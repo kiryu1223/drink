@@ -28,7 +28,7 @@ import java.util.List;
  * @since 3.0
  */
 public class SqlHavingExpression implements ISqlHavingExpression {
-    private final ISqlConditionsExpression conditions;
+    private ISqlConditionsExpression conditions;
 
     protected SqlHavingExpression(ISqlConditionsExpression conditions) {
         this.conditions = conditions;
@@ -41,6 +41,11 @@ public class SqlHavingExpression implements ISqlHavingExpression {
     @Override
     public ISqlConditionsExpression getConditions() {
         return conditions;
+    }
+
+    @Override
+    public void setConditions(ISqlConditionsExpression conditions) {
+        this.conditions = conditions;
     }
 
     @Override

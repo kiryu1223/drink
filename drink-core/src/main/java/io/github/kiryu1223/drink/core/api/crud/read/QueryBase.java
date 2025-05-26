@@ -31,6 +31,8 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
+import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.*;
 import org.slf4j.Logger;
@@ -125,16 +127,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         if (!includes.isEmpty()) {
             try {
                 for (IncludeBuilder include : includes) {
-                    include.include(session,result);
+                    include.include(session, result);
                 }
-            }
-            catch (InvocationTargetException | IllegalAccessException e) {
+            } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-        Map<String, QuerySqlBuilder> subQueryMap = sqlBuilder.getSubQueryMap();
-        if (!subQueryMap.isEmpty())
-        {
+        SubQueryBuilder subQueryBuilder = sqlBuilder.getSubQueryBuilder();
+        if (subQueryBuilder.hasSubQuery()) {
 
         }
         return result;
@@ -159,8 +159,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     // region [first]
 
     protected R first() {
-        LQuery<R> lQuery = new LQuery<>(getSqlBuilder().getCopy());
-        List<R> list = lQuery.limit(1).toList();
+        ISqlLimitExpression limit = sqlBuilder.getQueryable().getLimit();
+        long offset = limit.getOffset();
+        long rows = limit.getRows();
+        limit.setOffset(0);
+        limit.setRows(1);
+        List<R> list = toList();
+        limit.setOffset(offset);
+        limit.setRows(rows);
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -198,10 +204,10 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     }
 
     protected void select(LambdaExpression<?> lambda) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
-        ISqlSelectExpression select = sqlVisitor.toSelect(lambda, sqlBuilder.getQueryable());
+        QuerySqlVisitor querySqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        ISqlSelectExpression select = querySqlVisitor.toSelect(lambda, sqlBuilder.getQueryable());
         sqlBuilder.setSelect(select);
-        sqlBuilder.getSubQueryMap().putAll(sqlVisitor.getSubQueryMap());
+        sqlBuilder.getSubQueryBuilder().getSubMap().putAll(querySqlVisitor.getSubQueryBuilder().getSubMap());
 //        Map<String, ISqlQueryableExpression> subQueryMap = sqlVisitor.getSubQueryMap();
 //        if (!subQueryMap.isEmpty()) {
 //            sqlBuilder.getSubQueryMap().putAll(subQueryMap);
@@ -456,7 +462,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 //        include(lambda, cond, sqlBuilder.getIncludeSets());
 //    }
 
-    protected void include(FieldMetaData includeField,ISqlTableRefExpression targetRef, ISqlQueryableExpression query) {
+    protected void include(FieldMetaData includeField, ISqlTableRefExpression targetRef, ISqlQueryableExpression query) {
         NavigateData navigateData = includeField.getNavigateData();
         relationTypeCheck(navigateData);
         RelationType relationType = navigateData.getRelationType();
@@ -464,7 +470,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         FieldMetaData selfField = config.getMetaData(includeField.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         FieldMetaData targetField = config.getMetaData(navigateData.getNavigateTargetType()).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-        ISqlQueryableExpression targetQuery = factory.queryable(navigateData.getNavigateTargetType(),targetRef);
+        ISqlQueryableExpression targetQuery = factory.queryable(navigateData.getNavigateTargetType(), targetRef);
         //ISqlTableRefExpression targetRef = targetQuery.getFrom().getTableRefExpression();
         // 等待后续填充
         ISqlCollectedValueExpression ids = factory.value(new ArrayList<>());
