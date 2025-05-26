@@ -72,6 +72,10 @@ public interface ISqlSelectExpression extends ISqlExpression {
      */
     void setTarget(Class<?> target);
 
+    List<SubQueryBuilder> getSubQueryBuilders();
+
+    void addSubQueryBuilder(SubQueryBuilder subQueryBuilder);
+
     @Override
     default ISqlSelectExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

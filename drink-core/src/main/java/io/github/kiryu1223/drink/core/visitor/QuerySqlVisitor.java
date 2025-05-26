@@ -24,7 +24,7 @@ import io.github.kiryu1223.drink.core.exception.SqLinkIllegalExpressionException
 import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
+import io.github.kiryu1223.drink.base.expression.SubQueryBuilder;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -57,7 +57,6 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     protected final List<List<ISqlTableRefExpression>> tableRefListList = new ArrayList<>();
     protected final Map<ParameterExpression, ISqlTableRefExpression> asNameMap = new HashMap<>();
     protected final List<ISqlQueryableExpression> queryableList = new ArrayList<>();
-    protected final Deque<List<SubQueryBuilder>> subQueryBuilderDeque = new ArrayDeque<>();
     //protected final Map<String, QuerySqlBuilder> subQueryMap = new HashMap<>();
 //    protected final Deque<QuerySqlBuilder> subQueryDeque = new ArrayDeque<>();
 //    protected QuerySqlBuilder last;
@@ -79,17 +78,11 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 
         tableRefListList.add(list);
         queryableList.add(new QueryBox(config, queryable));
-        subQueryBuilderDeque.push(new ArrayList<>());
     }
 
     protected void pop() {
         tableRefListList.remove(tableRefListList.size() - 1);
         queryableList.remove(queryableList.size() - 1);
-        subQueryBuilderDeque.pop();
-    }
-
-    public List<SubQueryBuilder> getSubQueryBuilder() {
-        return subQueryBuilderDeque.pop();
     }
 
     /**
@@ -1438,16 +1431,16 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         if (visit instanceof QueryBox) {
             QueryBox queryBox = (QueryBox) visit;
             boolean singleRowResult = queryBox.isSingleRowResult();
+            ISqlQueryableExpression queryable = queryBox.getQueryable();
             if (singleRowResult) {
                 // 聚合函数解包
-                visit = queryBox.getQueryable();
+                visit = queryable;
                 // 某些数据库不支持直接返回bool类型，所以需要做一下包装
                 visit = tryToBool(variable, visit);
                 setAs(expressions, visit, varName);
             }
             else {
-                subQueryBuilderDeque.peek().getSubMap().put(fieldMetaData, queryBox.getQuerySqlBuilder());
-                queryBox.getQueryable().accept(new SqlTreeVisitor(){
+                queryable.accept(new SqlTreeVisitor(){
                     @Override
                     public void visit(ISqlColumnExpression expr) {
                         super.visit(expr);
@@ -1460,6 +1453,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                         }
                     }
                 });
+                last(queryableList).getSelect().addSubQueryBuilder(new SubQueryBuilder(config,fieldMetaData,queryable));
             }
         }
         else {

@@ -31,7 +31,7 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
-import io.github.kiryu1223.drink.core.sqlBuilder.SubQueryBuilder;
+import io.github.kiryu1223.drink.base.expression.SubQueryBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
 import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.*;

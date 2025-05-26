@@ -1,9 +1,6 @@
-package io.github.kiryu1223.drink.core.visitor;
+package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
-import io.github.kiryu1223.drink.base.expression.ISqlSingleValueExpression;
-import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
