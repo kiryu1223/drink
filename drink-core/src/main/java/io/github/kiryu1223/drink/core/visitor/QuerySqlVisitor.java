@@ -1211,7 +1211,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                         return getterToSqlAst(getter, tableRef);
                     }
                     else {
-                       ISqlColumnExpression column= factory.column(getter, tableRef);
+                        ISqlColumnExpression column= factory.column(getter, tableRef);
                         if(isSelect)
                         {
                             List<ISqlTableRefExpression> peek = last(tableRefListList);

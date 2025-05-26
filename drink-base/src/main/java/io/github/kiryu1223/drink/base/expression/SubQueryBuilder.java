@@ -25,8 +25,9 @@ public class SubQueryBuilder {
             // 原始集合
             Collection<?> sources,
             // 上下文参数
-            List<Map<String, List<Object>>> valueContext
+            Map<String, List<Object>> valueContext
     ) {
+        Map<String, List<Object>> need=new HashMap<>();
         queryableExpression.accept(new SqlTreeVisitor(){
             @Override
             public void visit(ISqlColumnExpression expr)
@@ -35,18 +36,15 @@ public class SubQueryBuilder {
                 if (expr instanceof SubQueryValue)
                 {
                     SubQueryValue subQueryValue = (SubQueryValue) expr;
-                    if(subQueryValue.getValue()!=null)
+                    String keyName = subQueryValue.getKeyName();
+                    if(!need.containsKey(keyName))
                     {
-                        int level = subQueryValue.getLevel();
-                        String keyName = subQueryValue.getKeyName();
-                        if (valueContext.size() > level)
-                        {
-                            Map<String, List<Object>> contextMap = valueContext.get(level);
-
-                        }
+                        need.put(keyName,valueContext.get(keyName));
                     }
                 }
             }
         });
+
+
     }
 }

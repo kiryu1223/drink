@@ -68,6 +68,13 @@ public class SubQueryValue implements ISqlColumnExpression
     }
 
     @Override
+    public ISqlColumnExpression copy(IConfig config)
+    {
+        ISqlColumnExpression copy = ISqlColumnExpression.super.copy(config);
+        return new SubQueryValue(copy,keyName,level);
+    }
+
+    @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         if (value == null) {
             return column.getSqlAndValue(config, values);
