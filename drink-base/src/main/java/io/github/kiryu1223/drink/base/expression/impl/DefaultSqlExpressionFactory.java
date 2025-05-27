@@ -69,7 +69,7 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlHavingExpression having() {
+    public ISqlHavingExpression having(ISqlConditionsExpression conditionsExpression) {
         return new SqlHavingExpression(condition());
     }
 

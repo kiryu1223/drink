@@ -4,7 +4,7 @@ import com.sun.tools.javac.tree.JCTree;
 
 import java.util.Map;
 
-public class SqlTreeVisitor {
+public abstract class SqlTreeVisitor {
     public void visit(ISqlExpression expr) {
         if (expr instanceof ISqlAsExpression) {
             visit((ISqlAsExpression) expr);

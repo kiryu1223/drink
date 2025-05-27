@@ -90,7 +90,12 @@ public interface SqlExpressionFactory {
     /**
      * 创建having表达式
      */
-    ISqlHavingExpression having();
+    ISqlHavingExpression having(ISqlConditionsExpression conditionsExpression);
+
+    default ISqlHavingExpression having()
+    {
+        return having(condition());
+    }
 
     /**
      * 创建join表达式
