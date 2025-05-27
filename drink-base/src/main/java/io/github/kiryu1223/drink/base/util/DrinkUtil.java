@@ -6,6 +6,7 @@ import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTemplateExpression;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -24,6 +25,11 @@ public class DrinkUtil {
 
     public static <T> T cast(Object o) {
         return (T) o;
+    }
+
+    public static Field findField(Class<?> clazz, String fieldName) {
+        Optional<Field> any = Arrays.stream(clazz.getDeclaredFields()).filter(field -> field.getName().equals(fieldName)).findAny();
+        return any.orElseGet(() -> findField(clazz.getSuperclass(), fieldName));
     }
 
     public static ISqlTemplateExpression mergeTemplates(IConfig config, ISqlTemplateExpression left, ISqlTemplateExpression right) {

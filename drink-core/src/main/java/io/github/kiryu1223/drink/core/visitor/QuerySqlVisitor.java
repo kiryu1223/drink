@@ -67,7 +67,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         push(sqlQueryableExpression);
     }
 
-    protected void push(ISqlQueryableExpression queryable) {
+    protected QueryBox push(ISqlQueryableExpression queryable) {
         ISqlFromExpression from = queryable.getFrom();
         ISqlJoinsExpression joins = queryable.getJoins();
         List<ISqlTableRefExpression> list = new ArrayList<>();
@@ -77,7 +77,9 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         }
 
         tableRefListList.add(list);
-        queryableList.add(new QueryBox(config, queryable));
+        QueryBox queryBox = new QueryBox(config, queryable);
+        queryableList.add(queryBox);
+        return queryBox;
     }
 
     protected void pop() {
@@ -375,8 +377,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             if (methodName.equals("query") && expression.getKind() == Kind.StaticClass) {
                 StaticClassExpression staticClass = (StaticClassExpression) expression;
                 ISqlQueryableExpression queryable = factory.queryable(staticClass.getType());
-                push(queryable);
-                return queryable;
+                return push(queryable);
             }
             return checkAndReturnValue(methodCall);
         }
@@ -396,9 +397,9 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.count(column)), long.class));
+                setSingleRow(queryable);
                 // 在终结的地方弹出
                 pop();
-                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("sum")) {
@@ -410,9 +411,9 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
                 IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.sum(column)), BigDecimal.class));
+                setSingleRow(queryable);
                 // 在终结的地方弹出
                 pop();
-                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("avg")) {
@@ -424,9 +425,9 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
                 IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.avg(column)), BigDecimal.class));
+                setSingleRow(queryable);
                 // 在终结的地方弹出
                 pop();
-                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("min")) {
@@ -439,9 +440,9 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
                 IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.min(column)), BigDecimal.class));
+                setSingleRow(queryable);
                 // 在终结的地方弹出
                 pop();
-                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("max")) {
@@ -454,9 +455,9 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 ISqlExpression column = visit(methodCall.getArgs().get(0));
                 IAggregateMethods agg = config.getTransformer();
                 queryable.setSelect(factory.select(Collections.singletonList(agg.max(column)), BigDecimal.class));
+                setSingleRow(queryable);
                 // 在终结的地方弹出
                 pop();
-                setSingleRow(queryable);
                 return queryable;
             }
             else if (methodName.equals("any")) {
@@ -473,9 +474,9 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                 }
                 queryable.setSelect(factory.select(Collections.singletonList(factory.constString("1")), int.class));
                 ISqlUnaryExpression any = factory.unary(SqlOperator.EXISTS, queryable);
+                setSingleRow(queryable);
                 // 在终结的地方弹出
                 pop();
-                setSingleRow(queryable);
                 return any;
             }
             else if (methodName.equals("where")) {
@@ -1224,8 +1225,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                                     level++;
                                 }
                                 FieldMetaData fieldMetaData = column.getFieldMetaData();
-                                String name="sub:"+fieldMetaData.getColumn();
-                                column= new SubQueryValue(column,name,level);
+                                column= new SubQueryValue(column,"value:"+fieldMetaData.getColumn(),level);
                             }
                         }
                         return column;
@@ -1253,8 +1253,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                         // 弹出旧的
                         pop();
                         //  在子查询发起的地方压入
-                        push(query);
-                        return query;
+                        return push(query);
                     }
                     else {
                         // select ? from table ...
@@ -1416,8 +1415,13 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     }
                 }
                 // 子查询需要的额外字段
+                ISqlSelectExpression lastSelect = last(queryableList).getSelect();
+                ExValues exValues = lastSelect.getExValues();
                 for (Map.Entry<String, ISqlColumnExpression> entry : keyNames.entrySet()) {
+                    // select ? as `value:xx`
                     expressions.add(factory.as(entry.getValue(), entry.getKey()));
+                    // 保存
+                    exValues.addExValue(entry.getKey(), new ExValue(entry.getValue().getFieldMetaData()));
                 }
                 return factory.select(expressions, newExpression.getType());
             }
@@ -1446,14 +1450,15 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                         super.visit(expr);
                         if (expr instanceof SubQueryValue) {
                             SubQueryValue subQueryValue = (SubQueryValue) expr;
-                            if (!subQueryValue.isKeyNameUsed()) {
-                                subQueryValue.setKeyNameUsed(true);
-                                keyNames.put(subQueryValue.getKeyName(),subQueryValue.getColumn());
+                            if (!subQueryValue.isUsed()) {
+                                subQueryValue.setUsed(true);
+                                keyNames.put(subQueryValue.getValueName(),subQueryValue.getColumn());
                             }
                         }
                     }
                 });
-                last(queryableList).getSelect().addSubQueryBuilder(new SubQueryBuilder(config,fieldMetaData,queryable));
+                ISqlSelectExpression select = last(queryableList).getSelect();
+                select.addSubQueryBuilder(new SubQueryBuilder(config,fieldMetaData,queryable));
             }
         }
         else {
@@ -1796,8 +1801,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         // select * from target as t where t.targetField = s.selfField
         ISqlQueryableExpression query = getterToQueryable(getter, tableRef);
         //  在子查询发起的地方压入
-        push(query);
-        return query;
+        return push(query);
     }
 
     protected FieldMetaData methodToFieldMetaData(Method method, ISqlTableRefExpression tableRef) {

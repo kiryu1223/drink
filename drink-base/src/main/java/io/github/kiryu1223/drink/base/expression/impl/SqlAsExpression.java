@@ -19,6 +19,8 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.ISqlAsExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.List;
@@ -28,7 +30,7 @@ import java.util.List;
  * @since 3.0
  */
 public class SqlAsExpression implements ISqlAsExpression {
-    private ISqlExpression expression;
+    private final ISqlExpression expression;
     private final String asName;
 
     protected SqlAsExpression(ISqlExpression expression, String asName) {
@@ -42,11 +44,6 @@ public class SqlAsExpression implements ISqlAsExpression {
     }
 
     @Override
-    public void setExpression(ISqlExpression expression) {
-        this.expression = expression;
-    }
-
-    @Override
     public String getAsName() {
         return asName;
     }
@@ -54,6 +51,11 @@ public class SqlAsExpression implements ISqlAsExpression {
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         IDialect dialect = config.getDisambiguation();
-        return getExpression().getSqlAndValue(config, values) + " AS " + dialect.disambiguation(getAsName());
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        ISqlExpression left = expression;
+        if (expression instanceof ISqlQueryableExpression) {
+            left = factory.parens(expression);
+        }
+        return left.getSqlAndValue(config, values) + " AS " + dialect.disambiguation(getAsName());
     }
 }

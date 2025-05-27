@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class SqlUnaryExpression implements ISqlUnaryExpression {
     private final SqlOperator operator;
-    private ISqlExpression expression;
+    private final ISqlExpression expression;
 
     protected SqlUnaryExpression(SqlOperator operator, ISqlExpression expression) {
         this.operator = operator;
@@ -45,11 +45,6 @@ public class SqlUnaryExpression implements ISqlUnaryExpression {
     @Override
     public ISqlExpression getExpression() {
         return expression;
-    }
-
-    @Override
-    public void setExpression(ISqlExpression expression) {
-        this.expression = expression;
     }
 
     @Override

@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.base.expression.impl;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.ExValues;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlSelectExpression;
 import io.github.kiryu1223.drink.base.expression.SubQueryBuilder;
@@ -34,6 +35,7 @@ public class SqlSelectExpression implements ISqlSelectExpression {
     protected Class<?> target;
     protected boolean isSingle;
     protected final List<SubQueryBuilder> subQueryBuilders=new ArrayList<>();
+    protected final ExValues exValues=new ExValues();
 
     protected SqlSelectExpression(List<ISqlExpression> columns, Class<?> target, boolean isSingle, boolean isDistinct) {
         this.columns = columns;
@@ -93,6 +95,11 @@ public class SqlSelectExpression implements ISqlSelectExpression {
     public void addSubQueryBuilder(SubQueryBuilder subQueryBuilder)
     {
         subQueryBuilders.add(subQueryBuilder);
+    }
+
+    @Override
+    public ExValues getExValues() {
+        return exValues;
     }
 
     @Override

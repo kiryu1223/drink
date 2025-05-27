@@ -118,8 +118,9 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession(config);
+        ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
         List<R> result = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler).createList(),
+                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler).createList(exValues),
                 sql,
                 values
         );
@@ -133,9 +134,11 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 throw new RuntimeException(e);
             }
         }
-        SubQueryBuilder subQueryBuilder = sqlBuilder.getSubQueryBuilder();
-        if (subQueryBuilder.hasSubQuery()) {
-
+        List<SubQueryBuilder> subQueryBuilders = sqlBuilder.getQueryable().getSelect().getSubQueryBuilders();
+        if (!subQueryBuilders.isEmpty()) {
+            for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
+                subQueryBuilder.subQuery(session, result, new ArrayList<>(Collections.singletonList(exValues)));
+            }
         }
         return result;
     }
@@ -207,7 +210,6 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         QuerySqlVisitor querySqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlSelectExpression select = querySqlVisitor.toSelect(lambda, sqlBuilder.getQueryable());
         sqlBuilder.setSelect(select);
-        sqlBuilder.getSubQueryBuilder().getSubMap().putAll(querySqlVisitor.getSubQueryBuilder().getSubMap());
 //        Map<String, ISqlQueryableExpression> subQueryMap = sqlVisitor.getSubQueryMap();
 //        if (!subQueryMap.isEmpty()) {
 //            sqlBuilder.getSubQueryMap().putAll(subQueryMap);

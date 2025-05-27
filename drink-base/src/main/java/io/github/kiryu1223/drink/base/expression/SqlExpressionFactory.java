@@ -374,6 +374,10 @@ public interface SqlExpressionFactory {
 
     ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions);
 
+    default ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, boolean all) {
+        return unionQueryable(queryable, Collections.nCopies(queryable.size(),all));
+    }
+
     ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, FieldMetaData parentId, FieldMetaData childId, int level);
 
     ISqlUpdateExpression update(ISqlFromExpression from, ISqlJoinsExpression joins, ISqlSetsExpression sets, ISqlWhereExpression where);

@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 public class AsNameManager {
     private static final ThreadLocal<Map<ISqlTableRefExpression, String>> displayNameMap = new ThreadLocal<>();
     public static void start() {
-        displayNameMap.set(new HashMap<>());
+        if (displayNameMap.get() == null) {
+            displayNameMap.set(new HashMap<>());
+        }
     }
 
     public static void clear() {

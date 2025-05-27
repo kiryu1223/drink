@@ -2,6 +2,8 @@ package io.github.kiryu1223.drink.base.toBean.build;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.ExValue;
+import io.github.kiryu1223.drink.base.expression.ExValues;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
@@ -111,20 +113,27 @@ public class ObjectBuilder<T> {
 
     private void foreach(AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap, T t) throws SQLException, InvocationTargetException, IllegalAccessException {
         for (FieldMetaData metaData : propertyMetaDataList) {
-            Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
-            if (value != null) {
-                ISetterCaller<T> setter = beanCreator.getBeanSetter(metaData.getFieldName());
-                setter.call(t, value);
+            Integer index = indexMap.get(metaData.getFieldName());
+            if (index != null) {
+                Object value = convertValue(metaData,index);
+                if (value != null) {
+                    ISetterCaller<T> setter = beanCreator.getBeanSetter(metaData.getFieldName());
+                    setter.call(t, value);
+                }
             }
         }
     }
 
     public List<T> createList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+        return createList(null);
+    }
+
+    public List<T> createList(ExValues exValues) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         if (isSingle) {
             return getSingleList();
         }
         else {
-            return getClassList();
+            return getClassList(exValues);
         }
     }
 
@@ -141,17 +150,33 @@ public class ObjectBuilder<T> {
         return list;
     }
 
-    private List<T> getClassList() throws SQLException, IllegalAccessException, InvocationTargetException {
+    private List<T> getClassList(ExValues exValues) throws SQLException, IllegalAccessException, InvocationTargetException {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         List<T> list = new ArrayList<>();
-        while (resultSet.next()) {
-            T t = creator.get();
-            foreach(beanCreator, indexMap, t);
-            list.add(t);
+        if (exValues == null) {
+            while (resultSet.next()) {
+                T t = creator.get();
+                foreach(beanCreator, indexMap, t);
+                list.add(t);
+            }
         }
-
+        else {
+            Map<String, ExValue> exValueMap = exValues.getExValueMap();
+            while (resultSet.next()) {
+                T t = creator.get();
+                foreach(beanCreator, indexMap, t);
+                for (Map.Entry<String, ExValue> entry : exValueMap.entrySet()) {
+                    String key = entry.getKey();
+                    ExValue value = entry.getValue();
+                    int index = indexMap.get(key);
+                    Object o = convertValue(value.getFieldMetaData(), index);
+                    value.addValue(o);
+                }
+                list.add(t);
+            }
+        }
         return list;
     }
 

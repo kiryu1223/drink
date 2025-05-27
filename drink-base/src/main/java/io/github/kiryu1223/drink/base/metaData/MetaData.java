@@ -81,7 +81,7 @@ public class MetaData
             for (PropertyDescriptor descriptor : propertyDescriptors(type))
             {
                 String name = descriptor.getName();
-                Field field = type.isAnonymousClass()?type.getSuperclass().getDeclaredField(name):type.getDeclaredField(name);
+                Field field = DrinkUtil.findField(type, name);
                 Column column = field.getAnnotation(Column.class);
                 UseTypeHandler useTypeHandler = field.getAnnotation(UseTypeHandler.class);
                 IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
@@ -155,7 +155,7 @@ public class MetaData
                 propertys.add(fieldMetaData);
             }
         }
-        catch (NoSuchMethodException | NoSuchFieldException e)
+        catch (NoSuchMethodException e)
         {
 
             throw new RuntimeException(e);

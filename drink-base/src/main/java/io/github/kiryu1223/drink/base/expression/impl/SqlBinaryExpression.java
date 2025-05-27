@@ -31,8 +31,8 @@ import static io.github.kiryu1223.drink.base.util.DrinkUtil.isString;
  */
 public class SqlBinaryExpression implements ISqlBinaryExpression {
     private final SqlOperator operator;
-    private ISqlExpression left;
-    private ISqlExpression right;
+    private final ISqlExpression left;
+    private final ISqlExpression right;
 
     protected SqlBinaryExpression(SqlOperator operator, ISqlExpression left, ISqlExpression right) {
         this.operator = operator;
@@ -52,16 +52,6 @@ public class SqlBinaryExpression implements ISqlBinaryExpression {
     @Override
     public ISqlExpression getRight() {
         return right;
-    }
-
-    @Override
-    public void setLeft(ISqlExpression left) {
-        this.left = left;
-    }
-
-    @Override
-    public void setRight(ISqlExpression right) {
-        this.right = right;
     }
 
     @Override

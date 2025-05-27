@@ -2,6 +2,8 @@ package io.github.kiryu1223.project.pojos;
 
 import io.github.kiryu1223.drink.base.annotation.*;
 import io.github.kiryu1223.drink.core.api.ITable;
+import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
+import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
@@ -13,10 +15,12 @@ import java.util.List;
 @Data
 @Table("employees")
 @FieldNameConstants
+@Getter
+@Setter
 public class Employee implements ITable, ITenant
 {
     @Column("emp_no")
-    private int number;
+    private long number;
     @Column("birth_date")
     private LocalDate birthDay;
     @Column("first_name")

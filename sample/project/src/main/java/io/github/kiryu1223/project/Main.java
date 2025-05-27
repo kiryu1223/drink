@@ -9,6 +9,7 @@ import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Course;
+import io.github.kiryu1223.project.pojos.Employee;
 import io.github.kiryu1223.project.pojos.Student;
 
 import java.math.BigDecimal;
@@ -39,25 +40,21 @@ public class Main {
         Filter filter = client.getConfig().getFilter();
 
 
-        String sql = client.query(Student.class)
-                .where(s -> s.getCourses()
-                        .where(c -> c.getCourseName() == "A003")
-                        .any()
-                )
-                .includeMany(s -> s.getCourses())
-                .select(s -> new Course() {
+        List<? extends Employee> list = client.query(Employee.class)
+                .where(e -> e.getNumber() < 10020)
+                .select(s -> new Employee() {
                     // s.*,
                     // select count(*) from courses as c where c.id = s.id,
                     // select ? from courses as c where c.id = s.id
+                    {
+                        setNumber(client.query(Employee.class).count());
+                    }
 
-                    long courses3 = client.query(Course.class)
-                            .where(c -> c.getCourseId() == s.getStudentId())
-                            .count();
-                    List<Course> courses4 = client.query(Course.class)
-                            .where(c -> c.getCourseId() == s.getStudentId())
+                    List<? extends Employee> c4 = client.query(Employee.class)
+                            .where(c -> c.getNumber() == s.getNumber())
                             .toList();
                 })
-                .toSql();
+                .toList();
 
 //        String sql = client.query(Student.class)
 //                .where(e -> client.query(Course.class)
@@ -65,7 +62,9 @@ public class Main {
 //                )
 //                .toSql();
 
-        System.out.println(sql);
+        for (Employee employee : list) {
+            System.out.println(employee);
+        }
 //
 //        for (Student student : list)
 //        {

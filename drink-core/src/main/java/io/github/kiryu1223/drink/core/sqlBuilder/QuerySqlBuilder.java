@@ -34,7 +34,6 @@ public class QuerySqlBuilder implements ISqlBuilder {
     private final List<String> ignoreFilterIds = new ArrayList<>();
     private boolean ignoreFilterAll = false;
     private final List<IncludeBuilder> includes =new ArrayList<>();
-    private final List<SubQueryBuilder> subQueries =new ArrayList<>();
 
 //    private final Map<String, ISqlQueryableExpression> subQueryMap=new HashMap<>();
 
@@ -43,10 +42,6 @@ public class QuerySqlBuilder implements ISqlBuilder {
         this.queryable = queryable;
         this.factory = config.getSqlExpressionFactory();
 
-    }
-
-    public List<SubQueryBuilder> getSubQueries() {
-        return subQueries;
     }
 
     public List<IncludeBuilder> getIncludes() {

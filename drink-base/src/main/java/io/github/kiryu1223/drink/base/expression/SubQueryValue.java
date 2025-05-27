@@ -8,31 +8,41 @@ import java.util.List;
 
 public class SubQueryValue implements ISqlColumnExpression
 {
-    // sub:xxx
-    private final String keyName;
-    private boolean keyNameUsed =false;
+    // value:xxx
+    private final String valueName;
+    private boolean used =false;
     private final int level;
     private final ISqlColumnExpression column;
+    private final FieldMetaData fieldMetaData;
     private Object value;
 
-    public SubQueryValue(ISqlColumnExpression column, String keyName, int level)
+    public SubQueryValue(ISqlColumnExpression column, String valueName, int level)
     {
-        this.keyName = keyName;
+        this.valueName = valueName;
         this.column = column;
         this.level = level;
+        this.fieldMetaData = column.getFieldMetaData();
     }
 
-    public boolean isKeyNameUsed() {
-        return keyNameUsed;
-    }
-
-    public void setKeyNameUsed(boolean keyNameUsed) {
-        this.keyNameUsed = keyNameUsed;
-    }
-
-    public String getKeyName()
+    public SubQueryValue(FieldMetaData fieldMetaData,String valueName, int level)
     {
-        return keyName;
+        this.valueName = valueName;
+        column=null;
+        this.level = level;
+        this.fieldMetaData = fieldMetaData;
+    }
+
+    public boolean isUsed() {
+        return used;
+    }
+
+    public void setUsed(boolean used) {
+        this.used = used;
+    }
+
+    public String getValueName()
+    {
+        return valueName;
     }
 
     public int getLevel()
@@ -70,8 +80,12 @@ public class SubQueryValue implements ISqlColumnExpression
     @Override
     public ISqlColumnExpression copy(IConfig config)
     {
-        ISqlColumnExpression copy = ISqlColumnExpression.super.copy(config);
-        return new SubQueryValue(copy,keyName,level);
+        if (column != null) {
+            return ISqlColumnExpression.super.copy(config);
+        }
+        else {
+            return new SubQueryValue(fieldMetaData,valueName,level);
+        }
     }
 
     @Override
@@ -81,7 +95,7 @@ public class SubQueryValue implements ISqlColumnExpression
         }
         else {
             if (values != null) {
-                values.add(new SqlValue(value));
+                values.add(new SqlValue(value,fieldMetaData.getTypeHandler()));
             }
             return "?";
         }

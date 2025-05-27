@@ -27,7 +27,7 @@ import java.util.List;
  * @since 3.0
  */
 public class SqlFromExpression implements ISqlFromExpression {
-    protected ISqlTableExpression sqlTableExpression;
+    protected final ISqlTableExpression sqlTableExpression;
     protected final ISqlTableRefExpression tableRefExpression;
 
     protected SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
@@ -38,11 +38,6 @@ public class SqlFromExpression implements ISqlFromExpression {
     @Override
     public ISqlTableExpression getSqlTableExpression() {
         return sqlTableExpression;
-    }
-
-    @Override
-    public void setSqlTableExpression(ISqlTableExpression sqlTableExpression) {
-        this.sqlTableExpression = sqlTableExpression;
     }
 
     @Override
