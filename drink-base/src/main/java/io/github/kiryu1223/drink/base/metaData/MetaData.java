@@ -25,7 +25,6 @@ import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import java.beans.*;
 import java.lang.reflect.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +43,7 @@ public class MetaData
     /**
      * 字段列表
      */
-    private final List<FieldMetaData> propertys = new ArrayList<>();
+    private final List<FieldMetaData> fields = new ArrayList<>();
     /**
      * 类型
      */
@@ -152,7 +151,7 @@ public class MetaData
                     navigateData=null;
                 }
                 FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey);
-                propertys.add(fieldMetaData);
+                fields.add(fieldMetaData);
             }
         }
         catch (NoSuchMethodException e)
@@ -183,9 +182,9 @@ public class MetaData
     /**
      * 获取所有字段
      */
-    public List<FieldMetaData> getPropertys()
+    public List<FieldMetaData> getFields()
     {
-        return propertys;
+        return fields;
     }
 
     /**
@@ -193,7 +192,7 @@ public class MetaData
      */
     public List<FieldMetaData> getNotIgnoreAndNavigateFields()
     {
-        return propertys.stream().filter(f -> !f.isIgnoreColumn()&&!f.hasNavigate()).collect(Collectors.toList());
+        return fields.stream().filter(f -> !f.isIgnoreColumn() && !f.hasNavigate()).collect(Collectors.toList());
     }
 
     /**
@@ -203,7 +202,7 @@ public class MetaData
      */
     public FieldMetaData getFieldMetaDataByFieldName(String key)
     {
-        return propertys.stream().filter(f -> f.getFieldName().equals(key)).findFirst().orElseThrow(() -> new RuntimeException(key));
+        return fields.stream().filter(f -> f.getFieldName().equals(key)).findFirst().orElseThrow(() -> new RuntimeException(key));
     }
 
     /**
@@ -213,7 +212,7 @@ public class MetaData
      */
     public FieldMetaData getFieldMetaDataByColumnName(String columnName)
     {
-        return propertys.stream().filter(f -> f.getColumn().equals(columnName)).findFirst().orElseThrow(() -> new RuntimeException(columnName));
+        return fields.stream().filter(f -> f.getColumn().equals(columnName)).findFirst().orElseThrow(() -> new RuntimeException(columnName));
     }
 
     /**
@@ -223,12 +222,12 @@ public class MetaData
      */
     public FieldMetaData getFieldMetaDataByGetter(Method getter)
     {
-        return propertys.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter.toGenericString()));
+        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter.toGenericString()));
     }
 
     public FieldMetaData getFieldMetaDataByGetterName(String getter)
     {
-        return propertys.stream().filter(f -> f.getGetter().getName().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter));
+        return fields.stream().filter(f -> f.getGetter().getName().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter));
     }
 
     /**
@@ -238,7 +237,7 @@ public class MetaData
      */
     public FieldMetaData getFieldMetaDataBySetter(Method setter)
     {
-        return propertys.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new RuntimeException(setter.toGenericString()));
+        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new RuntimeException(setter.toGenericString()));
     }
 
     /**
@@ -248,7 +247,7 @@ public class MetaData
      */
     public String getColumnNameByGetter(Method getter)
     {
-        return propertys.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter.toGenericString())).getColumn();
+        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter.toGenericString())).getColumn();
     }
 
     /**
@@ -258,7 +257,7 @@ public class MetaData
      */
     public String getColumnNameBySetter(Method setter)
     {
-        return propertys.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new RuntimeException(setter.toGenericString())).getColumn();
+        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new RuntimeException(setter.toGenericString())).getColumn();
     }
 
     /**
@@ -266,7 +265,7 @@ public class MetaData
      */
     public FieldMetaData getPrimary()
     {
-        return propertys.stream().filter(f -> f.isPrimaryKey()).findFirst().orElseThrow(() -> new RuntimeException(type + "找不到主键"));
+        return fields.stream().filter(f -> f.isPrimaryKey()).findFirst().orElseThrow(() -> new RuntimeException(type + "找不到主键"));
     }
 
     /**

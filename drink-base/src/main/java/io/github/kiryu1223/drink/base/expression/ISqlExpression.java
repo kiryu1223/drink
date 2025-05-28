@@ -38,6 +38,10 @@ public interface ISqlExpression {
     default void accept(SqlTreeVisitor visitor) {
         visitor.visit(this);
     }
+
+    default void accept(SqlTreeTransformer transformer) {
+        transformer.visit(this);
+    }
     /**
      * 获取sql和参数
      */

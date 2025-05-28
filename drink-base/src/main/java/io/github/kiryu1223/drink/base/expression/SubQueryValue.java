@@ -6,98 +6,54 @@ import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.List;
 
-public class SubQueryValue implements ISqlColumnExpression
-{
-    // value:xxx
-    private final String valueName;
-    private boolean used =false;
+public class SubQueryValue implements ISqlSingleValueExpression {
+    private final String name;
     private final int level;
-    private final ISqlColumnExpression column;
     private final FieldMetaData fieldMetaData;
     private Object value;
 
-    public SubQueryValue(ISqlColumnExpression column, String valueName, int level)
-    {
-        this.valueName = valueName;
-        this.column = column;
-        this.level = level;
-        this.fieldMetaData = column.getFieldMetaData();
-    }
-
-    public SubQueryValue(FieldMetaData fieldMetaData,String valueName, int level)
-    {
-        this.valueName = valueName;
-        column=null;
+    public SubQueryValue(FieldMetaData fieldMetaData, int level) {
         this.level = level;
         this.fieldMetaData = fieldMetaData;
+        this.name = fieldMetaData.getFieldName();
     }
 
-    public boolean isUsed() {
-        return used;
+    public String getValueName() {
+        return "value:" + name;
     }
 
-    public void setUsed(boolean used) {
-        this.used = used;
+    public String getKeyName() {
+        return "key:"+level+":" + name;
     }
 
-    public String getValueName()
-    {
-        return valueName;
-    }
-
-    public int getLevel()
-    {
+    public int getLevel() {
         return level;
     }
 
-    public ISqlColumnExpression getColumn() {
-        return column;
-    }
-
+    @Override
     public Object getValue() {
         return value;
     }
 
+    @Override
     public void setValue(Object value) {
         this.value = value;
     }
 
-    @Override
-    public FieldMetaData getFieldMetaData() {
-        return column.getFieldMetaData();
-    }
 
-    @Override
-    public ISqlTableRefExpression getTableRefExpression() {
-        return column.getTableRefExpression();
-    }
-
-    @Override
-    public void setTableRefExpression(ISqlTableRefExpression tableRefExpression) {
-        column.setTableRefExpression(tableRefExpression);
-    }
-
-    @Override
-    public ISqlColumnExpression copy(IConfig config)
-    {
-        if (column != null) {
-            return ISqlColumnExpression.super.copy(config);
-        }
-        else {
-            return new SubQueryValue(fieldMetaData,valueName,level);
-        }
-    }
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        if (value == null) {
-            return column.getSqlAndValue(config, values);
+        if (values != null) {
+            values.add(new SqlValue(value, fieldMetaData.getTypeHandler()));
         }
-        else {
-            if (values != null) {
-                values.add(new SqlValue(value,fieldMetaData.getTypeHandler()));
-            }
-            return "?";
-        }
+        return "?";
+    }
+
+    @Override
+    public SubQueryValue copy(IConfig config) {
+        SubQueryValue subQueryValue = new SubQueryValue(fieldMetaData, level);
+        subQueryValue.setValue(value);
+        return subQueryValue;
     }
 }

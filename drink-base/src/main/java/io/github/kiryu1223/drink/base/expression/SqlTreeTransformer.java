@@ -4,126 +4,125 @@ import io.github.kiryu1223.drink.base.IConfig;
 
 import java.util.*;
 
-public class SqlTreeTransformer {
+public abstract class SqlTreeTransformer {
     protected final IConfig config;
     protected final SqlExpressionFactory factory;
 
-    public SqlTreeTransformer(IConfig config)
-    {
+    public SqlTreeTransformer(IConfig config) {
         this.config = config;
-        factory=config.getSqlExpressionFactory();
+        factory = config.getSqlExpressionFactory();
     }
 
     public ISqlExpression visit(ISqlExpression expr) {
         if (expr instanceof ISqlAsExpression) {
-            visit((ISqlAsExpression) expr);
+           return visit((ISqlAsExpression) expr);
         }
         else if (expr instanceof ISqlUnaryExpression) {
-            visit((ISqlUnaryExpression) expr);
+            return visit((ISqlUnaryExpression) expr);
         }
         else if (expr instanceof ISqlBinaryExpression) {
-            visit((ISqlBinaryExpression) expr);
+            return visit((ISqlBinaryExpression) expr);
         }
         else if (expr instanceof ISqlColumnExpression) {
-            visit((ISqlColumnExpression) expr);
+            return  visit((ISqlColumnExpression) expr);
         }
         else if (expr instanceof ISqlCollectedValueExpression) {
-            visit((ISqlCollectedValueExpression) expr);
+            return visit((ISqlCollectedValueExpression) expr);
         }
         else if (expr instanceof ISqlConstStringExpression) {
-            visit((ISqlConstStringExpression) expr);
+            return  visit((ISqlConstStringExpression) expr);
         }
         else if (expr instanceof ISqlConditionsExpression) {
-            visit((ISqlConditionsExpression) expr);
+            return  visit((ISqlConditionsExpression) expr);
         }
         else if (expr instanceof ISqlDynamicColumnExpression) {
-            visit((ISqlDynamicColumnExpression) expr);
+            return  visit((ISqlDynamicColumnExpression) expr);
         }
         else if (expr instanceof ISqlFromExpression) {
-            visit((ISqlFromExpression) expr);
+            return  visit((ISqlFromExpression) expr);
         }
         else if (expr instanceof ISqlGroupByExpression) {
-            visit((ISqlGroupByExpression) expr);
+            return  visit((ISqlGroupByExpression) expr);
         }
         else if (expr instanceof ISqlHavingExpression) {
             visit((ISqlHavingExpression) expr);
         }
         else if (expr instanceof ISqlJoinExpression) {
-            visit((ISqlJoinExpression) expr);
+            return visit((ISqlJoinExpression) expr);
         }
         else if (expr instanceof ISqlJoinsExpression) {
-            visit((ISqlJoinsExpression) expr);
+            return  visit((ISqlJoinsExpression) expr);
         }
         else if (expr instanceof ISqlLimitExpression) {
-            visit((ISqlLimitExpression) expr);
+            return   visit((ISqlLimitExpression) expr);
         }
         else if (expr instanceof ISqlOrderByExpression) {
-            visit((ISqlOrderByExpression) expr);
+            return   visit((ISqlOrderByExpression) expr);
         }
         else if (expr instanceof ISqlOrderExpression) {
-            visit((ISqlOrderExpression) expr);
+            return  visit((ISqlOrderExpression) expr);
         }
         else if (expr instanceof ISqlParensExpression) {
-            visit((ISqlParensExpression) expr);
+            return   visit((ISqlParensExpression) expr);
         }
         else if (expr instanceof ISqlQueryableExpression) {
-            visit((ISqlQueryableExpression) expr);
+            return  visit((ISqlQueryableExpression) expr);
         }
         else if (expr instanceof ISqlRealTableExpression) {
-            visit((ISqlRealTableExpression) expr);
+            return  visit((ISqlRealTableExpression) expr);
         }
         else if (expr instanceof ISqlRecursionExpression) {
-            visit((ISqlRecursionExpression) expr);
+            return  visit((ISqlRecursionExpression) expr);
         }
         else if (expr instanceof ISqlUnionQueryableExpression) {
-            visit((ISqlUnionQueryableExpression) expr);
+            return      visit((ISqlUnionQueryableExpression) expr);
         }
         else if (expr instanceof ISqlSelectExpression) {
-            visit((ISqlSelectExpression) expr);
+            return  visit((ISqlSelectExpression) expr);
         }
         else if (expr instanceof ISqlSetExpression) {
-            visit((ISqlSetExpression) expr);
+            return  visit((ISqlSetExpression) expr);
         }
         else if (expr instanceof ISqlSetsExpression) {
-            visit((ISqlSetsExpression) expr);
+            return   visit((ISqlSetsExpression) expr);
         }
         else if (expr instanceof ISqlSingleValueExpression) {
-            visit((ISqlSingleValueExpression) expr);
+            return   visit((ISqlSingleValueExpression) expr);
         }
         else if (expr instanceof ISqlTemplateExpression) {
-            visit((ISqlTemplateExpression) expr);
+            return  visit((ISqlTemplateExpression) expr);
         }
         else if (expr instanceof ISqlWithExpression) {
-            visit((ISqlWithExpression) expr);
+            return   visit((ISqlWithExpression) expr);
         }
         else if (expr instanceof ISqlWithsExpression) {
-            visit((ISqlWithsExpression) expr);
+            return   visit((ISqlWithsExpression) expr);
         }
         else if (expr instanceof ISqlTypeCastExpression) {
-            visit((ISqlTypeCastExpression) expr);
+            return   visit((ISqlTypeCastExpression) expr);
         }
         else if (expr instanceof ISqlUpdateExpression) {
-            visit((ISqlUpdateExpression) expr);
+            return  visit((ISqlUpdateExpression) expr);
         }
         else if (expr instanceof ISqlWhereExpression) {
-            visit((ISqlWhereExpression) expr);
+            return  visit((ISqlWhereExpression) expr);
         }
         else if (expr instanceof ISqlDeleteExpression) {
-            visit((ISqlDeleteExpression) expr);
+            return  visit((ISqlDeleteExpression) expr);
         }
         else if (expr instanceof ISqlTableRefExpression) {
-            visit((ISqlTableRefExpression) expr);
+            return  visit((ISqlTableRefExpression) expr);
         }
         else if (expr instanceof ISqlStarExpression) {
-            visit((ISqlStarExpression) expr);
+            return   visit((ISqlStarExpression) expr);
         }
+        return null;
     }
 
     public ISqlExpression visit(ISqlUnaryExpression expr) {
         ISqlExpression right = expr.getExpression();
         ISqlExpression visit = visit(right);
-        if(visit!=right)
-        {
+        if (visit != right) {
             return factory.unary(expr.getOperator(), visit);
         }
         return expr;
@@ -132,9 +131,8 @@ public class SqlTreeTransformer {
     public ISqlExpression visit(ISqlAsExpression expr) {
         ISqlExpression right = expr.getExpression();
         ISqlExpression visit = visit(right);
-        if(visit!=right)
-        {
-            return  factory.as(visit, expr.getAsName());
+        if (visit != right) {
+            return factory.as(visit, expr.getAsName());
         }
         return expr;
     }
@@ -144,8 +142,7 @@ public class SqlTreeTransformer {
         ISqlExpression right = expr.getRight();
         ISqlExpression l = visit(left);
         ISqlExpression r = visit(right);
-        if (left != l || right != r)
-        {
+        if (left != l || right != r) {
             return factory.binary(expr.getOperator(), l, r);
         }
         return expr;
@@ -164,15 +161,14 @@ public class SqlTreeTransformer {
     }
 
     public ISqlExpression visit(ISqlConditionsExpression expr) {
-        List<ISqlExpression> cs=new ArrayList<>();
-        boolean change=false;
+        List<ISqlExpression> cs = new ArrayList<>();
+        boolean change = false;
         for (ISqlExpression condition : expr.getConditions()) {
             ISqlExpression visit = visit(condition);
             cs.add(visit);
-            if (visit != condition) change=true;
+            if (visit != condition) change = true;
         }
-        if(change)
-        {
+        if (change) {
             expr.getConditions().clear();
             expr.getConditions().addAll(cs);
         }
@@ -186,23 +182,21 @@ public class SqlTreeTransformer {
     public ISqlExpression visit(ISqlFromExpression expr) {
         ISqlTableExpression tableExpression = expr.getSqlTableExpression();
         ISqlExpression visit = visit(tableExpression);
-        if (visit != tableExpression)
-        {
-           return factory.from((ISqlTableExpression) visit,expr.getTableRefExpression());
+        if (visit != tableExpression) {
+            return factory.from((ISqlTableExpression) visit, expr.getTableRefExpression());
         }
         return expr;
     }
 
     public ISqlExpression visit(ISqlGroupByExpression expr) {
-        LinkedHashMap<String, ISqlExpression> temp=new LinkedHashMap<>();
-        boolean change=false;
+        LinkedHashMap<String, ISqlExpression> temp = new LinkedHashMap<>();
+        boolean change = false;
         for (Map.Entry<String, ISqlExpression> e : expr.getColumns().entrySet()) {
             ISqlExpression visit = visit(e.getValue());
-            temp.put(e.getKey(),visit);
-            if(visit!=e.getValue())change=true;
+            temp.put(e.getKey(), visit);
+            if (visit != e.getValue()) change = true;
         }
-        if (change)
-        {
+        if (change) {
             return factory.groupBy(temp);
         }
         return expr;
@@ -210,8 +204,7 @@ public class SqlTreeTransformer {
 
     public ISqlExpression visit(ISqlHavingExpression expr) {
         ISqlExpression visit = visit(expr.getConditions());
-        if(visit!=expr.getConditions())
-        {
+        if (visit != expr.getConditions()) {
             return factory.having((ISqlConditionsExpression) visit);
         }
         return expr;
@@ -222,8 +215,7 @@ public class SqlTreeTransformer {
         ISqlConditionsExpression conditions = expr.getConditions();
         ISqlExpression t = visit(table);
         ISqlExpression c = visit(conditions);
-        if (t != table || c != conditions)
-        {
+        if (t != table || c != conditions) {
             return factory.join(expr.getJoinType(), (ISqlTableExpression) t, (ISqlConditionsExpression) c, expr.getTableRefExpression());
         }
         return expr;
@@ -231,17 +223,15 @@ public class SqlTreeTransformer {
 
     public ISqlExpression visit(ISqlJoinsExpression expr) {
         List<ISqlJoinExpression> joinList = new ArrayList<>();
-        boolean changed=false;
+        boolean changed = false;
         for (ISqlJoinExpression join : expr.getJoins()) {
             ISqlExpression visit = visit(join);
             joinList.add((ISqlJoinExpression) visit);
-            if(visit!=join)
-            {
-                changed=true;
+            if (visit != join) {
+                changed = true;
             }
         }
-        if (changed)
-        {
+        if (changed) {
             expr.getJoins().clear();
             expr.getJoins().addAll(joinList);
         }
@@ -253,18 +243,16 @@ public class SqlTreeTransformer {
     }
 
     public ISqlExpression visit(ISqlOrderByExpression expr) {
-        List<ISqlOrderExpression> orderList=new ArrayList<>();
-        boolean changed=false;
+        List<ISqlOrderExpression> orderList = new ArrayList<>();
+        boolean changed = false;
         for (ISqlOrderExpression order : expr.getSqlOrders()) {
             ISqlExpression visit = visit(order);
             orderList.add((ISqlOrderExpression) visit);
-            if (visit != order)
-            {
-                changed=true;
+            if (visit != order) {
+                changed = true;
             }
         }
-        if (changed)
-        {
+        if (changed) {
             expr.getSqlOrders().clear();
             expr.getSqlOrders().addAll(orderList);
         }
@@ -274,9 +262,8 @@ public class SqlTreeTransformer {
     public ISqlExpression visit(ISqlOrderExpression expr) {
         ISqlExpression order = expr.getExpression();
         ISqlExpression visit = visit(order);
-        if (visit != order)
-        {
-            return factory.order(visit,expr.isAsc());
+        if (visit != order) {
+            return factory.order(visit, expr.isAsc());
         }
         return expr;
     }
@@ -284,22 +271,33 @@ public class SqlTreeTransformer {
     public ISqlExpression visit(ISqlParensExpression expr) {
         ISqlExpression expression = expr.getExpression();
         ISqlExpression visit = visit(expression);
-        if (visit != expression)
-        {
+        if (visit != expression) {
             return factory.parens(visit);
         }
         return expr;
     }
 
     public ISqlExpression visit(ISqlQueryableExpression expr) {
-        visit(expr.getSelect());
-        visit(expr.getFrom());
-        visit(expr.getJoins());
-        visit(expr.getWhere());
-        visit(expr.getGroupBy());
-        visit(expr.getHaving());
-        visit(expr.getOrderBy());
-        visit(expr.getLimit());
+        ISqlSelectExpression select = expr.getSelect();
+        ISqlFromExpression from = expr.getFrom();
+        ISqlJoinsExpression joins = expr.getJoins();
+        ISqlWhereExpression where = expr.getWhere();
+        ISqlGroupByExpression group = expr.getGroupBy();
+        ISqlHavingExpression having = expr.getHaving();
+        ISqlOrderByExpression order = expr.getOrderBy();
+        ISqlLimitExpression limit = expr.getLimit();
+        ISqlSelectExpression s = (ISqlSelectExpression) visit(select);
+        ISqlFromExpression f = (ISqlFromExpression) visit(from);
+        ISqlJoinsExpression j = (ISqlJoinsExpression) visit(joins);
+        ISqlWhereExpression w = (ISqlWhereExpression) visit(where);
+        ISqlGroupByExpression g = (ISqlGroupByExpression) visit(group);
+        ISqlHavingExpression h = (ISqlHavingExpression) visit(having);
+        ISqlOrderByExpression o = (ISqlOrderByExpression) visit(order);
+        ISqlLimitExpression l = (ISqlLimitExpression) visit(limit);
+        if (s != select || f != from || j != joins || w != where || g != group || h != having || o != order || l != limit) {
+            return factory.queryable(s, f, j, w, g, h, o, l);
+        }
+        return expr;
     }
 
     public ISqlExpression visit(ISqlRealTableExpression expr) {
@@ -309,27 +307,24 @@ public class SqlTreeTransformer {
     public ISqlExpression visit(ISqlRecursionExpression expr) {
         ISqlQueryableExpression queryable = expr.getQueryable();
         ISqlExpression visit = visit(queryable);
-        if(visit!=queryable)
-        {
-            return factory.recursion((ISqlQueryableExpression)visit,expr.parentId(),expr.childId(),expr.level());
+        if (visit != queryable) {
+            return factory.recursion((ISqlQueryableExpression) visit, expr.parentId(), expr.childId(), expr.level());
         }
         return expr;
     }
 
     public ISqlExpression visit(ISqlSelectExpression expr) {
-        List<ISqlExpression> columns=new ArrayList<>();
-        boolean changed=false;
+        List<ISqlExpression> columns = new ArrayList<>();
+        boolean changed = false;
         for (ISqlExpression column : expr.getColumns()) {
             ISqlExpression visit = visit(column);
             columns.add(visit);
-            if (visit != column)
-            {
-                changed=true;
+            if (visit != column) {
+                changed = true;
             }
         }
-        if (changed)
-        {
-            expr.getColumns().clear();;
+        if (changed) {
+            expr.getColumns().clear();
             expr.getColumns().addAll(columns);
         }
         return expr;
@@ -340,57 +335,107 @@ public class SqlTreeTransformer {
     }
 
     public ISqlExpression visit(ISqlTemplateExpression expr) {
+        List<ISqlExpression> list = new ArrayList<>();
+        boolean changed = false;
         for (ISqlExpression sqlExpression : expr.getExpressions()) {
-            visit(sqlExpression);
+            ISqlExpression visit = visit(sqlExpression);
+            list.add(visit);
+            if (visit != sqlExpression) {
+                changed = true;
+            }
         }
+        if (changed) {
+            return factory.template(expr.getTemplateStrings(), list);
+        }
+        return expr;
     }
 
     public ISqlExpression visit(ISqlWithExpression expr) {
-        visit(expr.getQueryable());
+        ISqlQueryableExpression queryable = expr.getQueryable();
+        ISqlQueryableExpression visit = (ISqlQueryableExpression) visit(queryable);
+        if (visit != queryable) {
+            return factory.with(visit, expr.withTableName());
+        }
+        return expr;
     }
 
     public ISqlExpression visit(ISqlWithsExpression expr) {
-        for (ISqlWithExpression sqlWithExpression : expr.getWiths()) {
-            visit(sqlWithExpression);
+        List<ISqlWithExpression> withList = new ArrayList<>();
+        boolean changed = false;
+        for (ISqlWithExpression with : expr.getWiths()) {
+            ISqlExpression visit = visit(with);
+            withList.add((ISqlWithExpression) visit);
+            if (visit != with) {
+                changed = true;
+            }
         }
+        if (changed) {
+            expr.getWiths().clear();
+            expr.getWiths().addAll(withList);
+        }
+        return expr;
     }
 
     public ISqlExpression visit(ISqlWhereExpression expr) {
         ISqlExpression visit = visit(expr.getConditions());
-        if(visit!=expr.getConditions())
-        {
+        if (visit != expr.getConditions()) {
             return factory.where((ISqlConditionsExpression) visit);
         }
         return expr;
     }
 
     public ISqlExpression visit(ISqlUnionQueryableExpression expr) {
+        List<ISqlQueryableExpression> list = new ArrayList<>();
+        boolean changed = false;
         for (ISqlQueryableExpression queryable : expr.getQueryable()) {
-            visit(queryable);
+            ISqlExpression visit = visit(queryable);
+            list.add((ISqlQueryableExpression) visit);
+            if (visit != queryable) {
+                changed = true;
+            }
         }
+        if (changed) {
+            expr.getQueryable().clear();
+            expr.getQueryable().addAll(list);
+        }
+        return expr;
     }
 
     public ISqlExpression visit(ISqlTypeCastExpression expr) {
         ISqlExpression expression = expr.getExpression();
         ISqlExpression visit = visit(expression);
-        if(visit!=expression)
-        {
-            return factory.typeCast(expr.getType(),visit);
+        if (visit != expression) {
+            return factory.typeCast(expr.getType(), visit);
         }
         return expr;
     }
 
     public ISqlExpression visit(ISqlUpdateExpression expr) {
-        visit(expr.getFrom());
-        visit(expr.getJoins());
-        visit(expr.getSets());
-        visit(expr.getWhere());
+        ISqlFromExpression from = expr.getFrom();
+        ISqlJoinsExpression joins = expr.getJoins();
+        ISqlSetsExpression sets = expr.getSets();
+        ISqlWhereExpression where = expr.getWhere();
+        ISqlFromExpression f = (ISqlFromExpression) visit(from);
+        ISqlJoinsExpression j = (ISqlJoinsExpression) visit(joins);
+        ISqlSetsExpression s = (ISqlSetsExpression) visit(sets);
+        ISqlWhereExpression w = (ISqlWhereExpression) visit(where);
+        if (f != from || j != joins || s != sets || w != where) {
+            return factory.update(f, j, s, w);
+        }
+        return expr;
     }
 
     public ISqlExpression visit(ISqlDeleteExpression expr) {
-        visit(expr.getFrom());
-        visit(expr.getJoins());
-        visit(expr.getWhere());
+        ISqlFromExpression from = expr.getFrom();
+        ISqlJoinsExpression joins = expr.getJoins();
+        ISqlWhereExpression where = expr.getWhere();
+        ISqlFromExpression f = (ISqlFromExpression) visit(from);
+        ISqlJoinsExpression j = (ISqlJoinsExpression) visit(joins);
+        ISqlWhereExpression w = (ISqlWhereExpression) visit(where);
+        if (f != from || j != joins || w != where) {
+            return factory.delete(f, j, w);
+        }
+        return expr;
     }
 
     public ISqlExpression visit(ISqlTableRefExpression expr) {
@@ -398,6 +443,34 @@ public class SqlTreeTransformer {
     }
 
     public ISqlExpression visit(ISqlStarExpression expr) {
+        return expr;
+    }
+
+    public ISqlExpression visit(ISqlSetsExpression expr) {
+        List<ISqlSetExpression> setList = new ArrayList<>();
+        boolean changed = false;
+        for (ISqlSetExpression set : expr.getSets()) {
+            ISqlSetExpression visit = (ISqlSetExpression) visit(set);
+            setList.add(visit);
+            if (visit != set) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            expr.getSets().clear();
+            expr.getSets().addAll(setList);
+        }
+        return expr;
+    }
+
+    public ISqlExpression visit(ISqlSetExpression expr) {
+        ISqlColumnExpression column = expr.getColumn();
+        ISqlExpression value = expr.getValue();
+        ISqlColumnExpression c = (ISqlColumnExpression) visit(column);
+        ISqlExpression v = visit(value);
+        if (c != column || v != value) {
+            return factory.set(c, v);
+        }
         return expr;
     }
 }

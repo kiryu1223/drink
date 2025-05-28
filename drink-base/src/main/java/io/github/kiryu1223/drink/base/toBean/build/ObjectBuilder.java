@@ -43,7 +43,7 @@ public class ObjectBuilder<T> {
         this.singleTypeHandler = singleTypeHandler;
     }
 
-    public <Key> Map<Key, T> createMap(String column) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+    public <Key> Map<Key, T> createMap(String column) throws SQLException, IllegalAccessException, InvocationTargetException {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
@@ -63,7 +63,7 @@ public class ObjectBuilder<T> {
         return hashMap;
     }
 
-    public <Key> Map<Key, List<T>> createMapList(String keyColumn) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+    public <Key> Map<Key, List<T>> createMapList(String keyColumn) throws SQLException, IllegalAccessException, InvocationTargetException {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();

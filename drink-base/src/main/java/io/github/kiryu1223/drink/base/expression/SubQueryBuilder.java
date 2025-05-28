@@ -12,7 +12,7 @@ public class SubQueryBuilder {
     // 需要被注入的字段
     private final FieldMetaData fieldMetaData;
     // 子查询
-    private final ISqlQueryableExpression queryableExpression;
+    private ISqlQueryableExpression queryableExpression;
 
     public SubQueryBuilder(IConfig config, FieldMetaData fieldMetaData, ISqlQueryableExpression queryableExpression) {
         this.config = config;
@@ -73,10 +73,11 @@ public class SubQueryBuilder {
         // 0,1,3,7
         Map<Integer, Values> valueMap = new HashMap<>();
 
+        //ExKeys  exKeys = new ExKeys(valueMap.values().toArray(new Values[0]));
+        List<ExKey> exKeys = new ArrayList<>();
         queryableExpression.accept(new SqlTreeVisitor() {
             @Override
-            public void visit(ISqlColumnExpression expr) {
-                super.visit(expr);
+            public void visit(ISqlSingleValueExpression expr) {
                 if (expr instanceof SubQueryValue) {
                     SubQueryValue subQueryValue = (SubQueryValue) expr;
                     String valueName = subQueryValue.getValueName();
@@ -94,6 +95,9 @@ public class SubQueryBuilder {
                         value.values.addAll(exValue.getValues());
                         values.map.put(valueName, value);
                         values.count = exValue.getValues().size();
+                        if (level == valueContext.size() - 1) {
+                            exKeys.add(new ExKey(fieldMetaData, subQueryValue.getKeyName()));
+                        }
                     }
                 }
             }
@@ -103,28 +107,30 @@ public class SubQueryBuilder {
             ISqlSelectExpression select = queryableExpression.getSelect();
             for (Values values : valuesList) {
                 values.map.forEach((valueName, value) -> {
-                    select.addColumn(factory.as(new SubQueryValue(value.fieldMetaData, valueName, values.level), valueName));
+                    SubQueryValue sq = new SubQueryValue(value.fieldMetaData, values.level);
+                    select.addColumn(factory.as(sq, sq.getKeyName()));
                 });
             }
 
             // 按层级排序
             valuesList.sort(Comparator.comparingInt(o -> o.level));
             List<ISqlQueryableExpression> list = new ArrayList<>();
+            SqlTreeVisitor visitor = new SqlTreeVisitor() {
+                @Override
+                public void visit(ISqlSingleValueExpression expr) {
+                    super.visit(expr);
+                    if (expr instanceof SubQueryValue) {
+                        SubQueryValue subQueryValue = (SubQueryValue) expr;
+                        String valueName = subQueryValue.getValueName();
+                        int level = subQueryValue.getLevel();
+                        Object value = valueMap.get(level).getValue(valueName);
+                        subQueryValue.setValue(value);
+                    }
+                }
+            };
             while (next(valuesList)) {
                 ISqlQueryableExpression copy = queryableExpression.copy(config);
-                copy.accept(new SqlTreeVisitor() {
-                    @Override
-                    public void visit(ISqlColumnExpression expr) {
-                        super.visit(expr);
-                        if (expr instanceof SubQueryValue) {
-                            SubQueryValue subQueryValue = (SubQueryValue) expr;
-                            String valueName = subQueryValue.getValueName();
-                            int level = subQueryValue.getLevel();
-                            Object value = valueMap.get(level).getValue(valueName);
-                            subQueryValue.setValue(value);
-                        }
-                    }
-                });
+                copy.accept(visitor);
                 list.add(copy);
             }
 
@@ -158,5 +164,13 @@ public class SubQueryBuilder {
             values.reset();
             return next(valuesList, index - 1);
         }
+    }
+
+    public ISqlQueryableExpression getQueryableExpression() {
+        return queryableExpression;
+    }
+
+    public void setQueryableExpression(ISqlQueryableExpression queryableExpression) {
+        this.queryableExpression = queryableExpression;
     }
 }

@@ -4,10 +4,7 @@ package io.github.kiryu1223.drink.base.toBean.handler.impl.datetime;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 
 import java.lang.reflect.Type;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 
 public class LocalDateTimeTypeHandler implements ITypeHandler<LocalDateTime>
@@ -22,6 +19,11 @@ public class LocalDateTimeTypeHandler implements ITypeHandler<LocalDateTime>
     @Override
     public void setValue(PreparedStatement preparedStatement, int index, LocalDateTime localDateTime) throws SQLException
     {
-        preparedStatement.setTimestamp(index, Timestamp.valueOf(localDateTime));
+        if (localDateTime == null) {
+            preparedStatement.setNull(index, JDBCType.TIMESTAMP.getVendorTypeNumber());
+        }
+        else {
+            preparedStatement.setTimestamp(index, Timestamp.valueOf(localDateTime));
+        }
     }
 }

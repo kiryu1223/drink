@@ -380,7 +380,7 @@ public interface SqlExpressionFactory {
     ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions);
 
     default ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, boolean all) {
-        return unionQueryable(queryable, Collections.nCopies(queryable.size(),all));
+        return unionQueryable(queryable, Collections.nCopies(queryable.size()-1,all));
     }
 
     ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, FieldMetaData parentId, FieldMetaData childId, int level);

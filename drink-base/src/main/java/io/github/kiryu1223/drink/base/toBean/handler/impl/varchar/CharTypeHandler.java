@@ -4,6 +4,7 @@ package io.github.kiryu1223.drink.base.toBean.handler.impl.varchar;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 
 import java.lang.reflect.Type;
+import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,6 +21,11 @@ public class CharTypeHandler implements ITypeHandler<Character>
     @Override
     public void setValue(PreparedStatement preparedStatement, int index, Character character) throws SQLException
     {
-        preparedStatement.setString(index, character.toString());
+        if (character == null) {
+            preparedStatement.setNull(index, JDBCType.CHAR.getVendorTypeNumber());
+        }
+        else {
+            preparedStatement.setString(index, character.toString());
+        }
     }
 }
