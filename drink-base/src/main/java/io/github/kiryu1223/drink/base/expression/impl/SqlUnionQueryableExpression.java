@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.base.expression.impl;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlUnionQueryableExpression;
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.ArrayList;
@@ -26,6 +27,11 @@ public class SqlUnionQueryableExpression implements ISqlUnionQueryableExpression
     @Override
     public List<Boolean> getUnions() {
         return unions;
+    }
+
+    @Override
+    public List<FieldMetaData> getMappingData(IConfig config) {
+        return queryable.get(0).getMappingData(config);
     }
 
     @Override

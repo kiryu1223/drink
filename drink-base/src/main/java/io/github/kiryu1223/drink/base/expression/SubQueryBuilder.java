@@ -3,6 +3,8 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.session.SqlSession;
+import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 
 import java.util.*;
 
@@ -73,8 +75,7 @@ public class SubQueryBuilder {
         // 0,1,3,7
         Map<Integer, Values> valueMap = new HashMap<>();
 
-        //ExKeys  exKeys = new ExKeys(valueMap.values().toArray(new Values[0]));
-        List<ExKey> exKeys = new ArrayList<>();
+        List<ExKey> exKeyList = new ArrayList<>();
         queryableExpression.accept(new SqlTreeVisitor() {
             @Override
             public void visit(ISqlSingleValueExpression expr) {
@@ -95,8 +96,9 @@ public class SubQueryBuilder {
                         value.values.addAll(exValue.getValues());
                         values.map.put(valueName, value);
                         values.count = exValue.getValues().size();
+                        // 只记录当前层级下用到的value参数作为key
                         if (level == valueContext.size() - 1) {
-                            exKeys.add(new ExKey(fieldMetaData, subQueryValue.getKeyName()));
+                            exKeyList.add(new ExKey(fieldMetaData, subQueryValue.getKeyName()));
                         }
                     }
                 }
@@ -136,9 +138,23 @@ public class SubQueryBuilder {
 
             ISqlUnionQueryableExpression iSqlUnionQueryableExpression = factory.unionQueryable(list, false);
             AsNameManager.start();
-            String sql = iSqlUnionQueryableExpression.getSql(config);
+            List<SqlValue> sqlValues=new ArrayList<>();
+            String sql = iSqlUnionQueryableExpression.getSqlAndValue(config,sqlValues);
             AsNameManager.clear();
             System.out.println(sql);
+
+            ExKeys exKeys = new ExKeys(exKeyList);
+            List<?> result = session.executeQuery(
+                    rs -> ObjectBuilder.start(
+                            rs,
+                            fieldMetaData.getType(),
+                            iSqlUnionQueryableExpression.getMappingData(config),
+                            false,
+                            config
+                    ).createList(null,exKeys),
+                    sql,
+                    sqlValues
+            );
         }
         // 参数为空直接查询
         else {

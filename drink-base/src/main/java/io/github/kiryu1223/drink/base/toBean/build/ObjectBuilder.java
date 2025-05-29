@@ -2,6 +2,8 @@ package io.github.kiryu1223.drink.base.toBean.build;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.ExKey;
+import io.github.kiryu1223.drink.base.expression.ExKeys;
 import io.github.kiryu1223.drink.base.expression.ExValue;
 import io.github.kiryu1223.drink.base.expression.ExValues;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
@@ -115,7 +117,7 @@ public class ObjectBuilder<T> {
         for (FieldMetaData metaData : propertyMetaDataList) {
             Integer index = indexMap.get(metaData.getFieldName());
             if (index != null) {
-                Object value = convertValue(metaData,index);
+                Object value = convertValue(metaData, index);
                 if (value != null) {
                     ISetterCaller<T> setter = beanCreator.getBeanSetter(metaData.getFieldName());
                     setter.call(t, value);
@@ -125,15 +127,15 @@ public class ObjectBuilder<T> {
     }
 
     public List<T> createList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
-        return createList(null);
+        return createList(null, null);
     }
 
-    public List<T> createList(ExValues exValues) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+    public List<T> createList(ExValues exValues, ExKeys exKeys) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         if (isSingle) {
             return getSingleList();
         }
         else {
-            return getClassList(exValues);
+            return getClassList(exValues, exKeys);
         }
     }
 
@@ -150,32 +152,34 @@ public class ObjectBuilder<T> {
         return list;
     }
 
-    private List<T> getClassList(ExValues exValues) throws SQLException, IllegalAccessException, InvocationTargetException {
+    private List<T> getClassList(ExValues exValues, ExKeys exKeys) throws SQLException, IllegalAccessException, InvocationTargetException {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         List<T> list = new ArrayList<>();
-        if (exValues == null) {
-            while (resultSet.next()) {
-                T t = creator.get();
-                foreach(beanCreator, indexMap, t);
-                list.add(t);
-            }
-        }
-        else {
-            Map<String, ExValue> exValueMap = exValues.getExValueMap();
-            while (resultSet.next()) {
-                T t = creator.get();
-                foreach(beanCreator, indexMap, t);
-                for (Map.Entry<String, ExValue> entry : exValueMap.entrySet()) {
+        while (resultSet.next()) {
+            T t = creator.get();
+            foreach(beanCreator, indexMap, t);
+            if (exValues != null) {
+                for (Map.Entry<String, ExValue> entry : exValues.getExValueMap().entrySet()) {
                     String key = entry.getKey();
                     ExValue value = entry.getValue();
                     int index = indexMap.get(key);
                     Object o = convertValue(value.getFieldMetaData(), index);
                     value.addValue(o);
                 }
-                list.add(t);
             }
+            if (exKeys != null) {
+                List<Object> hashValueList = new ArrayList<>();
+                for (ExKey exKey : exKeys.getExKeys()) {
+                    int index = indexMap.get(exKey.getKeyName());
+                    Object o = convertValue(exKey.getFieldMetaData(), index);
+                    hashValueList.add(o);
+                }
+                int hashCode = Arrays.hashCode(hashValueList.toArray());
+                exKeys.addValue(hashCode, t);
+            }
+            list.add(t);
         }
         return list;
     }

@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 
 @Configuration
-@EnableConfigurationProperties(DrinkAutoConfiguration.class)
+@EnableConfigurationProperties(DrinkProperties.class)
 @ConditionalOnBean(DataSource.class)
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
 @ConditionalOnProperty(

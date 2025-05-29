@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,8 @@ public interface ISqlUnionQueryableExpression extends ISqlTableExpression {
         getQueryable().add(queryable);
         getUnions().add(union);
     }
+
+    List<FieldMetaData> getMappingData(IConfig config);
 
     default ISqlUnionQueryableExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
