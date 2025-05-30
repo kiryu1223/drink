@@ -22,6 +22,7 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.*;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.transform.Transformer;
@@ -119,28 +120,34 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession(config);
         ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
-        List<R> result = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler).createList(exValues),
+        JdbcResult<R> result = session.executeQuery(
+                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler).createList(),
                 sql,
                 values
         );
+
         List<IncludeBuilder> includes = sqlBuilder.getIncludes();
         if (!includes.isEmpty()) {
             try {
                 for (IncludeBuilder include : includes) {
-                    include.include(session, result);
+                    include.include(session, result.getResult());
                 }
             } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
+
         List<SubQueryBuilder> subQueryBuilders = sqlBuilder.getQueryable().getSelect().getSubQueryBuilders();
         if (!subQueryBuilders.isEmpty()) {
-            for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
-                subQueryBuilder.subQuery(session, result, new ArrayList<>(Collections.singletonList(exValues)));
+            try {
+                for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
+                    subQueryBuilder.subQuery(session, new ArrayList<>(Collections.singletonList(result)));
+                }
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         }
-        return result;
+        return result.getResult();
     }
 
     private ITypeHandler<R> getSingleTypeHandler(boolean single) {

@@ -19,12 +19,12 @@ public class SubQueryValue implements ISqlSingleValueExpression {
     }
 
     public String getValueName() {
-        return "value:" + name;
+        return String.format("value:%d:%s", level, name);
     }
 
-    public String getKeyName() {
-        return "key:"+level+":" + name;
-    }
+//    public String getKeyName() {
+//        return String.format("key:%d:%s", level, name);
+//    }
 
     public int getLevel() {
         return level;
@@ -40,7 +40,9 @@ public class SubQueryValue implements ISqlSingleValueExpression {
         this.value = value;
     }
 
-
+    public FieldMetaData getFieldMetaData() {
+        return fieldMetaData;
+    }
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {

@@ -4,9 +4,18 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
+import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
+import io.github.kiryu1223.drink.base.toBean.build.ExtensionField;
+import io.github.kiryu1223.drink.base.toBean.build.ExtensionObject;
+import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
 
 public class SubQueryBuilder {
     private final IConfig config;
@@ -25,7 +34,6 @@ public class SubQueryBuilder {
 
     static class Values {
         private final int level;
-        // key = value:xxx
         private final Map<String, Value> map = new HashMap<>();
         private int count;
         private int index = -1;
@@ -45,6 +53,10 @@ public class SubQueryBuilder {
         private Object getValue(String valueName) {
             return map.get(valueName).getValue(index);
         }
+
+        private void addValue(String valueName, Value value) {
+            map.put(valueName, value);
+        }
     }
 
     static class Value {
@@ -58,110 +70,120 @@ public class SubQueryBuilder {
         private Object getValue(int index) {
             return values.get(index);
         }
+
+        private void addValue(Object value) {
+            values.add(value);
+        }
     }
 
     public void subQuery(
             // 会话
             SqlSession session,
             // 原始集合
-            Collection<?> sources,
+            List<JdbcResult<?>> jdbcResultList
             // 上下文参数
             // select *,? as `value:id`,? as `value:name`
-            List<ExValues> valueContext
-    ) {
-        // 0,1,2,3,4,5,6,7
-        List<Values> valuesList = new ArrayList<>();
-        // 因为可能需要的参数不是连续的
-        // 0,1,3,7
-        Map<Integer, Values> valueMap = new HashMap<>();
+    ) throws InvocationTargetException, IllegalAccessException {
 
-        List<ExKey> exKeyList = new ArrayList<>();
+        Map<Integer, Values> valuesMap = new HashMap<>();
         queryableExpression.accept(new SqlTreeVisitor() {
             @Override
             public void visit(ISqlSingleValueExpression expr) {
                 if (expr instanceof SubQueryValue) {
                     SubQueryValue subQueryValue = (SubQueryValue) expr;
-                    String valueName = subQueryValue.getValueName();
                     int level = subQueryValue.getLevel();
-                    Values values = valueMap.get(level);
-                    if (values == null) {
-                        values = new Values(level);
-                        valueMap.put(level, values);
-                        valuesList.add(values);
+                    // 层级匹配
+                    JdbcResult<?> jdbcResult = jdbcResultList.get(level);
+                    String valueName = subQueryValue.getValueName();
+                    Values values = valuesMap.computeIfAbsent(level, k -> new Values(k));
+                    Value value = new Value(subQueryValue.getFieldMetaData());
+                    for (ExtensionObject<?> extensionObject : jdbcResult.getExtensionResult()) {
+                        ExtensionField extensionField = extensionObject.getExtensionValueFieldMap().get(valueName);
+                        value.addValue(extensionField.getValue());
                     }
-                    if (!values.map.containsKey(valueName)) {
-                        ExValues exValues = valueContext.get(level);
-                        ExValue exValue = exValues.getExValueMap().get(valueName);
-                        Value value = new Value(exValue.getFieldMetaData());
-                        value.values.addAll(exValue.getValues());
-                        values.map.put(valueName, value);
-                        values.count = exValue.getValues().size();
-                        // 只记录当前层级下用到的value参数作为key
-                        if (level == valueContext.size() - 1) {
-                            exKeyList.add(new ExKey(fieldMetaData, subQueryValue.getKeyName()));
-                        }
-                    }
+                    values.addValue(valueName, value);
                 }
             }
         });
 
-        if (!valuesList.isEmpty()) {
-            ISqlSelectExpression select = queryableExpression.getSelect();
-            for (Values values : valuesList) {
-                values.map.forEach((valueName, value) -> {
-                    SubQueryValue sq = new SubQueryValue(value.fieldMetaData, values.level);
-                    select.addColumn(factory.as(sq, sq.getKeyName()));
-                });
-            }
+        List<Values> sorted = valuesMap.values().stream()
+                .sorted(Comparator.comparingInt(v -> v.level))
+                .collect(Collectors.toList());
 
-            // 按层级排序
-            valuesList.sort(Comparator.comparingInt(o -> o.level));
-            List<ISqlQueryableExpression> list = new ArrayList<>();
-            SqlTreeVisitor visitor = new SqlTreeVisitor() {
-                @Override
-                public void visit(ISqlSingleValueExpression expr) {
-                    super.visit(expr);
-                    if (expr instanceof SubQueryValue) {
-                        SubQueryValue subQueryValue = (SubQueryValue) expr;
-                        String valueName = subQueryValue.getValueName();
-                        int level = subQueryValue.getLevel();
-                        Object value = valueMap.get(level).getValue(valueName);
-                        subQueryValue.setValue(value);
-                    }
+        ISqlSelectExpression select = queryableExpression.getSelect();
+        ExValues exValues = select.getExValues();
+        for (Values values : sorted) {
+            values.map.forEach((valueName, value) -> {
+                SubQueryValue sq = new SubQueryValue(value.fieldMetaData, values.level);
+                // 拼到select里
+                select.addColumn(factory.as(sq, sq.getValueName()));
+                // 添加到exValues的额外key里
+                exValues.addExKey(sq.getValueName(),value.fieldMetaData);
+            });
+        }
+
+        List<ISqlQueryableExpression> list = new ArrayList<>();
+        SqlTreeVisitor visitor = new SqlTreeVisitor() {
+            @Override
+            public void visit(ISqlSingleValueExpression expr) {
+                super.visit(expr);
+                if (expr instanceof SubQueryValue) {
+                    SubQueryValue subQueryValue = (SubQueryValue) expr;
+                    String valueName = subQueryValue.getValueName();
+                    int level = subQueryValue.getLevel();
+                    Object value = sorted.stream().filter(v -> v.level == level).findAny().get().getValue(valueName);
+                    subQueryValue.setValue(value);
                 }
-            };
-            while (next(valuesList)) {
-                ISqlQueryableExpression copy = queryableExpression.copy(config);
-                copy.accept(visitor);
-                list.add(copy);
             }
-
-            ISqlUnionQueryableExpression iSqlUnionQueryableExpression = factory.unionQueryable(list, false);
-            AsNameManager.start();
-            List<SqlValue> sqlValues=new ArrayList<>();
-            String sql = iSqlUnionQueryableExpression.getSqlAndValue(config,sqlValues);
-            AsNameManager.clear();
-            System.out.println(sql);
-
-            ExKeys exKeys = new ExKeys(exKeyList);
-            List<?> result = session.executeQuery(
-                    rs -> ObjectBuilder.start(
-                            rs,
-                            fieldMetaData.getType(),
-                            iSqlUnionQueryableExpression.getMappingData(config),
-                            false,
-                            config
-                    ).createList(null,exKeys),
-                    sql,
-                    sqlValues
-            );
+        };
+        while (next(sorted)) {
+            ISqlQueryableExpression copy = queryableExpression.copy(config);
+            copy.accept(visitor);
+            list.add(copy);
         }
-        // 参数为空直接查询
-        else {
-            AsNameManager.start();
-            System.out.println(queryableExpression.getSql(config));
-            AsNameManager.clear();
+
+        ISqlUnionQueryableExpression iSqlUnionQueryableExpression = factory.unionQueryable(list, false);
+        List<SqlValue> sqlValues = new ArrayList<>();
+        String sql = iSqlUnionQueryableExpression.getSqlAndValue(config, sqlValues);
+        JdbcResult<?> result = session.executeQuery(
+                resultSet -> ObjectBuilder.start(
+                        resultSet,
+                        iSqlUnionQueryableExpression.getMainTableClass(),
+                        queryableExpression.getMappingData(config),
+                        false,
+                        config
+                ).createList(exValues),
+                sql,
+                sqlValues
+        );
+
+        AbsBeanCreator<?> absBeanCreator = config.getBeanCreatorFactory().get(fieldMetaData.getType(), config);
+        ISetterCaller<?> beanSetter = absBeanCreator.getBeanSetter(fieldMetaData.getFieldName());
+
+        JdbcResult<?> currentResult = jdbcResultList.get(jdbcResultList.size() - 1);
+        for (ExtensionObject<?> extensionObject : currentResult.getExtensionResult()) {
+            Map<String, ExtensionField> valueFieldMap = extensionObject.getExtensionValueFieldMap();
+            for (ExtensionObject<?> eob : result.getExtensionResult()) {
+                Map<String, ExtensionField> keyFieldMap = eob.getExtensionKeyFieldMap();
+                if (compareCommonValues(keyFieldMap, valueFieldMap)) {
+                    setValue(extensionObject.getObject(),beanSetter, eob.getObject());
+                }
+            }
         }
+
+
+
+        jdbcResultList.remove(jdbcResultList.size() - 1);
+    }
+
+    public static boolean compareCommonValues(Map<String, ExtensionField> smallMap, Map<String, ExtensionField> bigMap) {
+        return smallMap.entrySet().stream()
+                .filter(entry -> bigMap.containsKey(entry.getKey())) // 只过滤大Map存在的Key
+                .allMatch(entry -> Objects.equals(entry.getValue().getValue(), bigMap.get(entry.getKey()).getValue()));
+    }
+
+    private void setValue(Object object,ISetterCaller<?> beanSetter,Object value) throws InvocationTargetException, IllegalAccessException {
+        beanSetter.call(cast(object), value);
     }
 
     private boolean next(List<Values> valuesList) {

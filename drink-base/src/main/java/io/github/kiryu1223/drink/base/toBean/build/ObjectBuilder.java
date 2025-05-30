@@ -2,9 +2,6 @@ package io.github.kiryu1223.drink.base.toBean.build;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.ExKey;
-import io.github.kiryu1223.drink.base.expression.ExKeys;
-import io.github.kiryu1223.drink.base.expression.ExValue;
 import io.github.kiryu1223.drink.base.expression.ExValues;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
@@ -126,62 +123,63 @@ public class ObjectBuilder<T> {
         }
     }
 
-    public List<T> createList() throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
-        return createList(null, null);
-    }
-
-    public List<T> createList(ExValues exValues, ExKeys exKeys) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+    public JdbcResult<T> createList(ExValues exValues) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         if (isSingle) {
             return getSingleList();
         }
         else {
-            return getClassList(exValues, exKeys);
+            return getClassList(exValues);
         }
     }
 
-    private List<T> getSingleList() throws SQLException, NoSuchFieldException, IllegalAccessException {
-        List<T> list = new ArrayList<>();
+    private JdbcResult<T> getSingleList() throws SQLException, NoSuchFieldException, IllegalAccessException {
+        JdbcResult<T> result = new JdbcResult<>();
         ITypeHandler<T> useTypeHandler = singleTypeHandler;
         if (useTypeHandler == null) {
             useTypeHandler = TypeHandlerManager.get(target);
         }
         while (resultSet.next()) {
             T t = useTypeHandler.getValue(resultSet, 1, target);
-            list.add(t);
+            result.addResult(t);
         }
-        return list;
+        return result;
     }
 
-    private List<T> getClassList(ExValues exValues, ExKeys exKeys) throws SQLException, IllegalAccessException, InvocationTargetException {
+    private JdbcResult<T> getClassList(ExValues exValues) throws SQLException, IllegalAccessException, InvocationTargetException {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
-        List<T> list = new ArrayList<>();
-        while (resultSet.next()) {
-            T t = creator.get();
-            foreach(beanCreator, indexMap, t);
-            if (exValues != null) {
-                for (Map.Entry<String, ExValue> entry : exValues.getExValueMap().entrySet()) {
-                    String key = entry.getKey();
-                    ExValue value = entry.getValue();
-                    int index = indexMap.get(key);
-                    Object o = convertValue(value.getFieldMetaData(), index);
-                    value.addValue(o);
-                }
+        JdbcResult<T> jdbcResult = new JdbcResult<>();
+        if (exValues == null) {
+            while (resultSet.next()) {
+                T t = creator.get();
+                foreach(beanCreator, indexMap, t);
+                jdbcResult.addResult(t);
             }
-            if (exKeys != null) {
-                List<Object> hashValueList = new ArrayList<>();
-                for (ExKey exKey : exKeys.getExKeys()) {
-                    int index = indexMap.get(exKey.getKeyName());
-                    Object o = convertValue(exKey.getFieldMetaData(), index);
-                    hashValueList.add(o);
-                }
-                int hashCode = Arrays.hashCode(hashValueList.toArray());
-                exKeys.addValue(hashCode, t);
-            }
-            list.add(t);
         }
-        return list;
+        else {
+            while (resultSet.next()) {
+                T t = creator.get();
+                foreach(beanCreator, indexMap, t);
+                Map<String, ExtensionField> extensionValueFieldMap = new HashMap<>();
+                Map<String, ExtensionField> extensionKeyFieldMap = new HashMap<>();
+                for (Map.Entry<String, FieldMetaData> entry : exValues.getExValueMap().entrySet()) {
+                    String key = entry.getKey();
+                    FieldMetaData fieldMetaData = entry.getValue();
+                    Object o = convertValue(fieldMetaData, indexMap.get(key));
+                    extensionValueFieldMap.put(key, new ExtensionField(fieldMetaData, o));
+                }
+                for (Map.Entry<String, FieldMetaData> entry : exValues.getExKeyMap().entrySet()) {
+                    String key = entry.getKey();
+                    FieldMetaData fieldMetaData = entry.getValue();
+                    Object o = convertValue(fieldMetaData, indexMap.get(key));
+                    extensionKeyFieldMap.put(key, new ExtensionField(fieldMetaData, o));
+                }
+                jdbcResult.addResult(new ExtensionObject<>(t, extensionValueFieldMap,extensionKeyFieldMap));
+                jdbcResult.addResult(t);
+            }
+        }
+        return jdbcResult;
     }
 
     private Map<String, Integer> getIndexMap() throws SQLException {

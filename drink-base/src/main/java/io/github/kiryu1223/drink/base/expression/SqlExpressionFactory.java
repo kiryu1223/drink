@@ -92,8 +92,7 @@ public interface SqlExpressionFactory {
      */
     ISqlHavingExpression having(ISqlConditionsExpression conditionsExpression);
 
-    default ISqlHavingExpression having()
-    {
+    default ISqlHavingExpression having() {
         return having(condition());
     }
 
@@ -380,7 +379,7 @@ public interface SqlExpressionFactory {
     ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions);
 
     default ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, boolean all) {
-        return unionQueryable(queryable, Collections.nCopies(queryable.size()-1,all));
+        return unionQueryable(queryable, Collections.nCopies(queryable.size() - 1, all));
     }
 
     ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, FieldMetaData parentId, FieldMetaData childId, int level);
@@ -412,10 +411,10 @@ public interface SqlExpressionFactory {
      */
     default List<ISqlExpression> getColumnByClass(Class<?> target, ISqlTableRefExpression tableRefExpression) {
         MetaData metaData = getConfig().getMetaData(target);
-        List<FieldMetaData> property = metaData.getNotIgnoreAndNavigateFields();
-        List<ISqlExpression> columns = new ArrayList<>(property.size());
-        for (FieldMetaData data : property) {
-            columns.add(column(data, tableRefExpression));
+        List<FieldMetaData> fieldMetaDataList = metaData.getNotIgnoreAndNavigateFields();
+        List<ISqlExpression> columns = new ArrayList<>(fieldMetaDataList.size());
+        for (FieldMetaData data : fieldMetaDataList) {
+            columns.add(as(column(data, tableRefExpression), data.getFieldName()));
         }
         return columns;
     }

@@ -42,13 +42,17 @@ public class Main {
 
         List<? extends Employee> list = client.query(Employee.class)
                 .where(e -> e.getNumber() < 10020)
+                .includeMany(s->s.getSalaries())
                 .select(s -> new Employee() {
+                    // select
                     // s.*,
                     // select count(*) from courses as c where c.id = s.id,
-                    // select ? from courses as c where c.id = s.id
+                    // (select ? from courses as c where c.id = s.id)
                     {
                         setNumber(client.query(Employee.class).count());
                     }
+
+//                    long a = client.query(Employee.class).where(c -> c.getNumber() == s.getNumber()).count();
 
                     List<? extends Employee> c4 = client.query(Employee.class)
                             .where(c -> c.getNumber() == s.getNumber())

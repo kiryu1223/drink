@@ -1398,7 +1398,7 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     // select ...,? as `value:xx`
                     expressions.add(factory.as(entry.getValue(), entry.getKey()));
                     // 保存
-                    exValues.addExValue(entry.getKey(), new ExValue(entry.getValue().getFieldMetaData()));
+                    exValues.addExValue(entry.getKey(), entry.getValue().getFieldMetaData());
                 }
                 return factory.select(expressions, newExpression.getType());
             }
