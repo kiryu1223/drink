@@ -13,6 +13,7 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
+import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,7 +160,7 @@ public class IncludeBuilder {
     }
 
     private void oneMany(SqlSession session, Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, NavigateData navigateData, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter) throws InvocationTargetException, IllegalAccessException {
-        List<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
+        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
                                 rs,
                                 targetType,
                                 subQuery.getMappingData(config),
@@ -173,7 +174,7 @@ public class IncludeBuilder {
 
         // <b.targetId,List<b>>
         Map<Object, List<Object>> map = new HashMap<>();
-        for (Object o : includeResult) {
+        for (Object o : includeResult.getResult()) {
             Object key = targetGetter.apply(cast(o));
             List<Object> valueList = map.computeIfAbsent(key, k -> new ArrayList<>());
             valueList.add(o);
@@ -205,7 +206,7 @@ public class IncludeBuilder {
     }
 
     private void oneOneOrManyOne(SqlSession session, Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter, RelationType relationType) throws InvocationTargetException, IllegalAccessException {
-        List<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
+        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
                                 rs,
                                 targetType,
                                 subQuery.getMappingData(config),
@@ -219,7 +220,7 @@ public class IncludeBuilder {
 
         // <b.targetId,b>
         Map<Object, Object> map = new HashMap<>();
-        for (Object o : includeResult) {
+        for (Object o : includeResult.getResult()) {
             map.put(targetGetter.apply(cast(o)), o);
         }
 

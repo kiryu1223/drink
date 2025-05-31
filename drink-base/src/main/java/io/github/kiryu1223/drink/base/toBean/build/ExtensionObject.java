@@ -1,27 +1,31 @@
 package io.github.kiryu1223.drink.base.toBean.build;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class ExtensionObject<T> {
-    private final T object;
-    private final Map<String, ExtensionField> extensionValueFieldMap;
-    private final Map<String, ExtensionField> extensionKeyFieldMap;
+public class ExtensionObject
+{
+    private final List<Object> objects = new ArrayList<>();
+    private final Map<String, ExtensionField> extensionFieldMap;
 
-    public ExtensionObject(T object, Map<String, ExtensionField> extensionValueFieldMap, Map<String, ExtensionField> extensionKeyFieldMap) {
-        this.object = object;
-        this.extensionValueFieldMap = extensionValueFieldMap;
-        this.extensionKeyFieldMap = extensionKeyFieldMap;
+    public ExtensionObject(Map<String, ExtensionField> extensionValueFieldMap)
+    {
+        this.extensionFieldMap = extensionValueFieldMap;
     }
 
-    public Object getObject() {
-        return object;
+    public List<Object> getObjects()
+    {
+        return objects;
     }
 
-    public Map<String, ExtensionField> getExtensionValueFieldMap() {
-        return extensionValueFieldMap;
+    public void addObject(Object o)
+    {
+        objects.add(o);
     }
 
-    public Map<String, ExtensionField> getExtensionKeyFieldMap() {
-        return extensionKeyFieldMap;
+    public Map<String, ExtensionField> getExtensionFieldMap()
+    {
+        return extensionFieldMap;
     }
 }

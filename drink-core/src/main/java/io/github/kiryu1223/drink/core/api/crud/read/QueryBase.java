@@ -121,7 +121,8 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         SqlSession session = config.getSqlSessionFactory().getSession(config);
         ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
         JdbcResult<R> result = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler).createList(),
+                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler)
+                        .createList(exValues),
                 sql,
                 values
         );

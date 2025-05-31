@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Data
 @Table("salaries")
 @FieldNameConstants
-public class Salary implements ITable, ITenant
+public class Salary implements ITable
 {
     @Column("emp_no")
     private int empNumber;
@@ -20,6 +20,4 @@ public class Salary implements ITable, ITenant
     private LocalDate from;
     @Column("to_date")
     private LocalDate to;
-
-    private int tenantId;
 }

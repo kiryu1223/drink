@@ -1,7 +1,5 @@
 package io.github.kiryu1223.drink.base.expression;
 
-import com.sun.tools.javac.tree.JCTree;
-
 import java.util.Map;
 
 public abstract class SqlTreeVisitor {

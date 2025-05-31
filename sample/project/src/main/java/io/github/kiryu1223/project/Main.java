@@ -10,6 +10,7 @@ import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Course;
 import io.github.kiryu1223.project.pojos.Employee;
+import io.github.kiryu1223.project.pojos.Salary;
 import io.github.kiryu1223.project.pojos.Student;
 
 import java.math.BigDecimal;
@@ -42,18 +43,13 @@ public class Main {
 
         List<? extends Employee> list = client.query(Employee.class)
                 .where(e -> e.getNumber() < 10020)
-                .includeMany(s->s.getSalaries())
                 .select(s -> new Employee() {
                     // select
-                    // s.*,
-                    // select count(*) from courses as c where c.id = s.id,
-                    // (select ? from courses as c where c.id = s.id)
                     {
+                        // select count(*) from courses as c where c.id = s.id,
                         setNumber(client.query(Employee.class).count());
                     }
-
-//                    long a = client.query(Employee.class).where(c -> c.getNumber() == s.getNumber()).count();
-
+                    // (select ? from courses as c where c.id = s.id) as `c4`
                     List<? extends Employee> c4 = client.query(Employee.class)
                             .where(c -> c.getNumber() == s.getNumber())
                             .toList();
@@ -67,7 +63,7 @@ public class Main {
 //                .toSql();
 
         for (Employee employee : list) {
-            System.out.println(employee);
+            System.out.println(employee.toString(client.getConfig()));
         }
 //
 //        for (Student student : list)

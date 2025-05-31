@@ -18,6 +18,19 @@ import java.time.LocalTime;
 import java.util.*;
 
 public class DrinkUtil {
+    public static boolean isCollection(Class<?> c)
+    {
+        return Collection.class.isAssignableFrom(c);
+    }
+
+    public static boolean isList(Class<?> c) {
+        return List.class.isAssignableFrom(c);
+    }
+
+    public static boolean isSet(Class<?> c) {
+        return Set.class.isAssignableFrom(c);
+    }
+
     public static String getFirst(IConfig config, Class<?> c) {
         MetaData metaData = config.getMetaData(c);
         return metaData.getTableName().substring(0, 1).toLowerCase();

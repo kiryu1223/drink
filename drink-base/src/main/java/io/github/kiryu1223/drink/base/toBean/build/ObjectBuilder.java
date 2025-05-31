@@ -123,6 +123,11 @@ public class ObjectBuilder<T> {
         }
     }
 
+    public JdbcResult<T> createList() throws SQLException, NoSuchFieldException, InvocationTargetException, IllegalAccessException
+    {
+        return createList(null);
+    }
+
     public JdbcResult<T> createList(ExValues exValues) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         if (isSingle) {
             return getSingleList();
@@ -158,6 +163,8 @@ public class ObjectBuilder<T> {
             }
         }
         else {
+            List<ExtensionObject> extensionValueResult = jdbcResult.getExtensionValueResult();
+            List<ExtensionObject> extensionKeyResult = jdbcResult.getExtensionKeyResult();
             while (resultSet.next()) {
                 T t = creator.get();
                 foreach(beanCreator, indexMap, t);
@@ -175,8 +182,36 @@ public class ObjectBuilder<T> {
                     Object o = convertValue(fieldMetaData, indexMap.get(key));
                     extensionKeyFieldMap.put(key, new ExtensionField(fieldMetaData, o));
                 }
-                jdbcResult.addResult(new ExtensionObject<>(t, extensionValueFieldMap,extensionKeyFieldMap));
-                jdbcResult.addResult(t);
+
+                // region [value:?:xxx]
+                Optional<ExtensionObject> optValue = extensionValueResult.stream()
+                        .filter(e -> e.getExtensionFieldMap().equals(extensionValueFieldMap))
+                        .findAny();
+                ExtensionObject valueEx;
+                if (optValue.isPresent()) {
+                    valueEx = optValue.get();
+                }
+                else {
+                    valueEx = new ExtensionObject(extensionValueFieldMap);
+                    extensionValueResult.add(valueEx);
+                }
+                valueEx.addObject(t);
+                // endregion
+
+                // region [value(key):?:xxx]
+                Optional<ExtensionObject> optKey = extensionKeyResult.stream()
+                        .filter(e -> e.getExtensionFieldMap().equals(extensionKeyFieldMap))
+                        .findAny();
+                ExtensionObject keyEx;
+                if (optKey.isPresent()) {
+                    keyEx = optKey.get();
+                }
+                else {
+                    keyEx = new ExtensionObject(extensionKeyFieldMap);
+                    extensionKeyResult.add(keyEx);
+                }
+                keyEx.addObject(t);
+                // endregion
             }
         }
         return jdbcResult;

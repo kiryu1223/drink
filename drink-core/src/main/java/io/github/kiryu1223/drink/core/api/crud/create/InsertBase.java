@@ -17,6 +17,7 @@ package io.github.kiryu1223.drink.core.api.crud.create;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.session.SqlSession;
@@ -123,7 +124,7 @@ public abstract class InsertBase<C> extends CRUD<C> {
                     ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();
                     // 值为空同时设置了notNull且没有默认值注解的情况
                     if (value == null && fieldMetaData.isNotNull()) {
-                        throw new SqLinkException(String.format("%s类的%s字段被设置为notnull，但是字段值为空且没有设置默认值注解", fieldMetaData.getParentType(), fieldMetaData.getFieldName()));
+                        throw new DrinkException(String.format("%s类的%s字段被设置为notnull，但是字段值为空且没有设置默认值注解", fieldMetaData.getParentType(), fieldMetaData.getFieldName()));
                     }
                     sqlValues.add(new SqlValue(value, typeHandler));
                 }

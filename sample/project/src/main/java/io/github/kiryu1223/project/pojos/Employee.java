@@ -1,23 +1,27 @@
 package io.github.kiryu1223.project.pojos;
 
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.*;
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.core.api.ITable;
+import io.github.kiryu1223.drink.core.util.List;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
+import io.github.kiryu1223.expressionTree.util.ReflectUtil;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.ArrayList;
 
 
 @Data
 @Table("employees")
 @FieldNameConstants
-@Getter
-@Setter
-public class Employee implements ITable, ITenant
+public class Employee implements ITable
 {
     @Column("emp_no")
     private long number;
@@ -37,5 +41,17 @@ public class Employee implements ITable, ITenant
     )
     private List<Salary> salaries;
 
-    private int tenantId;
+
+
+    public String toString(IConfig config)
+    {
+        java.util.List<String> strings = new ArrayList<>();
+        for (FieldMetaData field : config.getMetaData(getClass()).getFields())
+        {
+            String fieldName = field.getFieldName();
+            if (fieldName.startsWith("val$")) continue;
+            strings.add(fieldName + "=" + field.getValueByObject(this));
+        }
+        return "(" + String.join(",", strings) + ")";
+    }
 }

@@ -101,7 +101,7 @@ public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
                 r -> ObjectBuilder.start(r, targetClass, mappingData, single, config).createList(),
                 sql,
                 sqlValues
-        );
+        ).getResult();
     }
 
     // endregion
