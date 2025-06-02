@@ -862,7 +862,8 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public LQuery<T> asTreeCTE(ExprTree<Func1<T, Collection<T>>> expr, int level)
     {
-        ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
+        QuerySqlBuilder sqlBuilder = getSqlBuilder();
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
         QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), queryable);
         FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
         if (!fieldMetaData.hasNavigate())
@@ -878,8 +879,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         ISqlTableRefExpression tableRef = queryable.getFrom().getTableRefExpression();
         ISqlRecursionExpression recursion = factory.recursion(queryable, parent, child, level);
         ISqlQueryableExpression newQuery = factory.queryable(select, factory.from(recursion, tableRef));
-        getSqlBuilder().setQueryable(newQuery);
-        // TODO INCLUDE
+        sqlBuilder.setQueryable(newQuery);
         return this;
     }
 

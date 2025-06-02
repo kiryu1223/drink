@@ -17,6 +17,10 @@ public interface ISqlUpdateExpression extends ISqlExpression {
 
     void addWhere(ISqlExpression where);
 
+    default void setWhere(ISqlConditionsExpression conditions) {
+        getWhere().setConditions(conditions);
+    }
+
     @Override
     default ISqlUpdateExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();

@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -67,13 +68,6 @@ public class UpdateSqlBuilder implements ISqlBuilder {
     }
 
     /**
-     * 添加条件
-     */
-    public void addWhere(ISqlExpression where) {
-        update.addWhere(where);
-    }
-
-    /**
      * 是否有条件
      */
     public boolean hasWhere() {
@@ -113,5 +107,19 @@ public class UpdateSqlBuilder implements ISqlBuilder {
     @Override
     public ISqlExpression getSqlExpression() {
         return update;
+    }
+
+    public void addAndOrWhere(ISqlExpression cond,boolean isAnd) {
+        ISqlWhereExpression where = update.getWhere();
+        ISqlConditionsExpression conditions = where.getConditions();
+        if (conditions.isAnd()!=isAnd)
+        {
+            conditions.addCondition(cond);
+        }
+        else
+        {
+            List<ISqlExpression> list = new ArrayList<>(Arrays.asList(conditions, cond));
+            where.setConditions(factory.condition(list,isAnd));
+        }
     }
 }

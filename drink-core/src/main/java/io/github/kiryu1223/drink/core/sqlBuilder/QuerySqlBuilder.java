@@ -52,16 +52,17 @@ public class QuerySqlBuilder implements ISqlBuilder {
         includes.add(subQuery);
     }
 
-    public void addWhere(ISqlExpression cond) {
-        queryable.addWhere(cond);
-    }
-
-    public void addOrWhere(ISqlExpression cond) {
-        if (queryable.getWhere().isEmpty()) {
-            addWhere(cond);
+    public void addAndOrWhere(ISqlExpression cond,boolean isAnd) {
+        ISqlWhereExpression where = queryable.getWhere();
+        ISqlConditionsExpression conditions = where.getConditions();
+        if (conditions.isAnd()!=isAnd)
+        {
+            conditions.addCondition(cond);
         }
-        else {
-            addWhere(factory.unary(SqlOperator.OR, cond));
+        else
+        {
+            List<ISqlExpression> list = new ArrayList<>(Arrays.asList(conditions, cond));
+            where.setConditions(factory.condition(list,isAnd));
         }
     }
 

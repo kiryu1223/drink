@@ -73,8 +73,18 @@ public class UpdateSqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         push(updateExpression);
     }
 
+    public UpdateSqlVisitor(IConfig config, ISqlUpdateExpression updateExpression,int index) {
+        this(config, index);
+        push(updateExpression);
+    }
+
     public UpdateSqlVisitor(IConfig config, ISqlDeleteExpression deleteExpression) {
         this(config, -1);
+        push(deleteExpression);
+    }
+
+    public UpdateSqlVisitor(IConfig config, ISqlDeleteExpression deleteExpression,int index) {
+        this(config, index);
         push(deleteExpression);
     }
 
@@ -956,83 +966,84 @@ public class UpdateSqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         else if (Math.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             Method method = methodCall.getMethod();
             IMathMethods math = config.getTransformer();
+            List<Expression> args = methodCall.getArgs();
             switch (method.getName()) {
                 case "abs": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("ABS(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.abs(arg);
                 }
                 case "cos": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("COS(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.cos(arg);
                 }
                 case "acos": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("ACOS(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.acos(arg);
                 }
                 case "sin": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("SIN(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.sin(arg);
                 }
                 case "asin": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("ASIN(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.asin(arg);
                 }
                 case "tan": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("TAN(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.tan(arg);
                 }
                 case "atan": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("ATAN(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.atan(arg);
                 }
                 case "atan2": {
-                    ISqlExpression arg1 = visit(methodCall.getArgs().get(0));
-                    ISqlExpression arg2 = visit(methodCall.getArgs().get(1));
+                    ISqlExpression arg1 = visit(args.get(0));
+                    ISqlExpression arg2 = visit(args.get(1));
                     return math.atan2(arg1, arg2);
                 }
                 case "toDegrees": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
+                    ISqlExpression arg = visit(args.get(0));
                     return math.toDegrees(arg);
                 }
                 case "toRadians": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
+                    ISqlExpression arg = visit(args.get(0));
                     return math.toRadians(arg);
                 }
                 case "exp": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("EXP(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.exp(arg);
                 }
                 case "floor": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("FLOOR(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.floor(arg);
                 }
                 case "log": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
+                    ISqlExpression arg = visit(args.get(0));
                     return math.log(arg);
                 }
                 case "log10": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
+                    ISqlExpression arg = visit(args.get(0));
                     return math.log10(arg);
                 }
                 case "random": {
                     return math.random();
                 }
                 case "round": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
+                    ISqlExpression arg = visit(args.get(0));
                     return math.round(arg);
                 }
                 case "pow": {
-                    ISqlExpression arg1 = visit(methodCall.getArgs().get(0));
-                    ISqlExpression arg2 = visit(methodCall.getArgs().get(1));
-                    return factory.template(Arrays.asList("POWER(", ",", ")"), Arrays.asList(arg1, arg2));
+                    ISqlExpression arg1 = visit(args.get(0));
+                    ISqlExpression arg2 = visit(args.get(1));
+                    return math.pow(arg1,arg2);
                 }
                 case "signum": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("SIGN(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.signum(arg);
                 }
                 case "sqrt": {
-                    ISqlExpression arg = visit(methodCall.getArgs().get(0));
-                    return factory.template(Arrays.asList("SQRT(", ")"), Collections.singletonList(arg));
+                    ISqlExpression arg = visit(args.get(0));
+                    return math.sqrt(arg);
                 }
                 default:
                     return checkAndReturnValue(methodCall);

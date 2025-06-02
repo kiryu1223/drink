@@ -163,5 +163,23 @@ public class LUpdate2<T1, T2> extends UpdateBase<LUpdate2<T1, T2>> {
         return this;
     }
 
+    public LUpdate2<T1, T2> orWhere(@Expr Func2<T1, T2, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate2<T1, T2> orWhere(ExprTree<Func2<T1, T2, Boolean>> expr) {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public LUpdate2<T1, T2> orWhereIf(boolean condition, @Expr Func2<T1, T2, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate2<T1, T2> orWhereIf(boolean condition, ExprTree<Func2<T1, T2, Boolean>> expr) {
+        if (condition) orWhere(expr.getTree());
+        return this;
+    }
+
     //endregion
 }

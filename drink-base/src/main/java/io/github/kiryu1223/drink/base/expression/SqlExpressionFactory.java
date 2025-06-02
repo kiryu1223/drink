@@ -59,6 +59,10 @@ public interface SqlExpressionFactory {
     }
 
     default ISqlConditionsExpression condition(Collection<ISqlExpression> expressions) {
+        return condition(expressions,true);
+    }
+
+    default ISqlConditionsExpression condition(Collection<ISqlExpression> expressions,boolean and) {
         ISqlConditionsExpression conditions = condition();
         for (ISqlExpression expression : expressions) {
             conditions.addCondition(expression);

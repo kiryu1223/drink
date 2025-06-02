@@ -96,7 +96,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         if (lambda != null) {
             QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(config, queryableCopy);
             ISqlExpression cond = sqlVisitor.visit(lambda);
-            querySqlBuilder.addWhere(cond);
+            querySqlBuilder.addAndOrWhere(cond,true);
         }
         //查询
         SqlSession session = config.getSqlSessionFactory().getSession(config);
@@ -333,14 +333,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     protected void where(LambdaExpression<?> lambda) {
         QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression where = sqlVisitor.visit(lambda);
-        sqlBuilder.addWhere(where);
+        sqlBuilder.addAndOrWhere(where,true);
     }
 
     protected void orWhere(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression where = sqlVisitor.visit(lambda);
-        sqlBuilder.addOrWhere(where);
+        sqlBuilder.addAndOrWhere(where,false);
     }
 
 //    protected void exists(Class<?> table, LambdaExpression<?> lambda, boolean not) {

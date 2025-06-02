@@ -163,5 +163,23 @@ public class LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends UpdateBase<LUp
         return this;
     }
 
+    public LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> orWhere(@Expr Func9<T1, T2, T3, T4, T5, T6, T7, T8, T9, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> orWhere(ExprTree<Func9<T1, T2, T3, T4, T5, T6, T7, T8, T9, Boolean>> expr) {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> orWhereIf(boolean condition, @Expr Func9<T1, T2, T3, T4, T5, T6, T7, T8, T9, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> orWhereIf(boolean condition, ExprTree<Func9<T1, T2, T3, T4, T5, T6, T7, T8, T9, Boolean>> expr) {
+        if (condition) orWhere(expr.getTree());
+        return this;
+    }
+
     //endregion
 }

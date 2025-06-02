@@ -94,6 +94,12 @@ public abstract class DeleteBase<C> extends CRUD<C> {
     protected void where(LambdaExpression<?> lambda) {
         UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(getConfig(), sqlBuilder.getDelete());
         ISqlExpression expression = sqlVisitor.visit(lambda);
-        sqlBuilder.addWhere(expression);
+        sqlBuilder.addAndOrWhere(expression,true);
+    }
+
+    protected void orWhere(LambdaExpression<?> lambda) {
+        UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(getConfig(), sqlBuilder.getDelete());
+        ISqlExpression expression = sqlVisitor.visit(lambda);
+        sqlBuilder.addAndOrWhere(expression,false);
     }
 }

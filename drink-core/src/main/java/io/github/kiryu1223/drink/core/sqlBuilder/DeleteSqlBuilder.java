@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -66,8 +67,18 @@ public class DeleteSqlBuilder implements ISqlBuilder {
     /**
      * 添加删除的where条件
      */
-    public void addWhere(ISqlExpression where) {
-        delete.addWhere(where);
+    public void addAndOrWhere(ISqlExpression cond,boolean isAnd) {
+        ISqlWhereExpression where = delete.getWhere();
+        ISqlConditionsExpression conditions = where.getConditions();
+        if (conditions.isAnd()!=isAnd)
+        {
+            conditions.addCondition(cond);
+        }
+        else
+        {
+            List<ISqlExpression> list = new ArrayList<>(Arrays.asList(conditions, cond));
+            where.setConditions(factory.condition(list,isAnd));
+        }
     }
 
     @Override

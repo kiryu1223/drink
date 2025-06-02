@@ -26,140 +26,35 @@ import java.math.BigDecimal;
  */
 public interface IAggregation {
 
-    final class Over {
-        private Over() {
-        }
-
-        @SqlExtensionExpression(template = "COUNT(*) {super}")
-        public long count() {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "COUNT({r}) {super}")
-        public <R> long count(R r) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "SUM({r}) {super}")
-        public <R> R sum(R r) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "AVG({r}) {super}")
-        public BigDecimal avg(Number r) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "MAX({r}) {super}")
-        public <R> R max(R r) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "MIN({r}) {super}")
-        public <R> R min(R r) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "ROW_NUMBER() {super}")
-        public long rowNumber() {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "RANK() {super}")
-        public long rank() {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "DENSE_RANK() {super}")
-        public long denseRank() {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "PERCENT_RANK() {super}")
-        public double percentRank() {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "NTILE({n}) {super}")
-        public long ntile(long n) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "CUME_DIST({n}) {super}")
-        public double cumeDist() {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "LAG({expr}) {super}")
-        public <R> R lag(R expr) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "LAG({expr},{offset}) {super}")
-        public <R> R lag(R expr, long offset) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "LAG({expr},{offset},{publicValue}) {super}")
-        public <R> R lag(R expr, long offset, R publicValue) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "LEAD({expr}) {super}")
-        public <R> R lead(R expr) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "LEAD({expr},{offset}) {super}")
-        public <R> R lead(R expr, long offset) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "LEAD({expr},{offset},{publicValue}) {super}")
-        public <R> R lead(R expr, long offset, R publicValue) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "FIRST_VALUE({expr}) {super}")
-        public <R> R firstValue(R expr) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "LAST_VALUE({expr}) {super}")
-        public <R> R lastValue(R expr) {
-            return Winner.error();
-        }
-
-        @SqlExtensionExpression(template = "NTH_VALUE({expr},{n}) {super}")
-        public <R> R nthValue(R expr, long n) {
-            return Winner.error();
-        }
-    }
-
     @SqlExtensionExpression(template = "OVER ()")
     default Over over() {
         return Winner.error();
     }
 
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition})")
-    default <P> Over over(P partition) {
+    @SqlExtensionExpression(template = "OVER ({params})", separator = " ")
+    default Over over(Over.Param... params) {
         return Winner.error();
     }
 
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy})")
-    default <P, O> Over over(P partition, O orderBy) {
-        return Winner.error();
-    }
-
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} ROWS BETWEEN {start} AND {end})")
-    default <P, O> Over over(P partition, O orderBy, Rows start, Rows end) {
-        return Winner.error();
-    }
-
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} RANGE BETWEEN {start} AND {end})")
-    default <P, O> Over over(P partition, O orderBy, Range start, Range end) {
-        return Winner.error();
-    }
+//    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition})")
+//    default Over over(OverParam param) {
+//        return Winner.error();
+//    }
+//
+//    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy})")
+//    default <P, O> Over over(P partition, O orderBy) {
+//        return Winner.error();
+//    }
+//
+//    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} ROWS BETWEEN {start} AND {end})")
+//    default <P, O> Over over(P partition, O orderBy, Rows start, Rows end) {
+//        return Winner.error();
+//    }
+//
+//    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} RANGE BETWEEN {start} AND {end})")
+//    default <P, O> Over over(P partition, O orderBy, Range start, Range end) {
+//        return Winner.error();
+//    }
 
     @SqlExtensionExpression(template = "COUNT(*)")
     default long count() {

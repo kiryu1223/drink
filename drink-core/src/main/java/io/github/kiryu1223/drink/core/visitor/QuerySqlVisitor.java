@@ -303,14 +303,18 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                             int index = methodParameters.indexOf(targetParam);
 
                             // 如果是可变参数
-                            if (targetParam.isVarArgs()) {
+//                            System.out.println(targetParam);
+                            boolean varArgs = targetParam.isVarArgs();
+                            if (varArgs) {
                                 while (index < args.size()) {
                                     if (isAnd) {
                                         parse$(args.get(index), strings);
                                     }
                                     else {
                                         expressions.add(visit(args.get(index)));
-                                        if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
+                                        if (index < args.size() - 1){
+                                            strings.add(sqlFuncExt.separator());
+                                        }
                                         index++;
                                     }
                                 }

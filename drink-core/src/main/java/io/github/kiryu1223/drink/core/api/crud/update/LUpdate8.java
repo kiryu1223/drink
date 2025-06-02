@@ -162,5 +162,23 @@ public class LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> extends UpdateBase<LUpdate
         return this;
     }
 
+    public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> orWhere(@Expr Func8<T1, T2, T3, T4, T5, T6, T7, T8, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> orWhere(ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, Boolean>> expr) {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> orWhereIf(boolean condition, @Expr Func8<T1, T2, T3, T4, T5, T6, T7, T8, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> orWhereIf(boolean condition, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, Boolean>> expr) {
+        if (condition) orWhere(expr.getTree());
+        return this;
+    }
+
     //endregion
 }

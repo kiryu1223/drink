@@ -4,9 +4,13 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
+import io.github.kiryu1223.drink.base.sqlExt.Over;
+import io.github.kiryu1223.drink.base.sqlExt.Rows;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.func.SqlFunctions;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Course;
 import io.github.kiryu1223.project.pojos.Employee;
@@ -41,20 +45,20 @@ public class Main {
         Filter filter = client.getConfig().getFilter();
 
 
-        List<? extends Employee> list = client.query(Employee.class)
-                .where(e -> e.getNumber() < 10020)
-                .select(s -> new Employee() {
-                    // select
-                    {
-                        // select count(*) from courses as c where c.id = s.id,
-                        setNumber(client.query(Employee.class).count());
-                    }
-                    // (select ? from courses as c where c.id = s.id) as `c4`
-                    List<? extends Employee> c4 = client.query(Employee.class)
-                            .where(c -> c.getNumber() == s.getNumber())
-                            .toList();
-                })
-                .toList();
+//        List<? extends Employee> list = client.query(Employee.class)
+//                .where(e -> e.getNumber() < 10020)
+//                .select(s -> new Employee() {
+//                    // select
+//                    {
+//                        // select count(*) from courses as c where c.id = s.id,
+//                        setNumber(client.query(Employee.class).count());
+//                    }
+//                    // (select ? from courses as c where c.id = s.id) as `c4`
+//                    List<? extends Employee> c4 = client.query(Employee.class)
+//                            .where(c -> c.getNumber() == s.getNumber())
+//                            .toList();
+//                })
+//                .toList();
 
 //        String sql = client.query(Student.class)
 //                .where(e -> client.query(Course.class)
@@ -62,9 +66,9 @@ public class Main {
 //                )
 //                .toSql();
 
-        for (Employee employee : list) {
-            System.out.println(employee.toString(client.getConfig()));
-        }
+//        for (Employee employee : list) {
+//            System.out.println(employee.toString(client.getConfig()));
+//        }
 //
 //        for (Student student : list)
 //        {
@@ -81,15 +85,23 @@ public class Main {
 //            System.out.println(student);
 //        }
 //
-//        String sql2 = client.query(Course.class)
-//                .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
-//                .selectAggregate(a -> new Result() {
-//                    long id = SqlFunctions.rawSql("(select c.id from courses as c)");
-//                    long number = a.over(a.table.getCourseId(), a.table.getClassroom()).rowNumber();
-//                })
-//                .toSql();
-//
-//        System.out.println(sql2);
+        String sql2 = client.query(Course.class)
+                .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
+                .selectAggregate(a -> new Result() {
+                    long id = SqlFunctions.rawSql("(select c.id from courses as c)");
+                    long number2 = a.over(
+                            Over.partitionBy(
+                                    a.table.getCourseId(),
+                                    a.table.getCourseName(),
+                                    a.table.getCredit()
+                            ),
+                            Over.orderBy(a.table.getClassroom()),
+                            Over.between(Rows.first(),Rows.last())
+                    ).rowNumber();
+                })
+                .toSql();
+
+        System.out.println(sql2);
 //        List<Course> list2 = client.query(Course.class)
 //                .selectAggregate(Course.class, (c, s) ->
 //                {

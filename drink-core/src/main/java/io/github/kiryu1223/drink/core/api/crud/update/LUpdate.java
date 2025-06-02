@@ -166,5 +166,23 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
+    public LUpdate<T> orWhere(@Expr Func1<T, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate<T> orWhere(ExprTree<Func1<T, Boolean>> expr) {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public LUpdate<T> orWhereIf(boolean condition, @Expr Func1<T, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate<T> orWhereIf(boolean condition, ExprTree<Func1<T, Boolean>> expr) {
+        if (condition) orWhere(expr.getTree());
+        return this;
+    }
+
     //endregion
 }

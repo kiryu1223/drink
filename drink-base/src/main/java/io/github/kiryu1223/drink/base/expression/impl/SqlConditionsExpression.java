@@ -41,6 +41,11 @@ public class SqlConditionsExpression implements ISqlConditionsExpression {
     }
 
     @Override
+    public boolean isAnd() {
+        return and;
+    }
+
+    @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         if (isEmpty()) return "";
         List<String> whereStr = new ArrayList<>(getConditions().size());

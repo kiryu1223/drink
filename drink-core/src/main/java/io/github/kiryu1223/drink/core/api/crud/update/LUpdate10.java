@@ -104,5 +104,23 @@ public class LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends UpdateBa
         return this;
     }
 
+    public LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orWhere(@Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orWhere(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean>> expr) {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orWhereIf(boolean condition, @Expr Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> orWhereIf(boolean condition, ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Boolean>> expr) {
+        if (condition) orWhere(expr.getTree());
+        return this;
+    }
+
     //endregion
 }

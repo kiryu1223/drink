@@ -117,6 +117,108 @@ public interface ISqlBuilder {
                     }
                 }
             }
+
+            @Override
+            public void visit(ISqlUpdateExpression update) {
+                super.visit(update);
+                ISqlFromExpression from = update.getFrom();
+                ISqlTableExpression table = from.getSqlTableExpression();
+                if (table instanceof ISqlRealTableExpression) {
+                    ISqlRealTableExpression realTable = (ISqlRealTableExpression) table;
+                    Class<?> type = realTable.getMainTableClass();
+                    SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                    List<LambdaExpression<?>> applyList = filter.getApplyList(type, getIgnoreFilterIds());
+                    for (LambdaExpression<?> lambdaExpression : applyList) {
+                        ISqlWhereExpression where = update.getWhere();
+                        UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, update);
+                        ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                        ISqlConditionsExpression conditions = where.getConditions();
+                        if (conditions.isAnd())
+                        {
+                            conditions.addCondition(expression);
+                        }
+                        else
+                        {
+                            update.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(conditions), expression)),false));
+                        }
+                    }
+                }
+                ISqlJoinsExpression joins = update.getJoins();
+                for (ISqlJoinExpression join : joins.getJoins()) {
+                    ISqlTableExpression joinTable = join.getJoinTable();
+                    if (joinTable instanceof ISqlRealTableExpression) {
+                        ISqlRealTableExpression realTable = (ISqlRealTableExpression) joinTable;
+                        Class<?> type = realTable.getMainTableClass();
+                        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                        List<LambdaExpression<?>> applyList = filter.getApplyList(type, getIgnoreFilterIds());
+                        int index = 1;
+                        for (LambdaExpression<?> lambdaExpression : applyList) {
+                            ISqlConditionsExpression conditions = join.getConditions();
+                            UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, update, index++);
+                            ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                            if (conditions.isAnd())
+                            {
+                                conditions.addCondition(expression);
+                            }
+                            else
+                            {
+                                join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression),false));
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void visit(ISqlDeleteExpression delete) {
+                super.visit(delete);
+                ISqlFromExpression from = delete.getFrom();
+                ISqlTableExpression table = from.getSqlTableExpression();
+                if (table instanceof ISqlRealTableExpression) {
+                    ISqlRealTableExpression realTable = (ISqlRealTableExpression) table;
+                    Class<?> type = realTable.getMainTableClass();
+                    SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                    List<LambdaExpression<?>> applyList = filter.getApplyList(type, getIgnoreFilterIds());
+                    for (LambdaExpression<?> lambdaExpression : applyList) {
+                        ISqlWhereExpression where = delete.getWhere();
+                        UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, delete);
+                        ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                        ISqlConditionsExpression conditions = where.getConditions();
+                        if (conditions.isAnd())
+                        {
+                            conditions.addCondition(expression);
+                        }
+                        else
+                        {
+                            delete.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(conditions), expression)),false));
+                        }
+                    }
+                }
+                ISqlJoinsExpression joins = delete.getJoins();
+                for (ISqlJoinExpression join : joins.getJoins()) {
+                    ISqlTableExpression joinTable = join.getJoinTable();
+                    if (joinTable instanceof ISqlRealTableExpression) {
+                        ISqlRealTableExpression realTable = (ISqlRealTableExpression) joinTable;
+                        Class<?> type = realTable.getMainTableClass();
+                        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                        List<LambdaExpression<?>> applyList = filter.getApplyList(type, getIgnoreFilterIds());
+                        int index = 1;
+                        for (LambdaExpression<?> lambdaExpression : applyList) {
+                            ISqlConditionsExpression conditions = join.getConditions();
+                            UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, delete, index++);
+                            ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
+                            if (conditions.isAnd())
+                            {
+                                conditions.addCondition(expression);
+                            }
+                            else
+                            {
+                                join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression),false));
+                            }
+                        }
+                    }
+                }
+            }
         });
         return copy;
     }

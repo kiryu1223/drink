@@ -124,27 +124,12 @@ public final class SqlFunctions {
     // region [窗口函数]
 
     @SqlExtensionExpression(template = "OVER ()")
-    public static IAggregation.Over over() {
+    public static Over over() {
         return Winner.error();
     }
 
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition})")
-    public static <P> IAggregation.Over over(P partition) {
-        return Winner.error();
-    }
-
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy})")
-    public static <P, O> IAggregation.Over over(P partition, O orderBy) {
-        return Winner.error();
-    }
-
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} ROWS BETWEEN {start} AND {end})")
-    public static <P, O> IAggregation.Over over(P partition, O orderBy, Rows start, Rows end) {
-        return Winner.error();
-    }
-
-    @SqlExtensionExpression(template = "OVER (PARTITION BY {partition} ORDER BY {orderBy} RANGE BETWEEN {start} AND {end})")
-    public static <P, O> IAggregation.Over over(P partition, O orderBy, Range start, Range end) {
+    @SqlExtensionExpression(template = "OVER ({params})",separator = " ")
+    public static Over over(Over.Param... params) {
         return Winner.error();
     }
 

@@ -47,10 +47,12 @@ public interface ISqlConditionsExpression extends ISqlExpression {
         return getConditions().isEmpty();
     }
 
+    boolean isAnd();
+
     @Override
     default ISqlConditionsExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        ISqlConditionsExpression newConditions = factory.condition();
+        ISqlConditionsExpression newConditions = factory.condition(isAnd());
         for (ISqlExpression condition : getConditions()) {
             newConditions.addCondition(condition.copy(config));
         }

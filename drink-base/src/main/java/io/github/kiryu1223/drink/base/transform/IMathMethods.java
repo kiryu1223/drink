@@ -11,6 +11,50 @@ import java.util.List;
 public interface IMathMethods {
 
     SqlExpressionFactory getSqlExpressionFactory();
+
+    default ISqlTemplateExpression abs(ISqlExpression arg)
+    {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("ABS(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression sin(ISqlExpression arg)
+    {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("SIN(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression asin(ISqlExpression arg)
+    {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("ASIN(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression cos(ISqlExpression arg)
+    {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("COS(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression acos(ISqlExpression arg)
+    {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("ACOS(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression tan(ISqlExpression arg)
+    {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("TAN(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression atan(ISqlExpression arg)
+    {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("ATAN(", ")"), Collections.singletonList(arg));
+    }
+
+
     /**
      * 数据库atan2函数
      */
@@ -36,6 +80,16 @@ public interface IMathMethods {
         SqlExpressionFactory factory = getSqlExpressionFactory();
         List<String> function= Arrays.asList("DEGREES(", ")");
         return factory.template(function, Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression exp(ISqlExpression arg) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("EXP(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression floor(ISqlExpression arg) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("FLOOR(", ")"), Collections.singletonList(arg));
     }
 
     /**
@@ -81,5 +135,20 @@ public interface IMathMethods {
         SqlExpressionFactory factory = getSqlExpressionFactory();
         List<String>  function = Arrays.asList("ROUND(", ")");
         return factory.template(function, Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression pow(ISqlExpression arg1,ISqlExpression arg2) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("POWER(", ",", ")"), Arrays.asList(arg1, arg2));
+    }
+
+    default ISqlTemplateExpression signum(ISqlExpression arg) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("SIGN(", ")"), Collections.singletonList(arg));
+    }
+
+    default ISqlTemplateExpression sqrt(ISqlExpression arg) {
+        SqlExpressionFactory factory = getSqlExpressionFactory();
+        return factory.template(Arrays.asList("SQRT(", ")"), Collections.singletonList(arg));
     }
 }
