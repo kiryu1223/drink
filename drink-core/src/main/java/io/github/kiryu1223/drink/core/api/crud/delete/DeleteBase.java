@@ -23,7 +23,7 @@ import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
-import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
+import io.github.kiryu1223.drink.core.visitor.UpdateSqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ public abstract class DeleteBase<C> extends CRUD<C> {
 
     protected void join(JoinType joinType, Class<?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getDelete());
+        UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(getConfig(), sqlBuilder.getDelete());
         ISqlExpression on = sqlVisitor.visit(lambda);
         getSqlBuilder().addJoin(joinType, factory.table(target), factory.condition(Collections.singleton(on)));
     }
@@ -92,7 +92,7 @@ public abstract class DeleteBase<C> extends CRUD<C> {
     }
 
     protected void where(LambdaExpression<?> lambda) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getDelete());
+        UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(getConfig(), sqlBuilder.getDelete());
         ISqlExpression expression = sqlVisitor.visit(lambda);
         sqlBuilder.addWhere(expression);
     }

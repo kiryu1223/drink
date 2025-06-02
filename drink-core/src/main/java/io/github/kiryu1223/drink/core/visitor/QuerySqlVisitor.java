@@ -62,7 +62,12 @@ public class QuerySqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 //    protected QuerySqlBuilder last;
 
     public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression) {
+        this(config,sqlQueryableExpression,-1);
+    }
+
+    public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression,int index) {
         this.config = config;
+        this.index = index;
         factory = config.getSqlExpressionFactory();
         push(sqlQueryableExpression);
     }

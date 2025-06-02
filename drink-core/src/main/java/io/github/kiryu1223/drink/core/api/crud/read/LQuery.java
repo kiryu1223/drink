@@ -31,8 +31,8 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
-import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
-import io.github.kiryu1223.expressionTree.delegate.Action2;
+import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
+import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -497,7 +497,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public <R extends ITable> LQuery<T> include(ExprTree<Func1<T, R>> expr)
     {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         FieldMetaData include = sqlVisitor.toField(expr.getTree());
         if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
         include(include,getConfig().getSqlExpressionFactory().tableRef(include.getNavigateData().getNavigateTargetType()), null);
@@ -519,7 +519,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public <R extends ITable> LQuery<T> include(ExprTree<Func1<T, R>> expr, Func1<LQuery<R>,LQuery<R>> then)
     {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         FieldMetaData include = sqlVisitor.toField(expr.getTree());
         if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
         LambdaExpression<Func1<T, R>> tree = expr.getTree();
@@ -547,7 +547,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public <R extends ITable> LQuery<T> includeMany(ExprTree<Func1<T, Collection<R>>> expr)
     {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         FieldMetaData include = sqlVisitor.toField(expr.getTree());
         if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
         include(include,getConfig().getSqlExpressionFactory().tableRef(include.getNavigateData().getNavigateTargetType()), null);
@@ -564,7 +564,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public <R extends ITable> LQuery<T> includeMany(ExprTree<Func1<T, Collection<R>>> expr, Func1<LQuery<R>,LQuery<R>> then)
     {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         FieldMetaData include = sqlVisitor.toField(expr.getTree());
         if (!include.hasNavigate()) throw new DrinkException("include指定的字段需要被@Navigate修饰");
         FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
@@ -673,7 +673,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public List<T> toTreeList(ExprTree<Func1<T, Collection<T>>> expr)
     {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), getSqlBuilder().getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), getSqlBuilder().getQueryable());
         FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
         if (!fieldMetaData.hasNavigate())
         {
@@ -863,7 +863,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
     public LQuery<T> asTreeCTE(ExprTree<Func1<T, Collection<T>>> expr, int level)
     {
         ISqlQueryableExpression queryable = getSqlBuilder().getQueryable();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), queryable);
         FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
         if (!fieldMetaData.hasNavigate())
         {

@@ -59,86 +59,62 @@ import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
  * @author kiryu1223
  * @since 3.0
  */
-public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
+public class UpdateSqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     protected final IConfig config;
     protected final SqlExpressionFactory factory;
-    //    protected final ISqlFromExpression fromExpression;
-//    protected final ISqlJoinsExpression joinsExpression;
-//    protected boolean isFirst = true;
-//    protected boolean isGroup = false;
     protected int index = -1;
-    //    protected final List<ISqlTableRefExpression> asNameList = new ArrayList<>();
-//    protected final List<ParameterExpression> parameterExpressionList = new ArrayList<>();
-//    protected final Map<String,ISqlGroupByExpression> groupMap=new HashMap<>();
     protected final Deque<List<ISqlTableRefExpression>> asNameListDeque = new ArrayDeque<>();
     protected final Map<ParameterExpression, ISqlTableRefExpression> asNameMap = new HashMap<>();
-    protected final Deque<ISqlGroupByExpression> groupDeque = new ArrayDeque<>();
     protected final Deque<ISqlFromExpression> fromDeque = new ArrayDeque<>();
     protected final Deque<ISqlJoinsExpression> joinsDeque = new ArrayDeque<>();
-    protected final Deque<ISqlSelectExpression> selectDeque = new ArrayDeque<>();
-    protected final Map<ParameterExpression, ISqlGroupByExpression> groupMap = new HashMap<>();
-    protected final Map<String,QuerySqlBuilder> subQueryMap = new HashMap<>();
-    //protected final Map<String, QuerySqlBuilder> subQueryMap = new HashMap<>();
-//    protected final Deque<QuerySqlBuilder> subQueryDeque = new ArrayDeque<>();
-//    protected QuerySqlBuilder last;
 
-    public SqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression) {
-        this(config, sqlQueryableExpression, -1);
+    public UpdateSqlVisitor(IConfig config, ISqlUpdateExpression updateExpression) {
+        this(config, -1);
+        push(updateExpression);
     }
 
-    public SqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression, int index) {
-        this(config, sqlQueryableExpression.getFrom(), sqlQueryableExpression.getJoins(), sqlQueryableExpression.getGroupBy(),sqlQueryableExpression.getSelect(), index);
+    public UpdateSqlVisitor(IConfig config, ISqlDeleteExpression deleteExpression) {
+        this(config, -1);
+        push(deleteExpression);
     }
 
-    public SqlVisitor(IConfig config, ISqlUpdateExpression updateExpression) {
-        this(config, updateExpression.getFrom(), updateExpression.getJoins(),null, null, -1);
-    }
-
-    public SqlVisitor(IConfig config, ISqlDeleteExpression deleteExpression) {
-        this(config, deleteExpression.getFrom(), deleteExpression.getJoins(), null,null, -1);
-    }
-
-    protected SqlVisitor(IConfig config, ISqlFromExpression fromExpression, ISqlJoinsExpression joinsExpression, ISqlGroupByExpression groupByExpression,ISqlSelectExpression selectExpression, int index) {
+    protected UpdateSqlVisitor(IConfig config, int index) {
         this.config = config;
         this.factory = config.getSqlExpressionFactory();
-        List<ISqlTableRefExpression> asNameList = new ArrayList<>();
-        asNameList.add(fromExpression.getTableRefExpression());
-        for (ISqlJoinExpression join : joinsExpression.getJoins()) {
-            asNameList.add(join.getTableRefExpression());
-        }
-        push(asNameList, fromExpression, joinsExpression, groupByExpression,selectExpression);
     }
 
-    protected void push(ISqlQueryableExpression queryable) {
-        ISqlFromExpression from = queryable.getFrom();
-        ISqlJoinsExpression joins = queryable.getJoins();
+    protected void push(ISqlUpdateExpression updateExpression) {
+        ISqlFromExpression from = updateExpression.getFrom();
+        ISqlJoinsExpression joins = updateExpression.getJoins();
         List<ISqlTableRefExpression> asNameList = new ArrayList<>();
         asNameList.add(from.getTableRefExpression());
         for (ISqlJoinExpression join : joins.getJoins()) {
             asNameList.add(join.getTableRefExpression());
         }
-        push(asNameList, from, joins, queryable.getGroupBy(),queryable.getSelect());
+        push(asNameList, from, joins);
     }
 
-    protected void push(List<ISqlTableRefExpression> tableRefExpressions, ISqlFromExpression fromExpression, ISqlJoinsExpression joinsExpression, ISqlGroupByExpression groupByExpression,ISqlSelectExpression selectExpression) {
+    protected void push(ISqlDeleteExpression deleteExpression) {
+        ISqlFromExpression from = deleteExpression.getFrom();
+        ISqlJoinsExpression joins = deleteExpression.getJoins();
+        List<ISqlTableRefExpression> asNameList = new ArrayList<>();
+        asNameList.add(from.getTableRefExpression());
+        for (ISqlJoinExpression join : joins.getJoins()) {
+            asNameList.add(join.getTableRefExpression());
+        }
+        push(asNameList, from, joins);
+    }
+
+    protected void push(List<ISqlTableRefExpression> tableRefExpressions, ISqlFromExpression fromExpression, ISqlJoinsExpression joinsExpression) {
         asNameListDeque.push(tableRefExpressions);
-        groupDeque.push(groupByExpression);
         fromDeque.push(fromExpression);
         joinsDeque.push(joinsExpression);
-        selectDeque.push(selectExpression);
     }
 
     protected void pop() {
         asNameListDeque.pop();
-        groupDeque.pop();
         fromDeque.pop();
         joinsDeque.pop();
-        selectDeque.pop();
-    }
-
-    public Map<String, QuerySqlBuilder> getSubQueryMap()
-    {
-        return subQueryMap;
     }
 
     /**
@@ -179,26 +155,15 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 //            return visit;
 //        }
         List<ParameterExpression> parameters = lambda.getParameters();
-        // g -> ...
-        if (parameters.size() == 1 && IGroup.class.isAssignableFrom(parameters.get(0).getType())) {
-            ParameterExpression parameterExpression = parameters.get(0);
-            groupMap.put(parameterExpression, groupDeque.peek());
-            ISqlExpression visit = visit(lambda.getBody());
-            groupMap.remove(parameterExpression);
-            return visit;
+        List<ISqlTableRefExpression> peek = asNameListDeque.peek();
+        for (int i = 0; i < parameters.size(); i++) {
+            asNameMap.put(parameters.get(i), peek.get(i));
         }
-        // (a,b,c) -> ...
-        else {
-            List<ISqlTableRefExpression> peek = asNameListDeque.peek();
-            for (int i = 0; i < parameters.size(); i++) {
-                asNameMap.put(parameters.get(i), peek.get(i));
-            }
-            ISqlExpression visit = visit(lambda.getBody());
-            for (ParameterExpression parameter : parameters) {
-                asNameMap.remove(parameter);
-            }
-            return visit;
+        ISqlExpression visit = visit(lambda.getBody());
+        for (ParameterExpression parameter : parameters) {
+            asNameMap.remove(parameter);
         }
+        return visit;
     }
 
 //    protected String doGetISqlTableRefExpression(String as) {
@@ -238,27 +203,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         ISqlExpression left = visit(fieldSelect.getExpr());
         Field field = fieldSelect.getField();
         String fieldName = field.getName();
-        // g
-        if (left instanceof SqlGroupRef) {
-            // g.key
-            if (fieldName.equals("key")) {
-                return groupDeque.peek();
-            }
-            // g.value?
-            else if (fieldName.startsWith("value")) {
-                int index = Integer.parseInt(fieldName.replace("value", ""));
-                List<ISqlTableRefExpression> list = asNameListDeque.peek();
-                return list.get(index - 1);
-            }
-            else {
-                throw new DrinkException(fieldSelect.toString());
-            }
-        }
-        else if (left instanceof ISqlGroupByExpression) {
-            ISqlGroupByExpression group = (ISqlGroupByExpression) left;
-            return group.getColumns().get(fieldName);
-        }
-        else if (left instanceof ISqlTableRefExpression) {
+        if (left instanceof ISqlTableRefExpression) {
             if (Aggregate.class.isAssignableFrom(field.getDeclaringClass())) {
                 return left;
             }
@@ -437,9 +382,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
             Expression expression = methodCall.getArgs().get(0);
             if (methodName.equals("query") && expression.getKind() == Kind.StaticClass) {
                 StaticClassExpression staticClass = (StaticClassExpression) expression;
-                ISqlQueryableExpression queryable = factory.queryable(staticClass.getType());
-                push(queryable);
-                return queryable;
+                return factory.queryable(staticClass.getType());
             }
             return checkAndReturnValue(methodCall);
         }
@@ -1289,12 +1232,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
                     MetaData metaData = config.getMetaData(method.getDeclaringClass());
                     FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
                     if (getter.hasNavigate()) {
-                        ISqlQueryableExpression query = queryToQueryable(leftQuery, getter);
-                        // 弹出旧的
-                        pop();
-                        //  在子查询发起的地方压入
-                        push(query);
-                        return query;
+                        return queryToQueryable(leftQuery, getter);
                     }
                     else {
                         // select ? from table ...
@@ -1392,107 +1330,12 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
      */
     @Override
     public ISqlExpression visit(NewExpression newExpression) {
-        BlockExpression classBody = newExpression.getClassBody();
-        if (classBody == null) {
-            return checkAndReturnValue(newExpression);
-        }
-        else {
-            Class<?> type = newExpression.getType();
-            // GROUP BY
-            if (Grouper.class.isAssignableFrom(type)) {
-                LinkedHashMap<String, ISqlExpression> contextMap = new LinkedHashMap<>();
-                for (Expression expression : classBody.getExpressions()) {
-                    if (expression.getKind() == Kind.Variable) {
-                        VariableExpression variableExpression = (VariableExpression) expression;
-                        String name = variableExpression.getName();
-                        Expression init = variableExpression.getInit();
-                        if (init != null) {
-                            ISqlExpression sqlExpression = visit(init);
-                            contextMap.put(name, sqlExpression);
-                        }
-                    }
-                }
-                return factory.groupBy(contextMap);
-            }
-            // new {...}
-            else if (type.isAnonymousClass()) {
-                List<ISqlExpression> expressions = new ArrayList<>();
-                MetaData metaData = config.getMetaData(type);
-                for (Expression expression : classBody.getExpressions()) {
-                    if (expression.getKind() == Kind.Variable) {
-                        VariableExpression variable = (VariableExpression) expression;
-                        String varName = variable.getName();
-                        Expression init = variable.getInit();
-                        if (init != null) {
-                            ISqlExpression visit = visit(variable.getInit());
-                            // a.b() 导航属性
-                            // a.query(a.b()).where(...)...toList()/first() 导航属性后附带条件
-                            // client.query(...)...toList()/first() 子查询
-                            if (visit instanceof ISqlQueryableExpression) {
-                                ISqlQueryableExpression query = (ISqlQueryableExpression) visit;
-                                if (query instanceof QueryBox)
-                                {
-                                    QueryBox queryBox = (QueryBox) query;
-                                    QuerySqlBuilder builder = new QuerySqlBuilder(config, queryBox.getQueryable());
-                                    builder.getIncludes().addAll(queryBox.getIncludes());
-                                    subQueryMap.put(varName,builder);
-                                }
-                                else
-                                {
-                                    subQueryMap.put(varName,new QuerySqlBuilder(config,query));
-                                }
-                            }
-                            else {
-                                // 某些数据库不支持直接返回bool类型，所以需要做一下包装
-                                visit = tryToBool(variable.getInit(), visit);
-                                setAs(expressions, visit, varName);
-                            }
-                        }
-                    }
-                    else if(expression.getKind() == Kind.Block)
-                    {
-                        BlockExpression blockExpression = (BlockExpression) expression;
-                        for (Expression bb : blockExpression.getExpressions())
-                        {
-                            if (bb.getKind() == Kind.MethodCall)
-                            {
-                                MethodCallExpression methodCall = (MethodCallExpression) bb;
-                                Expression expr = methodCall.getExpr();
-                                Method method = methodCall.getMethod();
-                                // this == null
-                                if(expr == null && isSetter(method))
-                                {
-                                    FieldMetaData setter = metaData.getFieldMetaDataBySetter(method);
-                                    String asName = setter.getFieldName();
-                                    Expression arg = methodCall.getArgs().get(0);
-                                    ISqlExpression visit = visit(arg);
-                                    // 某些数据库不支持直接返回bool类型，所以需要做一下包装
-                                    visit = tryToBool(arg, visit);
-                                    setAs(expressions, visit, asName);
-                                }
-                            }
-                        }
-                    }
-                }
-                return factory.select(expressions, newExpression.getType());
-            }
-            else {
-                return checkAndReturnValue(newExpression);
-            }
-        }
+        return checkAndReturnValue(newExpression);
     }
 
     @Override
     public ISqlExpression visit(ParameterExpression parameter) {
-        if (IGroup.class.isAssignableFrom(parameter.getType())) {
-            return new SqlGroupRef();
-        }
-        else if (Aggregate.class.isAssignableFrom(parameter.getType())) {
-            return asNameListDeque.peek().get(0);
-        }
-        else {
-            return getISqlTableRefExpressionByIndex(parameter);
-        }
+        return getISqlTableRefExpressionByIndex(parameter);
     }
 
     @Override
@@ -1681,125 +1524,6 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         return subQuery;
     }
 
-    protected void setAs(List<ISqlExpression> contexts, ISqlExpression expression, String name) {
-        if (expression instanceof ISqlColumnExpression) {
-            ISqlColumnExpression sqlColumn = (ISqlColumnExpression) expression;
-            if (!sqlColumn.getFieldMetaData().getColumn().equals(name)) {
-                contexts.add(factory.as(expression, name));
-            }
-            else {
-                contexts.add(expression);
-            }
-        }
-        else {
-            contexts.add(factory.as(expression, name));
-        }
-    }
-
-    protected ISqlExpression tryToBool(Expression init, ISqlExpression result) {
-        if (init instanceof MethodCallExpression) {
-            MethodCallExpression methodCall = (MethodCallExpression) init;
-            return tryToBool(isBool(methodCall.getMethod().getReturnType()), result);
-        }
-        else if (init instanceof UnaryExpression) {
-            UnaryExpression unary = (UnaryExpression) init;
-            return tryToBool(unary.getOperatorType() == OperatorType.NOT, result);
-        }
-        return result;
-    }
-
-    protected ISqlExpression tryToBool(boolean condition, ISqlExpression result) {
-        if (!condition) return result;
-        return config.getTransformer().boxBool(result);
-    }
-
-    protected boolean isSelect=false;
-
-    public ISqlSelectExpression toSelect(LambdaExpression<?> lambda, ISqlQueryableExpression queryable) {
-        isSelect=true;
-        ISqlExpression expression = visit(lambda);
-        ISqlSelectExpression selectExpression;
-        if (expression instanceof ISqlSelectExpression) {
-            selectExpression = (ISqlSelectExpression) expression;
-        }
-        else if (expression instanceof ISqlTableRefExpression) {
-            ISqlTableRefExpression tableRef = (ISqlTableRefExpression) expression;
-            List<ISqlTableRefExpression> peek = asNameListDeque.peek();
-            int index = peek.indexOf(tableRef);
-            Class<?> tableClass;
-            if (index == 0) {
-                tableClass = queryable.getFrom().getSqlTableExpression().getMainTableClass();
-            }
-            else {
-                tableClass = queryable.getJoins().getJoins().get(index - 1).getJoinTable().getMainTableClass();
-            }
-            selectExpression = factory.select(tableClass, tableRef);
-        }
-        else if (expression instanceof ISqlGroupByExpression) {
-            ISqlGroupByExpression groupBy = (ISqlGroupByExpression) expression;
-            selectExpression = factory.select(new ArrayList<>(groupBy.getColumns().values()), lambda.getReturnType());
-        }
-        else if (expression instanceof SqlGroupRef) {
-            throw new DrinkException("ISqlGroupRef");
-        }
-        else {
-            SqlExpressionFactory factory = config.getSqlExpressionFactory();
-            // 用于包装某些数据库不支持直接返回bool
-            if (isBool(lambda.getReturnType())) {
-                expression = config.getTransformer().boxBool(expression);
-            }
-            selectExpression = factory.select(Collections.singletonList(expression), lambda.getReturnType(), true, false);
-        }
-        return selectExpression;
-    }
-
-//    public Map<String, QuerySqlBuilder> getSubQueryMap() {
-//        return subQueryMap;
-//    }
-
-    public ISqlGroupByExpression toGroup(LambdaExpression<?> lambda) {
-        ISqlExpression expression = visit(lambda);
-        ISqlGroupByExpression group;
-        if (expression instanceof ISqlGroupByExpression) {
-            group = (ISqlGroupByExpression) expression;
-        }
-        else {
-            throw new SqLinkException(String.format("意外的类型:%s 表达式为:%s", expression.getClass(), lambda));
-        }
-        return group;
-    }
-
-    public ISqlColumnExpression toColumn(LambdaExpression<?> lambda) {
-        ISqlExpression expression = visit(lambda);
-        ISqlColumnExpression column;
-        if (expression instanceof ISqlColumnExpression) {
-            column = (ISqlColumnExpression) expression;
-        }
-        else {
-            throw new SqLinkException(String.format("意外的类型:%s 表达式为:%s", expression.getClass(), lambda));
-        }
-        return column;
-    }
-
-    public FieldMetaData toField(LambdaExpression<?> lambda) {
-        Expression body = lambda.getBody();
-        if (body instanceof FieldSelectExpression) {
-            FieldSelectExpression fieldSelect = (FieldSelectExpression) body;
-            if (fieldSelect.getExpr() instanceof ParameterExpression) {
-                ParameterExpression expr = (ParameterExpression) fieldSelect.getExpr();
-                return config.getMetaData(expr.getType()).getFieldMetaDataByFieldName(fieldSelect.getField().getName());
-            }
-        }
-        else if (body instanceof MethodCallExpression) {
-            MethodCallExpression methodCall = (MethodCallExpression) body;
-            if (methodCall.getExpr() instanceof ParameterExpression) {
-                ParameterExpression expr = (ParameterExpression) methodCall.getExpr();
-                return config.getMetaData(expr.getType()).getFieldMetaDataByGetter(methodCall.getMethod());
-            }
-        }
-        throw new DrinkException(lambda.toString());
-    }
-
     protected ISqlTableRefExpression getISqlTableRefExpressionByIndex(ParameterExpression parameter) {
         ISqlTableRefExpression asName;
         if (index >= 0) {
@@ -1813,10 +1537,7 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
 
     protected ISqlQueryableExpression getterToSqlAst(FieldMetaData getter, ISqlTableRefExpression tableRef) {
         // select * from target as t where t.targetField = s.selfField
-        ISqlQueryableExpression query = getterToQueryable(getter, tableRef);
-        //  在子查询发起的地方压入
-        push(query);
-        return query;
+        return getterToQueryable(getter, tableRef);
     }
 
     protected FieldMetaData methodToFieldMetaData(Method method, ISqlTableRefExpression tableRef) {
@@ -1859,175 +1580,15 @@ public class SqlVisitor extends ResultThrowVisitor<ISqlExpression> {
         }
     }
 
-    private boolean hasAsName(ISqlSelectExpression selectExpression,String asName)
-    {
-        boolean[] b={false};
-        selectExpression.accept(new SqlTreeVisitor(){
-            @Override
-            public void visit(ISqlAsExpression expr)
-            {
-                if(expr.getAsName().equals(asName))
-                {
-                    b[0]=true;
-                }
-            }
-        });
-        return b[0];
-    }
-
-    private static class SqlGroupRef implements ISqlExpression
-    {
-        @Override
-        public String getSqlAndValue(IConfig config, List<SqlValue> values)
-        {
-            return "";
+    public ISqlColumnExpression toColumn(LambdaExpression<?> lambda) {
+        ISqlExpression expression = visit(lambda);
+        ISqlColumnExpression column;
+        if (expression instanceof ISqlColumnExpression) {
+            column = (ISqlColumnExpression) expression;
         }
-
-        @Override
-        public <T extends ISqlExpression> T copy(IConfig config)
-        {
-            return null;
+        else {
+            throw new SqLinkException(String.format("意外的类型:%s 表达式为:%s", expression.getClass(), lambda));
         }
-    }
-
-    private static class QueryBox implements ISqlQueryableExpression
-    {
-        private final ISqlQueryableExpression queryable;
-        private final List<IncludeBuilder> includes =new ArrayList<>();
-
-        private QueryBox(ISqlQueryableExpression queryable)
-        {
-            this.queryable = queryable;
-        }
-
-        public ISqlQueryableExpression getQueryable()
-        {
-            return queryable;
-        }
-
-        public List<IncludeBuilder> getIncludes()
-        {
-            return includes;
-        }
-
-        @Override
-        public String getSqlAndValue(IConfig config, List<SqlValue> values)
-        {
-            return queryable.getSqlAndValue(config,values);
-        }
-
-        @Override
-        public void addWhere(ISqlExpression cond)
-        {
-            queryable.addWhere(cond);
-        }
-
-        @Override
-        public void setWhere(ISqlConditionsExpression conditions)
-        {
-            queryable.setWhere(conditions);
-        }
-
-        @Override
-        public void addJoin(ISqlJoinExpression join)
-        {
-            queryable.addJoin(join);
-        }
-
-        @Override
-        public void setGroup(ISqlGroupByExpression group)
-        {
-            queryable.setGroup(group);
-        }
-
-        @Override
-        public void addHaving(ISqlExpression cond)
-        {
-            queryable.addHaving(cond);
-        }
-
-        @Override
-        public void addOrder(ISqlOrderExpression order)
-        {
-            queryable.addOrder(order);
-        }
-
-        @Override
-        public void setSelect(ISqlSelectExpression newSelect)
-        {
-            queryable.setSelect(newSelect);
-        }
-
-        @Override
-        public void setLimit(long offset, long rows)
-        {
-            queryable.setLimit(offset,rows);
-        }
-
-        @Override
-        public void setDistinct(boolean distinct)
-        {
-            queryable.setDistinct(distinct);
-        }
-
-        @Override
-        public ISqlFromExpression getFrom()
-        {
-            return queryable.getFrom();
-        }
-
-        @Override
-        public int getOrderedCount()
-        {
-            return queryable.getOrderedCount();
-        }
-
-        @Override
-        public ISqlWhereExpression getWhere()
-        {
-            return queryable.getWhere();
-        }
-
-        @Override
-        public ISqlGroupByExpression getGroupBy()
-        {
-            return queryable.getGroupBy();
-        }
-
-        @Override
-        public ISqlJoinsExpression getJoins()
-        {
-            return queryable.getJoins();
-        }
-
-        @Override
-        public ISqlSelectExpression getSelect()
-        {
-            return queryable.getSelect();
-        }
-
-        @Override
-        public ISqlOrderByExpression getOrderBy()
-        {
-            return queryable.getOrderBy();
-        }
-
-        @Override
-        public ISqlLimitExpression getLimit()
-        {
-            return queryable.getLimit();
-        }
-
-        @Override
-        public ISqlHavingExpression getHaving()
-        {
-            return queryable.getHaving();
-        }
-
-        @Override
-        public Class<?> getMainTableClass()
-        {
-            return queryable.getMainTableClass();
-        }
+        return column;
     }
 }

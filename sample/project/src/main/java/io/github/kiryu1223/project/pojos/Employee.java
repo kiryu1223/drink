@@ -21,6 +21,8 @@ import java.util.ArrayList;
 @Data
 @Table("employees")
 @FieldNameConstants
+@Getter
+@Setter
 public class Employee implements ITable
 {
     @Column("emp_no")

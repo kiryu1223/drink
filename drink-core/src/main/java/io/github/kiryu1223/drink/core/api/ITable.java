@@ -7,8 +7,6 @@ import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
 
 import java.util.Collection;
 
-@Getter
-@Setter
 public interface ITable
 {
     default <T extends ITable> LQuery<T> query(Collection<T> t)

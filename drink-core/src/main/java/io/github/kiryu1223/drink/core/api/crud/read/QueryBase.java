@@ -34,7 +34,7 @@ import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.base.expression.SubQueryBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
-import io.github.kiryu1223.drink.core.visitor.SqlVisitor;
+import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +94,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         querySqlBuilder.setLimit(0, 1);
         // WHERE ...
         if (lambda != null) {
-            SqlVisitor sqlVisitor = new SqlVisitor(config, queryableCopy);
+            QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(config, queryableCopy);
             ISqlExpression cond = sqlVisitor.visit(lambda);
             querySqlBuilder.addWhere(cond);
         }
@@ -234,7 +234,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected QuerySqlBuilder toMany(LambdaExpression<?> tree) {
         ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), queryable);
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), queryable);
         FieldMetaData fieldMetaData = sqlVisitor.toField(tree);
         if (!fieldMetaData.hasNavigate()) {
             throw new DrinkException(String.format("%s字段需要被@Navigate修饰", fieldMetaData.getField()));
@@ -294,7 +294,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected void join(JoinType joinType, Class<?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression on = sqlVisitor.visit(lambda);
         ISqlTableExpression table = factory.table(target);
         sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
@@ -302,7 +302,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected void join(JoinType joinType, QueryBase<?, ?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression on = sqlVisitor.visit(lambda);
         ISqlTableExpression table = target.getSqlBuilder().getQueryable();
         sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
@@ -331,14 +331,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     // region [where]
 
     protected void where(LambdaExpression<?> lambda) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression where = sqlVisitor.visit(lambda);
         sqlBuilder.addWhere(where);
     }
 
     protected void orWhere(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression where = sqlVisitor.visit(lambda);
         sqlBuilder.addOrWhere(where);
     }
@@ -383,7 +383,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     // region [groupBy]
 
     protected void groupBy(LambdaExpression<?> lambda) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlGroupByExpression group = sqlVisitor.toGroup(lambda);
         sqlBuilder.setGroup(group);
         // 同时设置select以便直接返回grouper对象
@@ -402,7 +402,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     // region [having]
 
     protected void having(LambdaExpression<?> lambda) {
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression expression = sqlVisitor.visit(lambda);
         sqlBuilder.addHaving(expression);
     }
@@ -413,7 +413,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected void orderBy(LambdaExpression<?> lambda, boolean asc) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlColumnExpression expression = sqlVisitor.toColumn(lambda);
         sqlBuilder.addOrder(factory.order(expression, asc));
     }
@@ -652,7 +652,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             countList = Collections.singletonList(count);
         }
         else {
-            SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+            QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
             ISqlTemplateExpression count = transformer.count(sqlVisitor.visit(lambda));
             countList = Collections.singletonList(count);
         }
@@ -672,7 +672,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             countList = Collections.singletonList(count);
         }
         else {
-            SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+            QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
             ISqlTemplateExpression count = transformer.count(sqlVisitor.visit(lambda));
             countList = Collections.singletonList(count);
         }
@@ -685,7 +685,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected <T extends Number> T sum0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression sum = transformer.sum(sqlVisitor.visit(lambda));
         List<ISqlExpression> sumList = Collections.singletonList(sum);
@@ -698,7 +698,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected <T extends Number> List<T> groupBySum0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression sum = transformer.sum(sqlVisitor.visit(lambda));
         List<ISqlExpression> sumList = Collections.singletonList(sum);
@@ -711,7 +711,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected BigDecimal avg0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression avg = transformer.avg(sqlVisitor.visit(lambda));
         List<ISqlExpression> avgList = Collections.singletonList(avg);
@@ -724,7 +724,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected List<BigDecimal> groupByAvg0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression avg = transformer.avg(sqlVisitor.visit(lambda));
         List<ISqlExpression> avgList = Collections.singletonList(avg);
@@ -737,7 +737,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected <T extends Number> T max0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression max = transformer.max(sqlVisitor.visit(lambda));
         List<ISqlExpression> maxList = Collections.singletonList(max);
@@ -750,7 +750,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected <T extends Number> List<T> groupByMax0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression max = transformer.max(sqlVisitor.visit(lambda));
         List<ISqlExpression> maxList = Collections.singletonList(max);
@@ -763,7 +763,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected <T extends Number> T min0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression min = transformer.min(sqlVisitor.visit(lambda));
         List<ISqlExpression> minList = Collections.singletonList(min);
@@ -776,7 +776,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected <T extends Number> List<T> groupByMin0(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        SqlVisitor sqlVisitor = new SqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         Transformer transformer = getConfig().getTransformer();
         ISqlTemplateExpression min = transformer.min(sqlVisitor.visit(lambda));
         List<ISqlExpression> minList = Collections.singletonList(min);
