@@ -6,6 +6,7 @@ import io.github.kiryu1223.drink.base.Filter;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.sqlExt.Over;
 import io.github.kiryu1223.drink.base.sqlExt.Rows;
+import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
@@ -41,6 +42,14 @@ public class Main {
 
     public static void main(String[] args) {
         SqlClient client = boot();
+
+        AbsBeanCreator<Employee> creator = client.getConfig()
+                .getBeanCreatorFactory()
+                .get(Employee.class);
+
+        creator.setBeanCreator(()->new Employee());
+        creator.setBeanSetter("number",(a, b)->a.setNumber((int)b));
+        creator.setBeanGetter("number",(a)->a.getNumber());
 
         Filter filter = client.getConfig().getFilter();
 

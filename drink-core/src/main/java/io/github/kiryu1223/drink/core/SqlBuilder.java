@@ -60,10 +60,6 @@ public class SqlBuilder
      * 会话工厂
      */
     private SqlSessionFactory sqlSessionFactory;
-    /**
-     * 对象创建器工厂
-     */
-    private BeanCreatorFactory beanCreatorFactory;
 
     private NameConverter nameConverter;
 
@@ -84,9 +80,6 @@ public class SqlBuilder
         if (sqlSessionFactory == null) {
             sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
         }
-        if (beanCreatorFactory == null) {
-            beanCreatorFactory = new BeanCreatorFactory();
-        }
         if (nameConverter == null) {
             nameConverter = new NameConverter();
         }
@@ -96,7 +89,7 @@ public class SqlBuilder
         if (dbSupport == null) {
             dbSupport = getSpi();
         }
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, beanCreatorFactory, dbSupport, nameConverter, pager);
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, dbSupport, nameConverter, pager);
         return new SqlClient(config);
     }
 

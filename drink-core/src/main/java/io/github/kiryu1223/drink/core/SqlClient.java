@@ -163,7 +163,7 @@ public final class SqlClient {
     private <T> ISqlQueryableExpression tryView(Class<T> c) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         if (IView.class.isAssignableFrom(c)) {
-            AbsBeanCreator<IView<T>> creator = config.getBeanCreatorFactory().get((Class<IView<T>>)c, config);
+            AbsBeanCreator<IView<T>> creator = config.getBeanCreatorFactory().get((Class<IView<T>>)c);
             IView<T> view = creator.getBeanCreator().get();
             EndQuery<T> with = view.createView(this);
             ISqlQueryableExpression queryable = with.getSqlBuilder().getQueryable();

@@ -194,7 +194,7 @@ public class SubQueryBuilder
                 sqlValues
         );
 
-        AbsBeanCreator<?> absBeanCreator = config.getBeanCreatorFactory().get(fieldMetaData.getParentType(), config);
+        AbsBeanCreator<?> absBeanCreator = config.getBeanCreatorFactory().get(fieldMetaData.getParentType());
         ISetterCaller<?> beanSetter = absBeanCreator.getBeanSetter(fieldMetaData.getFieldName());
 
         JdbcResult<?> currentResult = jdbcResultList.get(jdbcResultList.size() - 1);

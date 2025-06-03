@@ -47,10 +47,10 @@ class Config implements IConfig {
     private final NameConverter nameConverter;
     private final Pager pager;
 
-    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, BeanCreatorFactory beanCreatorFactory, IDbSupport dbSupport, NameConverter nameConverter, Pager pager) {
+    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, Pager pager) {
         this.option = option;
         this.dbType = dbType;
-        this.beanCreatorFactory = beanCreatorFactory;
+        this.beanCreatorFactory = new BeanCreatorFactory(this);
 
         this.transactionManager = transactionManager;
         this.dataSourceManager = dataSourceManager;

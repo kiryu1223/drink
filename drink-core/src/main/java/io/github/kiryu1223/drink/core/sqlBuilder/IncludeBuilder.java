@@ -2,7 +2,6 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
-import io.github.kiryu1223.drink.base.expression.AsNameManager;
 import io.github.kiryu1223.drink.base.expression.ISqlCollectedValueExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
@@ -56,12 +55,12 @@ public class IncludeBuilder {
     public void include(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
         NavigateData navigateData = includeField.getNavigateData();
         BeanCreatorFactory beanCreatorFactory = config.getBeanCreatorFactory();
-        AbsBeanCreator<?> sourceBeanCreator = beanCreatorFactory.get(includeField.getParentType(), config);
+        AbsBeanCreator<?> sourceBeanCreator = beanCreatorFactory.get(includeField.getParentType());
         IGetterCaller<?, ?> sourceGetter = sourceBeanCreator.getBeanGetter(navigateData.getSelfFieldName());
 
         RelationType relationType = navigateData.getRelationType();
         Class<?> targetType = navigateData.getNavigateTargetType();
-        AbsBeanCreator<?> targetBeanCreator = beanCreatorFactory.get(targetType, config);
+        AbsBeanCreator<?> targetBeanCreator = beanCreatorFactory.get(targetType);
         IGetterCaller<?, ?> targetGetter = targetBeanCreator.getBeanGetter(navigateData.getTargetFieldName());
         ISetterCaller<?> includeSetter = sourceBeanCreator.getBeanSetter(includeField.getFieldName());
 

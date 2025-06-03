@@ -43,7 +43,7 @@ public class ObjectBuilder<T> {
     }
 
     public <Key> Map<Key, T> createMap(String column) throws SQLException, IllegalAccessException, InvocationTargetException {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         Map<Key, T> hashMap = new HashMap<>();
@@ -63,7 +63,7 @@ public class ObjectBuilder<T> {
     }
 
     public <Key> Map<Key, List<T>> createMapList(String keyColumn) throws SQLException, IllegalAccessException, InvocationTargetException {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         // System.out.println(indexMap);
@@ -95,7 +95,7 @@ public class ObjectBuilder<T> {
     }
 
     public <Key> Map<Key, List<T>> createMapListByAnotherKey(FieldMetaData mappingKey, String mappingKeyName) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         int anotherKeyIndex = indexMap.get(mappingKeyName);
@@ -151,7 +151,7 @@ public class ObjectBuilder<T> {
     }
 
     private JdbcResult<T> getClassList(ExValues exValues) throws SQLException, IllegalAccessException, InvocationTargetException {
-        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target, config);
+        AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
         JdbcResult<T> jdbcResult = new JdbcResult<>();
