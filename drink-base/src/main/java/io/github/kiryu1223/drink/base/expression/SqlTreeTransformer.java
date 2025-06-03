@@ -15,7 +15,7 @@ public abstract class SqlTreeTransformer {
 
     public ISqlExpression visit(ISqlExpression expr) {
         if (expr instanceof ISqlAsExpression) {
-           return visit((ISqlAsExpression) expr);
+            return visit((ISqlAsExpression) expr);
         }
         else if (expr instanceof ISqlUnaryExpression) {
             return visit((ISqlUnaryExpression) expr);
@@ -24,25 +24,25 @@ public abstract class SqlTreeTransformer {
             return visit((ISqlBinaryExpression) expr);
         }
         else if (expr instanceof ISqlColumnExpression) {
-            return  visit((ISqlColumnExpression) expr);
+            return visit((ISqlColumnExpression) expr);
         }
         else if (expr instanceof ISqlCollectedValueExpression) {
             return visit((ISqlCollectedValueExpression) expr);
         }
         else if (expr instanceof ISqlConstStringExpression) {
-            return  visit((ISqlConstStringExpression) expr);
+            return visit((ISqlConstStringExpression) expr);
         }
         else if (expr instanceof ISqlConditionsExpression) {
-            return  visit((ISqlConditionsExpression) expr);
+            return visit((ISqlConditionsExpression) expr);
         }
         else if (expr instanceof ISqlDynamicColumnExpression) {
-            return  visit((ISqlDynamicColumnExpression) expr);
+            return visit((ISqlDynamicColumnExpression) expr);
         }
         else if (expr instanceof ISqlFromExpression) {
-            return  visit((ISqlFromExpression) expr);
+            return visit((ISqlFromExpression) expr);
         }
         else if (expr instanceof ISqlGroupByExpression) {
-            return  visit((ISqlGroupByExpression) expr);
+            return visit((ISqlGroupByExpression) expr);
         }
         else if (expr instanceof ISqlHavingExpression) {
             visit((ISqlHavingExpression) expr);
@@ -51,70 +51,67 @@ public abstract class SqlTreeTransformer {
             return visit((ISqlJoinExpression) expr);
         }
         else if (expr instanceof ISqlJoinsExpression) {
-            return  visit((ISqlJoinsExpression) expr);
+            return visit((ISqlJoinsExpression) expr);
         }
         else if (expr instanceof ISqlLimitExpression) {
-            return   visit((ISqlLimitExpression) expr);
+            return visit((ISqlLimitExpression) expr);
         }
         else if (expr instanceof ISqlOrderByExpression) {
-            return   visit((ISqlOrderByExpression) expr);
+            return visit((ISqlOrderByExpression) expr);
         }
         else if (expr instanceof ISqlOrderExpression) {
-            return  visit((ISqlOrderExpression) expr);
+            return visit((ISqlOrderExpression) expr);
         }
         else if (expr instanceof ISqlParensExpression) {
-            return   visit((ISqlParensExpression) expr);
+            return visit((ISqlParensExpression) expr);
         }
         else if (expr instanceof ISqlQueryableExpression) {
-            return  visit((ISqlQueryableExpression) expr);
+            return visit((ISqlQueryableExpression) expr);
         }
         else if (expr instanceof ISqlRealTableExpression) {
-            return  visit((ISqlRealTableExpression) expr);
+            return visit((ISqlRealTableExpression) expr);
         }
         else if (expr instanceof ISqlRecursionExpression) {
-            return  visit((ISqlRecursionExpression) expr);
+            return visit((ISqlRecursionExpression) expr);
         }
         else if (expr instanceof ISqlUnionQueryableExpression) {
-            return      visit((ISqlUnionQueryableExpression) expr);
+            return visit((ISqlUnionQueryableExpression) expr);
         }
         else if (expr instanceof ISqlSelectExpression) {
-            return  visit((ISqlSelectExpression) expr);
+            return visit((ISqlSelectExpression) expr);
         }
         else if (expr instanceof ISqlSetExpression) {
-            return  visit((ISqlSetExpression) expr);
+            return visit((ISqlSetExpression) expr);
         }
         else if (expr instanceof ISqlSetsExpression) {
-            return   visit((ISqlSetsExpression) expr);
+            return visit((ISqlSetsExpression) expr);
         }
         else if (expr instanceof ISqlSingleValueExpression) {
-            return   visit((ISqlSingleValueExpression) expr);
+            return visit((ISqlSingleValueExpression) expr);
         }
         else if (expr instanceof ISqlTemplateExpression) {
-            return  visit((ISqlTemplateExpression) expr);
+            return visit((ISqlTemplateExpression) expr);
         }
         else if (expr instanceof ISqlWithExpression) {
-            return   visit((ISqlWithExpression) expr);
-        }
-        else if (expr instanceof ISqlWithsExpression) {
-            return   visit((ISqlWithsExpression) expr);
+            return visit((ISqlWithExpression) expr);
         }
         else if (expr instanceof ISqlTypeCastExpression) {
-            return   visit((ISqlTypeCastExpression) expr);
+            return visit((ISqlTypeCastExpression) expr);
         }
         else if (expr instanceof ISqlUpdateExpression) {
-            return  visit((ISqlUpdateExpression) expr);
+            return visit((ISqlUpdateExpression) expr);
         }
         else if (expr instanceof ISqlWhereExpression) {
-            return  visit((ISqlWhereExpression) expr);
+            return visit((ISqlWhereExpression) expr);
         }
         else if (expr instanceof ISqlDeleteExpression) {
-            return  visit((ISqlDeleteExpression) expr);
+            return visit((ISqlDeleteExpression) expr);
         }
         else if (expr instanceof ISqlTableRefExpression) {
-            return  visit((ISqlTableRefExpression) expr);
+            return visit((ISqlTableRefExpression) expr);
         }
         else if (expr instanceof ISqlStarExpression) {
-            return   visit((ISqlStarExpression) expr);
+            return visit((ISqlStarExpression) expr);
         }
         return null;
     }
@@ -355,23 +352,6 @@ public abstract class SqlTreeTransformer {
         ISqlQueryableExpression visit = (ISqlQueryableExpression) visit(queryable);
         if (visit != queryable) {
             return factory.with(visit, expr.withTableName());
-        }
-        return expr;
-    }
-
-    public ISqlExpression visit(ISqlWithsExpression expr) {
-        List<ISqlWithExpression> withList = new ArrayList<>();
-        boolean changed = false;
-        for (ISqlWithExpression with : expr.getWiths()) {
-            ISqlExpression visit = visit(with);
-            withList.add((ISqlWithExpression) visit);
-            if (visit != with) {
-                changed = true;
-            }
-        }
-        if (changed) {
-            expr.getWiths().clear();
-            expr.getWiths().addAll(withList);
         }
         return expr;
     }

@@ -18,6 +18,11 @@ import java.time.LocalTime;
 import java.util.*;
 
 public class DrinkUtil {
+
+    public static boolean isEmpty(String s)
+    {
+        return s == null || s.isEmpty();
+    }
     public static boolean isCollection(Class<?> c)
     {
         return Collection.class.isAssignableFrom(c);

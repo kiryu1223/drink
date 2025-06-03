@@ -117,5 +117,23 @@ public class LDelete<T> extends DeleteBase<LDelete<T>> {
         return this;
     }
 
+    public LDelete<T> orWhere(@Expr Func1<T, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LDelete<T> orWhere(ExprTree<Func1<T, Boolean>> expr) {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public LDelete<T> orWhereIf(boolean condition, @Expr Func1<T, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LDelete<T> orWhereIf(boolean condition, ExprTree<Func1<T, Boolean>> expr) {
+        if (condition) orWhere(expr.getTree());
+        return this;
+    }
+
     // endregion
 }

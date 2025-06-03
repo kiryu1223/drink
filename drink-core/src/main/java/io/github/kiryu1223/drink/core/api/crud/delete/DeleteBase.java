@@ -87,10 +87,6 @@ public abstract class DeleteBase<C> extends CRUD<C> {
         getSqlBuilder().addJoin(joinType, factory.table(target), factory.condition(Collections.singleton(on)));
     }
 
-    protected void selectDeleteTable(Class<?> c) {
-        //getSqlBuilder().addExclude(c);
-    }
-
     protected void where(LambdaExpression<?> lambda) {
         UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(getConfig(), sqlBuilder.getDelete());
         ISqlExpression expression = sqlVisitor.visit(lambda);

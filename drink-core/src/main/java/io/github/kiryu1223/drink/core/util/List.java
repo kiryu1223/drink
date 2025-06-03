@@ -103,21 +103,13 @@ public final class List<T> extends ArrayList<T> {
         return list;
     }
 
-    public List<T> take(int rows) {
-        return limit(0, rows);
-    }
-
-    public List<T> skip(int offset) {
-        return limit(offset, size() - offset);
-    }
-
-    public List<T> limit(int offset, int rows) {
+    public List<T> limit(long offset, long rows) {
         List<T> list = new List<>();
-        for (int i = offset; i < offset + rows; i++) {
+        for (long i = offset; i < offset + rows; i++) {
             if (i >= size()) {
                 break;
             }
-            list.add(get(i));
+            list.add(get((int) i));
         }
         return list;
     }
@@ -128,5 +120,13 @@ public final class List<T> extends ArrayList<T> {
             list.add(func.apply(t));
         }
         return list;
+    }
+
+    private T last() {
+        return get(size() - 1);
+    }
+
+    public T first() {
+        return get(0);
     }
 }

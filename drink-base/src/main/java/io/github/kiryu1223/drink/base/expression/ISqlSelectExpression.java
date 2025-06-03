@@ -37,6 +37,10 @@ public interface ISqlSelectExpression extends ISqlExpression {
      */
     boolean isSingle();
 
+    boolean isAgg();
+
+    void setAgg(boolean agg);
+
     /**
      * 获取目标类型
      */

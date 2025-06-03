@@ -1,406 +1,1299 @@
+# Drink ORM 使用文档
+
 qq群：257911716
 
 **最新最热版本:**![Maven Central Version](https://img.shields.io/maven-central/v/io.github.kiryu1223/drink-all)
 
-## 如何引入
+## 目录
 
-### 从零开始构建的场合
+- [项目简介](#项目简介)
+- [快速开始](#快速开始)
+- [环境配置](#环境配置)
+- [实体映射](#实体映射)
+- [基础操作](#基础操作)
+- [高级查询](#高级查询)
+- [事务管理](#事务管理)
+- [配置选项](#配置选项)
+- [最佳实践](#最佳实践)
+- [常见问题](#常见问题)
 
-1. 引入maven并且进行配置
+## 项目简介
 
-   ```xml
-   <dependencies>
-           <!--需要引入的依赖-->
-           <dependency>
-               <groupId>io.github.kiryu1223</groupId>
-               <artifactId>drink-core</artifactId>
-               <version>${project.version}</version>
-           </dependency>
+Drink 是一个现代化的 Java ORM 框架，提供类型安全的 Lambda 表达式查询，支持多种数据库和框架集成。
 
-           <!--需要用户自己提供一个日志实现-->
-           <dependency>
-               <groupId>ch.qos.logback</groupId>
-               <artifactId>logback-classic</artifactId>
-               <version>1.2.12</version>
-           </dependency>
+### 核心特性
 
-           <!--数据库-->
-           <dependency>
-               <groupId>com.mysql</groupId>
-               <artifactId>mysql-connector-j</artifactId>
-               <version>9.0.0</version>
-           </dependency>
+- 🚀 **类型安全**: 基于 Lambda 表达式的类型安全查询
+- 🔧 **多数据库支持**: MySQL、PostgreSQL、SQLServer、Oracle、H2、SQLite
+- 🌐 **框架集成**: 支持 Spring Boot、Solon 等主流框架
+- ⚡ **高性能**: 自动批量操作、连接池优化
+- 🎯 **简洁API**: 直观的链式调用，减少样板代码
+- 🔄 **关联查询**: 强大的 Include 机制处理复杂关联关系
 
-           <!--数据源-->
-           <dependency>
-               <groupId>com.zaxxer</groupId>
-               <artifactId>HikariCP</artifactId>
-               <version>4.0.3</version>
-           </dependency>
-   
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.34</version>
-            </dependency>
-   
-       </dependencies>
+## 快速开始
 
-       <build>
-           <plugins>
-               <plugin>
-                   <groupId>org.apache.maven.plugins</groupId>
-                   <artifactId>maven-compiler-plugin</artifactId>
-                   <version>3.8.1</version>
-                   <configuration>
-                       <!--开启框架的指令-->
-                       <compilerArgs>
-                           <arg>-Xplugin:ExpressionTree</arg>
-                       </compilerArgs>
-                       <annotationProcessorPaths>
-                           <!--路径配置-->
-                           <path>
-                               <groupId>io.github.kiryu1223</groupId>
-                               <artifactId>drink-core</artifactId>
-                               <version>${project.version}</version>
-                           </path>
-                           <!--你的剩余路径配置，假设你的项目中还依赖了lombok的话-->
-                           <path>
-                               <groupId>org.projectlombok</groupId>
-                               <artifactId>lombok</artifactId>
-                               <version>1.18.34</version>
-                           </path>
-                       </annotationProcessorPaths>
-                   </configuration>
-               </plugin>
-           </plugins>
-       </build>
-   ```
-2. 配置完成后进入main
+## 环境配置
 
-   ```java
-   package io.github.kiryu1223;
+### 方式一：独立项目配置
 
-   import com.zaxxer.hikari.HikariDataSource;
-   import io.github.kiryu1223.drink.core.Drink;
-   import io.github.kiryu1223.drink.core.api.client.DrinkClient;
-   import io.github.kiryu1223.drink.transaction.DefaultTransactionManager;
-   import io.github.kiryu1223.drink.transaction.TransactionManager;
-   import io.github.kiryu1223.drink.core.core.dataSource.DataSourceManager;
-   import io.github.kiryu1223.drink.core.core.dataSource.DefaultDataSourceManager;
-   import io.github.kiryu1223.drink.core.core.session.DefaultSqlSessionFactory;
-   import io.github.kiryu1223.drink.core.core.session.SqlSessionFactory;
+适用于从零开始的新项目或需要完全控制配置的场景。
 
-   public class Main
-   {
-       public static void main(String[] args)
-       {
-           // 配置一个数据源
-           HikariDataSource dataSource = new HikariDataSource();
-           dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true");
-           dataSource.setUsername("root");
-           dataSource.setPassword("root");
-           dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+#### 1. Maven 依赖配置
 
-           // 获取一个DrinkClient对象，所有的CRUD都通过他完成
-           DataSourceManager dataSourceManager = new DefaultDataSourceManager(dataSource);
-           TransactionManager transactionManager = new DefaultTransactionManager(dataSourceManager);
-           SqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
+```xml
+<dependencies>
+    <!-- Drink 核心依赖 -->
+    <dependency>
+        <groupId>io.github.kiryu1223</groupId>
+        <artifactId>drink-core</artifactId>
+        <version>${project.version}</version>
+    </dependency>
 
-           Option option = new Option();
-           option.setPrintSql(true);
+    <!-- 日志实现（必需） -->
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.12</version>
+    </dependency>
 
-           DrinkClient client = Drink.bootStrap()
-                   .setDbType(DbType.MySQL)
-                   .setOption(option)
-                   .setDataSourceManager(dataSourceManager)
-                   .setTransactionManager(transactionManager)
-                   .setSqlSessionFactory(sqlSessionFactory)
-                   .build();
-       }
-   }
-   ```
+    <!-- 数据库驱动（根据实际数据库选择） -->
+    <dependency>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>9.0.0</version>
+    </dependency>
 
-3. 启动！
+    <!-- 连接池 -->
+    <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>4.0.3</version>
+    </dependency>
 
-### 使用SpringBoot
+    <!-- Lombok（可选，用于简化实体类） -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.34</version>
+    </dependency>
+</dependencies>
 
-1. 引入starter并且填上开启的指令
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <!-- 启用 ExpressionTree 插件 -->
+                <compilerArgs>
+                    <arg>-Xplugin:ExpressionTree</arg>
+                </compilerArgs>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>io.github.kiryu1223</groupId>
+                        <artifactId>drink-core</artifactId>
+                        <version>${project.version}</version>
+                    </path>
+                    <path>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>1.18.34</version>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
 
-   ```xml
-           <dependency>
-               <groupId>io.github.kiryu1223</groupId>
-               <artifactId>drink-spring-boot-starter</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-   ```
-   
-   ```xml
-      <build>
-         <plugins>
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-compiler-plugin</artifactId>
-                 <version>3.8.1</version>
-                 <configuration>
-                     <compilerArgs>
-                         <arg>-Xplugin:ExpressionTree</arg>
-                     </compilerArgs>
-                     <annotationProcessorPaths>
-                         <path>
-                             <groupId>io.github.kiryu1223</groupId>
-                             <artifactId>drink-core</artifactId>
-                             <version>${project.version}</version>
-                         </path>
-                     </annotationProcessorPaths>
-                 </configuration>
-             </plugin>
-         </plugins>
-     </build>
-   ```
-2. 配置yml
-   ```yaml
-   spring:
-     output:
-       ansi:
-         enabled: always
-     profiles:
-       active: dev
-     # 最低程度配置下只需要提供一个数据源
-     dsName:
-       type: com.zaxxer.hikari.HikariDataSource
-       url: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-       username: root
-       password: root
-       driverClassName: com.mysql.cj.jdbc.Driver
+```java
+package io.github.kiryu1223.example;
 
-   server:
-     port: 8080
+import com.zaxxer.hikari.HikariDataSource;
+import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
+import io.github.kiryu1223.drink.core.SqlBuilder;
+import io.github.kiryu1223.drink.core.SqlClient;
 
-   # 不配置的情况下默认以database: mysql和print-sql: true模式运行
-   #drink:
-   #  database: mysql
-   #  print-sql: true
-   ```
+public class DrinkExample {
+    public static void main(String[] args) {
+        // 1. 配置数据源
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/test_db?rewriteBatchedStatements=true");
+        dataSource.setUsername("root");
+        dataSource.setPassword("password");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
-3. 启动！
+        // 2. 创建 SqlClient
+        SqlClient client = SqlBuilder.bootStrap()
+                .setDbType(DbType.MySQL)                    // 数据库类型
+                .setNameConverter(new SnakeNameConverter()) // 命名转换策略
+                .setDataSource(dataSource)                  // 数据源
+                .build();
 
-### 使用Solon
+        // 3. 开始使用
+        // 查询示例
+        List<User> users = client.query(User.class)
+                .where(u -> u.getAge() > 18)
+                .toList();
 
-1. 引入插件并且填上开启的指令
+        System.out.println("查询到 " + users.size() + " 个用户");
+    }
+}
+```
 
-   ```xml
-           <dependency>
-               <groupId>io.github.kiryu1223</groupId>
-               <artifactId>drink-solon-plugin</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-   ```
-   ```xml
-      <build>
-         <plugins>
-             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-compiler-plugin</artifactId>
-                 <version>3.8.1</version>
-                 <configuration>
-                     <compilerArgs>
-                         <arg>-Xplugin:ExpressionTree</arg>
-                     </compilerArgs>
-                     <annotationProcessorPaths>
-                         <path>
-                             <groupId>io.github.kiryu1223</groupId>
-                             <artifactId>drink-core</artifactId>
-                             <version>${project.version}</version>
-                         </path>
-                     </annotationProcessorPaths>
-                 </configuration>
-             </plugin>
-         </plugins>
-     </build>
-   ```
-2. 配置config和yml
+#### 3. 基本使用示例
 
-   ```yml
-   # 这个名称与config类中的@Inject("${ds1}")对应
-   ds1:
-     type: com.zaxxer.hikari.HikariDataSource
-     jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-     driverClassName: com.mysql.cj.jdbc.Driver
-     username: root
-     password: root
-   # 这个名称与config类中的@Inject("${ds2}")对应
-   ds2:
-     type: com.zaxxer.hikari.HikariDataSource
-     jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-     driverClassName: com.mysql.cj.jdbc.Driver
-     username: root
-     password: root
-   # 这个名称与config类中的@Inject("${ds3}")对应
-   ds3:
-     type: com.zaxxer.hikari.HikariDataSource
-     jdbcUrl: jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true
-     driverClassName: com.mysql.cj.jdbc.Driver
-     username: root
-     password: root
+```java
+// 查询
+List<User> users = client.query(User.class)
+        .where(u -> u.getName().contains("张"))
+        .orderBy(u -> u.getAge())
+        .limit(10)
+        .toList();
 
-   # 这个名称与config类中的@Inject("${dynamic}")对应
-   # 多数据源
-   dynamic:
-     type: com.zaxxer.hikari.HikariDataSource
-     strict: true #严格模式（指定的源不存时：严格模式会抛异常；非严格模式用默认源）
-     default: db_user_1 #指定默认数据源
-     db_user_1:
-       schema: db_user
-       jdbcUrl: jdbc:mysql://localhost:3306/db_user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=true
-       driverClassName: com.mysql.cj.jdbc.Driver
-       username: root
-       password: 123456
-     db_user_2:
-       schema: db_user
-       jdbcUrl: jdbc:mysql://localhost:3307/db_user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=true
-       driverClassName: com.mysql.cj.jdbc.Driver
-       username: root
-       password: 123456
+// 插入
+User newUser = new User();
+newUser.setName("张三");
+newUser.setAge(25);
+long insertCount = client.insert(newUser).executeRows();
 
-   drink:
-     # 这个名称代表了ioc容器中Client对象bean的别名，通过@Inject("main")注入到你想要的地方，下同
-     main:
-       database: MySQL
-       # 这里需要一个config类中定义的的数据源的bean的别名，下同
-       dsName: normalDs1
-     sub:
-       database: SqlServer
-       dsName: normalDs2
-     readonly:
-       database: H2
-       dsName: normalDs3
-     dynamic:
-       database: H2
-       dsName: dynamicDs
-   ```
+// 更新
+long updateCount = client.update(User.class)
+        .set(u -> u.setAge(26))
+        .where(u -> u.getName().equals("张三"))
+        .executeRows();
 
-   ```java
-   package io.github.kiryu1223.app.config;
+// 删除
+long deleteCount = client.delete(User.class)
+        .where(u -> u.getAge() < 18)
+        .executeRows();
+```
 
-   import com.zaxxer.hikari.HikariDataSource;
-   import org.noear.solon.annotation.Bean;
-   import org.noear.solon.annotation.Configuration;
-   import org.noear.solon.annotation.Inject;
-   import org.noear.solon.data.dynamicds.DynamicDataSource;
+### 方式二：Spring Boot 集成
 
-   import javax.sql.DataSource;
+适用于 Spring Boot 项目，提供自动配置和依赖注入支持。
 
-   @Configuration
-   public class MyConfig
-   {
-       @Bean("normalDs1")
-       public DataSource dataSource1(@Inject("${ds1}") HikariDataSource dataSource)
-       {
-           return dataSource;
-       }
+#### 1. 添加依赖
 
-       @Bean("normalDs2")
-       public DataSource dataSource2(@Inject("${ds2}") HikariDataSource dataSource)
-       {
-           return dataSource;
-       }
+```xml
+<dependencies>
+    <!-- Drink Spring Boot Starter -->
+    <dependency>
+        <groupId>io.github.kiryu1223</groupId>
+        <artifactId>drink-spring-boot-starter</artifactId>
+        <version>${project.version}</version>
+    </dependency>
 
-       @Bean("normalDs3")
-       public DataSource dataSource3(@Inject("${ds3}") HikariDataSource dataSource)
-       {
-           return dataSource;
-       }
+    <!-- Spring Boot Web Starter -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
 
-       @Bean("dynamicDs")
-       public DataSource dataSource4(@Inject("${dynamic}") DynamicDataSource dataSource)
-       {
-           return dataSource;
-       }
-   }
-   ```
+    <!-- 数据库驱动 -->
+    <dependency>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+    </dependency>
+</dependencies>
 
-   注意，在只配了一个client对象的情况下，使用`@inject`注解在service或者你想要的地方注入Client对象时，不需要填入别名（否则会找不到报错）
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <compilerArgs>
+                    <arg>-Xplugin:ExpressionTree</arg>
+                </compilerArgs>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>io.github.kiryu1223</groupId>
+                        <artifactId>drink-core</artifactId>
+                        <version>${project.version}</version>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
 
-3. 启动！
+**application.yml**
 
-## 数据库支持
+```yaml
+spring:
+  # 数据源配置
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://127.0.0.1:3306/test_db?rewriteBatchedStatements=true
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
 
-+ h2
-+ mysql
-+ oracle
-+ sqlserver
-+ sqlite
-+ pgsql
-+ ...
+# Drink 配置
+drink:
+  database: mysql        # 数据库类型
+  print-sql: true       # 是否打印 SQL
+  print-batch: false    # 是否打印批量操作信息
+  name-conversion: snake_case  # 命名转换策略
 
-## 常用的注解
+server:
+  port: 8080
+```
 
-`Table`：用于表示表名的注解
+#### 3. 使用示例
 
-| 字段     | 类型     | 默认值 | 说明               |
-|--------|--------|-----|------------------|
-| schema | String | 无   | 表的所属,为空时表示为默认的所属 |
-| value  | String | 无   | 表名，为空时表示类名等于表名   |
+```java
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
 
-`Column`：用于表示列名的注解
+    @Autowired
+    private DrinkClient drinkClient;
 
-| 字段         | 类型                                  | 默认值               | 说明                                            |
-|------------|-------------------------------------|-------------------|-----------------------------------------------|
-| primaryKey | boolean                             | false             | 是否为主键                                         |
-| value      | String                              | 无                 | 字段对应的列名，为空时等于字段名                              |
-| converter  | Class\<? extends IConverter\<?, ?>> | NoConverter.class | 转换器，用于列类型与java类型不一致的情况（比如数据库枚举<=>java枚举）,默认为无 |
+    @GetMapping
+    public List<User> getUsers(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size) {
+        return drinkClient.query(User.class)
+                .orderBy(u -> u.getId())
+                .limit(page * size, size)
+                .toList();
+    }
 
-`Navigate`：用于表示关联关系的注解
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id) {
+        return drinkClient.query(User.class)
+                .where(u -> u.getId().equals(id))
+                .first();
+    }
 
-| 字段            | 类型                             | 默认值                 | 说明                                      |
-|---------------|--------------------------------|---------------------|-----------------------------------------|
-| value         | RelationType                   | 无                   | 用于表示当前类与目标类的关联关系，有四种关系（一对一，一对多，多对一，多对多） |
-| self          | String                         | 无                   | 自身类的关联关系的java字段名                        |
-| target        | String                         | 无                   | 目标类的关联关系的java字段名                        |
-| mappingTable  | Class<? extends IMappingTable> | IMappingTable.class | 多对多下必填,中间表，需要继承IMappingTable            |
-| selfMapping   | String                         | 无                   | 多对多下必填,自身类对应的mappingTable表java字段名       |
-| targetMapping | String                         | 无                   | 多对多下必填,目标类对应的mappingTable表java字段名       |
+    @PostMapping
+    public ResponseEntity<String> createUser(@RequestBody User user) {
+        long count = drinkClient.insert(user).executeRows();
+        return ResponseEntity.ok("创建成功，影响行数：" + count);
+    }
 
-`IgnoreColumn`：用于表示字段与表无关的注解
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateUser(@PathVariable Long id,
+                                           @RequestBody User user) {
+        long count = drinkClient.update(User.class)
+                .set(u -> {
+                    u.setName(user.getName());
+                    u.setAge(user.getAge());
+                })
+                .where(u -> u.getId().equals(id))
+                .executeRows();
+        return ResponseEntity.ok("更新成功，影响行数：" + count);
+    }
 
-## CRUD
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        long count = drinkClient.delete(User.class)
+                .where(u -> u.getId().equals(id))
+                .executeRows();
+        return ResponseEntity.ok("删除成功，影响行数：" + count);
+    }
+}
 
-所有的增删查改操作都由DrinkClient对象完成（以下简称为client）
+### 方式三：Solon 框架集成
 
-以下是主要使用的api
+适用于 Solon 框架项目，支持多数据源配置。
 
-| 方法     | 参数             | 返回     |
-|--------|----------------|--------|
-| query  | 数据库表对应对象的class | 查询过程对象 |
-| insert | 一个或者多个相同的表对应对象 | 新增过程对象 |
-| update | 数据库表对应对象的class | 更新过程对象 |
-| delete | 数据库表对应对象的class | 删除过程对象 |
+#### 1. 添加依赖
 
-### 查询
+```xml
+<dependency>
+    <groupId>io.github.kiryu1223</groupId>
+    <artifactId>drink-solon-plugin</artifactId>
+    <version>${project.version}</version>
+</dependency>
 
-查询由client对象的query方法发起，query方法接收一个class对象，返回一个查询过程对象，
-可以在后续调用`where` `group by` `limit`等方法添加查询条件
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <compilerArgs>
+                    <arg>-Xplugin:ExpressionTree</arg>
+                </compilerArgs>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>io.github.kiryu1223</groupId>
+                        <artifactId>drink-core</artifactId>
+                        <version>${project.version}</version>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
 
-以下是常用的查询过程的api
+## 实体映射
 
-| 方法          | 参数                                            | 返回                        | 说明                                                                                                                                                                            |
-|-------------|-----------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `leftJoin`  | 参数1：class对象或者LQuery对象<br/> 参数2：连接条件的lambda表达式 | 当前泛型数量+1的查询过程对象（因为连了一张新表） | 左连接                                                                                                                                                                           |
-| `rightJoin` | 同leftJoin                                     | 同leftJoin                 | 右连接                                                                                                                                                                           |
-| `innerJoin` | 同leftJoin                                     | 同leftJoin                 | 内连接                                                                                                                                                                           |
-| `where`     | where条件的lambda表达式                             | this                      | where过滤条件，多个where默认使用and拼接                                                                                                                                                    |
-| `orWhere`   | 同where                                        | this                      | 同where，区别是多个where使用or拼接                                                                                                                                                       |
-| `groupBy`   | 返回单个元素或者包含多个元素的Grouper对象的lambda               | 组查询过程对象                   | 单个元素的group by时，可以直接类似于<br/>`a -> a.getId()`<br/>这样的lambda,多个元素时需要使用 <br/>a -> new Grouper()<br/>{ <br/>int id=a.getId();<br/>String name=a.getName();<br/>...<br/>} 这样的lambda |
-| `having`    | having条件的lambda表达式                            | this                      | having过滤条件，多个having使用and连接                                                                                                                                                    |
-| `orderBy`   | 参数1：需要排序的一个字段<br/>参数2：是否反向排序                  | this                      | 默认正序排序，有多个排序字段的需求时需要调用次orderBy方法                                                                                                                                              |
-| `limit`     | rows或者offset和rows                             | this                      |                                                                                                                                                                               |
-| `distinct`  | 无参或bool                                       | this                      | 无参调用时将distinct设置为true                                                                                                                                                         |
-| `select `   | 无参select()或select(Vo.class)或select(lambda)    | 新查询过程对象                   | select代表一次查询过程的终结，在select之后调用任意条件api（例如where）都将把上一个查询过程视为中间表然后对中间表进行的查询                                                                                                       |
-| `endSelect` | 需要返回的字段与返回类型                                  | 终结查询过程对象                  | 同select,区别是当需要返回单一的元素时（比如说`select(s -> s.getId())`），出于安全考虑强制要求使用endSelect（`endSelect(s -> s.getId())`）而非select                                                                |
-| `toList`    |                                               | 查询返回的结果集                  | 多表查询时必须进行一次select之后才能进行返回结果集操作（因为多表情况下不知道到底要返回什么）                                                                                                                             |
+### 基础注解
 
-假设我们有一个员工表
+#### @Table - 表映射
+
+```java
+@Table("user_info")  // 指定表名
+@Table(schema = "test", value = "users")  // 指定 schema 和表名
+public class User {
+    // ...
+}
+```
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| value | String | 类名转换 | 数据库表名 |
+| schema | String | 空 | 数据库 schema |
+
+#### @Column - 列映射
+
+```java
+public class User {
+    @Column(value = "user_id", primaryKey = true)
+    private Long id;
+
+    @Column("user_name")
+    private String name;
+
+    @Column(value = "age", notNull = true)
+    private Integer age;
+
+    @Column(value = "created_at", generatedKey = true)
+    private LocalDateTime createTime;
+}
+```
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| value | String | 字段名转换 | 数据库列名 |
+| primaryKey | boolean | false | 是否为主键 |
+| notNull | boolean | false | 是否非空 |
+| generatedKey | boolean | false | 是否为生成列（自增/默认值） |
+
+#### @Navigate - 关联关系
+
+```java
+public class User {
+    @Column(value = "user_id", primaryKey = true)
+    private Long id;
+
+    // 一对多：一个用户有多个订单
+    @Navigate(value = RelationType.OneToMany,
+              self = "id",
+              target = "userId")
+    private List<Order> orders;
+}
+
+public class Order {
+    @Column(value = "order_id", primaryKey = true)
+    private Long id;
+
+    @Column("user_id")
+    private Long userId;
+
+    // 多对一：多个订单属于一个用户
+    @Navigate(value = RelationType.ManyToOne,
+              self = "userId",
+              target = "id")
+    private User user;
+
+    // 多对多：订单和商品的关系（通过中间表）
+    @Navigate(value = RelationType.ManyToMany,
+              self = "id",
+              selfMapping = "orderId",
+              mappingTable = OrderProduct.class,
+              targetMapping = "productId",
+              target = "id")
+    private List<Product> products;
+}
+```
+
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| value | RelationType | 必填 | 关联关系类型 |
+| self | String | 必填 | 当前实体的关联字段 |
+| target | String | 必填 | 目标实体的关联字段 |
+| mappingTable | Class | 空 | 中间表类（多对多时必填） |
+| selfMapping | String | 空 | 中间表中当前实体的字段 |
+| targetMapping | String | 空 | 中间表中目标实体的字段 |
+
+#### @IgnoreColumn - 忽略字段
+
+```java
+public class User {
+    private Long id;
+    private String name;
+
+    @IgnoreColumn  // 该字段不参与数据库映射
+    private String tempField;
+}
+```
+
+### 完整实体示例
+
+```java
+@Data
+@Table("users")
+public class User {
+    @Column(value = "user_id", primaryKey = true)
+    private Long id;
+
+    @Column("user_name")
+    private String name;
+
+    @Column(value = "age", notNull = true)
+    private Integer age;
+
+    @Column("email")
+    private String email;
+
+    @Column(value = "created_at", generatedKey = true)
+    private LocalDateTime createTime;
+
+    @Navigate(value = RelationType.OneToMany, self = "id", target = "userId")
+    private List<Order> orders;
+
+    @IgnoreColumn
+    private String displayName;  // 计算字段，不存储到数据库
+}
+```
+
+## 基础操作
+
+所有的增删查改操作都通过 `DrinkClient` 对象完成。
+
+### 查询操作
+
+#### 基本查询
+
+```java
+// 查询所有用户
+List<User> allUsers = client.query(User.class).toList();
+
+// 条件查询
+List<User> adults = client.query(User.class)
+        .where(u -> u.getAge() >= 18)
+        .toList();
+
+// 多条件查询
+List<User> result = client.query(User.class)
+        .where(u -> u.getAge() >= 18)
+        .where(u -> u.getName().contains("张"))
+        .toList();
+
+// OR 条件
+List<User> result = client.query(User.class)
+        .where(u -> u.getAge() >= 18)
+        .orWhere(u -> u.getName().contains("管理员"))
+        .toList();
+```
+
+#### 排序和分页
+
+```java
+// 排序
+List<User> users = client.query(User.class)
+        .orderBy(u -> u.getAge())           // 升序
+        .orderBy(u -> u.getName(), false)   // 降序
+        .toList();
+
+// 分页
+List<User> users = client.query(User.class)
+        .orderBy(u -> u.getId())
+        .limit(10)          // 限制 10 条
+        .toList();
+
+List<User> users = client.query(User.class)
+        .orderBy(u -> u.getId())
+        .limit(20, 10)      // 跳过 20 条，取 10 条
+        .toList();
+```
+
+#### 字段选择
+
+```java
+// 选择特定字段
+List<? extends Result> result = client.query(User.class)
+        .select(u -> new Result() {
+            String name = u.getName();
+            Integer age = u.getAge();
+        })
+        .toList();
+
+// 选择单个字段
+List<String> names = client.query(User.class)
+        .endSelect(u -> u.getName())
+        .toList();
+
+// 聚合查询
+long count = client.query(User.class)
+        .where(u -> u.getAge() >= 18)
+        .count();
+
+Integer maxAge = client.query(User.class).max(u -> u.getAge());
+Integer minAge = client.query(User.class).min(u -> u.getAge());
+BigDecimal avgAge = client.query(User.class).avg(u -> u.getAge());
+```
+
+#### 连表查询
+
+```java
+// 内连接
+List<? extends Result> result = client.query(User.class)
+        .innerJoin(Order.class, (u, o) -> u.getId().equals(o.getUserId()))
+        .select((u, o) -> new Result() {
+            String userName = u.getName();
+            String orderNo = o.getOrderNo();
+            BigDecimal amount = o.getAmount();
+        })
+        .toList();
+
+// 左连接
+List<? extends Result> result = client.query(User.class)
+        .leftJoin(Order.class, (u, o) -> u.getId().equals(o.getUserId()))
+        .where((u, o) -> u.getAge() >= 18)
+        .select((u, o) -> new Result() {
+            String userName = u.getName();
+            Long orderCount = SqlFunctions.count(o.getId());
+        })
+        .toList();
+```
+
+### 插入操作
+
+#### 单条插入
+
+```java
+User user = new User();
+user.setName("张三");
+user.setAge(25);
+user.setEmail("zhangsan@example.com");
+
+long insertCount = client.insert(user).executeRows();
+System.out.println("插入成功，影响行数：" + insertCount);
+```
+
+#### 批量插入
+
+```java
+List<User> users = Arrays.asList(
+    new User("张三", 25, "zhangsan@example.com"),
+    new User("李四", 30, "lisi@example.com"),
+    new User("王五", 28, "wangwu@example.com")
+);
+
+// 自动批量插入（当数量 >= 2 时）
+long insertCount = client.insert(users).executeRows();
+System.out.println("批量插入成功，影响行数：" + insertCount);
+```
+
+#### 链式插入
+
+```java
+User user1 = new User("张三", 25, "zhangsan@example.com");
+User user2 = new User("李四", 30, "lisi@example.com");
+
+long insertCount = client.insert(user1)
+        .insert(user2)
+        .executeRows();
+```
+
+### 更新操作
+
+#### 基本更新
+
+```java
+// 更新单个字段
+long updateCount = client.update(User.class)
+        .set(u -> u.setAge(26))
+        .where(u -> u.getId().equals(1L))
+        .executeRows();
+
+// 更新多个字段
+long updateCount = client.update(User.class)
+        .set(u -> {
+            u.setName("新名字");
+            u.setAge(30);
+            u.setEmail("newemail@example.com");
+        })
+        .where(u -> u.getId().equals(1L))
+        .executeRows();
+```
+
+#### 条件更新
+
+```java
+// 批量更新
+long updateCount = client.update(User.class)
+        .set(u -> u.setAge(u.getAge() + 1))  // 年龄加1
+        .where(u -> u.getAge() < 30)
+        .executeRows();
+
+// 连表更新
+long updateCount = client.update(User.class)
+        .leftJoin(Order.class, (u, o) -> u.getId().equals(o.getUserId()))
+        .set((u, o) -> u.setLastOrderTime(o.getCreateTime()))
+        .where((u, o) -> o.getStatus().equals("COMPLETED"))
+        .executeRows();
+```
+
+### 删除操作
+
+#### 基本删除
+
+```java
+// 根据ID删除
+long deleteCount = client.delete(User.class)
+        .where(u -> u.getId().equals(1L))
+        .executeRows();
+
+// 条件删除
+long deleteCount = client.delete(User.class)
+        .where(u -> u.getAge() < 18)
+        .executeRows();
+```
+
+#### 连表删除
+
+```java
+// 删除没有订单的用户
+long deleteCount = client.delete(User.class)
+        .leftJoin(Order.class, (u, o) -> u.getId().equals(o.getUserId()))
+        .where((u, o) -> o.getId() == null)
+        .executeRows();
+
+// 指定删除的表
+long deleteCount = client.delete(User.class)
+        .leftJoin(Order.class, (u, o) -> u.getId().equals(o.getUserId()))
+        .selectDelete((u, o) -> o)  // 删除订单表的记录
+        .where((u, o) -> u.getStatus().equals("INACTIVE"))
+        .executeRows();
+```
+
+## 高级查询
+
+### 分组查询
+
+```java
+// 简单分组
+List<? extends Result> result = client.query(Order.class)
+        .groupBy(o -> o.getUserId())
+        .select(g -> new Result() {
+            Long userId = g.key;
+            Long orderCount = g.count();
+            BigDecimal totalAmount = g.sum(o -> o.getAmount());
+        })
+        .toList();
+
+// 多字段分组
+List<? extends Result> result = client.query(Order.class)
+        .groupBy(o -> new Grouper() {
+            Long userId = o.getUserId();
+            String status = o.getStatus();
+        })
+        .select(g -> new Result() {
+            Long userId = g.key.userId;
+            String status = g.key.status;
+            Long count = g.count();
+            BigDecimal avgAmount = g.avg(o -> o.getAmount());
+        })
+        .toList();
+```
+
+### Having 条件
+
+```java
+List<? extends Result> result = client.query(Order.class)
+        .groupBy(o -> o.getUserId())
+        .having(g -> g.count() > 5)  // 订单数量大于5的用户
+        .select(g -> new Result() {
+            Long userId = g.key;
+            Long orderCount = g.count();
+        })
+        .toList();
+```
+
+### Include 关联查询
+
+Include 是 Drink 的强大特性，可以自动处理实体间的关联关系。
+
+#### 基本 Include
+
+```java
+// 查询用户及其订单
+List<User> users = client.query(User.class)
+        .includes(u -> u.getOrders())  // 自动加载订单
+        .toList();
+
+// 用户的订单列表会被自动填充
+for (User user : users) {
+    System.out.println("用户: " + user.getName());
+    System.out.println("订单数量: " + user.getOrders().size());
+}
+```
+
+#### 条件 Include
+
+```java
+// 只加载已完成的订单
+List<User> users = client.query(User.class)
+        .includes(u -> u.getOrders(), o -> o.getStatus().equals("COMPLETED"))
+        .toList();
+
+// 复杂条件 Include
+List<User> users = client.query(User.class)
+        .includesByCond(u -> u.getOrders(), query -> query
+                .where(o -> o.getAmount().compareTo(new BigDecimal("100")) > 0)
+                .orderBy(o -> o.getCreateTime(), false)
+                .limit(5)
+        )
+        .toList();
+```
+
+#### 多层 Include
+
+```java
+// 查询用户 -> 订单 -> 订单项
+List<User> users = client.query(User.class)
+        .includes(u -> u.getOrders())
+        .includes(u -> u.getOrders(), o -> o.getOrderItems())
+        .toList();
+```
+
+### 子查询
+
+```java
+// 查询有订单的用户
+List<User> users = client.query(User.class)
+        .where(u -> client.query(Order.class)
+                .where(o -> o.getUserId().equals(u.getId()))
+                .exists())
+        .toList();
+
+// 查询订单数量最多的用户
+List<User> users = client.query(User.class)
+        .where(u -> client.query(Order.class)
+                .where(o -> o.getUserId().equals(u.getId()))
+                .count() == client.query(Order.class)
+                        .groupBy(o -> o.getUserId())
+                        .max(g -> g.count()))
+        .toList();
+```
+
+### Union 查询
+
+```java
+// Union 查询
+LQuery<User> query1 = client.query(User.class)
+        .where(u -> u.getAge() > 30);
+
+LQuery<User> query2 = client.query(User.class)
+        .where(u -> u.getName().contains("管理员"));
+
+List<User> users = client.union(query1, query2).toList();
+
+// Union All
+List<User> users = client.unionAll(query1, query2).toList();
+```
+
+## 事务管理
+
+### 手动事务
+
+```java
+// 基本事务使用
+try (Transaction transaction = client.beginTransaction()) {
+    // 执行多个操作
+    client.insert(user).executeRows();
+    client.update(Order.class)
+            .set(o -> o.setStatus("PROCESSING"))
+            .where(o -> o.getUserId().equals(user.getId()))
+            .executeRows();
+
+    // 提交事务
+    transaction.commit();
+} catch (Exception e) {
+    // 异常时自动回滚
+    e.printStackTrace();
+}
+```
+
+### 指定事务隔离级别
+
+```java
+import java.sql.Connection;
+
+try (Transaction transaction = client.beginTransaction(Connection.TRANSACTION_READ_COMMITTED)) {
+    // 在指定隔离级别下执行操作
+    // ...
+    transaction.commit();
+}
+```
+
+### Spring 事务集成
+
+在 Spring Boot 项目中，可以使用 `@Transactional` 注解：
+
+```java
+@Service
+public class UserService {
+
+    @Autowired
+    private DrinkClient client;
+
+    @Transactional
+    public void createUserWithOrder(User user, Order order) {
+        // 插入用户
+        client.insert(user).executeRows();
+
+        // 设置订单的用户ID
+        order.setUserId(user.getId());
+
+        // 插入订单
+        client.insert(order).executeRows();
+
+        // 如果发生异常，整个事务会自动回滚
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> getActiveUsers() {
+        return client.query(User.class)
+                .where(u -> u.getStatus().equals("ACTIVE"))
+                .toList();
+    }
+}
+```
+
+## 配置选项
+
+### 数据库支持
+
+Drink 支持以下数据库：
+
+- **MySQL** - 完全支持
+- **PostgreSQL** - 完全支持
+- **SQL Server** - 完全支持
+- **Oracle** - 完全支持
+- **H2** - 完全支持
+- **SQLite** - 完全支持
+
+### 配置参数
+
+#### Spring Boot 配置
+
+```yaml
+drink:
+  database: mysql              # 数据库类型
+  print-sql: true             # 是否打印SQL语句
+  print-batch: false          # 是否打印批量操作信息
+  name-conversion: snake_case # 命名转换策略
+  ignore-update-no-where: false # 是否忽略无WHERE条件的UPDATE
+  ignore-delete-no-where: false # 是否忽略无WHERE条件的DELETE
+```
+
+#### 命名转换策略
+
+```java
+// 驼峰命名转下划线
+.setNameConverter(new SnakeNameConverter())
+
+// 保持原样
+.setNameConverter(new NoConverter())
+
+// 自定义转换器
+.setNameConverter(new NameConverter() {
+    @Override
+    public String convertTableName(String entityName) {
+        return "t_" + entityName.toLowerCase();
+    }
+
+    @Override
+    public String convertColumnName(String fieldName) {
+        return fieldName.toUpperCase();
+    }
+})
+```
+
+### SQL 函数支持
+
+Drink 内置了丰富的 SQL 函数支持：
+
+#### 时间函数
+
+```java
+// 当前时间
+LocalDateTime now = SqlFunctions.now();
+LocalDate today = SqlFunctions.nowDate();
+
+// 日期计算
+LocalDate futureDate = SqlFunctions.addDate(LocalDate.now(), 30, DateUnit.DAY);
+long daysDiff = SqlFunctions.dateTimeDiff(date1, date2, DateUnit.DAY);
+
+// 日期格式化
+String formatted = SqlFunctions.dateFormat(LocalDateTime.now(), "yyyy-MM-dd HH:mm:ss");
+```
+
+#### 字符串函数
+
+```java
+// 字符串操作
+String concat = SqlFunctions.concat("Hello", " ", "World");
+String upper = SqlFunctions.toUpperCase("hello");
+String sub = SqlFunctions.subString("Hello World", 0, 5);
+int length = SqlFunctions.length("Hello");
+```
+
+#### 数学函数
+
+```java
+// 数学计算
+double abs = SqlFunctions.abs(-10.5);
+double round = SqlFunctions.round(3.14159, 2);
+double max = SqlFunctions.max(value1, value2, value3);
+```
+
+#### 条件函数
+
+```java
+// 条件判断
+String result = SqlFunctions.If(condition, "真值", "假值");
+String notNull = SqlFunctions.ifNull(nullableValue, "默认值");
+```
+
+## 最佳实践
+
+### 1. 实体设计
+
+```java
+@Data
+@Table("users")
+public class User {
+    // 主键使用 Long 类型
+    @Column(value = "user_id", primaryKey = true)
+    private Long id;
+
+    // 必填字段标记 notNull
+    @Column(value = "user_name", notNull = true)
+    private String name;
+
+    // 自增字段标记 generatedKey
+    @Column(value = "created_at", generatedKey = true)
+    private LocalDateTime createTime;
+
+    // 使用合适的数据类型
+    private BigDecimal balance;  // 金额使用 BigDecimal
+    private LocalDate birthDate; // 日期使用 LocalDate
+}
+```
+
+### 2. 查询优化
+
+```java
+// ✅ 好的做法：使用索引字段查询
+List<User> users = client.query(User.class)
+        .where(u -> u.getId().equals(userId))  // 主键查询
+        .toList();
+
+// ✅ 好的做法：限制查询结果数量
+List<User> users = client.query(User.class)
+        .orderBy(u -> u.getId())
+        .limit(100)  // 限制结果集大小
+        .toList();
+
+// ❌ 避免：全表扫描
+List<User> users = client.query(User.class)
+        .where(u -> u.getName().contains("张"))  // 可能导致全表扫描
+        .toList();
+```
+
+### 3. 批量操作
+
+```java
+// ✅ 好的做法：使用批量插入
+List<User> users = Arrays.asList(user1, user2, user3);
+client.insert(users).executeRows();  // 自动批量执行
+
+// ✅ 好的做法：批量更新
+client.update(User.class)
+        .set(u -> u.setStatus("ACTIVE"))
+        .where(u -> u.getCreateTime().isAfter(yesterday))
+        .executeRows();
+```
+
+### 4. 事务管理
+
+```java
+// ✅ 好的做法：使用 try-with-resources
+try (Transaction transaction = client.beginTransaction()) {
+    // 执行多个相关操作
+    client.insert(user).executeRows();
+    client.insert(order).executeRows();
+
+    transaction.commit();
+} catch (Exception e) {
+    // 异常自动回滚
+    log.error("事务执行失败", e);
+}
+```
+
+### 5. Include 使用
+
+```java
+// ✅ 好的做法：按需加载关联数据
+List<User> users = client.query(User.class)
+        .includes(u -> u.getOrders(), o -> o.getStatus().equals("ACTIVE"))
+        .limit(10)
+        .toList();
+
+// ❌ 避免：无条件加载大量关联数据
+List<User> users = client.query(User.class)
+        .includes(u -> u.getOrders())  // 可能加载大量数据
+        .toList();
+```
+
+## 常见问题
+
+### Q1: 如何处理枚举类型？
+
+```java
+// 方式1：使用类型处理器
+@UseTypeHandler(GenderHandler.class)
+private Gender gender;
+
+// 方式2：使用转换器
+@Column(converter = GenderConverter.class)
+private Gender gender;
+
+// 自定义转换器
+public class GenderConverter implements IConverter<Gender, String> {
+    @Override
+    public String toDb(Gender gender) {
+        return gender == null ? null : gender.name();
+    }
+
+    @Override
+    public Gender fromDb(String value) {
+        return value == null ? null : Gender.valueOf(value);
+    }
+}
+```
+
+### Q2: 如何处理 JSON 字段？
+
+```java
+@Column("extra_info")
+@UseTypeHandler(JsonTypeHandler.class)
+private Map<String, Object> extraInfo;
+
+// 自定义 JSON 处理器
+public class JsonTypeHandler implements ITypeHandler<Map<String, Object>> {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void setParameter(PreparedStatement ps, int i, Map<String, Object> parameter) throws SQLException {
+        if (parameter == null) {
+            ps.setNull(i, Types.VARCHAR);
+        } else {
+            try {
+                ps.setString(i, objectMapper.writeValueAsString(parameter));
+            } catch (JsonProcessingException e) {
+                throw new SQLException(e);
+            }
+        }
+    }
+
+    @Override
+    public Map<String, Object> getResult(ResultSet rs, String columnName) throws SQLException {
+        String json = rs.getString(columnName);
+        if (json == null) return null;
+        try {
+            return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+        } catch (JsonProcessingException e) {
+            throw new SQLException(e);
+        }
+    }
+}
+```
+
+### Q3: 如何实现软删除？
+
+```java
+@Data
+@Table("users")
+public class User {
+    @Column(value = "user_id", primaryKey = true)
+    private Long id;
+
+    private String name;
+
+    @Column("is_deleted")
+    private Boolean deleted = false;
+
+    @Column("delete_time")
+    private LocalDateTime deleteTime;
+}
+
+// 查询时自动过滤已删除记录
+List<User> users = client.query(User.class)
+        .where(u -> u.getDeleted() == false)
+        .toList();
+
+// 软删除
+client.update(User.class)
+        .set(u -> {
+            u.setDeleted(true);
+            u.setDeleteTime(LocalDateTime.now());
+        })
+        .where(u -> u.getId().equals(userId))
+        .executeRows();
+```
+
+### Q4: 如何处理分页查询？
+
+```java
+// 基本分页
+public PageResult<User> getUsers(int page, int size) {
+    // 查询总数
+    long total = client.query(User.class).count();
+
+    // 查询数据
+    List<User> users = client.query(User.class)
+            .orderBy(u -> u.getId())
+            .limit(page * size, size)
+            .toList();
+
+    return new PageResult<>(users, total, page, size);
+}
+
+// 分页结果类
+@Data
+public class PageResult<T> {
+    private List<T> data;
+    private long total;
+    private int page;
+    private int size;
+    private int totalPages;
+
+    public PageResult(List<T> data, long total, int page, int size) {
+        this.data = data;
+        this.total = total;
+        this.page = page;
+        this.size = size;
+        this.totalPages = (int) Math.ceil((double) total / size);
+    }
+}
+```
+
+### Q5: 如何处理动态查询条件？
+
+```java
+public List<User> searchUsers(UserSearchCriteria criteria) {
+    LQuery<User> query = client.query(User.class);
+
+    // 动态添加条件
+    if (criteria.getName() != null) {
+        query = query.where(u -> u.getName().contains(criteria.getName()));
+    }
+
+    if (criteria.getMinAge() != null) {
+        query = query.where(u -> u.getAge() >= criteria.getMinAge());
+    }
+
+    if (criteria.getMaxAge() != null) {
+        query = query.where(u -> u.getAge() <= criteria.getMaxAge());
+    }
+
+    if (criteria.getStatus() != null) {
+        query = query.where(u -> u.getStatus().equals(criteria.getStatus()));
+    }
+
+    return query.orderBy(u -> u.getId()).toList();
+}
+```
+
+### Q6: 如何处理复杂的统计查询？
+
+```java
+// 用户订单统计
+List<? extends Result> stats = client.query(User.class)
+        .leftJoin(Order.class, (u, o) -> u.getId().equals(o.getUserId()))
+        .groupBy((u, o) -> new Grouper() {
+            Long userId = u.getId();
+            String userName = u.getName();
+        })
+        .select(g -> new Result() {
+            Long userId = g.key.userId;
+            String userName = g.key.userName;
+            Long orderCount = g.count((u, o) -> o.getId());
+            BigDecimal totalAmount = g.sum((u, o) -> o.getAmount());
+            BigDecimal avgAmount = g.avg((u, o) -> o.getAmount());
+            LocalDateTime lastOrderTime = g.max((u, o) -> o.getCreateTime());
+        })
+        .toList();
+```
+
+### Q7: 如何优化性能？
+
+1. **使用索引字段查询**
+```java
+// ✅ 使用主键或索引字段
+.where(u -> u.getId().equals(userId))
+
+// ❌ 避免在非索引字段上使用 LIKE
+.where(u -> u.getDescription().contains("关键词"))
+```
+
+2. **限制结果集大小**
+```java
+// 总是使用 limit 限制结果数量
+.limit(100)
+```
+
+3. **按需加载关联数据**
+```java
+// 只加载需要的关联数据
+.includes(u -> u.getOrders(), o -> o.getStatus().equals("ACTIVE"))
+```
+
+4. **使用批量操作**
+```java
+// 批量插入而不是循环单条插入
+client.insert(userList).executeRows();
+```
+
+### Q8: 如何处理数据库连接池配置？
+
+```yaml
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20        # 最大连接数
+      minimum-idle: 5              # 最小空闲连接数
+      connection-timeout: 30000    # 连接超时时间(毫秒)
+      idle-timeout: 600000         # 空闲超时时间(毫秒)
+      max-lifetime: 1800000        # 连接最大生存时间(毫秒)
+      leak-detection-threshold: 60000 # 连接泄漏检测阈值(毫秒)
+```
+
+---
+
+## 总结
+
+Drink ORM 提供了强大而灵活的数据库操作能力，通过类型安全的 Lambda 表达式查询，让数据库操作变得更加直观和安全。无论是简单的 CRUD 操作，还是复杂的关联查询和事务管理，Drink 都能提供优雅的解决方案。
+
+希望这份文档能帮助您快速上手并充分利用 Drink ORM 的强大功能。如有问题，欢迎加入 QQ 群：257911716 进行交流讨论。
 
 ```java
 
@@ -437,7 +1330,7 @@ public class DisplayTest extends BaseTest
         int id = 10001;
         List<Employee> list = client.query(Employee.class) // FROM `employees` AS t0
                 .where(e -> e.getNumber() == id) // WHERE t0.`emp_no` = ?
-                // 因为没有select，默认选择了全字段 
+                // 因为没有select，默认选择了全字段
                 // SELECT t0.`birth_date`,t0.`first_name`,t0.`last_name`,t0.`emp_no`,t0.`hire_date`,t0.`gender`
                 .toList();
     }
@@ -461,7 +1354,7 @@ public class DisplayTest extends BaseTest
     {
         List<Employee> list = client.query(Employee.class) // FROM `employees` AS t0
                 .where(e -> e.getGender() == Gender.F && e.getFirstName() == "lady") // WHERE t0.`gender` = ? AND t0.`first_name` = ?
-                // 因为没有select，默认选择了全字段 
+                // 因为没有select，默认选择了全字段
                 // SELECT t0.`birth_date`, t0.`first_name`, t0.`last_name`, t0.`emp_no`, t0.`hire_date`, t0.`gender`
                 .toList();
     }
@@ -513,7 +1406,7 @@ public class DisplayTest extends BaseTest
                 // SELECT
                 .select((e, s) -> new Result()
                 {
-                    // CONCAT(t0.`first_name`, ?, t0.`last_name`) AS `name` 
+                    // CONCAT(t0.`first_name`, ?, t0.`last_name`) AS `name`
                     String name = SqlFunctions.concat(e.getFirstName(), " ", e.getLastName());
                     // MAX(t1.`salary`)                           AS `maxSalary`,
                     int maxSalary = SqlFunctions.max(s.getSalary());
@@ -587,10 +1480,10 @@ public class DisplayTest extends BaseTest
                 .innerJoin(Salary.class, (de, s) -> de.getEmpNumber() == s.getEmpNumber()) // INNER JOIN `salaries` AS t1 ON t0.`emp_no` = t1.`emp_no`
                 .innerJoin(Department.class, (de, s, d) -> de.getDeptNumber() == d.getNumber()) // INNER JOIN `departments` AS t2 ON t0.`dept_no` = t2.`dept_no`
                 .where((de, s, d) -> de.getDeptNumber() == departmentId && s.getTo() == LocalDate.of(9999, 1, 1)) // WHERE t0.`dept_no` = ? AND t1.`to_date` = ?
-                // GROUP BY 
+                // GROUP BY
                 .groupBy((de, s, d) -> new Grouper()
                 {
-                    // t0.`dept_no`, 
+                    // t0.`dept_no`,
                     String id = de.getDeptNumber();
                     // t2.`dept_name`
                     String name = d.getName();
@@ -1044,7 +1937,7 @@ public class IncludeTest extends BaseTest
 
 `String类`
 
-| java                                | sql                              |       
+| java                                | sql                              |
 |-------------------------------------|----------------------------------|
 | this.contains(arg)                  | this LIKE CONCAT('%',arg,'%')    |
 | this.startsWith(arg)                | this LIKE CONCAT(arg,'%')        |

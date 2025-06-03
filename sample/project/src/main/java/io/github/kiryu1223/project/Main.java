@@ -53,7 +53,7 @@ public class Main {
 //                        // select count(*) from courses as c where c.id = s.id,
 //                        setNumber(client.query(Employee.class).count());
 //                    }
-//                    // (select ? from courses as c where c.id = s.id) as `c4`
+//                    // (select new {...} from courses as c where c.id = s.id) as `c4`
 //                    List<? extends Employee> c4 = client.query(Employee.class)
 //                            .where(c -> c.getNumber() == s.getNumber())
 //                            .toList();

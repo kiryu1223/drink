@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.base.toBean.handler;
 
 import io.github.kiryu1223.drink.base.toBean.handler.impl.datetime.*;
+import io.github.kiryu1223.drink.base.toBean.handler.impl.list.*;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.number.*;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.other.URLTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.varchar.CharTypeHandler;
@@ -61,6 +62,17 @@ public class TypeHandlerManager
 
         //other
         set(new URLTypeHandler());
+
+        // list
+        set(new ListStringHandler());
+        set(new ListIntHandler());
+        set(new ListLongHandler());
+        set(new ListBoolHandler());
+        set(new ListFloatHandler());
+        set(new ListDoubleHandler());
+        set(new ListCharHandler());
+        set(new ListByteHandler());
+        set(new ListShortHandler());
     }
 
     public static <T> ITypeHandler<T> get(Type type)

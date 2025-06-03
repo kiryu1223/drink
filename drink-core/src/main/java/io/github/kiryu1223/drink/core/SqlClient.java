@@ -2,19 +2,19 @@ package io.github.kiryu1223.drink.core;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.Empty;
-import io.github.kiryu1223.drink.base.annotation.Navigate;
-import io.github.kiryu1223.drink.base.annotation.RelationType;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
+import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.transaction.Transaction;
-import io.github.kiryu1223.drink.core.api.ITable;
-import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.core.api.IView;
 import io.github.kiryu1223.drink.core.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.EmptyQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.UnionQuery;
-import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
@@ -22,11 +22,9 @@ import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
-import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.List;
 
-public class SqlClient {
+public final class SqlClient {
     private final IConfig config;
 
     SqlClient(IConfig config) {
@@ -60,7 +58,7 @@ public class SqlClient {
      * @return 查询过程对象
      */
     public <T> LQuery<T> query(@Recode Class<T> c) {
-        return new LQuery<>(new QuerySqlBuilder(config, config.getSqlExpressionFactory().queryable(c)));
+        return new LQuery<>(new QuerySqlBuilder(config, tryView(c)));
     }
 
     public <T> UnionQuery<T> union(LQuery<T> q1, LQuery<T> q2) {
@@ -97,7 +95,11 @@ public class SqlClient {
      * @return 新增过程对象
      */
     public <T> ObjectInsert<T> insert(@Recode T t) {
-        ObjectInsert<T> objectInsert = new ObjectInsert<>(config, (Class<T>) t.getClass());
+        Class<T> aClass = (Class<T>) t.getClass();
+        if (IView.class.isAssignableFrom(aClass)) {
+            throw new DrinkException("视图对象无法进行修改");
+        }
+        ObjectInsert<T> objectInsert = new ObjectInsert<>(config,aClass);
         return objectInsert.insert(t);
     }
 
@@ -109,7 +111,11 @@ public class SqlClient {
      * @return 新增过程对象
      */
     public <T> ObjectInsert<T> insert(@Recode Collection<T> ts) {
-        ObjectInsert<T> objectInsert = new ObjectInsert<>(config, getType(ts));
+        Class<T> type = getType(ts);
+        if (IView.class.isAssignableFrom(type)) {
+            throw new DrinkException("视图对象无法进行修改");
+        }
+        ObjectInsert<T> objectInsert = new ObjectInsert<>(config,type);
         return objectInsert.insert(ts);
     }
 
@@ -121,6 +127,9 @@ public class SqlClient {
      * @return 更新过程对象
      */
     public <T> LUpdate<T> update(@Recode Class<T> c) {
+        if (IView.class.isAssignableFrom(c)) {
+            throw new DrinkException("视图对象无法进行修改");
+        }
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         return new LUpdate<>(new UpdateSqlBuilder(config, factory.update(c)));
     }
@@ -133,6 +142,9 @@ public class SqlClient {
      * @return 删除过程对象
      */
     public <T> LDelete<T> delete(@Recode Class<T> c) {
+        if (IView.class.isAssignableFrom(c)) {
+            throw new DrinkException("视图对象无法进行修改");
+        }
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         return new LDelete<>(new DeleteSqlBuilder(config, factory.delete(c)));
     }
@@ -148,97 +160,18 @@ public class SqlClient {
         throw new SqLinkException("insert内容为空");
     }
 
-//    {
-//
-//        class User implements ITable {
-//            int id;
-//            int age;
-//            int areaId;
-//            String name;
-//            BigDecimal amount;
-//        }
-//
-//        class Area implements ITable {
-//            int id;
-//            String name;
-//            @Navigate(
-//                    value = RelationType.OneToMany,
-//                    self = "id",
-//                    target = "areaId"
-//            )
-//            List<User> users;
-//
-//            public int getId() {
-//                return id;
-//            }
-//
-//            public void setId(int id) {
-//                this.id = id;
-//            }
-//
-//            public String getName() {
-//                return name;
-//            }
-//
-//            public void setName(String name) {
-//                this.name = name;
-//            }
-//
-//            public List<User> getUsers() {
-//                return users;
-//            }
-//
-//            public void setUsers(List<User> users) {
-//                this.users = users;
-//            }
-//        }
-//
-//        BigDecimal sumMoney = query(Area.class)
-//                .where(a -> a.name.contains("华东"))
-//                .selectMany(a -> a.users)
-//                .where(a -> a.age >= 20 && a.age <= 30)
-//                .sum(u -> u.amount);
-//
-//        List<? extends Result> list = query(Area.class)
-//                .groupBy(a->new Grouper()
-//                {
-//                    int id=a.getId();
-//                    String name=a.getName();
-//                })
-//                .select(g -> new Result() {
-//                    Group<? extends Grouper, Area> gg=g;
-//                    String name = g.key.name;
-//                    long count1 = g.count(g.value1.id);
-//                    long count2 = g.count(gg -> gg.id);
-//                    BigDecimal avg1 = g.avg(gg -> gg.id);
-//                    BigDecimal avg2 = g.avg(g.key.id);
-//                    int sum1 = g.sum(a -> a.id);
-//                    int sum2 = g.sum(g.key.id);
-//                    String max1 = g.max(g.key.name);
-//                    String max2 = g.max(gg -> gg.name);
-//                    String min1 = g.min(g.key.name);
-//                    String min2 = g.min(gg -> gg.name);
-//                }).toList();
-//
-//        List<Long> list1 = query(Area.class)
-//                .selectAggregate(g -> g.count())
-//                .toList();
-//
-//        query(Area.class)
-//                .where(a -> a.query(a.users)
-//                        .where(u -> u.age > 20)
-//                        .groupBy(u -> new Grouper() {
-//                            int id = u.id;
-//                        })
-//                        .select(g -> g.sum(g.value1.age))
-//                        .toList()
-//                        .contains(a.getId())
-//                )
-//                .toList();
-//
-//
-//        Area first = query(Area.class)
-//                .where(a -> a.query(a.users).where(u -> u.age > 20).any())
-//                .first();
-//    }
+    private <T> ISqlQueryableExpression tryView(Class<T> c) {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        if (IView.class.isAssignableFrom(c)) {
+            AbsBeanCreator<IView<T>> creator = config.getBeanCreatorFactory().get((Class<IView<T>>)c, config);
+            IView<T> view = creator.getBeanCreator().get();
+            EndQuery<T> with = view.createView(this);
+            ISqlQueryableExpression queryable = with.getSqlBuilder().getQueryable();
+            MetaData metaData = config.getMetaData(c);
+            return factory.queryable(factory.with(queryable, metaData.getTableName()));
+        }
+        else {
+            return factory.queryable(c);
+        }
+    }
 }

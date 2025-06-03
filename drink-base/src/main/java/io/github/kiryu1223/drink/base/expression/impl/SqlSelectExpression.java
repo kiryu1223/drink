@@ -34,6 +34,7 @@ public class SqlSelectExpression implements ISqlSelectExpression {
     protected boolean distinct;
     protected Class<?> target;
     protected boolean isSingle;
+    protected boolean isAgg =false;
     protected final List<SubQueryBuilder> subQueryBuilders=new ArrayList<>();
     protected final ExValues exValues=new ExValues();
 
@@ -100,6 +101,16 @@ public class SqlSelectExpression implements ISqlSelectExpression {
     @Override
     public ExValues getExValues() {
         return exValues;
+    }
+
+    @Override
+    public boolean isAgg() {
+        return isAgg;
+    }
+
+    @Override
+    public void setAgg(boolean agg) {
+        isAgg = agg;
     }
 
     @Override

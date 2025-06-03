@@ -174,11 +174,6 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlWithsExpression withs() {
-        return new SqlWithsExpression();
-    }
-
-    @Override
     public ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions) {
         return new SqlUnionQueryableExpression(queryable, unions);
     }

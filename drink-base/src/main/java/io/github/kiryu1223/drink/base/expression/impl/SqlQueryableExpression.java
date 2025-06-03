@@ -116,7 +116,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
         select.setTarget(newSelect.getTarget());
         select.setSingle(newSelect.isSingle());
         select.setDistinct(newSelect.isDistinct());
-
     }
 
     @Override

@@ -78,10 +78,6 @@ public interface SqlExpressionFactory {
      */
     ISqlFromExpression from(ISqlTableExpression sqlTable, ISqlTableRefExpression tableRefExpression);
 
-    default ISqlFromExpression from(ISqlQueryableExpression queryable) {
-        return from(queryable, tableRef(queryable.getFrom().getTableRefExpression().getName()));
-    }
-
     /**
      * 创建分组group by表达式
      */
@@ -181,6 +177,10 @@ public interface SqlExpressionFactory {
 
     default ISqlQueryableExpression queryable(ISqlQueryableExpression queryable) {
         return queryable(from(queryable, tableRef(queryable.getFrom().getTableRefExpression().getName())));
+    }
+
+    default ISqlQueryableExpression queryable(ISqlWithExpression with) {
+        return queryable(from(with, tableRef(with.withTableName())));
     }
 
     /**
@@ -377,8 +377,6 @@ public interface SqlExpressionFactory {
     ISqlTypeCastExpression typeCast(Class<?> c, ISqlExpression expression);
 
     ISqlWithExpression with(ISqlQueryableExpression queryable, String name);
-
-    ISqlWithsExpression withs();
 
     ISqlUnionQueryableExpression unionQueryable(List<ISqlQueryableExpression> queryable, List<Boolean> unions);
 

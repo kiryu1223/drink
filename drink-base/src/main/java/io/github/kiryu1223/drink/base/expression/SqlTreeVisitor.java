@@ -85,9 +85,6 @@ public abstract class SqlTreeVisitor {
         else if (expr instanceof ISqlWithExpression) {
             visit((ISqlWithExpression) expr);
         }
-        else if (expr instanceof ISqlWithsExpression) {
-            visit((ISqlWithsExpression) expr);
-        }
         else if (expr instanceof ISqlTypeCastExpression) {
             visit((ISqlTypeCastExpression) expr);
         }
@@ -234,12 +231,6 @@ public abstract class SqlTreeVisitor {
 
     public void visit(ISqlWithExpression expr) {
         visit(expr.getQueryable());
-    }
-
-    public void visit(ISqlWithsExpression expr) {
-        for (ISqlWithExpression sqlWithExpression : expr.getWiths()) {
-            visit(sqlWithExpression);
-        }
     }
 
     public void visit(ISqlWhereExpression expr) {

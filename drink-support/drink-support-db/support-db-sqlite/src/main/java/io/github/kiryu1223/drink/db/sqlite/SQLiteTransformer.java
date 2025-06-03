@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.db.sqlite;
 
-import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;

@@ -116,6 +116,23 @@ public class LDelete7<T1, T2, T3, T4, T5, T6, T7> extends DeleteBase<LDelete7<T1
         return this;
     }
 
+    public LDelete7<T1, T2, T3, T4, T5, T6, T7> orWhere(@Expr Func7<T1, T2, T3, T4, T5, T6, T7, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LDelete7<T1, T2, T3, T4, T5, T6, T7> orWhere(ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, Boolean>> expr) {
+        orWhere(expr.getTree());
+        return this;
+    }
+
+    public LDelete7<T1, T2, T3, T4, T5, T6, T7> orWhereIf(boolean condition, @Expr Func7<T1, T2, T3, T4, T5, T6, T7, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public LDelete7<T1, T2, T3, T4, T5, T6, T7> orWhereIf(boolean condition, ExprTree<Func7<T1, T2, T3, T4, T5, T6, T7, Boolean>> expr) {
+        if (condition) orWhere(expr.getTree());
+        return this;
+    }
 
     // endregion
 }
