@@ -21,7 +21,6 @@ import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.*;
-import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
@@ -29,29 +28,22 @@ import io.github.kiryu1223.drink.base.transform.*;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
-import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.core.exception.SqLinkIllegalExpressionException;
 import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
-import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.temporal.Temporal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
+import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
 
 /**
  * 表达式解析器
@@ -395,7 +387,8 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
             return checkAndReturnValue(methodCall);
         }
         // 子查询
-        else if (QueryBase.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
+        else if (QueryBase.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())
+                 ||isList(methodCall.getMethod())) {
             Method method = methodCall.getMethod();
             String methodName = method.getName();
             if (methodName.equals("count")) {

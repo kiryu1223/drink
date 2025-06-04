@@ -45,15 +45,15 @@ public class Employee implements ITable
 
 
 
-    public String toString(IConfig config)
-    {
-        java.util.List<String> strings = new ArrayList<>();
-        for (FieldMetaData field : config.getMetaData(getClass()).getFields())
-        {
-            String fieldName = field.getFieldName();
-            if (fieldName.startsWith("val$")) continue;
-            strings.add(fieldName + "=" + field.getValueByObject(this));
-        }
-        return "(" + String.join(",", strings) + ")";
-    }
+//    public String toString(IConfig config)
+//    {
+//        java.util.List<String> strings = new ArrayList<>();
+//        for (FieldMetaData field : config.getMetaData(getClass()).getFields())
+//        {
+//            String fieldName = field.getFieldName();
+//            if (fieldName.startsWith("val$")) continue;
+//            strings.add(fieldName + "=" + field.getValueByObject(this));
+//        }
+//        return "(" + String.join(",", strings) + ")";
+//    }
 }

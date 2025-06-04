@@ -184,6 +184,16 @@ public class QuerySqlBuilder implements ISqlBuilder {
     }
 
     @Override
+    public ISqlFromExpression getForm() {
+        return queryable.getFrom();
+    }
+
+    @Override
+    public ISqlJoinsExpression getJoins() {
+        return queryable.getJoins();
+    }
+
+    @Override
     public List<String> getIgnoreFilterIds() {
         return ignoreFilterIds;
     }

@@ -112,6 +112,16 @@ public class DeleteSqlBuilder implements ISqlBuilder {
         this.ignoreFilterAll = ignoreFilterAll;
     }
 
+    @Override
+    public ISqlFromExpression getForm() {
+        return delete.getFrom();
+    }
+
+    @Override
+    public ISqlJoinsExpression getJoins() {
+        return delete.getJoins();
+    }
+
     public void addIgnoreFilterId(String filterId) {
         ignoreFilterIds.add(filterId);
     }

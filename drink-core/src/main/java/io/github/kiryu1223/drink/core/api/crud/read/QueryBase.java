@@ -69,6 +69,15 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         return sqlBuilder.getConfig();
     }
 
+    //  region [as]
+
+    public C as(String alisaName) {
+        sqlBuilder.as(alisaName);
+        return (C) this;
+    }
+
+    // endregion
+
     // region [any]
 
     /**

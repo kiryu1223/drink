@@ -18,6 +18,8 @@ package io.github.kiryu1223.drink.core.sqlBuilder;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlFromExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlJoinsExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.Collections;
@@ -64,6 +66,21 @@ public class InsertSqlBuilder implements ISqlBuilder {
 
     @Override
     public void setIgnoreFilterAll(boolean condition) {
+
+    }
+
+    @Override
+    public ISqlFromExpression getForm() {
+        return null;
+    }
+
+    @Override
+    public ISqlJoinsExpression getJoins() {
+        return null;
+    }
+
+    @Override
+    public void as(String alisaName) {
 
     }
 

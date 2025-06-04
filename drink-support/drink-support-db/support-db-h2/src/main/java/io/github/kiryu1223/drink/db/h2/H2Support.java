@@ -30,6 +30,6 @@ public class H2Support implements IDbSupport
     @Override
     public Transformer getTransformer(IConfig config)
     {
-        return null;
+        return new H2Transformer(config);
     }
 }

@@ -43,6 +43,21 @@ public class UnionBuilder implements ISqlBuilder {
         this.ignoreFilterAll = ignoreFilterAll;
     }
 
+    @Override
+    public ISqlFromExpression getForm() {
+        return null;
+    }
+
+    @Override
+    public ISqlJoinsExpression getJoins() {
+        return null;
+    }
+
+    @Override
+    public void as(String alisaName) {
+        // 忽略
+    }
+
     public void addIgnoreFilterId(String filterId) {
         ignoreFilterIds.add(filterId);
     }

@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.kiryu1223.drink.core.visitor;
+package io.github.kiryu1223.drink.core.util;
 
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.crud.read.IDynamicTable;
-import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
@@ -40,6 +39,10 @@ import java.util.*;
  * @since 3.0
  */
 public class ExpressionUtil {
+
+    public static boolean isDrinkList(Class<?> c) {
+        return io.github.kiryu1223.drink.core.util.List.class.isAssignableFrom(c);
+    }
 
     public static boolean isDynamicColumn(Method method) {
         String name = method.getName();
@@ -296,10 +299,10 @@ public class ExpressionUtil {
         }
     }
 
-    public static <T> List<T> buildTree(List<T> flatList, FieldMetaData child, FieldMetaData parent, FieldMetaData list, Func1<T, Collection<T>> func) {
+    public static <T> java.util.List<T> buildTree(java.util.List<T> flatList, FieldMetaData child, FieldMetaData parent, FieldMetaData list, Func1<T, Collection<T>> func) {
         // 用 Map 存储所有节点，以便快速查找
         Map<Object, T> nodeMap = new HashMap<>();
-        List<T> rootNodes = new ArrayList<>();
+        java.util.List<T> rootNodes = new ArrayList<>();
 
         // 将所有节点加入 Map
         for (T node : flatList) {

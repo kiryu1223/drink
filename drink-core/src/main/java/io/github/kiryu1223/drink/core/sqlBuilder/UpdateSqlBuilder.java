@@ -100,6 +100,16 @@ public class UpdateSqlBuilder implements ISqlBuilder {
         this.ignoreFilterAll = ignoreFilterAll;
     }
 
+    @Override
+    public ISqlFromExpression getForm() {
+        return update.getFrom();
+    }
+
+    @Override
+    public ISqlJoinsExpression getJoins() {
+        return update.getJoins();
+    }
+
     public void addIgnoreFilterId(String filterId) {
         ignoreFilterIds.add(filterId);
     }

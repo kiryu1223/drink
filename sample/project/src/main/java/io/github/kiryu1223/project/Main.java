@@ -13,12 +13,10 @@ import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.func.SqlFunctions;
 import io.github.kiryu1223.project.handler.GenderHandler;
-import io.github.kiryu1223.project.pojos.Course;
-import io.github.kiryu1223.project.pojos.Employee;
-import io.github.kiryu1223.project.pojos.Salary;
-import io.github.kiryu1223.project.pojos.Student;
+import io.github.kiryu1223.project.pojos.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public class Main {
@@ -43,15 +41,31 @@ public class Main {
     public static void main(String[] args) {
         SqlClient client = boot();
 
-        AbsBeanCreator<Employee> creator = client.getConfig()
-                .getBeanCreatorFactory()
-                .get(Employee.class);
+//        AbsBeanCreator<Salary> creator = client.getConfig()
+//                .getBeanCreatorFactory()
+//                .get(Salary.class);
 
-        creator.setBeanCreator(()->new Employee());
-        creator.setBeanSetter("number",(a, b)->a.setNumber((int)b));
-        creator.setBeanGetter("number",(a)->a.getNumber());
+//        creator.setBeanCreator(() -> new Salary());
+//        creator.setBeanSetter("empNumber", (s, v) -> s.setEmpNumber((int) v));
+//        creator.setBeanSetter("salary", (s, v) -> s.setSalary((int) v));
+//        creator.setBeanSetter("from", (s, v) -> s.setFrom((LocalDate) v));
+//        creator.setBeanSetter("to", (s, v) -> s.setTo((LocalDate) v));
 
-        Filter filter = client.getConfig().getFilter();
+        Salary first = client.query(Salary.class)
+                .as("hahaha")
+                .first();
+        System.out.println(first);
+
+//        long start = System.currentTimeMillis();
+//        List<Salary> first = client.query(Salary.class).toList();
+//        System.out.println(first.size());
+//        System.out.println("冷启动查询耗时:" + (System.currentTimeMillis() - start));
+//
+//
+//        long start2 = System.currentTimeMillis();
+//        List<Salary> second = client.query(Salary.class).toList();
+//        System.out.println(second.size());
+//        System.out.println("第一次查询耗时:" + (System.currentTimeMillis() - start2));
 
 
 //        List<? extends Employee> list = client.query(Employee.class)
@@ -94,23 +108,23 @@ public class Main {
 //            System.out.println(student);
 //        }
 //
-        String sql2 = client.query(Course.class)
-                .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
-                .selectAggregate(a -> new Result() {
-                    long id = SqlFunctions.rawSql("(select c.id from courses as c)");
-                    long number2 = a.over(
-                            Over.partitionBy(
-                                    a.table.getCourseId(),
-                                    a.table.getCourseName(),
-                                    a.table.getCredit()
-                            ),
-                            Over.orderBy(a.table.getClassroom()),
-                            Over.between(Rows.first(),Rows.last())
-                    ).rowNumber();
-                })
-                .toSql();
-
-        System.out.println(sql2);
+//        String sql2 = client.query(Course.class)
+//                .includeMany(c -> c.getStudents(), then -> then.where(s -> s.getMajor().equals("计算机科学与技术")))
+//                .selectAggregate(a -> new Result() {
+//                    long id = SqlFunctions.rawSql("(select c.id from courses as c)");
+//                    long number2 = a.over(
+//                            Over.partitionBy(
+//                                    a.table.getCourseId(),
+//                                    a.table.getCourseName(),
+//                                    a.table.getCredit()
+//                            ),
+//                            Over.orderBy(a.table.getClassroom()),
+//                            Over.between(Rows.first(),Rows.last())
+//                    ).rowNumber();
+//                })
+//                .toSql();
+//
+//        System.out.println(sql2);
 //        List<Course> list2 = client.query(Course.class)
 //                .selectAggregate(Course.class, (c, s) ->
 //                {

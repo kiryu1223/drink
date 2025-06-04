@@ -146,14 +146,6 @@ public class SqlBuilder
     }
 
     /**
-     * 设置对象创建器工厂
-     */
-    public SqlBuilder setBeanCreatorFactory(BeanCreatorFactory beanCreatorFactory) {
-        this.beanCreatorFactory = beanCreatorFactory;
-        return this;
-    }
-
-    /**
      * 设置数据库类型
      */
     public SqlBuilder setDbType(DbType dbType) {

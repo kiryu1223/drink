@@ -7,66 +7,55 @@ import io.github.kiryu1223.drink.core.Option;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "drink")
-public class DrinkProperties
-{
+public class DrinkProperties {
+
+    private boolean enable = false;
     private DbType database = DbType.MySQL;
     private boolean printSql = true;
     private boolean printBatch = false;
     private NameConversionType nameConversion = NameConversionType.LowerCamelCase;
-    private Class<? extends Pager> pager= DefaultPager.class;
 
-    public DbType getDatabase()
-    {
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
+    public DbType getDatabase() {
         return database;
     }
 
-    public void setDatabase(DbType database)
-    {
+    public void setDatabase(DbType database) {
         this.database = database;
     }
 
-    public boolean isPrintSql()
-    {
+    public boolean isPrintSql() {
         return printSql;
     }
 
-    public void setPrintSql(boolean printSql)
-    {
+    public void setPrintSql(boolean printSql) {
         this.printSql = printSql;
     }
 
-    public boolean isPrintBatch()
-    {
+    public boolean isPrintBatch() {
         return printBatch;
     }
 
-    public void setPrintBatch(boolean printBatch)
-    {
+    public void setPrintBatch(boolean printBatch) {
         this.printBatch = printBatch;
     }
 
-    public NameConversionType getNameConversion()
-    {
+    public NameConversionType getNameConversion() {
         return nameConversion;
     }
 
-    public void setNameConversion(NameConversionType nameConversion)
-    {
+    public void setNameConversion(NameConversionType nameConversion) {
         this.nameConversion = nameConversion;
     }
 
-    public Class<? extends Pager> getPager()
-    {
-        return pager;
-    }
-
-    public void setPager(Class<? extends Pager> pager)
-    {
-        this.pager = pager;
-    }
-
-    public Option bulidOption()
-    {
+    public Option bulidOption() {
         Option option = new Option();
         option.setPrintSql(printSql);
         option.setPrintBatch(printBatch);

@@ -32,7 +32,6 @@ import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
-import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -43,7 +42,7 @@ import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.*;
+import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
 
 
 /**

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static io.github.kiryu1223.drink.core.visitor.ExpressionUtil.isVoid;
+import static io.github.kiryu1223.drink.core.util.ExpressionUtil.isVoid;
 
 public abstract class BaseSqlVisitor extends ResultThrowVisitor<ISqlExpression> {
     protected final IConfig config;

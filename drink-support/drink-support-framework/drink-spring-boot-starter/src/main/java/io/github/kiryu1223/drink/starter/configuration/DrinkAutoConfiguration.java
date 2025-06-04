@@ -32,8 +32,7 @@ public class DrinkAutoConfiguration
 {
     private static final Logger log = LoggerFactory.getLogger(DrinkAutoConfiguration.class);
 
-    private SqlClient init(DataSource dataSource, DrinkProperties properties) throws InstantiationException, IllegalAccessException
-    {
+    private SqlClient init(DataSource dataSource, DrinkProperties properties) {
         DataSourceManager dataSourceManager = new SpringDataSourceManager(dataSource);
         TransactionManager transactionManager = new SpringTransactionManager(dataSourceManager);
         return SqlBuilder.bootStrap()
@@ -42,15 +41,13 @@ public class DrinkAutoConfiguration
                 .setDbType(properties.getDatabase())
                 .setOption(properties.bulidOption())
                 .setNameConverter(properties.getNameConversion().getNameConverter())
-                .setPager(properties.getPager().newInstance())
                 .build();
     }
 
     @Bean
     @ConditionalOnBean(DataSource.class)
     @ConditionalOnMissingBean(SqlClient.class)
-    public SqlClient build(DataSource dataSource, DrinkProperties properties) throws InstantiationException, IllegalAccessException
-    {
+    public SqlClient build(DataSource dataSource, DrinkProperties properties) {
         return init(dataSource, properties);
     }
 }

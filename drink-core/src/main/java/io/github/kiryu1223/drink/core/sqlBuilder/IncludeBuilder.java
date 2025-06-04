@@ -14,6 +14,8 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
+import io.github.kiryu1223.drink.core.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,9 +135,9 @@ public class IncludeBuilder {
         );
 
         Class<? extends Collection<?>> warpType = navigateData.getCollectionWrapperType();
-        boolean isList = List.class.isAssignableFrom(warpType);
-        boolean isSet = Set.class.isAssignableFrom(warpType);
-
+        boolean isDrinkList = ExpressionUtil.isDrinkList(warpType);
+        boolean isList = DrinkUtil.isList(warpType);
+        boolean isSet = DrinkUtil.isSet(warpType);
         // 遍历源对象集合
         for (Object o : source) {
             // 获取源对象中关联字段的值作为key
@@ -143,10 +145,13 @@ public class IncludeBuilder {
             // 获取关联对象集合
             List<?> valueList = includeResultMap.get(key);
             if (valueList != null) {
-                if (isList) {
+                if (isDrinkList) {
+                    includeSetter.call(cast(o), new io.github.kiryu1223.drink.core.util.List<>(valueList));
+                }
+                else if (isList) {
                     includeSetter.call(cast(o), valueList);
                 }
-                if (isSet) {
+                else if (isSet) {
                     includeSetter.call(cast(o), new HashSet<>(valueList));
                 }
             }
@@ -180,8 +185,9 @@ public class IncludeBuilder {
         }
 
         Class<? extends Collection<?>> warpType = navigateData.getCollectionWrapperType();
-        boolean isList = List.class.isAssignableFrom(warpType);
-        boolean isSet = Set.class.isAssignableFrom(warpType);
+        boolean isDrinkList = ExpressionUtil.isDrinkList(warpType);
+        boolean isList = DrinkUtil.isList(warpType);
+        boolean isSet = DrinkUtil.isSet(warpType);
         // 遍历源对象集合
         for (Object o : source) {
             // 获取源对象中关联字段的值作为key
@@ -189,10 +195,13 @@ public class IncludeBuilder {
             // 获取关联对象集合
             List<Object> valueList = map.get(key);
             if (valueList != null) {
-                if (isList) {
+                if (isDrinkList) {
+                    includeSetter.call(cast(o), new io.github.kiryu1223.drink.core.util.List<>(valueList));
+                }
+                else if (isList) {
                     includeSetter.call(cast(o), valueList);
                 }
-                if (isSet) {
+                else if (isSet) {
                     includeSetter.call(cast(o), new HashSet<>(valueList));
                 }
             }

@@ -11,9 +11,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class SqlTableRefExpression implements ISqlTableRefExpression {
-    private final String name;
+    private String name;
 
     protected SqlTableRefExpression(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setName(String name) {
         this.name = name;
     }
 

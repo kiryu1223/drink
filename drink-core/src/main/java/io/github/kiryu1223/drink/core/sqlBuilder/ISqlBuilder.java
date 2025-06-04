@@ -36,6 +36,7 @@ import java.util.List;
  */
 public interface ISqlBuilder {
     ISqlExpression getSqlExpression();
+
     /**
      * 获取配置
      */
@@ -133,13 +134,11 @@ public interface ISqlBuilder {
                         UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, update);
                         ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
                         ISqlConditionsExpression conditions = where.getConditions();
-                        if (conditions.isAnd())
-                        {
+                        if (conditions.isAnd()) {
                             conditions.addCondition(expression);
                         }
-                        else
-                        {
-                            update.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(conditions), expression)),false));
+                        else {
+                            update.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(conditions), expression)), false));
                         }
                     }
                 }
@@ -156,13 +155,11 @@ public interface ISqlBuilder {
                             ISqlConditionsExpression conditions = join.getConditions();
                             UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, update, index++);
                             ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                            if (conditions.isAnd())
-                            {
+                            if (conditions.isAnd()) {
                                 conditions.addCondition(expression);
                             }
-                            else
-                            {
-                                join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression),false));
+                            else {
+                                join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression), false));
                             }
                         }
                     }
@@ -184,13 +181,11 @@ public interface ISqlBuilder {
                         UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, delete);
                         ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
                         ISqlConditionsExpression conditions = where.getConditions();
-                        if (conditions.isAnd())
-                        {
+                        if (conditions.isAnd()) {
                             conditions.addCondition(expression);
                         }
-                        else
-                        {
-                            delete.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(conditions), expression)),false));
+                        else {
+                            delete.setWhere(factory.condition(new ArrayList<>(Arrays.asList(factory.parens(conditions), expression)), false));
                         }
                     }
                 }
@@ -207,13 +202,11 @@ public interface ISqlBuilder {
                             ISqlConditionsExpression conditions = join.getConditions();
                             UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(config, delete, index++);
                             ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
-                            if (conditions.isAnd())
-                            {
+                            if (conditions.isAnd()) {
                                 conditions.addCondition(expression);
                             }
-                            else
-                            {
-                                join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression),false));
+                            else {
+                                join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression), false));
                             }
                         }
                     }
@@ -226,4 +219,19 @@ public interface ISqlBuilder {
     void addIgnoreFilterId(String filterId);
 
     void setIgnoreFilterAll(boolean condition);
+
+    ISqlFromExpression getForm();
+
+    ISqlJoinsExpression getJoins();
+    default void as(String alisaName) {
+        ISqlJoinsExpression joins = getJoins();
+        if (!joins.isEmpty()) {
+            List<ISqlJoinExpression> joinsList = joins.getJoins();
+            ISqlJoinExpression iSqlJoinExpression = joinsList.get(joinsList.size() - 1);
+            iSqlJoinExpression.getTableRefExpression().setName(alisaName);
+        }
+        else {
+            getForm().getTableRefExpression().setName(alisaName);
+        }
+    }
 }

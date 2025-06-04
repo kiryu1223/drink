@@ -5,6 +5,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import java.util.Map;
 
 public interface ISqlTableRefExpression extends ISqlExpression {
+    void setName(String name);
     String getName();
     String getDisPlayName();
     @Override
