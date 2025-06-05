@@ -88,7 +88,7 @@ public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
         String sql = unionBuilder.getSqlAndValue(sqlValues);
         tryPrintSql(log, sql);
         Class<T> targetClass = unionBuilder.getTargetClass();
-        SqlSession session = config.getSqlSessionFactory().getSession(config);
+        SqlSession session = config.getSqlSessionFactory().getSession();
         return session.executeQuery(
                 r -> ObjectBuilder.start(r, targetClass, mappingData, single, config).createList(),
                 sql,

@@ -24,7 +24,6 @@ import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.InsertSqlBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +92,7 @@ public abstract class InsertBase<C> extends CRUD<C> {
         String sql = makeByObjects(notIgnorePropertys, sqlValues);
         //tryPrintUseDs(log,config.getDataSourceManager().getDsKey());
         tryPrintSql(log, sql);
-        SqlSession session = config.getSqlSessionFactory().getSession(config);
+        SqlSession session = config.getSqlSessionFactory().getSession();
 
         if (getObjects().size() > 1) {
             tryPrintBatch(log, getObjects().size());

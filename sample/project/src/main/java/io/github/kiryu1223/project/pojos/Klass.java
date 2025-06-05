@@ -14,14 +14,15 @@ public class Klass implements IView<Klass> {
 
     @Override
     public EndQuery<Klass> createView(SqlClient client) {
-        return client.query(Course.class)
-                .leftJoin(Student.class, (a, b) -> a.getStudents().contains(b))
-                .select((c, s) -> new Klass() {
-                    {
-                        setId(c.getCourseId());
-                        setName(s.getName());
-                        setStudentCount((int) c.getCount());
-                    }
-                });
+        return null;
+//        return client.query(Course.class)
+//                .leftJoin(Student.class, (a, b) -> a.getStudents().contains(b))
+//                .select((c, s) -> new Klass() {
+//                    {
+//                        setId(c.getCourseId());
+//                        setName(s.getName());
+////                        setStudentCount((int) c.getCount());
+//                    }
+//                });
     }
 }

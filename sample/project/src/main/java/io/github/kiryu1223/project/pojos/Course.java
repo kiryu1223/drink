@@ -20,8 +20,6 @@ public class Course implements ITable
     private BigDecimal credit;
     private String department;
     private String teacher;
-    private long count;
-    private String top5;
     private String classroom;
     @Navigate(
             value = RelationType.ManyToMany,

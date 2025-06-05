@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class SqlTreeTransformer {
     protected final IConfig config;
@@ -112,6 +113,12 @@ public abstract class SqlTreeTransformer {
         }
         else if (expr instanceof ISqlStarExpression) {
             return visit((ISqlStarExpression) expr);
+        }
+        else if (expr instanceof ISqlPivotExpression) {
+            return visit((ISqlPivotExpression) expr);
+        }
+        else if (expr instanceof ISqlPivotsExpression) {
+            return visit((ISqlPivotsExpression) expr);
         }
         return null;
     }
@@ -277,6 +284,7 @@ public abstract class SqlTreeTransformer {
     public ISqlExpression visit(ISqlQueryableExpression expr) {
         ISqlSelectExpression select = expr.getSelect();
         ISqlFromExpression from = expr.getFrom();
+        ISqlPivotsExpression pivots = expr.getPivots();
         ISqlJoinsExpression joins = expr.getJoins();
         ISqlWhereExpression where = expr.getWhere();
         ISqlGroupByExpression group = expr.getGroupBy();
@@ -285,14 +293,15 @@ public abstract class SqlTreeTransformer {
         ISqlLimitExpression limit = expr.getLimit();
         ISqlSelectExpression s = (ISqlSelectExpression) visit(select);
         ISqlFromExpression f = (ISqlFromExpression) visit(from);
+        ISqlPivotsExpression p = (ISqlPivotsExpression) visit(pivots);
         ISqlJoinsExpression j = (ISqlJoinsExpression) visit(joins);
         ISqlWhereExpression w = (ISqlWhereExpression) visit(where);
         ISqlGroupByExpression g = (ISqlGroupByExpression) visit(group);
         ISqlHavingExpression h = (ISqlHavingExpression) visit(having);
         ISqlOrderByExpression o = (ISqlOrderByExpression) visit(order);
         ISqlLimitExpression l = (ISqlLimitExpression) visit(limit);
-        if (s != select || f != from || j != joins || w != where || g != group || h != having || o != order || l != limit) {
-            return factory.queryable(s, f, j, w, g, h, o, l);
+        if (s != select || f != from || p != pivots || j != joins || w != where || g != group || h != having || o != order || l != limit) {
+            return factory.queryable(s, f, p, j, w, g, h, o, l);
         }
         return expr;
     }
@@ -450,6 +459,27 @@ public abstract class SqlTreeTransformer {
         ISqlExpression v = visit(value);
         if (c != column || v != value) {
             return factory.set(c, v);
+        }
+        return expr;
+    }
+
+    public ISqlExpression visit(ISqlPivotExpression expr) {
+        return expr;
+    }
+
+    public ISqlExpression visit(ISqlPivotsExpression expr) {
+        List<ISqlPivotExpression> pivotList = new ArrayList<>();
+        boolean changed = false;
+        for (ISqlPivotExpression pivot : expr.getPivots()) {
+            ISqlPivotExpression visit = (ISqlPivotExpression) visit(pivot);
+            pivotList.add(visit);
+            if (visit != pivot) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            expr.getPivots().clear();
+            expr.getPivots().addAll(pivotList);
         }
         return expr;
     }

@@ -1,8 +1,15 @@
 package io.github.kiryu1223.drink.base.expression;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class SqlTreeVisitor {
+
+    public void visit(List<ISqlExpression> expr) {
+        for (ISqlExpression sqlExpression : expr) {
+            visit(sqlExpression);
+        }
+    }
     public void visit(ISqlExpression expr) {
         if (expr instanceof ISqlAsExpression) {
             visit((ISqlAsExpression) expr);
@@ -102,6 +109,12 @@ public abstract class SqlTreeVisitor {
         }
         else if (expr instanceof ISqlStarExpression) {
             visit((ISqlStarExpression) expr);
+        }
+        else if (expr instanceof ISqlPivotExpression) {
+            visit((ISqlPivotExpression) expr);
+        }
+        else if (expr instanceof ISqlPivotsExpression) {
+            visit((ISqlPivotsExpression) expr);
         }
     }
 
@@ -266,5 +279,17 @@ public abstract class SqlTreeVisitor {
 
     public void visit(ISqlStarExpression expr) {
 
+    }
+
+    public void visit(ISqlPivotExpression expr) {
+        visit(expr.getGroupColumn());
+        visit(expr.getAggregationColumn());
+        visit(expr.getSelectColumnValues());
+    }
+
+    public void visit(ISqlPivotsExpression expr) {
+        for (ISqlPivotExpression sqlPivotExpression : expr.getPivots()) {
+            visit(sqlPivotExpression);
+        }
     }
 }

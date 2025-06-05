@@ -43,8 +43,8 @@ public class OracleExpressionFactory extends DefaultSqlExpressionFactory {
     }
 
     @Override
-    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
-        return new OracleQueryableExpression(select, from, joins, where, groupBy, having, orderBy, limit);
+    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from,ISqlPivotsExpression pivots, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+        return new OracleQueryableExpression(select, from,pivots, joins, where, groupBy, having, orderBy, limit);
     }
 
     @Override

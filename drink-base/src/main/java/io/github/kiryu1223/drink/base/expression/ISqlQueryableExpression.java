@@ -31,7 +31,7 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
     @Override
     default ISqlQueryableExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.queryable(getSelect().copy(config), getFrom().copy(config), getJoins().copy(config), getWhere().copy(config), getGroupBy().copy(config), getHaving().copy(config), getOrderBy().copy(config), getLimit().copy(config));
+        return factory.queryable(getSelect().copy(config), getFrom().copy(config),  getPivots().copy(config), getJoins().copy(config), getWhere().copy(config), getGroupBy().copy(config), getHaving().copy(config), getOrderBy().copy(config), getLimit().copy(config));
     }
 
     /**
@@ -43,6 +43,8 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
      * 设置where条件
      */
     void setWhere(ISqlConditionsExpression conditions);
+
+    void addPivot(ISqlPivotExpression pivot);
 
     /**
      * 添加join条件
@@ -84,10 +86,7 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
      */
     ISqlFromExpression getFrom();
 
-    /**
-     * 获取查询列数量（from + joins）
-     */
-    int getOrderedCount();
+    ISqlPivotsExpression getPivots();
 
     /**
      * 获取where

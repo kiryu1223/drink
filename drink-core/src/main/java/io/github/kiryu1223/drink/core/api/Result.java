@@ -34,7 +34,7 @@ import java.util.List;
 public abstract class Result
 {
     @Override
-    public String toString()
+    public final String toString()
     {
         List<String> strings = new ArrayList<>();
         for (Field field : getClass().getDeclaredFields())
@@ -44,5 +44,25 @@ public abstract class Result
             strings.add(fieldName + "=" + ReflectUtil.getFieldValue(this, fieldName));
         }
         return "(" + String.join(",", strings) + ")";
+    }
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    protected final Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
+    protected final void finalize() throws Throwable {
+        super.finalize();
     }
 }

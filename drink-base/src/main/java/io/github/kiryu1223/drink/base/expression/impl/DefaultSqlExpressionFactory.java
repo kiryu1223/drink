@@ -99,8 +99,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
-        return new SqlQueryableExpression(select, from, joins, where, groupBy, having, orderBy, limit);
+    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from,ISqlPivotsExpression pivots, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+        return new SqlQueryableExpression(select, from, pivots, joins, where, groupBy, having, orderBy, limit);
     }
 
     @Override
@@ -207,5 +207,15 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     public ISqlStarExpression star(ISqlTableRefExpression tableRefExpression)
     {
         return new SqlStarExpression(tableRefExpression);
+    }
+
+    @Override
+    public ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues, ISqlTableRefExpression tableRefExpression) {
+        return new SqlPivotExpression(aggregationColumn, groupColumn, selectColumnValues, tableRefExpression);
+    }
+
+    @Override
+    public ISqlPivotsExpression pivots() {
+        return new SqlPivotsExpression();
     }
 }

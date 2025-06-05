@@ -2,22 +2,14 @@ package io.github.kiryu1223.project;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.base.Filter;
+import io.github.kiryu1223.drink.base.annotation.Column;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
-import io.github.kiryu1223.drink.base.sqlExt.Over;
-import io.github.kiryu1223.drink.base.sqlExt.Rows;
-import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
+import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
-import io.github.kiryu1223.drink.core.api.Result;
-import io.github.kiryu1223.drink.func.SqlFunctions;
 import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
 
 public class Main {
     public static SqlClient boot() {
@@ -40,6 +32,8 @@ public class Main {
 
     public static void main(String[] args) {
         SqlClient client = boot();
+        SqlSession session = client.getConfig().getSqlSessionFactory().getSession();
+
 
 //        AbsBeanCreator<Salary> creator = client.getConfig()
 //                .getBeanCreatorFactory()
@@ -51,10 +45,38 @@ public class Main {
 //        creator.setBeanSetter("from", (s, v) -> s.setFrom((LocalDate) v));
 //        creator.setBeanSetter("to", (s, v) -> s.setTo((LocalDate) v));
 
-        Salary first = client.query(Salary.class)
-                .as("hahaha")
-                .first();
-        System.out.println(first);
+        String sql = client.query(SalesByQuarter.class)
+                .as("sq")
+                .columnsToRows(
+                        // SUM (`sq`.`amount`)
+                        // 对聚合的值进行的操作
+                        s -> s.sum(x -> x.getAmount()),
+                        // FOR `sq`.`quarter`
+                        s -> s.getQuarter(),
+                        // IN (Q1, Q2, Q3, Q4)
+                        s -> new SalesByQuarter() {
+                            @Column("一季度")
+                            int qar1;
+                            @Column("二季度")
+                            int qar2;
+                            @Column("三季度")
+                            int qar3;
+                            @Column("四季度")
+                            int qar4;
+                        }
+                )
+                .select(s -> new QuarterSales() {
+                    {
+                        setYear(s.getYear());
+                        setQuarter1(s.qar1);
+                        setQuarter2(s.qar2);
+                        setQuarter3(s.qar3);
+                        setQuarter4(s.qar4);
+                    }
+                })
+                .toSql();
+
+        System.out.println(sql);
 
 //        long start = System.currentTimeMillis();
 //        List<Salary> first = client.query(Salary.class).toList();

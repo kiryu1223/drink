@@ -34,7 +34,6 @@ import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.base.expression.SubQueryBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
-import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
 import io.github.kiryu1223.expressionTree.expressions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,10 +104,10 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         if (lambda != null) {
             QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(config, queryableCopy);
             ISqlExpression cond = sqlVisitor.visit(lambda);
-            querySqlBuilder.addAndOrWhere(cond,true);
+            querySqlBuilder.addAndOrWhere(cond, true);
         }
         //查询
-        SqlSession session = config.getSqlSessionFactory().getSession(config);
+        SqlSession session = config.getSqlSessionFactory().getSession();
         List<SqlValue> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
         tryPrintSql(log, sql);
@@ -127,7 +126,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
         ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
         tryPrintSql(log, sql);
-        SqlSession session = config.getSqlSessionFactory().getSession(config);
+        SqlSession session = config.getSqlSessionFactory().getSession();
         ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
         JdbcResult<R> result = session.executeQuery(
                 r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler)
@@ -342,14 +341,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     protected void where(LambdaExpression<?> lambda) {
         QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression where = sqlVisitor.visit(lambda);
-        sqlBuilder.addAndOrWhere(where,true);
+        sqlBuilder.addAndOrWhere(where, true);
     }
 
     protected void orWhere(LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
         ISqlExpression where = sqlVisitor.visit(lambda);
-        sqlBuilder.addAndOrWhere(where,false);
+        sqlBuilder.addAndOrWhere(where, false);
     }
 
 //    protected void exists(Class<?> table, LambdaExpression<?> lambda, boolean not) {
@@ -794,6 +793,52 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         minQuerySqlBuilder.setSelect(factory.select(minList, lambda.getReturnType(), true, false));
         LQuery<T> minQuery = new LQuery<>(minQuerySqlBuilder);
         return minQuery.toList();
+    }
+
+    // endregion
+
+    // region [列转行]
+
+    protected void pivot(
+            LambdaExpression<?> valueColumnSelector,
+            LambdaExpression<?> keyColumnSelector,
+            LambdaExpression<?> newColumnSelector
+    ) {
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        IConfig config = getConfig();
+        QuerySqlVisitor v1 = new QuerySqlVisitor(config, queryable);
+        ISqlExpression valueColumn = v1.visit(valueColumnSelector);
+        QuerySqlVisitor v2 = new QuerySqlVisitor(config, queryable);
+        ISqlColumnExpression keyColumn = v2.toColumn(keyColumnSelector);
+        ResultVisitor<List<ISqlExpression>> newColumnVisitor = new ResultThrowVisitor<List<ISqlExpression>>() {
+            int hide;
+            @Override
+            public List<ISqlExpression> visit(NewExpression newExpression) {
+                BlockExpression classBody = newExpression.getClassBody();
+                List<ISqlExpression> list = new ArrayList<>();
+                SqlExpressionFactory factory = config.getSqlExpressionFactory();
+                MetaData metaData = config.getMetaData(newExpression.getType());
+                for (Expression expression : classBody.getExpressions()) {
+                    if (expression.getKind() == Kind.Variable) {
+                        VariableExpression variableExpression = (VariableExpression) expression;
+                        String varName = variableExpression.getName();
+                        String asName = metaData.getFieldMetaDataByFieldName(varName).getColumn();
+                        ISqlExpression e;
+                        if (varName.equals(asName)) {
+                            e = factory.constString(varName);
+                        }
+                        else {
+                            e = factory.as(factory.constString(varName),asName);
+                        }
+                        list.add(e);
+                    }
+                }
+                return list;
+            }
+        };
+        List<ISqlExpression> newColumn = newColumnVisitor.visit(newColumnSelector.getBody());
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        sqlBuilder.addPivot(factory.pivot(valueColumn, keyColumn, newColumn));
     }
 
     // endregion

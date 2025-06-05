@@ -189,7 +189,7 @@ public interface SqlExpressionFactory {
      * @param from from表达式
      */
     default ISqlQueryableExpression queryable(ISqlFromExpression from) {
-        return queryable(select(from.getSqlTableExpression().getMainTableClass(), from.getTableRefExpression()), from, Joins(), where(), groupBy(), having(), orderBy(), limit());
+        return queryable(select(from.getSqlTableExpression().getMainTableClass(), from.getTableRefExpression()), from,pivots(), Joins(), where(), groupBy(), having(), orderBy(), limit());
     }
 
     /**
@@ -199,7 +199,7 @@ public interface SqlExpressionFactory {
      * @param from   from表达式
      */
     default ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from) {
-        return queryable(select, from, Joins(), where(), groupBy(), having(), orderBy(), limit());
+        return queryable(select, from,  pivots(), Joins(), where(), groupBy(), having(), orderBy(), limit());
     }
 
     /**
@@ -223,7 +223,7 @@ public interface SqlExpressionFactory {
      * @param orderBy 排序表达式
      * @param limit   limit表达式
      */
-    ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit);
+    ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from, ISqlPivotsExpression pivots, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit);
 
     /**
      * 创建表表达式
@@ -431,5 +431,19 @@ public interface SqlExpressionFactory {
 
     default ISqlStarExpression star() {
         return star(null);
+    }
+
+    ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues, ISqlTableRefExpression tableRefExpression);
+
+    default ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues) {
+        return pivot(aggregationColumn, groupColumn, selectColumnValues, tableRef("_pivot"));
+    }
+
+    ISqlPivotsExpression pivots();
+
+    default ISqlPivotsExpression pivots(List<ISqlPivotExpression> pivots) {
+        ISqlPivotsExpression pivots1 = pivots();
+        pivots1.getPivots().addAll(pivots);
+        return pivots1;
     }
 }
