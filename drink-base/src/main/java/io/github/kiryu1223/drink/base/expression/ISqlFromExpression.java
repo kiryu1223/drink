@@ -33,6 +33,11 @@ public interface ISqlFromExpression extends ISqlExpression {
      */
     ISqlTableExpression getSqlTableExpression();
 
+    List<ISqlPivotExpression> getPivotExpressions();
+
+    default void addPivot(ISqlPivotExpression pivotExpression) {
+        getPivotExpressions().add(pivotExpression);
+    }
     /**
      * 判断是否为无from查询
      */
@@ -62,6 +67,10 @@ public interface ISqlFromExpression extends ISqlExpression {
     @Override
     default ISqlFromExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        return factory.from(getSqlTableExpression().copy(config), getTableRefExpression());
+        ISqlFromExpression from = factory.from(getSqlTableExpression().copy(config), getTableRefExpression().copy(config));
+        for (ISqlPivotExpression iSqlPivotExpression : getPivotExpressions()) {
+            from.addPivot(iSqlPivotExpression.copy(config));
+        }
+        return from;
     }
 }

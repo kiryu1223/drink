@@ -56,7 +56,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         this.sqlBuilder = sqlBuilder;
     }
 
-    protected QuerySqlBuilder getSqlBuilder() {
+    public QuerySqlBuilder getSqlBuilder() {
         return sqlBuilder;
     }
 
@@ -224,7 +224,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected void select(LambdaExpression<?> lambda) {
         QuerySqlVisitor querySqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
-        ISqlSelectExpression select = querySqlVisitor.toSelect(lambda, sqlBuilder.getQueryable());
+        ISqlSelectExpression select = querySqlVisitor.toSelect(lambda);
         sqlBuilder.setSelect(select);
 //        Map<String, ISqlQueryableExpression> subQueryMap = sqlVisitor.getSubQueryMap();
 //        if (!subQueryMap.isEmpty()) {
@@ -800,46 +800,30 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     // region [列转行]
 
     protected void pivot(
-            LambdaExpression<?> valueColumnSelector,
-            LambdaExpression<?> keyColumnSelector,
-            LambdaExpression<?> newColumnSelector
+            // 聚合列
+            LambdaExpression<?> aggColumn,
+            // 转换列
+            LambdaExpression<?> transColumn,
+            // 转换列值
+            Collection<?> transColumnValues,
+            // 转换后的表结构
+            LambdaExpression<?> result
     ) {
-        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
         IConfig config = getConfig();
-        QuerySqlVisitor v1 = new QuerySqlVisitor(config, queryable);
-        ISqlExpression valueColumn = v1.visit(valueColumnSelector);
-        QuerySqlVisitor v2 = new QuerySqlVisitor(config, queryable);
-        ISqlColumnExpression keyColumn = v2.toColumn(keyColumnSelector);
-        ResultVisitor<List<ISqlExpression>> newColumnVisitor = new ResultThrowVisitor<List<ISqlExpression>>() {
-            int hide;
-
-            @Override
-            public List<ISqlExpression> visit(NewExpression newExpression) {
-                BlockExpression classBody = newExpression.getClassBody();
-                List<ISqlExpression> list = new ArrayList<>();
-                SqlExpressionFactory factory = config.getSqlExpressionFactory();
-                MetaData metaData = config.getMetaData(newExpression.getType());
-                for (Expression expression : classBody.getExpressions()) {
-                    if (expression.getKind() == Kind.Variable) {
-                        VariableExpression variableExpression = (VariableExpression) expression;
-                        String varName = variableExpression.getName();
-                        String asName = metaData.getFieldMetaDataByFieldName(varName).getColumn();
-                        ISqlExpression e;
-                        if (varName.equals(asName)) {
-                            e = factory.constString("\"" + varName + "\"");
-                        }
-                        else {
-                            e = factory.as(factory.constString(varName), asName);
-                        }
-                        list.add(e);
-                    }
-                }
-                return list;
-            }
-        };
-        List<ISqlExpression> newColumn = newColumnVisitor.visit(newColumnSelector.getBody());
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        sqlBuilder.addPivot(factory.pivot(valueColumn, keyColumn, newColumn));
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        QuerySqlVisitor aggVisitor = new QuerySqlVisitor(config, queryable);
+        ISqlTemplateExpression agg = aggVisitor.toAgg(aggColumn);
+        ISqlColumnExpression aggColumnExp = (ISqlColumnExpression)agg.getExpressions().get(0);
+
+        QuerySqlVisitor transVisitor = new QuerySqlVisitor(config, queryable);
+        ISqlColumnExpression trans = transVisitor.toColumn(transColumn);
+
+        QuerySqlVisitor selectVisitor = new QuerySqlVisitor(config, queryable);
+        ISqlSelectExpression select = selectVisitor.toSelect(result);
+        select.addColumn(aggColumnExp);
+        select.addColumn(trans);
+        // select <聚合列>,<转换列>,<剩余字段(可空)> from <源表> where <...>
     }
 
     // endregion

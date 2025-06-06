@@ -23,6 +23,7 @@ import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlWithExpression;
 import io.github.kiryu1223.drink.base.expression.impl.SqlFromExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
 import java.util.List;
 
@@ -35,6 +36,14 @@ import java.util.List;
 public class OracleFromExpression extends SqlFromExpression {
     protected OracleFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
         super(sqlTableExpression, tableRefExpression);
+    }
+
+    @Override
+    public ISqlTableRefExpression getTableRefExpression() {
+        if (pivotExpressions.isEmpty()) {
+            return tableRefExpression;
+        }
+        return DrinkUtil.last(pivotExpressions).getTableRefExpression();
     }
 
     @Override

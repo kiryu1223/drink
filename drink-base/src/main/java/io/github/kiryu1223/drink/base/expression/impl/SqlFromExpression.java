@@ -19,7 +19,9 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ import java.util.List;
 public class SqlFromExpression implements ISqlFromExpression {
     protected final ISqlTableExpression sqlTableExpression;
     protected final ISqlTableRefExpression tableRefExpression;
+    protected final List<ISqlPivotExpression> pivotExpressions = new ArrayList<>();
 
     protected SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
         this.sqlTableExpression = sqlTableExpression;
@@ -43,6 +46,11 @@ public class SqlFromExpression implements ISqlFromExpression {
     @Override
     public ISqlTableRefExpression getTableRefExpression() {
         return tableRefExpression;
+    }
+
+    @Override
+    public List<ISqlPivotExpression> getPivotExpressions() {
+        return pivotExpressions;
     }
 
     @Override

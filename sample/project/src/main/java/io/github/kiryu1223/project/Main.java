@@ -2,14 +2,18 @@ package io.github.kiryu1223.project;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.base.annotation.Column;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.project.handler.GenderHandler;
-import io.github.kiryu1223.project.pojos.*;
+import io.github.kiryu1223.project.pojos.QuarterSales;
+import io.github.kiryu1223.project.pojos.SalesByQuarter;
+
+import java.util.Arrays;
 
 public class Main {
     public static SqlClient boot() {
@@ -45,33 +49,29 @@ public class Main {
 //        creator.setBeanSetter("from", (s, v) -> s.setFrom((LocalDate) v));
 //        creator.setBeanSetter("to", (s, v) -> s.setTo((LocalDate) v));
 
+        TransPair<String> one = TransPair.of("qar1", "一季度");
+        TransPair<String> two = TransPair.of("qar2", "二季度");
+        TransPair<String> three = TransPair.of("qar3", "三季度");
+        TransPair<String> four = TransPair.of("qar4", "四季度");
+
         String sql = client.query(SalesByQuarter.class)
                 .as("sq")
-                .columnsToRows(
-                        // SUM (`sq`.`amount`)
-                        // 对聚合的值进行的操作
+                .pivotAs(
                         s -> s.sum(x -> x.getAmount()),
-                        // FOR `sq`.`quarter`
                         s -> s.getQuarter(),
-                        // IN (Q1, Q2, Q3, Q4)
-                        s -> new SalesByQuarter() {
-                            @Column("一季度")
-                            int qar1;
-                            @Column("二季度")
-                            int qar2;
-                            @Column("三季度")
-                            int qar3;
-                            @Column("四季度")
-                            int qar4;
+                        Arrays.asList(one, two, three, four),
+                        s -> new Pivoted<String, Integer>() {
+                            int year = s.getYear();
                         }
                 )
+                .where(s -> s.year == 2021)
                 .select(s -> new QuarterSales() {
                     {
-                        setYear(s.getYear());
-                        setQuarter1(s.qar1);
-                        setQuarter2(s.qar2);
-                        setQuarter3(s.qar3);
-                        setQuarter4(s.qar4);
+                        setYear(s.year);
+                        setQuarter1(s.pivotColumn("一季度"));
+                        setQuarter2(s.pivotColumn(two));
+                        setQuarter3(s.pivotColumn("三季度"));
+                        setQuarter4(s.pivotColumn(four));
                     }
                 })
                 .toSql();

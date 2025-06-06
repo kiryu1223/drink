@@ -32,9 +32,6 @@ public class EndQuery<T> extends QueryBase<EndQuery<T>,T> {
         super(sqlBuilder);
     }
 
-    public QuerySqlBuilder getSqlBuilder() {
-        return super.getSqlBuilder();
-    }
     /**
      * list集合形式返回数据，无数据则返回空list
      *

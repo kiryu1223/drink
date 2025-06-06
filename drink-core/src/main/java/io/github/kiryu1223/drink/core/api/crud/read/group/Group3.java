@@ -15,13 +15,6 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
-import io.github.kiryu1223.expressionTree.delegate.Func2;
-import io.github.kiryu1223.expressionTree.delegate.Func3;
-
-import java.math.BigDecimal;
-
-import static io.github.kiryu1223.drink.base.exception.Winner.boom;
-
 /**
  * @author kiryu1223
  * @since 3.0

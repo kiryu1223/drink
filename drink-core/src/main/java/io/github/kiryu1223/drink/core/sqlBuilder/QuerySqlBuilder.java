@@ -253,6 +253,6 @@ public class QuerySqlBuilder implements ISqlBuilder {
     }
 
     public void addPivot(ISqlPivotExpression pivot) {
-        queryable.addPivot(pivot);
+        queryable.getFrom().addPivot(pivot);
     }
 }

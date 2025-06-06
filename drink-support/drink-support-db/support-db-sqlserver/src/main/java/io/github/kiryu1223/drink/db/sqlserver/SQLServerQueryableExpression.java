@@ -35,8 +35,8 @@ import java.util.List;
  * @since 3.0
  */
 public class SQLServerQueryableExpression extends SqlQueryableExpression {
-    public SQLServerQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlPivotsExpression pivots, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
-        super(select, from, pivots, joins, where, groupBy, having, orderBy, limit);
+    public SQLServerQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from,  ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+        super(select, from,joins, where, groupBy, having, orderBy, limit);
     }
 
     @Override

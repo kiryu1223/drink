@@ -27,12 +27,12 @@ public class SqlPivotExpression implements ISqlPivotExpression {
     }
 
     @Override
-    public ISqlColumnExpression getGroupColumn() {
+    public ISqlColumnExpression getTransColumn() {
         return groupColumn;
     }
 
     @Override
-    public List<ISqlExpression> getSelectColumnValues() {
+    public List<ISqlExpression> getTransColumnValues() {
         return selectColumnValues;
     }
 

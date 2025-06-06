@@ -11,10 +11,7 @@ import io.github.kiryu1223.drink.base.transaction.Transaction;
 import io.github.kiryu1223.drink.core.api.IView;
 import io.github.kiryu1223.drink.core.api.crud.create.ObjectInsert;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
-import io.github.kiryu1223.drink.core.api.crud.read.EmptyQuery;
-import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
-import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
-import io.github.kiryu1223.drink.core.api.crud.read.UnionQuery;
+import io.github.kiryu1223.drink.core.api.crud.read.*;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
@@ -165,7 +162,7 @@ public final class SqlClient {
         if (IView.class.isAssignableFrom(c)) {
             AbsBeanCreator<IView<T>> creator = config.getBeanCreatorFactory().get((Class<IView<T>>)c);
             IView<T> view = creator.getBeanCreator().get();
-            EndQuery<T> with = view.createView(this);
+            QueryBase<?,T> with = view.createView(this);
             ISqlQueryableExpression queryable = with.getSqlBuilder().getQueryable();
             MetaData metaData = config.getMetaData(c);
             return factory.queryable(factory.with(queryable, metaData.getTableName()));

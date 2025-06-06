@@ -32,18 +32,16 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     protected final ISqlFromExpression from;
     protected final ISqlJoinsExpression joins;
     protected final ISqlWhereExpression where;
-    protected final ISqlPivotsExpression pivots;
     protected final ISqlGroupByExpression groupBy;
     protected final ISqlHavingExpression having;
     protected final ISqlOrderByExpression orderBy;
     protected final ISqlLimitExpression limit;
 
-    protected SqlQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlPivotsExpression pivots, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+    protected SqlQueryableExpression(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
         this.select = select;
         this.from = from;
         this.joins = joins;
         this.where = where;
-        this.pivots = pivots;
         this.groupBy = groupBy;
         this.having = having;
         this.orderBy = orderBy;
@@ -62,8 +60,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
         if (!joinsSqlAndValue.isEmpty()) strings.add(joinsSqlAndValue);
         String whereSqlAndValue = getWhere().getSqlAndValue(config, values);
         if (!whereSqlAndValue.isEmpty()) strings.add(whereSqlAndValue);
-        String pivotSqlAndValue = getPivots().getSqlAndValue(config, values);
-        if (!pivotSqlAndValue.isEmpty()) strings.add(pivotSqlAndValue);
         String groupBySqlAndValue = getGroupBy().getSqlAndValue(config, values);
         if (!groupBySqlAndValue.isEmpty()) strings.add(groupBySqlAndValue);
         String havingSqlAndValue = getHaving().getSqlAndValue(config, values);
@@ -91,11 +87,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     @Override
     public void setWhere(ISqlConditionsExpression conditions) {
         where.setConditions(conditions);
-    }
-
-    @Override
-    public void addPivot(ISqlPivotExpression pivot) {
-        pivots.addPivot(pivot);
     }
 
     @Override
@@ -140,11 +131,6 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
     @Override
     public ISqlFromExpression getFrom() {
         return from;
-    }
-
-    @Override
-    public ISqlPivotsExpression getPivots() {
-        return pivots;
     }
 
     @Override

@@ -15,27 +15,27 @@ public interface ISqlPivotExpression extends ISqlExpression {
     ISqlExpression getAggregationColumn();
 
     /**
-     * 获取分组列
+     * 获取需要转换的列
      */
-    ISqlColumnExpression  getGroupColumn();
+    ISqlColumnExpression getTransColumn();
 
     /**
-     * 选择的列值集合
+     * 获取需要转换的列值
      */
-    List<ISqlExpression> getSelectColumnValues();
+    List<ISqlExpression> getTransColumnValues();
 
     ISqlTableRefExpression getTableRefExpression();
 
     @Override
     default ISqlPivotExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        List<ISqlExpression> copySelectColumnValues = new ArrayList<>(getSelectColumnValues().size());
-        for (ISqlExpression selectColumnValue : getSelectColumnValues()) {
+        List<ISqlExpression> copySelectColumnValues = new ArrayList<>(getTransColumnValues().size());
+        for (ISqlExpression selectColumnValue : getTransColumnValues()) {
             copySelectColumnValues.add(selectColumnValue.copy(config));
         }
         return factory.pivot(
                 getAggregationColumn().copy(config),
-                getGroupColumn().copy(config),
+                getTransColumn().copy(config),
                 copySelectColumnValues,
                 getTableRefExpression().copy(config)
         );

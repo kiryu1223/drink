@@ -41,6 +41,10 @@ public class DrinkUtil {
         return metaData.getTableName().substring(0, 1).toLowerCase();
     }
 
+    public static <T> T last(List<T> list) {
+        return list.get(list.size() - 1);
+    }
+
     public static <T> T cast(Object o) {
         return (T) o;
     }

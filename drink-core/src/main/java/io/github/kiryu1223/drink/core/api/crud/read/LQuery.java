@@ -25,6 +25,9 @@ import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.PivotQuery;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
@@ -815,24 +818,52 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // endregion
 
-    // region [Pivot(列转行)]
+    // region [Pivot(行转列)]
 
-    public <TData,TColumn,R extends T> LQuery<R> columnsToRows(
-            @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, TData> dataSelector,
-            @Expr(Expr.BodyType.Expr) Func1<T,TColumn> columnSelector,
-            @Expr(Expr.BodyType.Expr) Func1<T,R> resultSelector
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> PivotQuery<P> pivot(
+            // 聚合列
+            @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, AggColumn> aggColumn,
+            // 需要转换的列
+            @Expr(Expr.BodyType.Expr) Func1<T,TransColumn> transColumn,
+            // 需要转换的列的值
+            Collection<TransColumn> transColumnValues,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T,P> result
     ) {
         throw new NotCompiledException();
     }
 
-    public <TData,TColumn,R extends T> LQuery<R> columnsToRows(
-            ExprTree<Func1<Aggregate<T>, TData>> dataSelector,
-            ExprTree<Func1<T,TColumn>> columnSelector,
-            ExprTree<Func1<T,R>> resultSelector
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> PivotQuery<P> pivotAs(
+            // 聚合列
+            @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, AggColumn> aggColumn,
+            // 需要转换的列
+            @Expr(Expr.BodyType.Expr) Func1<T,TransColumn> transColumn,
+            // 需要转换的列的值
+            Collection<TransPair<TransColumn>> transColumnValues,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T,P> result
     ) {
-        pivot(dataSelector.getTree(), columnSelector.getTree(), resultSelector.getTree());
-        return new LQuery<>(getSqlBuilder());
+        throw new NotCompiledException();
     }
+
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> PivotQuery<P> pivot(
+            ExprTree<Func1<Aggregate<T>, AggColumn>> aggColumn,
+            ExprTree<Func1<T,TransColumn>> transColumn,
+            Collection<TransColumn> transColumnValues,
+            ExprTree<Func1<T,P>> result
+    ) {
+        pivot(aggColumn.getTree(), transColumn.getTree(),transColumnValues, result.getTree());
+        return new PivotQuery<>(getSqlBuilder());
+    }
+
+//    public <AggColumn,TransColumn> PivotQuery<Pivoted<TransColumn,AggColumn>> pivot(
+//            ExprTree<Func1<Aggregate<T>, AggColumn>> aggColumn,
+//            ExprTree<Func1<T,TransColumn>> transColumn,
+//            Collection<TransColumn> transColumnValues
+//    ) {
+//        pivot(aggColumn.getTree(), transColumn.getTree(),transColumnValues, result.getTree());
+//        return new PivotQuery<>(getSqlBuilder());
+//    }
 
     // endregion
 }

@@ -16,11 +16,10 @@
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
 
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
-import io.github.kiryu1223.drink.base.page.DefaultPager;
-import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
@@ -36,7 +35,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase<GroupedQuery3<Key, T1, T2, T3>,Key> {
+public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase<GroupedQuery3<Key, T1, T2, T3>, Key> {
     public GroupedQuery3(QuerySqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }
@@ -67,7 +66,7 @@ public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase<GroupedQuery3<Key,
         if (condition) having(expr.getTree());
         return this;
     }
-    
+
     // endregion
 
     // region [ORDER BY]

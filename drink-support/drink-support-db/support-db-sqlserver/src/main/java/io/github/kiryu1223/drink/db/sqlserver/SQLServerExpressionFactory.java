@@ -34,6 +34,11 @@ public class SQLServerExpressionFactory extends DefaultSqlExpressionFactory {
     }
 
     @Override
+    public ISqlFromExpression from(ISqlTableExpression sqlTable, ISqlTableRefExpression tableRefExpression) {
+        return new SQLServerFromExpression(sqlTable, tableRefExpression);
+    }
+
+    @Override
     public ISqlLimitExpression limit() {
         return new SQLServerLimitExpression();
     }

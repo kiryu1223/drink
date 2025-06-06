@@ -15,11 +15,10 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
-import io.github.kiryu1223.drink.base.page.DefaultPager;
-import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -34,7 +33,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class GroupedQuery<Key, T> extends QueryBase<GroupedQuery<Key, T>,Key> {
+public class GroupedQuery<Key, T> extends QueryBase<GroupedQuery<Key, T>, Key> {
     public GroupedQuery(QuerySqlBuilder sqlBuilder) {
         super(sqlBuilder);
     }

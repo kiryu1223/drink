@@ -282,9 +282,9 @@ public abstract class SqlTreeVisitor {
     }
 
     public void visit(ISqlPivotExpression expr) {
-        visit(expr.getGroupColumn());
+        visit(expr.getTransColumn());
         visit(expr.getAggregationColumn());
-        visit(expr.getSelectColumnValues());
+        visit(expr.getTransColumnValues());
     }
 
     public void visit(ISqlPivotsExpression expr) {

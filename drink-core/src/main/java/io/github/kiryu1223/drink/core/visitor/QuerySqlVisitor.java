@@ -13,7 +13,7 @@ import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
-import io.github.kiryu1223.drink.base.transform.*;
+import io.github.kiryu1223.drink.base.transform.IAggregateMethods;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
@@ -21,7 +21,6 @@ import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
-import io.github.kiryu1223.drink.base.expression.SubQueryBuilder;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -36,7 +35,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
-import static io.github.kiryu1223.drink.core.util.ExpressionUtil.isBool;
 
 public class QuerySqlVisitor extends BaseSqlVisitor {
     //    protected final ISqlFromExpression fromExpression;
@@ -1198,7 +1196,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
 
     protected boolean isSelect = false;
 
-    public ISqlSelectExpression toSelect(LambdaExpression<?> lambda, ISqlQueryableExpression queryable) {
+    public ISqlSelectExpression toSelect(LambdaExpression<?> lambda) {
         isSelect = true;
         ISqlExpression expression = visit(lambda);
         ISqlSelectExpression selectExpression;
@@ -1210,6 +1208,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
             List<ISqlTableRefExpression> peek = last(tableRefListList);
             int index = peek.indexOf(tableRef);
             Class<?> tableClass;
+            ISqlQueryableExpression queryable = queryableList.get(0);
             if (index == 0) {
                 tableClass = queryable.getFrom().getSqlTableExpression().getMainTableClass();
             }
@@ -1335,6 +1334,16 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
         }
         else {
             throw new DrinkException("raw参数必须是求值的");
+        }
+    }
+
+    public ISqlTemplateExpression toAgg(LambdaExpression<?> aggColumn) {
+        ISqlExpression visit = visit(aggColumn);
+        if (visit instanceof ISqlTemplateExpression) {
+            return (ISqlTemplateExpression) visit;
+        }
+        else {
+            throw new DrinkException(String.format("%s无法转换成一个聚合函数", aggColumn));
         }
     }
 
