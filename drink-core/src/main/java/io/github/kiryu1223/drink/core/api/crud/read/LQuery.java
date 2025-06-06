@@ -25,7 +25,6 @@ import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.core.api.crud.read.pivot.PivotQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
@@ -820,7 +819,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // region [Pivot(行转列)]
 
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> PivotQuery<P> pivot(
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<P> pivot(
             // 聚合列
             @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, AggColumn> aggColumn,
             // 需要转换的列
@@ -833,7 +832,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         throw new NotCompiledException();
     }
 
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> PivotQuery<P> pivotAs(
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<P> pivotAs(
             // 聚合列
             @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, AggColumn> aggColumn,
             // 需要转换的列
@@ -846,14 +845,14 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         throw new NotCompiledException();
     }
 
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> PivotQuery<P> pivot(
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<P> pivot(
             ExprTree<Func1<Aggregate<T>, AggColumn>> aggColumn,
             ExprTree<Func1<T,TransColumn>> transColumn,
             Collection<TransColumn> transColumnValues,
             ExprTree<Func1<T,P>> result
     ) {
         pivot(aggColumn.getTree(), transColumn.getTree(),transColumnValues, result.getTree());
-        return new PivotQuery<>(getSqlBuilder());
+        return new LQuery<>(getSqlBuilder());
     }
 
     // endregion

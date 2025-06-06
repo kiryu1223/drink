@@ -27,71 +27,130 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class SqlFromExpression implements ISqlFromExpression {
+public class SqlFromExpression implements ISqlFromExpression
+{
     protected final ISqlTableExpression sqlTableExpression;
     protected final ISqlTableRefExpression tableRefExpression;
     protected final List<ISqlPivotExpression> pivotExpressions = new ArrayList<>();
 
-    protected SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
+    protected SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression)
+    {
         this.sqlTableExpression = sqlTableExpression;
         this.tableRefExpression = tableRefExpression;
     }
 
     @Override
-    public ISqlTableExpression getSqlTableExpression() {
+    public ISqlTableExpression getSqlTableExpression()
+    {
         return sqlTableExpression;
     }
 
     @Override
-    public ISqlTableRefExpression getTableRefExpression() {
+    public ISqlTableRefExpression getTableRefExpression()
+    {
         return tableRefExpression;
     }
 
     @Override
-    public List<ISqlPivotExpression> getPivotExpressions() {
+    public List<ISqlPivotExpression> getPivotExpressions()
+    {
         return pivotExpressions;
     }
 
-    @Override
-    public String normalTable(IConfig config, List<SqlValue> values) {
+    protected String buildFrom(IConfig config, List<SqlValue> values)
+    {
         IDialect disambiguation = config.getDisambiguation();
-        StringBuilder builder = new StringBuilder();
-        String tableName;
-        // with前置
-        if (sqlTableExpression instanceof ISqlWithExpression) {
-            ISqlWithExpression withExpression = (ISqlWithExpression) sqlTableExpression;
-            tableName = disambiguation.disambiguationTableName(withExpression.withTableName());
-        }
-        else {
-            tableName = sqlTableExpression.getSqlAndValue(config, values);
-        }
-        // 数据库透视特殊处理
-        if (!pivotExpressions.isEmpty()) {
+        StringBuilder tableBuilder = new StringBuilder();
+        String tableName = sqlTableExpression.getSqlAndValue(config, values);
+        tableBuilder.append(tableName);
 
+        if (sqlTableExpression instanceof ISqlQueryableExpression)
+        {
+            tableBuilder.insert(0, "(");
+            tableBuilder.append(")");
         }
-        else {
-            builder.append(tableName);
-        }
-
-        if (sqlTableExpression instanceof ISqlQueryableExpression) {
-            builder.insert(0, "(");
-            builder.append(")");
-        }
-
-        return "FROM " + builder + " AS " + disambiguation.disambiguation(tableRefExpression.getDisPlayName());
+        return "FROM " + tableBuilder + " AS " + disambiguation.disambiguation(tableRefExpression.getDisPlayName());
     }
 
     @Override
-    public String emptyTable(IConfig config, List<SqlValue> values) {
+    public String normalTable(IConfig config, List<SqlValue> values)
+    {
+        if (pivotExpressions.isEmpty())
+        {
+            return buildFrom(config, values);
+        }
+        else {
+            IDialect disambiguation = config.getDisambiguation();
+            SqlExpressionFactory factory = config.getSqlExpressionFactory();
+            ISqlPivotExpression pivotExpression = pivotExpressions.get(0);
+            ISqlTableRefExpression pivotRef = pivotExpression.getTableRefExpression();
+            // 选择的临时目标表字段
+            ISqlSelectExpression select = factory.select(sqlTableExpression.getMainTableClass(), pivotRef);
+            // 转换后的额外字段
+            for (ISqlExpression transColumnValue : pivotExpression.getTransColumnValues())
+            {
+                String columnName;
+                if (transColumnValue instanceof ISqlAsExpression)
+                {
+                    ISqlAsExpression asColumnValue = (ISqlAsExpression) transColumnValue;
+                    columnName=asColumnValue.getAsName();
+                }
+                else
+                {
+                    ISqlConstStringExpression columnValue = (ISqlConstStringExpression) transColumnValue;
+                    columnName=columnValue.getString();
+                }
+                ISqlDynamicColumnExpression dynamicColumn = factory.dynamicColumn(columnName, void.class, pivotRef);
+                select.addColumn(dynamicColumn);
+            }
+
+            List<String> strings=new ArrayList<>(3);
+            strings.add(select.getSqlAndValue(config,values));
+            strings.add(buildFrom(config,values));
+            strings.add(pivotExpression.getSqlAndValue(config,values));
+
+            return "FROM ("+String.join(" ",strings)+") as "+disambiguation.disambiguation(tableRefExpression.getDisPlayName());
+        }
+    }
+
+    @Override
+    public String emptyTable(IConfig config, List<SqlValue> values)
+    {
         return "";
     }
 
+
+    // SELECT * FROM <table> WHERE ...
+
+    // pivot()
+
+    // SELECT {所选的字段} FROM (SELECT {所选的字段} FROM <table> WHERE ...)
+
+    // mssql/oracle
+
+    // SELECT {所选的字段} FROM (
+    //      SELECT <pivot>.xx,<pivot>.aaa
+    //      FROM (SELECT {所选的字段} FROM <table> WHERE ...)
+    //      PIVOT (...) as <pivot>
+    // ) as t
+
+    // mysql/...
+
+    // SELECT {所选的字段} FROM (
+    //      SELECT t.xx, SUM(If(t.xxx = xxx,t.aaa,0)) as xxx
+    //      FROM (SELECT {所选的字段} FROM <table> WHERE ...) as t
+    //      GROUP BY t.xx
+    // ) as t
+
     @Override
-    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        if (isEmptyTable(config)) {
+    public String getSqlAndValue(IConfig config, List<SqlValue> values)
+    {
+        if (isEmptyTable(config))
+        {
             return emptyTable(config, values);
         }
-        else {
+        else
+        {
             return normalTable(config, values);
         }
     }

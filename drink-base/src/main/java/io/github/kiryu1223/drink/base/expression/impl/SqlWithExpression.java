@@ -28,9 +28,15 @@ public class SqlWithExpression implements ISqlWithExpression {
         return name;
     }
 
+    public String getWith(IConfig config, List<SqlValue> values)
+    {
+        IDialect disambiguation = config.getDisambiguation();
+        return disambiguation.disambiguationTableName(name) + " AS (" + queryable.getSqlAndValue(config, values) + ")";
+    }
+
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         IDialect disambiguation = config.getDisambiguation();
-        return disambiguation.disambiguationTableName(name) + " AS (" + queryable.getSqlAndValue(config, values) + ")";
+        return disambiguation.disambiguationTableName(name);
     }
 }

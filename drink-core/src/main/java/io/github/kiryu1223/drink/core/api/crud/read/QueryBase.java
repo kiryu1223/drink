@@ -839,6 +839,13 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         for (ISqlExpression column : select.getColumns()) {
             pivot.addAnotherColumn(column);
         }
+
+        sqlBuilder.setSelect(select);
+        sqlBuilder.boxed();
+
+        QuerySqlVisitor selectVisitorWarp = new QuerySqlVisitor(config, sqlBuilder.getQueryable());
+        ISqlSelectExpression selectWarp = selectVisitorWarp.toSelect(result);
+        sqlBuilder.setSelect(selectWarp);
         sqlBuilder.addPivot(pivot);
     }
 

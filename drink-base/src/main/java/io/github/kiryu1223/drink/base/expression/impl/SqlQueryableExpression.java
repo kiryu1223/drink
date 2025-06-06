@@ -179,12 +179,14 @@ public class SqlQueryableExpression implements ISqlQueryableExpression {
         ISqlTableExpression fromSqlTableExpression = from.getSqlTableExpression();
         List<String> withs = new ArrayList<>(joins.getJoins().size() + 1);
         if (fromSqlTableExpression instanceof ISqlWithExpression) {
-            withs.add(fromSqlTableExpression.getSqlAndValue(config, values));
+            ISqlWithExpression withExpression = (ISqlWithExpression) fromSqlTableExpression;
+            withs.add(withExpression.getWith(config,values));
         }
         for (ISqlJoinExpression join : joins.getJoins()) {
             ISqlTableExpression joinTable = join.getJoinTable();
             if (joinTable instanceof ISqlWithExpression) {
-                withs.add(joinTable.getSqlAndValue(config, values));
+                ISqlWithExpression withExpression = (ISqlWithExpression) joinTable;
+                withs.add(withExpression.getWith(config,values));
             }
         }
         if (!withs.isEmpty()) {

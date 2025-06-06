@@ -16,6 +16,9 @@
 package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.session.SqlValue;
+
+import java.util.List;
 
 /**
  * @author kiryu1223
@@ -30,6 +33,8 @@ public interface ISqlWithExpression extends ISqlTableExpression {
     default Class<?> getMainTableClass() {
         return getQueryable().getMainTableClass();
     }
+
+    String getWith(IConfig config, List<SqlValue> values);
 
     @Override
     default ISqlWithExpression copy(IConfig config) {

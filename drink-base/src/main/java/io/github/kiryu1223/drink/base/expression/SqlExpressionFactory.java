@@ -436,6 +436,6 @@ public interface SqlExpressionFactory {
     ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues, ISqlTableRefExpression tableRefExpression);
 
     default ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues) {
-        return pivot(aggregationColumn, groupColumn, selectColumnValues, tableRef("_pivot"));
+        return pivot(aggregationColumn, groupColumn, selectColumnValues, tableRef("<pivot>"));
     }
 }

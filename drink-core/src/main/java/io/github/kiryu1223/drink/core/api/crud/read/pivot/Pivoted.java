@@ -1,7 +1,11 @@
 package io.github.kiryu1223.drink.core.api.crud.read.pivot;
 
 import io.github.kiryu1223.drink.base.exception.Winner;
+import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
+import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
 
+@Getter
+@Setter
 public abstract class Pivoted<TransColumn,AggColumn> {
     public final AggColumn column(String columnName) {
         return Winner.error();

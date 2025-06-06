@@ -36,6 +36,35 @@ public class SqlRecursionExpression implements ISqlRecursionExpression {
     }
 
     @Override
+    public String getWith(IConfig config, List<SqlValue> values)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        ISqlQueryableExpression queryCopy = queryable.copy(config);
+        ISqlSelectExpression selectCopy = queryCopy.getSelect().copy(config);
+        Class<?> fromTableType = queryCopy.getFrom().getType();
+        // SELECT ..., 0 as cte_level
+        ISqlTableRefExpression AsWct1 = factory.tableRef("wct1");
+        ISqlTableRefExpression AsWct2 = factory.tableRef("wct2");
+        selectCopy.accept(new SqlTreeVisitor(){
+            @Override
+            public void visit(ISqlColumnExpression column) {
+                column.setTableRefExpression(AsWct2);
+            }
+        });
+        // SELECT ..., wct1.cte_level + 1 as cte_level
+        ISqlQueryableExpression wct = factory.queryable(selectCopy, factory.from(factory.table(TreeCte.class), AsWct1));
+        ISqlConditionsExpression on = factory.condition(Collections.singletonList(factory.binary(SqlOperator.EQ, factory.column(parentField, AsWct2), factory.column(childField, AsWct1))));
+        wct.addJoin(factory.join(JoinType.INNER, factory.table(fromTableType), on, AsWct2));
+        tryLevel(config, queryCopy.getSelect(), wct.getSelect(), wct.getWhere(),AsWct1);
+        List<String> templates = new ArrayList<>();
+        templates.add(getStart(config));
+        templates.add("(" + queryCopy.getSqlAndValue(config, values));
+        templates.add("UNION ALL");
+        templates.add(wct.getSqlAndValue(config, values) + ")");
+        return String.join(" ", templates);
+    }
+
+    @Override
     public FieldMetaData parentId() {
         return parentField;
     }
@@ -73,30 +102,8 @@ public class SqlRecursionExpression implements ISqlRecursionExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        ISqlQueryableExpression queryCopy = queryable.copy(config);
-        ISqlSelectExpression selectCopy = queryCopy.getSelect().copy(config);
-        Class<?> fromTableType = queryCopy.getFrom().getType();
-        // SELECT ..., 0 as cte_level
-        ISqlTableRefExpression AsWct1 = factory.tableRef("wct1");
-        ISqlTableRefExpression AsWct2 = factory.tableRef("wct2");
-        selectCopy.accept(new SqlTreeVisitor(){
-            @Override
-            public void visit(ISqlColumnExpression column) {
-                column.setTableRefExpression(AsWct2);
-            }
-        });
-        // SELECT ..., wct1.cte_level + 1 as cte_level
-        ISqlQueryableExpression wct = factory.queryable(selectCopy, factory.from(factory.table(TreeCte.class), AsWct1));
-        ISqlConditionsExpression on = factory.condition(Collections.singletonList(factory.binary(SqlOperator.EQ, factory.column(parentField, AsWct2), factory.column(childField, AsWct1))));
-        wct.addJoin(factory.join(JoinType.INNER, factory.table(fromTableType), on, AsWct2));
-        tryLevel(config, queryCopy.getSelect(), wct.getSelect(), wct.getWhere(),AsWct1);
-        List<String> templates = new ArrayList<>();
-        templates.add(getStart(config));
-        templates.add("(" + queryCopy.getSqlAndValue(config, values));
-        templates.add("UNION ALL");
-        templates.add(wct.getSqlAndValue(config, values) + ")");
-        return String.join(" ", templates);
+        IDialect disambiguation = config.getDisambiguation();
+        return disambiguation.disambiguationTableName(withTableName());
     }
 
     protected void tryLevel(IConfig config, ISqlSelectExpression s1, ISqlSelectExpression s2, ISqlWhereExpression where,ISqlTableRefExpression wct1) {

@@ -15,7 +15,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
     private final ISqlExpression aggregationColumn;
     private final ISqlColumnExpression transColumn;
     private final List<ISqlExpression> transColumnValues;
-    private final List<ISqlExpression> anotherColumns = new ArrayList<>();
+//    private final List<ISqlExpression> anotherColumns = new ArrayList<>();
     private final ISqlTableRefExpression tableRefExpression;
 
     public SqlPivotExpression(ISqlExpression aggregationColumn, ISqlColumnExpression transColumn, List<ISqlExpression> transColumnValues, ISqlTableRefExpression tableRefExpression) {
@@ -40,10 +40,10 @@ public class SqlPivotExpression implements ISqlPivotExpression {
         return transColumnValues;
     }
 
-    @Override
-    public List<ISqlExpression> getAnotherColumns() {
-        return anotherColumns;
-    }
+//    @Override
+//    public List<ISqlExpression> getAnotherColumns() {
+//        return anotherColumns;
+//    }
 
     @Override
     public ISqlTableRefExpression getTableRefExpression() {
@@ -58,8 +58,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
                 .append(aggregationColumn.getSqlAndValue(config, values))
                 .append(" FOR ")
                 .append(transColumn.getSqlAndValue(config, values))
-                .append(" IN ")
-                .append("(" + transColumnValues.stream().map(e -> e.getSqlAndValue(config, values)).collect(Collectors.joining(",")) + ")")
+                .append(" IN ").append("(").append(transColumnValues.stream().map(e -> e.getSqlAndValue(config, values)).collect(Collectors.joining(","))).append(")")
                 .append(") AS ")
                 .append(tableRefExpression.getSqlAndValue(config, values));
         return builder.toString();

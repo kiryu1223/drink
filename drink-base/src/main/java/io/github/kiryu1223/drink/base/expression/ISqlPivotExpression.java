@@ -24,10 +24,10 @@ public interface ISqlPivotExpression extends ISqlExpression {
      */
     List<ISqlExpression> getTransColumnValues();
 
-    /**
-     * 获取额外的列
-     */
-    List<ISqlExpression> getAnotherColumns();
+//    /**
+//     * 获取额外的列
+//     */
+//    List<ISqlExpression> getAnotherColumns();
 
     default void addAnotherColumn(ISqlExpression column) {
         getAnotherColumns().add(column);
