@@ -50,7 +50,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
                 .append(" FOR ")
                 .append(groupColumn.getSqlAndValue(config, values))
                 .append(" IN ")
-                .append(selectColumnValues.stream().map(e -> e.getSqlAndValue(config, values)).collect(Collectors.joining(",")))
+                .append("(" + selectColumnValues.stream().map(e -> e.getSqlAndValue(config, values)).collect(Collectors.joining(",")) + ")")
                 .append(") AS ")
                 .append(tableRefExpression.getSqlAndValue(config, values));
         return builder.toString();

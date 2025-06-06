@@ -812,6 +812,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ISqlColumnExpression keyColumn = v2.toColumn(keyColumnSelector);
         ResultVisitor<List<ISqlExpression>> newColumnVisitor = new ResultThrowVisitor<List<ISqlExpression>>() {
             int hide;
+
             @Override
             public List<ISqlExpression> visit(NewExpression newExpression) {
                 BlockExpression classBody = newExpression.getClassBody();
@@ -825,10 +826,10 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                         String asName = metaData.getFieldMetaDataByFieldName(varName).getColumn();
                         ISqlExpression e;
                         if (varName.equals(asName)) {
-                            e = factory.constString(varName);
+                            e = factory.constString("\"" + varName + "\"");
                         }
                         else {
-                            e = factory.as(factory.constString(varName),asName);
+                            e = factory.as(factory.constString(varName), asName);
                         }
                         list.add(e);
                     }
