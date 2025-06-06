@@ -68,10 +68,10 @@ public class Main {
                 .select(s -> new QuarterSales() {
                     {
                         setYear(s.year);
-                        setQuarter1(s.pivotColumn("一季度"));
-                        setQuarter2(s.pivotColumn(two));
-                        setQuarter3(s.pivotColumn("三季度"));
-                        setQuarter4(s.pivotColumn(four));
+                        setQuarter1(s.column("一季度"));
+                        setQuarter2(s.column(two));
+                        setQuarter3(s.column("三季度"));
+                        setQuarter4(s.column(four));
                     }
                 })
                 .toSql();

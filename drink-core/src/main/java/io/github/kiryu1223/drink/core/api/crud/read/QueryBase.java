@@ -19,7 +19,11 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
-import io.github.kiryu1223.drink.base.metaData.*;
+import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
+import io.github.kiryu1223.drink.base.metaData.IMappingTable;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.metaData.NavigateData;
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
@@ -28,13 +32,12 @@ import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.base.page.PagedResult;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
-import io.github.kiryu1223.drink.base.expression.SubQueryBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
-import io.github.kiryu1223.expressionTree.expressions.*;
+import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -814,16 +817,29 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
         QuerySqlVisitor aggVisitor = new QuerySqlVisitor(config, queryable);
         ISqlTemplateExpression agg = aggVisitor.toAgg(aggColumn);
-        ISqlColumnExpression aggColumnExp = (ISqlColumnExpression)agg.getExpressions().get(0);
 
         QuerySqlVisitor transVisitor = new QuerySqlVisitor(config, queryable);
         ISqlColumnExpression trans = transVisitor.toColumn(transColumn);
 
         QuerySqlVisitor selectVisitor = new QuerySqlVisitor(config, queryable);
         ISqlSelectExpression select = selectVisitor.toSelect(result);
-        select.addColumn(aggColumnExp);
-        select.addColumn(trans);
-        // select <聚合列>,<转换列>,<剩余字段(可空)> from <源表> where <...>
+
+        List<ISqlExpression> transColumnValueList = new ArrayList<>();
+        for (Object transColumnValue : transColumnValues) {
+            if (transColumnValue instanceof TransPair<?>) {
+                TransPair<?> pair = (TransPair<?>) transColumnValue;
+                transColumnValueList.add(factory.as(factory.constString(pair.getT()), pair.getAsName()));
+            }
+            else {
+                transColumnValueList.add(factory.constString(transColumnValue));
+            }
+        }
+
+        ISqlPivotExpression pivot = factory.pivot(agg, trans, transColumnValueList);
+        for (ISqlExpression column : select.getColumns()) {
+            pivot.addAnotherColumn(column);
+        }
+        sqlBuilder.addPivot(pivot);
     }
 
     // endregion

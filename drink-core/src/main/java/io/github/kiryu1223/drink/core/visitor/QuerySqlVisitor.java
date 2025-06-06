@@ -1194,10 +1194,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
         return config.getTransformer().boxBool(result);
     }
 
-    protected boolean isSelect = false;
-
     public ISqlSelectExpression toSelect(LambdaExpression<?> lambda) {
-        isSelect = true;
         ISqlExpression expression = visit(lambda);
         ISqlSelectExpression selectExpression;
         if (expression instanceof ISqlSelectExpression) {

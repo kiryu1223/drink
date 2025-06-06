@@ -1,9 +1,12 @@
 package io.github.kiryu1223.drink.core.api.crud.read.pivot;
 
+import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.sqlExt.ISqlKeywords;
+
 import java.util.Arrays;
 import java.util.List;
 
-public class TransPair<T> {
+public class TransPair<T> implements ISqlKeywords {
     private final T t;
     private final String asName;
 
@@ -17,6 +20,11 @@ public class TransPair<T> {
     }
 
     public String getAsName() {
+        return asName;
+    }
+
+    @Override
+    public String getKeyword(IConfig config) {
         return asName;
     }
 

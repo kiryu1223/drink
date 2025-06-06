@@ -856,14 +856,5 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return new PivotQuery<>(getSqlBuilder());
     }
 
-//    public <AggColumn,TransColumn> PivotQuery<Pivoted<TransColumn,AggColumn>> pivot(
-//            ExprTree<Func1<Aggregate<T>, AggColumn>> aggColumn,
-//            ExprTree<Func1<T,TransColumn>> transColumn,
-//            Collection<TransColumn> transColumnValues
-//    ) {
-//        pivot(aggColumn.getTree(), transColumn.getTree(),transColumnValues, result.getTree());
-//        return new PivotQuery<>(getSqlBuilder());
-//    }
-
     // endregion
 }

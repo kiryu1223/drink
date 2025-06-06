@@ -19,7 +19,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
-import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +56,21 @@ public class SqlFromExpression implements ISqlFromExpression {
     public String normalTable(IConfig config, List<SqlValue> values) {
         IDialect disambiguation = config.getDisambiguation();
         StringBuilder builder = new StringBuilder();
+        String tableName;
+        // with前置
         if (sqlTableExpression instanceof ISqlWithExpression) {
             ISqlWithExpression withExpression = (ISqlWithExpression) sqlTableExpression;
-            builder.append(disambiguation.disambiguationTableName(withExpression.withTableName()));
+            tableName = disambiguation.disambiguationTableName(withExpression.withTableName());
         }
         else {
-            builder.append(sqlTableExpression.getSqlAndValue(config, values));
+            tableName = sqlTableExpression.getSqlAndValue(config, values);
+        }
+        // 数据库透视特殊处理
+        if (!pivotExpressions.isEmpty()) {
+
+        }
+        else {
+            builder.append(tableName);
         }
 
         if (sqlTableExpression instanceof ISqlQueryableExpression) {

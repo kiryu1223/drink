@@ -3,11 +3,11 @@ package io.github.kiryu1223.drink.core.api.crud.read.pivot;
 import io.github.kiryu1223.drink.base.exception.Winner;
 
 public abstract class Pivoted<TransColumn,AggColumn> {
-    public final AggColumn pivotColumn(String columnName) {
+    public final AggColumn column(String columnName) {
         return Winner.error();
     }
 
-    public final AggColumn pivotColumn(TransPair<TransColumn> pair) {
+    public final AggColumn column(TransPair<TransColumn> pair) {
         return Winner.error();
     }
 
