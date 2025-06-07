@@ -70,7 +70,7 @@ public class DeleteSqlBuilder implements ISqlBuilder {
     public void addAndOrWhere(ISqlExpression cond,boolean isAnd) {
         ISqlWhereExpression where = delete.getWhere();
         ISqlConditionsExpression conditions = where.getConditions();
-        if (conditions.isAnd()!=isAnd)
+        if (conditions.isAnd() == isAnd)
         {
             conditions.addCondition(cond);
         }

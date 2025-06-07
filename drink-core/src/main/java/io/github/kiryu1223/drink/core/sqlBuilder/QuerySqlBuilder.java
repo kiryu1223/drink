@@ -55,7 +55,7 @@ public class QuerySqlBuilder implements ISqlBuilder {
     public void addAndOrWhere(ISqlExpression cond,boolean isAnd) {
         ISqlWhereExpression where = queryable.getWhere();
         ISqlConditionsExpression conditions = where.getConditions();
-        if (conditions.isAnd()!=isAnd)
+        if (conditions.isAnd() == isAnd)
         {
             conditions.addCondition(cond);
         }
@@ -209,8 +209,7 @@ public class QuerySqlBuilder implements ISqlBuilder {
     }
 
     public void boxed() {
-        ISqlTableRefExpression tableRef = queryable.getFrom().getTableRefExpression();
-        queryable = factory.queryable(queryable, factory.tableRef(tableRef.getName()));
+        queryable = factory.queryable(queryable);
     }
 
     public QuerySqlBuilder getCopy() {

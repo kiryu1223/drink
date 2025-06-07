@@ -39,14 +39,6 @@ public class OracleFromExpression extends SqlFromExpression {
     }
 
     @Override
-    public ISqlTableRefExpression getTableRefExpression() {
-        if (pivotExpressions.isEmpty()) {
-            return tableRefExpression;
-        }
-        return DrinkUtil.last(pivotExpressions).getTableRefExpression();
-    }
-
-    @Override
     public String emptyTable(IConfig config, List<SqlValue> values) {
         // oracle 不支持 无 from 查询
         // 所以我们要加上DUAL表

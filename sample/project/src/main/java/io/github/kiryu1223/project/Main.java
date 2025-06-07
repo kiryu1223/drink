@@ -14,6 +14,7 @@ import io.github.kiryu1223.project.pojos.QuarterSales;
 import io.github.kiryu1223.project.pojos.SalesByQuarter;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
     public static SqlClient boot() {
@@ -26,7 +27,7 @@ public class Main {
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         return SqlBuilder.bootStrap()
                 // 数据库
-                .setDbType(DbType.MySQL)
+                .setDbType(DbType.SQLServer)
                 // 名称转换风格
                 .setNameConverter(new SnakeNameConverter())
                 // 数据源
@@ -49,31 +50,36 @@ public class Main {
 //        creator.setBeanSetter("from", (s, v) -> s.setFrom((LocalDate) v));
 //        creator.setBeanSetter("to", (s, v) -> s.setTo((LocalDate) v));
 
-        TransPair<String> one = TransPair.of("qar1", "一季度");
-        TransPair<String> two = TransPair.of("qar2", "二季度");
-        TransPair<String> three = TransPair.of("qar3", "三季度");
-        TransPair<String> four = TransPair.of("qar4", "四季度");
+//        TransPair<String> one = TransPair.of("qar1", "一季度");
+//        TransPair<String> two = TransPair.of("qar2", "二季度");
+//        TransPair<String> three = TransPair.of("qar3", "三季度");
+//        TransPair<String> four = TransPair.of("qar4", "四季度");
 
         String sql = client.query(SalesByQuarter.class)
                 .as("sq")
-                .pivotAs(
+                .pivot(
+                        // 选择需要转换的值列以及对他们的聚合操作
                         s -> s.sum(x -> x.getAmount()),
+                        // 选择需要转换的名称列
                         s -> s.getQuarter(),
-                        Arrays.asList(one, two, three, four),
-                        s -> new Pivoted<String, Integer>() {
+                        // 生成出的新地列名称
+                        Arrays.asList("一季度", "二季度", "三季度", "四季度"),
+                        // 选取剩余需要的列(可空)
+                        s -> new Pivoted<String, Integer>()
+                        {
                             int year = s.getYear();
                         }
                 )
                 .where(s -> s.year == 2021)
-                .select(s -> new QuarterSales() {
-                    {
-                        setYear(s.year);
-                        setQuarter1(s.column("一季度"));
-                        setQuarter2(s.column(two));
-                        setQuarter3(s.column("三季度"));
-                        setQuarter4(s.column(four));
-                    }
-                })
+//                .select(s -> new QuarterSales() {
+//                    {
+//                        setYear(s.year);
+//                        setQuarter1(s.column("一季度"));
+//                        setQuarter2(s.column("二季度"));
+//                        setQuarter3(s.column("三季度"));
+//                        setQuarter4(s.column("四季度"));
+//                    }
+//                })
                 .toSql();
 
         System.out.println(sql);

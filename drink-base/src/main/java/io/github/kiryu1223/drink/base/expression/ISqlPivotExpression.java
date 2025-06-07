@@ -15,6 +15,11 @@ public interface ISqlPivotExpression extends ISqlExpression {
     ISqlExpression getAggregationColumn();
 
     /**
+     * 获取聚合列的返回类型
+     */
+    Class<?> getAggregationType();
+
+    /**
      * 获取需要转换的列
      */
     ISqlColumnExpression getTransColumn();
@@ -24,16 +29,8 @@ public interface ISqlPivotExpression extends ISqlExpression {
      */
     List<ISqlExpression> getTransColumnValues();
 
-//    /**
-//     * 获取额外的列
-//     */
-//    List<ISqlExpression> getAnotherColumns();
-
-    default void addAnotherColumn(ISqlExpression column) {
-        getAnotherColumns().add(column);
-    }
-
-    ISqlTableRefExpression getTableRefExpression();
+    ISqlTableRefExpression getTempRefExpression();
+    ISqlTableRefExpression getPivotRefExpression();
 
     @Override
     default ISqlPivotExpression copy(IConfig config) {
@@ -44,9 +41,10 @@ public interface ISqlPivotExpression extends ISqlExpression {
         }
         return factory.pivot(
                 getAggregationColumn().copy(config),
+                getAggregationType(),
                 getTransColumn().copy(config),
                 copySelectColumnValues,
-                getTableRefExpression().copy(config)
+                getTempRefExpression().copy(config)
         );
     }
 }

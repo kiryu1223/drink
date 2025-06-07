@@ -7,11 +7,8 @@ import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
 @Getter
 @Setter
 public abstract class Pivoted<TransColumn,AggColumn> {
-    public final AggColumn column(String columnName) {
-        return Winner.error();
-    }
 
-    public final AggColumn column(TransPair<TransColumn> pair) {
+    public final AggColumn column(TransColumn columnName) {
         return Winner.error();
     }
 

@@ -210,7 +210,7 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues, ISqlTableRefExpression tableRefExpression) {
-        return new SqlPivotExpression(aggregationColumn, groupColumn, selectColumnValues, tableRefExpression);
+    public ISqlPivotExpression pivot(ISqlExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, List<ISqlExpression> transColumnValues, ISqlTableRefExpression tempRefExpression) {
+        return new SqlPivotExpression(aggregationColumn,aggregationType, transColumn, transColumnValues, tempRefExpression,tableRef("<pivot>"));
     }
 }

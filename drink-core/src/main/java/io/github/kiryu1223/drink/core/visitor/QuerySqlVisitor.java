@@ -19,6 +19,7 @@ import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.expressionTree.expressions.*;
@@ -740,6 +741,22 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                         return factory.column(getter, tableRef);
                     }
                 }
+                else if(isPivoted(method))
+                {
+                    Expression args = methodCall.getArgs().get(0);
+                    ISqlSingleValueExpression singleValue = (ISqlSingleValueExpression)visit(args);
+                    Object value = singleValue.getValue();
+                    Class<?> aggregationType = last(queryableList).getFrom().getPivotExpressions().get(0).getAggregationType();
+                    if(value instanceof TransPair<?>)
+                    {
+                        TransPair<?> transPair = (TransPair<?>) value;
+                        return factory.dynamicColumn(transPair.getAsName(), aggregationType, tableRef);
+                    }
+                    else
+                    {
+                        return factory.dynamicColumn(value.toString(), aggregationType, tableRef);
+                    }
+                }
                 // else if (isDynamicColumn(method)) {
                 //     List<Expression> args = methodCall.getArgs();
                 //     String column = args.get(0).getValue().toString();
@@ -776,7 +793,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
 //                    List<Expression> args = methodCall.getArgs();
 //                    String column = args.get(0).getValue().toString();
 //                    Class<?> type = (Class<?>) args.get(1).getValue();
-//                    leftQuery.setSelect(factory.select(Collections.singletonList(factory.dynamicColumn(column, type, leftQuery.getFrom().getTableRefExpression())), type));
+//                    leftQuery.setSelect(factory.select(Collections.singletonList(factory.dynamicColumn(column, type, leftQuery.getFrom().getTempRefExpression())), type));
 //                    return leftQuery;
 //                }
                 else {

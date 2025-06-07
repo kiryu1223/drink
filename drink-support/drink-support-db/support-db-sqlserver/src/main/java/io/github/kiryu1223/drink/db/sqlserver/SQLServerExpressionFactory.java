@@ -44,7 +44,7 @@ public class SQLServerExpressionFactory extends DefaultSqlExpressionFactory {
     }
 
     @Override
-    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from,ISqlPivotsExpression pivots, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
-        return new SQLServerQueryableExpression(select, from,pivots, joins, where, groupBy, having, orderBy, limit);
+    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+        return new SQLServerQueryableExpression(select, from, joins, where, groupBy, having, orderBy, limit);
     }
 }

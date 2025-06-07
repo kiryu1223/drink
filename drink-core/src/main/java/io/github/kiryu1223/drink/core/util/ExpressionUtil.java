@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.crud.read.IDynamicTable;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
@@ -112,6 +113,17 @@ public class ExpressionUtil {
         if (method.getParameterCount() != 0) return false;
         String name = method.getName();
         return name.startsWith("get") || name.startsWith("is");
+    }
+
+    public static boolean isPivoted(Method method)
+    {
+        String name = method.getName();
+        if(name.equals("column"))
+        {
+            Type[] genericParameterTypes = method.getGenericParameterTypes();
+            return method.getParameterCount()==1&&genericParameterTypes.length==1;
+        }
+        return false;
     }
 
     /**

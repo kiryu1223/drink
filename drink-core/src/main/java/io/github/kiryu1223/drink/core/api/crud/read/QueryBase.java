@@ -16,6 +16,7 @@
 package io.github.kiryu1223.drink.core.api.crud.read;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
@@ -492,7 +493,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         FieldMetaData selfField = config.getMetaData(includeField.getParentType()).getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
         FieldMetaData targetField = config.getMetaData(navigateData.getNavigateTargetType()).getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
         ISqlQueryableExpression targetQuery = factory.queryable(navigateData.getNavigateTargetType(), targetRef);
-        //ISqlTableRefExpression targetRef = targetQuery.getFrom().getTableRefExpression();
+        //ISqlTableRefExpression targetRef = targetQuery.getFrom().getTempRefExpression();
         // 等待后续填充
         ISqlCollectedValueExpression ids = factory.value(new ArrayList<>());
         String mappingKeyName = "<mappingKeyName>";
@@ -519,16 +520,16 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 FieldMetaData targetMappingField = navigateData.getTargetMappingFieldMetaData(config);
 
 //                ISqlJoinExpression mappingJoin = factory.join(JoinType.INNER, navigateData.getMappingTableType());
-//                ISqlTableRefExpression mappingRef = mappingJoin.getTableRefExpression();
+//                ISqlTableRefExpression mappingRef = mappingJoin.getTempRefExpression();
 //                mappingJoin.addConditions(factory.binary(SqlOperator.EQ, factory.column(targetMappingField, mappingRef), factory.column(targetField, targetRef)));
 //                targetQuery.addJoin(mappingJoin);
 //
 //                ISqlQueryableExpression selfTempQuery = factory.queryable(includeField.getParentType());
-//                ISqlTableRefExpression selfRef = selfTempQuery.getFrom().getTableRefExpression();
+//                ISqlTableRefExpression selfRef = selfTempQuery.getFrom().getTempRefExpression();
 //                selfTempQuery.addWhere(factory.binary(SqlOperator.IN, factory.column(selfField, selfRef), ids));
 //
 //                ISqlJoinExpression selfJoin = factory.join(JoinType.INNER, selfTempQuery);
-//                ISqlTableRefExpression selfJoinRef = selfJoin.getTableRefExpression();
+//                ISqlTableRefExpression selfJoinRef = selfJoin.getTempRefExpression();
 //                selfJoin.addConditions(factory.binary(SqlOperator.EQ, factory.column(selfField, selfJoinRef), factory.column(selfMappingField, mappingRef)));
 //
 //                targetQuery.addJoin(selfJoin);
@@ -813,39 +814,32 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             LambdaExpression<?> result
     ) {
         IConfig config = getConfig();
+        IDialect disambiguation = config.getDisambiguation();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
+
+        // SELECT * FROM <table> AS t WHERE ...
         ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
-        QuerySqlVisitor aggVisitor = new QuerySqlVisitor(config, queryable);
-        ISqlTemplateExpression agg = aggVisitor.toAgg(aggColumn);
+        QuerySqlVisitor q1 = new QuerySqlVisitor(config, queryable);
+        ISqlSelectExpression select1 = q1.toSelect(result);
+        // SELECT t.new{...},t.聚合列,t.转换列 FROM <table> AS t WHERE ...
+        queryable.setSelect(select1);
 
-        QuerySqlVisitor transVisitor = new QuerySqlVisitor(config, queryable);
-        ISqlColumnExpression trans = transVisitor.toColumn(transColumn);
-
-        QuerySqlVisitor selectVisitor = new QuerySqlVisitor(config, queryable);
-        ISqlSelectExpression select = selectVisitor.toSelect(result);
-
-        List<ISqlExpression> transColumnValueList = new ArrayList<>();
-        for (Object transColumnValue : transColumnValues) {
-            if (transColumnValue instanceof TransPair<?>) {
-                TransPair<?> pair = (TransPair<?>) transColumnValue;
-                transColumnValueList.add(factory.as(factory.constString(pair.getT()), pair.getAsName()));
-            }
-            else {
-                transColumnValueList.add(factory.constString(transColumnValue));
-            }
-        }
-
-        ISqlPivotExpression pivot = factory.pivot(agg, trans, transColumnValueList);
-        for (ISqlExpression column : select.getColumns()) {
-            pivot.addAnotherColumn(column);
-        }
-
-        sqlBuilder.setSelect(select);
+        // SELECT * FROM (SELECT t1.new{...},t1.聚合列,t1.转换列 FROM <table> AS t1 WHERE ...) AS t
         sqlBuilder.boxed();
 
-        QuerySqlVisitor selectVisitorWarp = new QuerySqlVisitor(config, sqlBuilder.getQueryable());
-        ISqlSelectExpression selectWarp = selectVisitorWarp.toSelect(result);
-        sqlBuilder.setSelect(selectWarp);
+        // 创建一个临时包装用来识别展开后的t2引用
+        // SELECT * FROM (SELECT t1.new{...},t1.聚合列,t1.转换列 FROM <table> AS t1 WHERE ...) AS t2
+        ISqlQueryableExpression temp = factory.queryable(queryable);
+        QuerySqlVisitor q2 = new QuerySqlVisitor(config, temp);
+        ISqlTemplateExpression agg = q2.toAgg(aggColumn);
+        ISqlColumnExpression trans = q2.toColumn(transColumn);
+        List<ISqlExpression> columnValues=new ArrayList<>();
+        for (Object transColumnValue : transColumnValues)
+        {
+            ISqlExpression e = factory.constString(transColumnValue.toString());
+            columnValues.add(e);
+        }
+        ISqlPivotExpression pivot = factory.pivot(agg, aggColumn.getReturnType(), trans, columnValues, temp.getFrom().getTableRefExpression());
         sqlBuilder.addPivot(pivot);
     }
 

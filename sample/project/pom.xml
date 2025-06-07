@@ -35,6 +35,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.kiryu1223</groupId>
+            <artifactId>support-db-sqlserver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!--数据库函数-->
         <dependency>
             <groupId>io.github.kiryu1223</groupId>

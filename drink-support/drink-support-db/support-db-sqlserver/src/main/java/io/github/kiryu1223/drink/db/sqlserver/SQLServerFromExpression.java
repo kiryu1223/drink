@@ -9,12 +9,4 @@ public class SQLServerFromExpression extends SqlFromExpression {
     protected SQLServerFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
         super(sqlTableExpression, tableRefExpression);
     }
-
-    @Override
-    public ISqlTableRefExpression getTableRefExpression() {
-        if (pivotExpressions.isEmpty()) {
-            return tableRefExpression;
-        }
-        return DrinkUtil.last(pivotExpressions).getTableRefExpression();
-    }
 }

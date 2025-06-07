@@ -433,9 +433,9 @@ public interface SqlExpressionFactory {
         return star(null);
     }
 
-    ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues, ISqlTableRefExpression tableRefExpression);
+    ISqlPivotExpression pivot(ISqlExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, List<ISqlExpression> transColumnValues, ISqlTableRefExpression tableRefExpression);
 
-    default ISqlPivotExpression pivot(ISqlExpression aggregationColumn, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues) {
-        return pivot(aggregationColumn, groupColumn, selectColumnValues, tableRef("<pivot>"));
-    }
+//    default ISqlPivotExpression pivot(ISqlExpression aggregationColumn,Class<?> aggregationType, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues) {
+//        return pivot(aggregationColumn,aggregationType, groupColumn, selectColumnValues, tableRef("<pivot>"));
+//    }
 }

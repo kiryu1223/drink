@@ -6,7 +6,7 @@ import io.github.kiryu1223.drink.base.sqlExt.ISqlKeywords;
 import java.util.Arrays;
 import java.util.List;
 
-public class TransPair<T> implements ISqlKeywords {
+public class TransPair<T> {
     private final T t;
     private final String asName;
 
@@ -23,10 +23,15 @@ public class TransPair<T> implements ISqlKeywords {
         return asName;
     }
 
-    @Override
-    public String getKeyword(IConfig config) {
-        return asName;
+    public Class<T> getTType()
+    {
+        return (Class<T>) t.getClass();
     }
+
+//    @Override
+//    public String getKeyword(IConfig config) {
+//        return asName;
+//    }
 
     public static <T> TransPair<T> of(T t, String as) {
         return new TransPair<>(t, as);

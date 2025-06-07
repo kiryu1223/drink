@@ -57,59 +57,53 @@ public class SqlFromExpression implements ISqlFromExpression
         return pivotExpressions;
     }
 
-    protected String buildFrom(IConfig config, List<SqlValue> values)
-    {
-        IDialect disambiguation = config.getDisambiguation();
-        StringBuilder tableBuilder = new StringBuilder();
-        String tableName = sqlTableExpression.getSqlAndValue(config, values);
-        tableBuilder.append(tableName);
-
-        if (sqlTableExpression instanceof ISqlQueryableExpression)
-        {
-            tableBuilder.insert(0, "(");
-            tableBuilder.append(")");
-        }
-        return "FROM " + tableBuilder + " AS " + disambiguation.disambiguation(tableRefExpression.getDisPlayName());
-    }
-
     @Override
     public String normalTable(IConfig config, List<SqlValue> values)
     {
+        IDialect disambiguation = config.getDisambiguation();
         if (pivotExpressions.isEmpty())
         {
-            return buildFrom(config, values);
+            StringBuilder tableBuilder = new StringBuilder();
+            String tableName = sqlTableExpression.getSqlAndValue(config, values);
+            tableBuilder.append(tableName);
+
+            if (sqlTableExpression instanceof ISqlQueryableExpression)
+            {
+                tableBuilder.insert(0, "(");
+                tableBuilder.append(")");
+            }
+            return "FROM " + tableBuilder + " AS " + disambiguation.disambiguation(tableRefExpression.getDisPlayName());
+
         }
-        else {
-            IDialect disambiguation = config.getDisambiguation();
+        else
+        {
             SqlExpressionFactory factory = config.getSqlExpressionFactory();
             ISqlPivotExpression pivotExpression = pivotExpressions.get(0);
-            ISqlTableRefExpression pivotRef = pivotExpression.getTableRefExpression();
+            ISqlTableRefExpression pivotRef = pivotExpression.getPivotRefExpression();
             // 选择的临时目标表字段
             ISqlSelectExpression select = factory.select(sqlTableExpression.getMainTableClass(), pivotRef);
             // 转换后的额外字段
             for (ISqlExpression transColumnValue : pivotExpression.getTransColumnValues())
             {
-                String columnName;
-                if (transColumnValue instanceof ISqlAsExpression)
-                {
-                    ISqlAsExpression asColumnValue = (ISqlAsExpression) transColumnValue;
-                    columnName=asColumnValue.getAsName();
-                }
-                else
-                {
-                    ISqlConstStringExpression columnValue = (ISqlConstStringExpression) transColumnValue;
-                    columnName=columnValue.getString();
-                }
+                ISqlConstStringExpression columnValue = (ISqlConstStringExpression) transColumnValue;
+                String columnName = columnValue.getString();
                 ISqlDynamicColumnExpression dynamicColumn = factory.dynamicColumn(columnName, void.class, pivotRef);
                 select.addColumn(dynamicColumn);
             }
 
-            List<String> strings=new ArrayList<>(3);
-            strings.add(select.getSqlAndValue(config,values));
-            strings.add(buildFrom(config,values));
-            strings.add(pivotExpression.getSqlAndValue(config,values));
+            List<String> strings = new ArrayList<>(3);
+            strings.add(select.getSqlAndValue(config, values));
 
-            return "FROM ("+String.join(" ",strings)+") as "+disambiguation.disambiguation(tableRefExpression.getDisPlayName());
+            StringBuilder tableBuilder = new StringBuilder();
+            String tableName = sqlTableExpression.getSqlAndValue(config, values);
+            tableBuilder.append("(").append(tableName).append(")");
+
+            String from = "FROM " + tableBuilder + " AS " + disambiguation.disambiguation(pivotExpression.getTempRefExpression().getDisPlayName());
+
+            strings.add(from);
+            strings.add(pivotExpression.getSqlAndValue(config, values));
+
+            return "FROM (" + String.join(" ", strings) + ") AS " + disambiguation.disambiguation(tableRefExpression.getDisPlayName());
         }
     }
 

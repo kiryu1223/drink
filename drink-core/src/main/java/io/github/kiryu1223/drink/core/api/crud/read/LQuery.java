@@ -819,7 +819,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // region [Pivot(行转列)]
 
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<P> pivot(
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<? extends P> pivot(
             // 聚合列
             @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, AggColumn> aggColumn,
             // 需要转换的列
@@ -832,20 +832,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         throw new NotCompiledException();
     }
 
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<P> pivotAs(
-            // 聚合列
-            @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, AggColumn> aggColumn,
-            // 需要转换的列
-            @Expr(Expr.BodyType.Expr) Func1<T,TransColumn> transColumn,
-            // 需要转换的列的值
-            Collection<TransPair<TransColumn>> transColumnValues,
-            // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result
-    ) {
-        throw new NotCompiledException();
-    }
-
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<P> pivot(
+    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<? extends P> pivot(
             ExprTree<Func1<Aggregate<T>, AggColumn>> aggColumn,
             ExprTree<Func1<T,TransColumn>> transColumn,
             Collection<TransColumn> transColumnValues,
