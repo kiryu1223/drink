@@ -1,11 +1,12 @@
 package io.github.kiryu1223.drink.base.expression;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public abstract class SqlTreeVisitor {
 
-    public void visit(List<ISqlExpression> expr) {
+    public void visit(List<? extends ISqlExpression> expr) {
         for (ISqlExpression sqlExpression : expr) {
             visit(sqlExpression);
         }
@@ -281,6 +282,5 @@ public abstract class SqlTreeVisitor {
     public void visit(ISqlPivotExpression expr) {
         visit(expr.getTransColumn());
         visit(expr.getAggregationColumn());
-        visit(expr.getTransColumnValues());
     }
 }

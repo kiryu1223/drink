@@ -27,7 +27,7 @@ public class Main {
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         return SqlBuilder.bootStrap()
                 // 数据库
-                .setDbType(DbType.SQLServer)
+                .setDbType(DbType.MySQL)
                 // 名称转换风格
                 .setNameConverter(new SnakeNameConverter())
                 // 数据源
@@ -71,15 +71,15 @@ public class Main {
                         }
                 )
                 .where(s -> s.year == 2021)
-//                .select(s -> new QuarterSales() {
-//                    {
-//                        setYear(s.year);
-//                        setQuarter1(s.column("一季度"));
-//                        setQuarter2(s.column("二季度"));
-//                        setQuarter3(s.column("三季度"));
-//                        setQuarter4(s.column("四季度"));
-//                    }
-//                })
+                .select(s -> new QuarterSales() {
+                    {
+                        setYear(s.year);
+                        setQuarter1(s.column("一季度"));
+                        setQuarter2(s.column("二季度"));
+                        setQuarter3(s.column("三季度"));
+                        setQuarter4(s.column("四季度"));
+                    }
+                })
                 .toSql();
 
         System.out.println(sql);

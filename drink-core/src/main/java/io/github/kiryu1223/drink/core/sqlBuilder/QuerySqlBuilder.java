@@ -250,8 +250,4 @@ public class QuerySqlBuilder implements ISqlBuilder {
         update.addWhere(factory.binary(SqlOperator.IN, factory.column(primary, update.getFrom().getTableRefExpression()), warpQuery));
         return new UpdateSqlBuilder(getConfig(), update);
     }
-
-    public void addPivot(ISqlPivotExpression pivot) {
-        queryable.getFrom().addPivot(pivot);
-    }
 }

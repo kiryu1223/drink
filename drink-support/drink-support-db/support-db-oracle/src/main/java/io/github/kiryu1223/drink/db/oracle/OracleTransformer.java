@@ -66,7 +66,8 @@ public class OracleTransformer implements Transformer
     }
 
     public ISqlExpression If(ISqlExpression cond, ISqlExpression truePart, ISqlExpression falsePart) {
-        return factory.template(Arrays.asList("(CASE WHEN ", " THEN ", " ELSE ", " END)"), Arrays.asList(cond, truePart, falsePart));
+        return factory.template(Arrays.asList("(CASE WHEN ", " THEN ", " ELSE ", " END)"),
+                Arrays.asList(cond, truePart, falsePart));
     }
 
     public ISqlTemplateExpression groupJoin(List<ISqlExpression> expressions) {

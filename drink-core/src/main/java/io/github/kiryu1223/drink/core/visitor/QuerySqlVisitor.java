@@ -746,16 +746,8 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                     Expression args = methodCall.getArgs().get(0);
                     ISqlSingleValueExpression singleValue = (ISqlSingleValueExpression)visit(args);
                     Object value = singleValue.getValue();
-                    Class<?> aggregationType = last(queryableList).getFrom().getPivotExpressions().get(0).getAggregationType();
-                    if(value instanceof TransPair<?>)
-                    {
-                        TransPair<?> transPair = (TransPair<?>) value;
-                        return factory.dynamicColumn(transPair.getAsName(), aggregationType, tableRef);
-                    }
-                    else
-                    {
-                        return factory.dynamicColumn(value.toString(), aggregationType, tableRef);
-                    }
+                    Class<?> aggregationType = ((ISqlPivotExpression)last(queryableList).getFrom().getSqlTableExpression()).getAggregationType();
+                    return factory.dynamicColumn(value.toString(), aggregationType, tableRef);
                 }
                 // else if (isDynamicColumn(method)) {
                 //     List<Expression> args = methodCall.getArgs();

@@ -33,12 +33,7 @@ public interface ISqlFromExpression extends ISqlExpression {
      */
     ISqlTableExpression getSqlTableExpression();
 
-    List<ISqlPivotExpression> getPivotExpressions();
-
-    default void addPivot(ISqlPivotExpression pivotExpression) {
-        getPivotExpressions().add(pivotExpression);
-    }
-    /**
+     /**
      * 判断是否为无from查询
      */
     default boolean isEmptyTable(IConfig config) {
@@ -67,10 +62,6 @@ public interface ISqlFromExpression extends ISqlExpression {
     @Override
     default ISqlFromExpression copy(IConfig config) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        ISqlFromExpression from = factory.from(getSqlTableExpression().copy(config), getTableRefExpression().copy(config));
-        for (ISqlPivotExpression iSqlPivotExpression : getPivotExpressions()) {
-            from.addPivot(iSqlPivotExpression.copy(config));
-        }
-        return from;
+        return factory.from(getSqlTableExpression().copy(config), getTableRefExpression().copy(config));
     }
 }

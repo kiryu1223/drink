@@ -199,7 +199,7 @@ public interface SqlExpressionFactory {
      * @param from   from表达式
      */
     default ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from) {
-        return queryable(select, from,   Joins(), where(), groupBy(), having(), orderBy(), limit());
+        return queryable(select, from, Joins(), where(), groupBy(), having(), orderBy(), limit());
     }
 
     /**
@@ -416,7 +416,7 @@ public interface SqlExpressionFactory {
         List<FieldMetaData> fieldMetaDataList = metaData.getNotIgnoreAndNavigateFields();
         List<ISqlExpression> columns = new ArrayList<>(fieldMetaDataList.size());
         for (FieldMetaData data : fieldMetaDataList) {
-            columns.add(as(column(data, tableRefExpression), data.getFieldName()));
+            columns.add(column(data, tableRefExpression));
         }
         return columns;
     }
@@ -433,9 +433,10 @@ public interface SqlExpressionFactory {
         return star(null);
     }
 
-    ISqlPivotExpression pivot(ISqlExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, List<ISqlExpression> transColumnValues, ISqlTableRefExpression tableRefExpression);
+    ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression);
 
-//    default ISqlPivotExpression pivot(ISqlExpression aggregationColumn,Class<?> aggregationType, ISqlColumnExpression groupColumn, List<ISqlExpression> selectColumnValues) {
-//        return pivot(aggregationColumn,aggregationType, groupColumn, selectColumnValues, tableRef("<pivot>"));
-//    }
+    default ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression)
+    {
+        return pivot(tableExpression, aggregationColumn, aggregationType, transColumn, transColumnValues, tempRefExpression, tableRef("<pivot>"));
+    }
 }

@@ -33,7 +33,6 @@ import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
@@ -45,6 +44,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
+
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
 
 
 /**
@@ -805,42 +806,45 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected void pivot(
             // 聚合列
-            LambdaExpression<?> aggColumn,
+            LambdaExpression<?> aggColumnLambda,
             // 转换列
-            LambdaExpression<?> transColumn,
+            LambdaExpression<?> transColumnLambda,
             // 转换列值
             Collection<?> transColumnValues,
             // 转换后的表结构
-            LambdaExpression<?> result
+            LambdaExpression<?> resultLambda
     ) {
         IConfig config = getConfig();
         IDialect disambiguation = config.getDisambiguation();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
         // SELECT * FROM <table> AS t WHERE ...
-        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
-        QuerySqlVisitor q1 = new QuerySqlVisitor(config, queryable);
-        ISqlSelectExpression select1 = q1.toSelect(result);
         // SELECT t.new{...},t.聚合列,t.转换列 FROM <table> AS t WHERE ...
-        queryable.setSelect(select1);
+        // SELECT * FROM (列转行对象<(SELECT t.new{...},t.聚合列,t.转换列 FROM <table> AS t WHERE ...)>) AS t1
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
 
-        // SELECT * FROM (SELECT t1.new{...},t1.聚合列,t1.转换列 FROM <table> AS t1 WHERE ...) AS t
-        sqlBuilder.boxed();
+        QuerySqlVisitor aggVisitor = new QuerySqlVisitor(config, queryable);
+        ISqlTemplateExpression agg0 = aggVisitor.toAgg(aggColumnLambda);
+        ISqlExpression aggColumn = agg0.getExpressions().get(0);
 
-        // 创建一个临时包装用来识别展开后的t2引用
-        // SELECT * FROM (SELECT t1.new{...},t1.聚合列,t1.转换列 FROM <table> AS t1 WHERE ...) AS t2
+        QuerySqlVisitor transVisitor = new QuerySqlVisitor(config, queryable);
+        ISqlColumnExpression trans0 = transVisitor.toColumn(transColumnLambda);
+
+        QuerySqlVisitor q1 = new QuerySqlVisitor(config, queryable);
+        ISqlSelectExpression select = q1.toSelect(resultLambda);
+        select.addColumn(aggColumn);
+        select.addColumn(trans0);
+        sqlBuilder.setSelect(select);
+
         ISqlQueryableExpression temp = factory.queryable(queryable);
         QuerySqlVisitor q2 = new QuerySqlVisitor(config, temp);
-        ISqlTemplateExpression agg = q2.toAgg(aggColumn);
-        ISqlColumnExpression trans = q2.toColumn(transColumn);
-        List<ISqlExpression> columnValues=new ArrayList<>();
-        for (Object transColumnValue : transColumnValues)
-        {
-            ISqlExpression e = factory.constString(transColumnValue.toString());
-            columnValues.add(e);
-        }
-        ISqlPivotExpression pivot = factory.pivot(agg, aggColumn.getReturnType(), trans, columnValues, temp.getFrom().getTableRefExpression());
-        sqlBuilder.addPivot(pivot);
+        ISqlTemplateExpression agg = q2.toAgg(aggColumnLambda);
+        ISqlColumnExpression trans = q2.toColumn(transColumnLambda);
+
+        ISqlTableRefExpression tempRef = temp.getFrom().getTableRefExpression();
+        ISqlPivotExpression pivot = factory.pivot(queryable, agg, aggColumnLambda.getReturnType(), trans, cast(transColumnValues), tempRef);
+
+        sqlBuilder.setQueryable(factory.queryable(pivot,factory.tableRef(tempRef.getName())));
     }
 
     // endregion

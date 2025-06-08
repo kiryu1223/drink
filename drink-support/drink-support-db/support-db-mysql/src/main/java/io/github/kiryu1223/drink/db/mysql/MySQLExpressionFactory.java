@@ -17,10 +17,11 @@ package io.github.kiryu1223.drink.db.mysql;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
-import io.github.kiryu1223.drink.base.expression.ISqlRecursionExpression;
+import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
+
+import java.util.Collection;
 
 /**
  * MySql表达式工厂
@@ -38,5 +39,11 @@ public class MySQLExpressionFactory extends DefaultSqlExpressionFactory {
     @Override
     public ISqlRecursionExpression recursion(ISqlQueryableExpression queryable, FieldMetaData parentId, FieldMetaData childId, int level) {
         return new MySQLRecursionExpression(queryable, parentId, childId, level);
+    }
+
+    @Override
+    public ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression)
+    {
+        return new MySQLPivotExpression(tableExpression,aggregationColumn,aggregationType,transColumn,transColumnValues,tempRefExpression,pivotRefExpression);
     }
 }
