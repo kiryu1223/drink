@@ -1,32 +1,18 @@
 package io.github.kiryu1223.drink.core.api.crud.read.pivot;
 
-import io.github.kiryu1223.drink.base.annotation.Column;
+import io.github.kiryu1223.drink.base.exception.Winner;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
 
 @Getter
 @Setter
 public abstract class UnPivoted<Value> {
-
-    @Column("nameColumn")
-    private String nameColumn;
-    @Column("valueColumn")
-    private Value valueColumn;
-
-    public String getNameColumn() {
-        return nameColumn;
+    public final String nameColumn() {
+        return Winner.error();
     }
 
-    public Value getValueColumn() {
-        return valueColumn;
-    }
-
-    public void setNameColumn(String nameColumn) {
-        this.nameColumn = nameColumn;
-    }
-
-    public void setValueColumn(Value valueColumn) {
-        this.valueColumn = valueColumn;
+    public final Value valueColumn() {
+        return Winner.error();
     }
 
     @Override

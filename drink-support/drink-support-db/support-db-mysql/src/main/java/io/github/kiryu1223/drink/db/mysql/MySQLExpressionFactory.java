@@ -22,6 +22,7 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * MySql表达式工厂
@@ -45,5 +46,11 @@ public class MySQLExpressionFactory extends DefaultSqlExpressionFactory {
     public ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression)
     {
         return new MySQLPivotExpression(tableExpression,aggregationColumn,aggregationType,transColumn,transColumnValues,tempRefExpression,pivotRefExpression);
+    }
+
+    @Override
+    public ISqlUnPivotExpression unPivot(ISqlQueryableExpression tableExpression, String newNameColumnName, String newValueColumnName, Class<?> newValueColumnType, List<ISqlColumnExpression> transColumns, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression unPovitRefExpression)
+    {
+        return new MySQLUnPivotExpression(tableExpression, newNameColumnName, newValueColumnName, newValueColumnType, transColumns, tempRefExpression, unPovitRefExpression);
     }
 }

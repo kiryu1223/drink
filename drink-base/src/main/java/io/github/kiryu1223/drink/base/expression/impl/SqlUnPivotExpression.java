@@ -5,10 +5,12 @@ import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-public class SqlUnPivotExpression implements ISqlUnPivotExpression {
+public class SqlUnPivotExpression implements ISqlUnPivotExpression
+{
     protected final ISqlQueryableExpression queryableExpression;
     protected final String newNameColumnName;
     protected final String newValueColumnName;
@@ -18,7 +20,8 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression {
     protected final ISqlTableRefExpression unpivotRefExpression;
 
 
-    public SqlUnPivotExpression(ISqlQueryableExpression queryableExpression, String newNameColumnName, String newValueColumnName, Class<?> newValueColumnType, List<ISqlColumnExpression> transColumns, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression unpivotRefExpression) {
+    public SqlUnPivotExpression(ISqlQueryableExpression queryableExpression, String newNameColumnName, String newValueColumnName, Class<?> newValueColumnType, List<ISqlColumnExpression> transColumns, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression unpivotRefExpression)
+    {
         this.queryableExpression = queryableExpression;
         this.newNameColumnName = newNameColumnName;
         this.newValueColumnName = newValueColumnName;
@@ -29,37 +32,44 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression {
     }
 
     @Override
-    public ISqlQueryableExpression getQueryableExpression() {
+    public ISqlQueryableExpression getQueryableExpression()
+    {
         return queryableExpression;
     }
 
     @Override
-    public String getNewNameColumnName() {
+    public String getNewNameColumnName()
+    {
         return newNameColumnName;
     }
 
     @Override
-    public String getNewValueColumnName() {
+    public String getNewValueColumnName()
+    {
         return newValueColumnName;
     }
 
     @Override
-    public Class<?> getNewValueColumnType() {
+    public Class<?> getNewValueColumnType()
+    {
         return newValueColumnType;
     }
 
     @Override
-    public List<ISqlColumnExpression> getTransColumns() {
+    public List<ISqlColumnExpression> getTransColumns()
+    {
         return transColumns;
     }
 
     @Override
-    public ISqlTableRefExpression getUnpivotRefExpression() {
+    public ISqlTableRefExpression getUnpivotRefExpression()
+    {
         return unpivotRefExpression;
     }
 
     @Override
-    public ISqlTableRefExpression getTempRefExpression() {
+    public ISqlTableRefExpression getTempRefExpression()
+    {
         return tempRefExpression;
     }
 
@@ -74,7 +84,8 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression {
     // )
     // WHERE ...
     @Override
-    public String unPivotStyle(IConfig config, List<SqlValue> values) {
+    public String unPivotStyle(IConfig config, List<SqlValue> values)
+    {
         IDialect disambiguation = config.getDisambiguation();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
@@ -85,8 +96,8 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression {
         // SELECT [<unpivot>].{new声明的字段}
         ISqlSelectExpression select = factory.select(getMainTableClass(), unpivotRefExpression);
         // SELECT [<unpivot>].{new声明的字段},[<unpivot>].{新名列名},[<unpivot>].{新值列名}
-//        select.addColumn(factory.dynamicColumn(newNameColumnName, String.class, unpivotRefExpression));
-//        select.addColumn(factory.dynamicColumn(newValueColumnName, newValueColumnType, unpivotRefExpression));
+        select.addColumn(factory.dynamicColumn(newNameColumnName, String.class, unpivotRefExpression));
+        select.addColumn(factory.dynamicColumn(newValueColumnName, newValueColumnType, unpivotRefExpression));
 
         selectBuilder.append(select.getSqlAndValue(config, values));
 
@@ -102,7 +113,8 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression {
                 .append(" IN (");
 
         StringJoiner joiner = new StringJoiner(",");
-        for (ISqlColumnExpression column : transColumns) {
+        for (ISqlColumnExpression column : transColumns)
+        {
             joiner.add(column.getSqlAndValue(config, values));
         }
         unPivotBuilder.append(joiner)
@@ -112,13 +124,44 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression {
         return String.join(" ", selectBuilder, fromBuilder, unPivotBuilder);
     }
 
+    // SELECT *
+    // FROM (
+    //      SELECT {new},'trans1' as nameColumn,temp.trans1 as valueColumn FROM <table> as temp
+    //      UNION ALL
+    //      SELECT {new},'trans2' as nameColumn,temp.trans2 as valueColumn FROM <table> as temp
+    //      ...
+    // )
+    // WHERE ...
     @Override
-    public String unionStyle(IConfig config, List<SqlValue> values) {
-        return "";
+    public String unionStyle(IConfig config, List<SqlValue> values)
+    {
+        IDialect disambiguation = config.getDisambiguation();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+
+        StringBuilder selectBuilder = new StringBuilder();
+        StringBuilder fromBuilder = new StringBuilder();
+        StringBuilder unPivotBuilder = new StringBuilder();
+
+        List<ISqlQueryableExpression> unionQueryable = new ArrayList<>();
+        for (ISqlColumnExpression transColumn : transColumns)
+        {
+            ISqlQueryableExpression tempQuery = factory.queryable(queryableExpression, tempRefExpression);
+            ISqlSelectExpression select = tempQuery.getSelect();
+            ISqlAsExpression name = factory.as(factory.constString("'" + transColumn.getFieldMetaData().getColumn() + "'"), newNameColumnName);
+            ISqlAsExpression value = factory.as(transColumn, newValueColumnName);
+            select.addColumn(name);
+            select.addColumn(value);
+            unionQueryable.add(tempQuery);
+        }
+
+        ISqlUnionQueryableExpression union = factory.unionQueryable(unionQueryable, true);
+
+        return union.getSqlAndValue(config, values);
     }
 
     @Override
-    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+    public String getSqlAndValue(IConfig config, List<SqlValue> values)
+    {
         return unPivotStyle(config, values);
     }
 }

@@ -134,7 +134,7 @@ public class ExpressionUtil {
         Class<?> declaringClass = method.getDeclaringClass();
         if (UnPivoted.class.isAssignableFrom(declaringClass)) {
             String name = method.getName();
-            if (name.equals("getNameColumn")) {
+            if (name.equals("nameColumn")) {
                 return method.getParameterCount() == 0;
             }
         }
@@ -145,7 +145,7 @@ public class ExpressionUtil {
         Class<?> declaringClass = method.getDeclaringClass();
         if (UnPivoted.class.isAssignableFrom(declaringClass)) {
             String name = method.getName();
-            if (name.equals("getValueColumn")) {
+            if (name.equals("valueColumn")) {
                 return method.getParameterCount() == 0;
             }
         }

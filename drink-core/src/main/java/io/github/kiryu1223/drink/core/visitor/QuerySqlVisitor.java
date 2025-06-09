@@ -737,18 +737,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                         return getterToSqlAst(getter, tableRef);
                     }
                     else {
-                        if(isUnPivotedName(method))
-                        {
-                            ISqlUnPivotExpression unPivot = (ISqlUnPivotExpression) last(queryableList).getFrom().getSqlTableExpression();
-                            return factory.dynamicColumn(unPivot.getNewNameColumnName(), String.class, tableRef);
-                        }
-                        else if (isUnPivotedValue(method)) {
-                            ISqlUnPivotExpression unPivot = (ISqlUnPivotExpression) last(queryableList).getFrom().getSqlTableExpression();
-                            return factory.dynamicColumn(unPivot.getNewValueColumnName(), unPivot.getNewValueColumnType(), tableRef);
-                        }
-                        else {
                             return factory.column(getter, tableRef);
-                        }
                     }
                 }
                 else if(isPivoted(method))
@@ -758,6 +747,15 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                     Object value = singleValue.getValue();
                     Class<?> aggregationType = ((ISqlPivotExpression)last(queryableList).getFrom().getSqlTableExpression()).getAggregationType();
                     return factory.dynamicColumn(value.toString(), aggregationType, tableRef);
+                }
+                else if(isUnPivotedName(method))
+                {
+                    ISqlUnPivotExpression unPivot = (ISqlUnPivotExpression) last(queryableList).getFrom().getSqlTableExpression();
+                    return factory.dynamicColumn(unPivot.getNewNameColumnName(), String.class, tableRef);
+                }
+                else if (isUnPivotedValue(method)) {
+                    ISqlUnPivotExpression unPivot = (ISqlUnPivotExpression) last(queryableList).getFrom().getSqlTableExpression();
+                    return factory.dynamicColumn(unPivot.getNewValueColumnName(), unPivot.getNewValueColumnType(), tableRef);
                 }
                 // else if (isDynamicColumn(method)) {
                 //     List<Expression> args = methodCall.getArgs();
