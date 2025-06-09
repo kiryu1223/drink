@@ -32,14 +32,12 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
 
     private final IConfig config;
 
-    protected DefaultSqlExpressionFactory(IConfig config)
-    {
+    protected DefaultSqlExpressionFactory(IConfig config) {
         this.config = config;
     }
 
     @Override
-    public IConfig getConfig()
-    {
+    public IConfig getConfig() {
         return config;
     }
 
@@ -99,8 +97,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from,ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
-        return new SqlQueryableExpression(select, from,  joins, where, groupBy, having, orderBy, limit);
+    public ISqlQueryableExpression queryable(ISqlSelectExpression select, ISqlFromExpression from, ISqlJoinsExpression joins, ISqlWhereExpression where, ISqlGroupByExpression groupBy, ISqlHavingExpression having, ISqlOrderByExpression orderBy, ISqlLimitExpression limit) {
+        return new SqlQueryableExpression(select, from, joins, where, groupBy, having, orderBy, limit);
     }
 
     @Override
@@ -164,8 +162,8 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlTypeCastExpression typeCast(Class<?> c,ISqlExpression expression) {
-        return new SqlTypeCastExpression(c,expression);
+    public ISqlTypeCastExpression typeCast(Class<?> c, ISqlExpression expression) {
+        return new SqlTypeCastExpression(c, expression);
     }
 
     @Override
@@ -204,13 +202,17 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     }
 
     @Override
-    public ISqlStarExpression star(ISqlTableRefExpression tableRefExpression)
-    {
+    public ISqlStarExpression star(ISqlTableRefExpression tableRefExpression) {
         return new SqlStarExpression(tableRefExpression);
     }
 
     @Override
     public ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression) {
-        return new SqlPivotExpression(tableExpression,aggregationColumn,aggregationType, transColumn, transColumnValues, tempRefExpression,tableRef("<pivot>"));
+        return new SqlPivotExpression(tableExpression, aggregationColumn, aggregationType, transColumn, transColumnValues, tempRefExpression, tableRef("<pivot>"));
+    }
+
+    @Override
+    public ISqlUnPivotExpression unPivot(ISqlQueryableExpression tableExpression, String newNameColumnName, String newValueColumnName, Class<?> newValueColumnType, List<ISqlColumnExpression> transColumns, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression unPovitRefExpression) {
+        return new SqlUnPivotExpression(tableExpression, newNameColumnName, newValueColumnName, newValueColumnType, transColumns, tempRefExpression,unPovitRefExpression );
     }
 }

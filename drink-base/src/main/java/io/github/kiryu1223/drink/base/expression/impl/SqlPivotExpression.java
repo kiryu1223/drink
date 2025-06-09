@@ -4,10 +4,9 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.transform.Transformer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SqlPivotExpression implements ISqlPivotExpression {
@@ -56,6 +55,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
         return transColumnValues;
     }
 
+    @Override
     public ISqlTableRefExpression getTempRefExpression() {
         return tempRefExpression;
     }
@@ -67,70 +67,106 @@ public class SqlPivotExpression implements ISqlPivotExpression {
     }
 
     // SELECT * FROM <table> WHERE ...
-
-    // pivot()
-
-    // SELECT {所选的字段} FROM (SELECT {所选的字段} FROM <table> WHERE ...)
-
-    // mssql/oracle
-
     // SELECT {所选的字段} FROM (
     //      SELECT <pivot>.xx,<pivot>.aaa
     //      FROM (SELECT {所选的字段} FROM <table> WHERE ...)
     //      PIVOT (...) as <pivot>
     // ) as t
+    @Override
+    public String pivotStyle(IConfig config, List<SqlValue> values) {
+        IDialect dialect = config.getDisambiguation();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
-    // mysql/...
+        // 1. 构建 SELECT 部分
+        ISqlSelectExpression select = factory.select(getMainTableClass(), pivotRefExpression);
+        transColumnValues.stream()
+                .map(o -> o.toString())
+                .forEach(columnName ->
+                        select.addColumn(factory.dynamicColumn(columnName, aggregationType, pivotRefExpression))
+                );
 
+        // 2. 构建 FROM 部分
+        String tableName = queryableExpression.getSqlAndValue(config, values);
+        String from = String.format(
+                "FROM (%s) AS %s",
+                tableName,
+                dialect.disambiguation(tempRefExpression.getDisPlayName())
+        );
+
+        // 3. 构建 PIVOT 部分
+        String pivot = String.format(
+                "PIVOT (%s FOR %s IN (%s)) AS %s",
+                aggregationColumn.getSqlAndValue(config, values),
+                transColumn.getSqlAndValue(config, values),
+                transColumnValues.stream()
+                        .map(e -> dialect.disambiguation(e.toString()))
+                        .collect(Collectors.joining(",")),
+                dialect.disambiguationTableName(pivotRefExpression.getDisPlayName())
+        );
+
+        // 4. 合并 SQL 语句
+        return String.join(" ",
+                select.getSqlAndValue(config, values),
+                from,
+                pivot
+        );
+    }
+
+    // SELECT * FROM <table> WHERE ...
     // SELECT {所选的字段} FROM (
     //      SELECT t.xx, SUM(If(t.xxx = xxx,t.aaa,0)) as xxx
     //      FROM (SELECT {所选的字段} FROM <table> WHERE ...) as t
     //      GROUP BY t.xx
     // ) as t
     @Override
-    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-
+    public String groupAggStyle(IConfig config, List<SqlValue> values) {
         IDialect disambiguation = config.getDisambiguation();
-
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        // 选择的临时目标表字段
-        ISqlSelectExpression select = factory.select(getMainTableClass(), pivotRefExpression);
-        // 转换后的额外字段
+        Transformer transformer = config.getTransformer();
+        StringBuilder selectBuilder = new StringBuilder();
+        StringBuilder fromBuilder = new StringBuilder();
+        StringBuilder groupBuilder = new StringBuilder();
+
+        // SELECT {选择生成的字段}
+        ISqlSelectExpression select = factory.select(getMainTableClass(), tempRefExpression);
+        List<String> aggString = aggregationColumn.getTemplateStrings();
+        ISqlExpression aggColumn = aggregationColumn.getExpressions().get(0);
         for (Object transColumnValue : transColumnValues)
         {
-            String columnName = transColumnValue.toString();
-            ISqlDynamicColumnExpression dynamicColumn = factory.dynamicColumn(columnName, aggregationType, pivotRefExpression);
-            select.addColumn(dynamicColumn);
+            // AGG(CASE WHEN 转换的名称字段的值 = 目标值 THEN 转换的值字段的值 ELSE 0 END)
+            ISqlTemplateExpression agg = factory.template(
+                    aggString,
+                    Collections.singletonList(transformer.If(
+                            factory.binary(SqlOperator.EQ, transColumn, factory.value(transColumnValue)),
+                            aggColumn,
+                            factory.constString(0)
+                    ))
+            );
+            // SELECT {选择生成的字段},{聚合函数...}
+            select.addColumn(factory.as(agg, transColumnValue.toString()));
         }
 
-        List<String> strings = new ArrayList<>(3);
-        strings.add(select.getSqlAndValue(config, values));
+        selectBuilder.append(select.getSqlAndValue(config, values));
 
-        StringBuilder tableBuilder = new StringBuilder();
-        String tableName = queryableExpression.getSqlAndValue(config, values);
-        tableBuilder.append("(").append(tableName).append(")");
-
-        String from = "FROM " + tableBuilder + " AS " + disambiguation.disambiguation(tempRefExpression.getDisPlayName());
-
-        strings.add(from);
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("PIVOT (")
-                .append(aggregationColumn.getSqlAndValue(config, values))
-                .append(" FOR ")
-                .append(transColumn.getSqlAndValue(config, values))
-                .append(" IN ").append("(").append(transColumnValues.stream().map(e -> disambiguation.disambiguation(e.toString())).collect(Collectors.joining(","))).append(")")
+        fromBuilder.append("FROM (")
+                .append(queryableExpression.getSqlAndValue(config, values))
                 .append(") AS ")
-                .append(disambiguation.disambiguationTableName(pivotRefExpression.getDisPlayName()));
+                .append(disambiguation.disambiguation(tempRefExpression.getDisPlayName()));
 
-        strings.add(builder.toString());
+        ISqlSelectExpression groupSelect = factory.select(getMainTableClass(), tempRefExpression);
+        groupBuilder.append("GROUP BY ");
+        StringJoiner joiner = new StringJoiner(",");
+        for (ISqlExpression column : groupSelect.getColumns())
+        {
+            joiner.add(column.getSqlAndValue(config, values));
+        }
+        groupBuilder.append(joiner);
 
-        return String.join(" ", strings);
+        return String.join(" ", selectBuilder, fromBuilder, groupBuilder);
     }
 
     @Override
-    public Class<?> getMainTableClass()
-    {
-        return queryableExpression.getMainTableClass();
+    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+        return pivotStyle(config, values);
     }
 }

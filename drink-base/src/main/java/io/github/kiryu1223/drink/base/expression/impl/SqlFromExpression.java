@@ -27,41 +27,35 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class SqlFromExpression implements ISqlFromExpression
-{
+public class SqlFromExpression implements ISqlFromExpression {
     protected final ISqlTableExpression sqlTableExpression;
     protected final ISqlTableRefExpression tableRefExpression;
-    protected final List<ISqlPivotExpression> pivotExpressions = new ArrayList<>();
 
-    protected SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression)
-    {
+    protected SqlFromExpression(ISqlTableExpression sqlTableExpression, ISqlTableRefExpression tableRefExpression) {
         this.sqlTableExpression = sqlTableExpression;
         this.tableRefExpression = tableRefExpression;
     }
 
     @Override
-    public ISqlTableExpression getSqlTableExpression()
-    {
+    public ISqlTableExpression getSqlTableExpression() {
         return sqlTableExpression;
     }
 
     @Override
-    public ISqlTableRefExpression getTableRefExpression()
-    {
+    public ISqlTableRefExpression getTableRefExpression() {
         return tableRefExpression;
     }
 
     @Override
-    public String normalTable(IConfig config, List<SqlValue> values)
-    {
+    public String normalTable(IConfig config, List<SqlValue> values) {
         IDialect disambiguation = config.getDisambiguation();
         StringBuilder tableBuilder = new StringBuilder();
         String tableName = sqlTableExpression.getSqlAndValue(config, values);
         tableBuilder.append(tableName);
 
         if (sqlTableExpression instanceof ISqlQueryableExpression
-        ||sqlTableExpression instanceof ISqlPivotExpression)
-        {
+            || sqlTableExpression instanceof ISqlPivotExpression
+        || sqlTableExpression instanceof ISqlUnPivotExpression) {
             tableBuilder.insert(0, "(");
             tableBuilder.append(")");
         }
@@ -69,20 +63,16 @@ public class SqlFromExpression implements ISqlFromExpression
     }
 
     @Override
-    public String emptyTable(IConfig config, List<SqlValue> values)
-    {
+    public String emptyTable(IConfig config, List<SqlValue> values) {
         return "";
     }
 
     @Override
-    public String getSqlAndValue(IConfig config, List<SqlValue> values)
-    {
-        if (isEmptyTable(config))
-        {
+    public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+        if (isEmptyTable(config)) {
             return emptyTable(config, values);
         }
-        else
-        {
+        else {
             return normalTable(config, values);
         }
     }

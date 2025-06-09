@@ -1,6 +1,7 @@
 package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +38,16 @@ public interface ISqlPivotExpression extends ISqlTableExpression
     ISqlTableRefExpression getPivotRefExpression();
 
     ISqlTableRefExpression getTempRefExpression();
+
+    String pivotStyle(IConfig config, List<SqlValue> values);
+
+    String groupAggStyle(IConfig config, List<SqlValue> values);
+
+    @Override
+    default Class<?> getMainTableClass()
+    {
+        return getQueryableExpression().getMainTableClass();
+    }
 
     @Override
     default ISqlPivotExpression copy(IConfig config)

@@ -815,7 +815,6 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             LambdaExpression<?> resultLambda
     ) {
         IConfig config = getConfig();
-        IDialect disambiguation = config.getDisambiguation();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
         // SELECT * FROM <table> AS t WHERE ...
@@ -844,7 +843,48 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ISqlTableRefExpression tempRef = temp.getFrom().getTableRefExpression();
         ISqlPivotExpression pivot = factory.pivot(queryable, agg, aggColumnLambda.getReturnType(), trans, cast(transColumnValues), tempRef);
 
-        sqlBuilder.setQueryable(factory.queryable(pivot,factory.tableRef(tempRef.getName())));
+        sqlBuilder.setQueryable(factory.queryable(pivot, factory.tableRef(tempRef.getName())));
+    }
+
+    // endregion
+
+    // region [行转列]
+
+    protected void unPivot(
+            // 转换后的表对象
+            LambdaExpression<?> result,
+            // 转换列
+            List<LambdaExpression<?>> transColumns
+    ) {
+        IConfig config = getConfig();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        QuerySqlVisitor q1 = new QuerySqlVisitor(config, queryable);
+        ISqlSelectExpression select = q1.toSelect(result);
+        for (LambdaExpression<?> transColumn : transColumns) {
+            ISqlColumnExpression column = q1.toColumn(transColumn);
+            select.addColumn(column);
+        }
+        sqlBuilder.setSelect(select);
+
+        ISqlQueryableExpression temp = factory.queryable(queryable);
+        ISqlTableRefExpression tempRef = temp.getFrom().getTableRefExpression();
+        QuerySqlVisitor q2 = new QuerySqlVisitor(config, temp);
+        List<ISqlColumnExpression> transColumnList = new ArrayList<>();
+        for (LambdaExpression<?> transColumn : transColumns) {
+            ISqlColumnExpression column = q2.toColumn(transColumn);
+            transColumnList.add(column);
+        }
+        ISqlUnPivotExpression unPivot = factory.unPivot(
+                queryable,
+                "nameColumn",
+                "valueColumn",
+                transColumns.get(0).getReturnType(),
+                transColumnList,
+                tempRef
+        );
+
+        sqlBuilder.setQueryable(factory.queryable(unPivot, factory.tableRef(tempRef.getName())));
     }
 
     // endregion

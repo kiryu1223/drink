@@ -439,4 +439,11 @@ public interface SqlExpressionFactory {
     {
         return pivot(tableExpression, aggregationColumn, aggregationType, transColumn, transColumnValues, tempRefExpression, tableRef("<pivot>"));
     }
+
+    ISqlUnPivotExpression unPivot(ISqlQueryableExpression tableExpression, String newNameColumnName, String newValueColumnName, Class<?> newValueColumnType, List<ISqlColumnExpression> transColumns,  ISqlTableRefExpression tempRefExpression,ISqlTableRefExpression unPovitRefExpression);
+
+    default ISqlUnPivotExpression unPivot(ISqlQueryableExpression tableExpression, String newNameColumnName, String newValueColumnName, Class<?> newValueColumnType, List<ISqlColumnExpression> transColumns, ISqlTableRefExpression tempRefExpression)
+    {
+        return unPivot(tableExpression, newNameColumnName, newValueColumnName, newValueColumnType, transColumns, tempRefExpression, tableRef("<unpivot>"));
+    }
 }

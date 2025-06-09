@@ -20,11 +20,14 @@ import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.crud.read.IDynamicTable;
-import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
+import io.github.kiryu1223.drink.core.api.crud.read.pivot.UnPivoted;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
-import io.github.kiryu1223.expressionTree.expressions.*;
+import io.github.kiryu1223.expressionTree.expressions.MethodCallExpression;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -49,8 +52,8 @@ public class ExpressionUtil {
         String name = method.getName();
         Class<?>[] parameterTypes = method.getParameterTypes();
         return IDynamicTable.class.isAssignableFrom(method.getDeclaringClass())
-                && name.equals("column") && parameterTypes.length == 2 && isString(parameterTypes[0])
-                && parameterTypes[1] == Class.class;
+               && name.equals("column") && parameterTypes.length == 2 && isString(parameterTypes[0])
+               && parameterTypes[1] == Class.class;
     }
 
     public static boolean isEquals(MethodCallExpression methodCall) {
@@ -115,13 +118,36 @@ public class ExpressionUtil {
         return name.startsWith("get") || name.startsWith("is");
     }
 
-    public static boolean isPivoted(Method method)
-    {
-        String name = method.getName();
-        if(name.equals("column"))
-        {
-            Type[] genericParameterTypes = method.getGenericParameterTypes();
-            return method.getParameterCount()==1&&genericParameterTypes.length==1;
+    public static boolean isPivoted(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        if (Pivoted.class.isAssignableFrom(declaringClass)) {
+            String name = method.getName();
+            if (name.equals("column")) {
+                Type[] genericParameterTypes = method.getGenericParameterTypes();
+                return method.getParameterCount() == 1 && genericParameterTypes.length == 1;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isUnPivotedName(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        if (UnPivoted.class.isAssignableFrom(declaringClass)) {
+            String name = method.getName();
+            if (name.equals("getNameColumn")) {
+                return method.getParameterCount() == 0;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isUnPivotedValue(Method method) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        if (UnPivoted.class.isAssignableFrom(declaringClass)) {
+            String name = method.getName();
+            if (name.equals("getValueColumn")) {
+                return method.getParameterCount() == 0;
+            }
         }
         return false;
     }
@@ -137,7 +163,7 @@ public class ExpressionUtil {
 
     public static boolean isStartQuery(Method method) {
         Class<?> declaringClass = method.getDeclaringClass();
-        return ITable.class.isAssignableFrom(declaringClass)&&method.getName().equals("query")&&method.getParameterCount()==1;
+        return ITable.class.isAssignableFrom(declaringClass) && method.getName().equals("query") && method.getParameterCount() == 1;
     }
 
     public static boolean isList(Method method) {
@@ -335,8 +361,7 @@ public class ExpressionUtil {
                     collection = new ArrayList<>();
                     try {
                         list.getSetter().invoke(parentNode, collection);
-                    }
-                    catch (InvocationTargetException | IllegalAccessException e) {
+                    } catch (InvocationTargetException | IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
                 }

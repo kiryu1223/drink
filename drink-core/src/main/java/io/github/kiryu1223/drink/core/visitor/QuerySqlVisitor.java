@@ -19,7 +19,6 @@ import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
-import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.expressionTree.expressions.*;
@@ -738,7 +737,18 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                         return getterToSqlAst(getter, tableRef);
                     }
                     else {
-                        return factory.column(getter, tableRef);
+                        if(isUnPivotedName(method))
+                        {
+                            ISqlUnPivotExpression unPivot = (ISqlUnPivotExpression) last(queryableList).getFrom().getSqlTableExpression();
+                            return factory.dynamicColumn(unPivot.getNewNameColumnName(), String.class, tableRef);
+                        }
+                        else if (isUnPivotedValue(method)) {
+                            ISqlUnPivotExpression unPivot = (ISqlUnPivotExpression) last(queryableList).getFrom().getSqlTableExpression();
+                            return factory.dynamicColumn(unPivot.getNewValueColumnName(), unPivot.getNewValueColumnType(), tableRef);
+                        }
+                        else {
+                            return factory.column(getter, tableRef);
+                        }
                     }
                 }
                 else if(isPivoted(method))

@@ -27,48 +27,6 @@ public class MySQLPivotExpression extends SqlPivotExpression
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values)
     {
-        IDialect disambiguation = config.getDisambiguation();
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        Transformer transformer = config.getTransformer();
-        StringBuilder selectBuilder = new StringBuilder();
-        StringBuilder fromBuilder = new StringBuilder();
-        StringBuilder groupBuilder = new StringBuilder();
-
-        // SELECT {选择生成的字段}
-        ISqlSelectExpression select = factory.select(getMainTableClass(), tempRefExpression);
-        List<String> aggString = aggregationColumn.getTemplateStrings();
-        ISqlExpression aggColumn = aggregationColumn.getExpressions().get(0);
-        for (Object transColumnValue : transColumnValues)
-        {
-            // AGG(CASE WHEN 转换的名称字段的值 = 目标值 THEN 转换的值字段的值 ELSE 0 END)
-            ISqlTemplateExpression agg = factory.template(
-                    aggString,
-                    Collections.singletonList(transformer.If(
-                            factory.binary(SqlOperator.EQ, transColumn, factory.value(transColumnValue)),
-                            aggColumn,
-                            factory.constString(0)
-                    ))
-            );
-            // SELECT {选择生成的字段},{聚合函数...}
-            select.addColumn(factory.as(agg, transColumnValue.toString()));
-        }
-
-        selectBuilder.append(select.getSqlAndValue(config, values));
-
-        fromBuilder.append("FROM (")
-                .append(queryableExpression.getSqlAndValue(config, values))
-                .append(") AS ")
-                .append(disambiguation.disambiguation(tempRefExpression.getDisPlayName()));
-
-        ISqlSelectExpression groupSelect = factory.select(getMainTableClass(), tempRefExpression);
-        groupBuilder.append("GROUP BY ");
-        StringJoiner joiner = new StringJoiner(",");
-        for (ISqlExpression column : groupSelect.getColumns())
-        {
-            joiner.add(column.getSqlAndValue(config, values));
-        }
-        groupBuilder.append(joiner);
-
-        return String.join(" ", selectBuilder, fromBuilder, groupBuilder);
+        return groupAggStyle(config, values);
     }
 }
