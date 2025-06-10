@@ -9,18 +9,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class LongTypeHandler implements ITypeHandler<Long>
-{
+public class LongTypeHandler implements ITypeHandler<Long> {
     @Override
-    public Long getValue(ResultSet resultSet, int index, Type type) throws SQLException
-    {
+    public Long getValue(ResultSet resultSet, int index, Type type) throws SQLException {
         long aLong = resultSet.getLong(index);
         return resultSet.wasNull() ? null : aLong;
     }
 
     @Override
-    public void setValue(PreparedStatement preparedStatement, int index, Long aLong) throws SQLException
-    {
+    public void setValue(PreparedStatement preparedStatement, int index, Long aLong) throws SQLException {
         if (aLong == null) {
             preparedStatement.setNull(index, JDBCType.BIGINT.getVendorTypeNumber());
         }

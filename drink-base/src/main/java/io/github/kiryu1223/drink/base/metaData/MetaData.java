@@ -268,6 +268,11 @@ public class MetaData
         return fields.stream().filter(f -> f.isPrimaryKey()).findFirst().orElseThrow(() -> new RuntimeException(type + "找不到主键"));
     }
 
+    public List<FieldMetaData> getPrimaryList()
+    {
+        return fields.stream().filter(f -> f.isPrimaryKey()).collect(Collectors.toList());
+    }
+
     /**
      * 获取实体类型
      */

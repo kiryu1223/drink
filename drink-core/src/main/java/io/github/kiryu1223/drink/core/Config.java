@@ -41,6 +41,7 @@ class Config implements IConfig {
     private final SqlSessionFactory sqlSessionFactory;
     private final BeanCreatorFactory beanCreatorFactory;
     private final Filter filter = new Filter();
+    private final Aop aop = new Aop();
     private final IDialect disambiguation;
     private final Transformer transformer;
     private final SqlExpressionFactory sqlExpressionFactory;
@@ -77,6 +78,11 @@ class Config implements IConfig {
 
     public Filter getFilter() {
         return filter;
+    }
+
+    @Override
+    public Aop getAop() {
+        return aop;
     }
 
     public boolean isIgnoreUpdateNoWhere() {

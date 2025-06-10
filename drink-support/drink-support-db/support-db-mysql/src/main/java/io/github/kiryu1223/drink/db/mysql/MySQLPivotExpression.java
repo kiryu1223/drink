@@ -19,14 +19,16 @@ public class MySQLPivotExpression extends SqlPivotExpression
         super(queryableExpression, aggregationColumn, aggregationType, transColumn, transColumnValues, tempRefExpression, pivotRefExpression);
     }
 
-    // SELECT {所选的字段} FROM (
-    //      SELECT t.xx, SUM(If(t.xxx = xxx,t.aaa,0)) as xxx
-    //      FROM (SELECT {所选的字段} FROM <table> WHERE ...) as t
-    //      GROUP BY t.xx
-    // ) as t
+    @Override
+    public ISqlTemplateExpression createAggExpression(IConfig config, List<String> aggString, Object transColumnValue, ISqlExpression aggColumn) {
+        // mysql也不支持filter子句[○･｀Д´･ ○]
+        return ifStyle(config, aggString, transColumnValue, aggColumn);
+    }
+
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values)
     {
+        // mysql不支持pivot
         return groupAggStyle(config, values);
     }
 }

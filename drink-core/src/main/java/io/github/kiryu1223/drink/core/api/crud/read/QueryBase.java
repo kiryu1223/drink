@@ -16,7 +16,6 @@
 package io.github.kiryu1223.drink.core.api.crud.read;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
@@ -454,12 +453,6 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // endregion
 
-//    protected void singleCheck(boolean single) {
-//        if (single) {
-//            throw new RuntimeException("query.select(Func<T1,T2..., R> expr) 不允许传入单个元素, 单元素请使用endSelect");
-//        }
-//    }
-
     // region [include]
 
 //    protected void include(LambdaExpression<?> lambda, ISqlExpression cond, List<IncludeSet> includeSets) {
@@ -850,7 +843,13 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // region [行转列]
 
+    protected void unPivot(LambdaExpression<?> result, List<LambdaExpression<?>> transColumns) {
+        unPivot("nameColumn", "valueColumn", result, transColumns);
+    }
+
     protected void unPivot(
+            String newNameColumn,
+            String newValueColumn,
             // 转换后的表对象
             LambdaExpression<?> result,
             // 转换列
@@ -877,8 +876,8 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         }
         ISqlUnPivotExpression unPivot = factory.unPivot(
                 queryable,
-                "nameColumn",
-                "valueColumn",
+                newNameColumn,
+                newValueColumn,
                 transColumns.get(0).getReturnType(),
                 transColumnList,
                 tempRef

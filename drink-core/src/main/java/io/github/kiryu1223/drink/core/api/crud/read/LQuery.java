@@ -20,35 +20,32 @@ import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.NavigateData;
+import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.group.GroupedQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
-import io.github.kiryu1223.drink.core.api.crud.read.pivot.TransPair;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.UnPivoted;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.base.page.PagedResult;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
+import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
-import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
+import jdk.nashorn.internal.objects.annotations.Constructor;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
+import static io.github.kiryu1223.drink.core.util.ExpressionUtil.buildTree;
 
 
 /**
@@ -629,6 +626,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // region [FAST RETURN]
 
+    @Contract
     public boolean any(@Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {
         throw new NotCompiledException();
     }
@@ -823,26 +821,26 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // region [Pivot(行转列)]
 
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<? extends P> pivot(
+    public <AggColumn, TransColumn, P extends Pivoted<TransColumn, AggColumn>> LQuery<P> pivot(
             // 聚合列
             @Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, AggColumn> aggColumn,
             // 需要转换的列
-            @Expr(Expr.BodyType.Expr) Func1<T,TransColumn> transColumn,
+            @Expr(Expr.BodyType.Expr) Func1<T, TransColumn> transColumn,
             // 需要转换的列的值
             Collection<TransColumn> transColumnValues,
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result
     ) {
         throw new NotCompiledException();
     }
 
-    public <AggColumn,TransColumn,P extends Pivoted<TransColumn,AggColumn>> LQuery<? extends P> pivot(
+    public <AggColumn, TransColumn, P extends Pivoted<TransColumn, AggColumn>> LQuery<P> pivot(
             ExprTree<Func1<Aggregate<T>, AggColumn>> aggColumn,
-            ExprTree<Func1<T,TransColumn>> transColumn,
+            ExprTree<Func1<T, TransColumn>> transColumn,
             Collection<TransColumn> transColumnValues,
-            ExprTree<Func1<T,P>> result
+            ExprTree<Func1<T, P>> result
     ) {
-        pivot(aggColumn.getTree(), transColumn.getTree(),transColumnValues, result.getTree());
+        pivot(aggColumn.getTree(), transColumn.getTree(), transColumnValues, result.getTree());
         return new LQuery<>(getSqlBuilder());
     }
 
@@ -850,69 +848,69 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // region [UnPivot(列转行)]
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn1,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn2
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2
     ) {
         throw new NotCompiledException();
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            ExprTree<Func1<T,P>> result,
-            ExprTree<Func1<T,Value>> transColumn1,
-            ExprTree<Func1<T,Value>> transColumn2
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2
     ) {
 
-        unPivot(result.getTree(),Arrays.asList(transColumn1.getTree(),transColumn2.getTree()));
+        unPivot(result.getTree(), Arrays.asList(transColumn1.getTree(), transColumn2.getTree()));
         return new LQuery<>(getSqlBuilder());
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn1,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn2,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn3
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3
     ) {
         throw new NotCompiledException();
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            ExprTree<Func1<T,P>> result,
-            ExprTree<Func1<T,Value>> transColumn1,
-            ExprTree<Func1<T,Value>> transColumn2,
-            ExprTree<Func1<T,Value>> transColumn3
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3
     ) {
 
-        unPivot(result.getTree(),Arrays.asList(transColumn1.getTree(),transColumn2.getTree(),transColumn3.getTree()));
+        unPivot(result.getTree(), Arrays.asList(transColumn1.getTree(), transColumn2.getTree(), transColumn3.getTree()));
         return new LQuery<>(getSqlBuilder());
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn1,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn2,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn3,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn4
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4
     ) {
         throw new NotCompiledException();
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            ExprTree<Func1<T,P>> result,
-            ExprTree<Func1<T,Value>> transColumn1,
-            ExprTree<Func1<T,Value>> transColumn2,
-            ExprTree<Func1<T,Value>> transColumn3,
-            ExprTree<Func1<T,Value>> transColumn4
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4
     ) {
 
-        unPivot(result.getTree(),Arrays.asList(
+        unPivot(result.getTree(), Arrays.asList(
                 transColumn1.getTree(),
                 transColumn2.getTree(),
                 transColumn3.getTree(),
@@ -921,29 +919,29 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return new LQuery<>(getSqlBuilder());
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn1,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn2,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn3,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn4,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn5
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5
     ) {
         throw new NotCompiledException();
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            ExprTree<Func1<T,P>> result,
-            ExprTree<Func1<T,Value>> transColumn1,
-            ExprTree<Func1<T,Value>> transColumn2,
-            ExprTree<Func1<T,Value>> transColumn3,
-            ExprTree<Func1<T,Value>> transColumn4,
-            ExprTree<Func1<T,Value>> transColumn5
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5
     ) {
 
-        unPivot(result.getTree(),Arrays.asList(
+        unPivot(result.getTree(), Arrays.asList(
                 transColumn1.getTree(),
                 transColumn2.getTree(),
                 transColumn3.getTree(),
@@ -953,31 +951,31 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return new LQuery<>(getSqlBuilder());
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn1,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn2,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn3,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn4,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn5,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn6
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn6
     ) {
         throw new NotCompiledException();
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            ExprTree<Func1<T,P>> result,
-            ExprTree<Func1<T,Value>> transColumn1,
-            ExprTree<Func1<T,Value>> transColumn2,
-            ExprTree<Func1<T,Value>> transColumn3,
-            ExprTree<Func1<T,Value>> transColumn4,
-            ExprTree<Func1<T,Value>> transColumn5,
-            ExprTree<Func1<T,Value>> transColumn6
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5,
+            ExprTree<Func1<T, Value>> transColumn6
     ) {
 
-        unPivot(result.getTree(),Arrays.asList(
+        unPivot(result.getTree(), Arrays.asList(
                 transColumn1.getTree(),
                 transColumn2.getTree(),
                 transColumn3.getTree(),
@@ -988,33 +986,33 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return new LQuery<>(getSqlBuilder());
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn1,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn2,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn3,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn4,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn5,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn6,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn7
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn6,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn7
     ) {
         throw new NotCompiledException();
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            ExprTree<Func1<T,P>> result,
-            ExprTree<Func1<T,Value>> transColumn1,
-            ExprTree<Func1<T,Value>> transColumn2,
-            ExprTree<Func1<T,Value>> transColumn3,
-            ExprTree<Func1<T,Value>> transColumn4,
-            ExprTree<Func1<T,Value>> transColumn5,
-            ExprTree<Func1<T,Value>> transColumn6,
-            ExprTree<Func1<T,Value>> transColumn7
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5,
+            ExprTree<Func1<T, Value>> transColumn6,
+            ExprTree<Func1<T, Value>> transColumn7
     ) {
 
-        unPivot(result.getTree(),Arrays.asList(
+        unPivot(result.getTree(), Arrays.asList(
                 transColumn1.getTree(),
                 transColumn2.getTree(),
                 transColumn3.getTree(),
@@ -1026,35 +1024,280 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return new LQuery<>(getSqlBuilder());
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            @Expr(Expr.BodyType.Expr) Func1<T,P> result,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn1,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn2,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn3,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn4,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn5,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn6,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn7,
-            @Expr(Expr.BodyType.Expr) Func1<T,Value> transColumn8
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn6,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn7,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn8
     ) {
         throw new NotCompiledException();
     }
 
-    public <Value,P extends UnPivoted<Value>> LQuery<? extends P> unPivot(
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
             // 转换后的表对象
-            ExprTree<Func1<T,P>> result,
-            ExprTree<Func1<T,Value>> transColumn1,
-            ExprTree<Func1<T,Value>> transColumn2,
-            ExprTree<Func1<T,Value>> transColumn3,
-            ExprTree<Func1<T,Value>> transColumn4,
-            ExprTree<Func1<T,Value>> transColumn5,
-            ExprTree<Func1<T,Value>> transColumn6,
-            ExprTree<Func1<T,Value>> transColumn7,
-            ExprTree<Func1<T,Value>> transColumn8
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5,
+            ExprTree<Func1<T, Value>> transColumn6,
+            ExprTree<Func1<T, Value>> transColumn7,
+            ExprTree<Func1<T, Value>> transColumn8
     ) {
 
-        unPivot(result.getTree(),Arrays.asList(
+        unPivot(result.getTree(), Arrays.asList(
+                transColumn1.getTree(),
+                transColumn2.getTree(),
+                transColumn3.getTree(),
+                transColumn4.getTree(),
+                transColumn5.getTree(),
+                transColumn6.getTree(),
+                transColumn7.getTree(),
+                transColumn8.getTree()
+        ));
+        return new LQuery<>(getSqlBuilder());
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2
+    ) {
+        throw new NotCompiledException();
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2
+    ) {
+
+        unPivot(newNameColumn, newValueColumn, result.getTree(), Arrays.asList(transColumn1.getTree(), transColumn2.getTree()));
+        return new LQuery<>(getSqlBuilder());
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3
+    ) {
+        throw new NotCompiledException();
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3
+    ) {
+
+        unPivot(newNameColumn, newValueColumn, result.getTree(), Arrays.asList(transColumn1.getTree(), transColumn2.getTree(), transColumn3.getTree()));
+        return new LQuery<>(getSqlBuilder());
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4
+    ) {
+        throw new NotCompiledException();
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4
+    ) {
+
+        unPivot(newNameColumn, newValueColumn, result.getTree(), Arrays.asList(
+                transColumn1.getTree(),
+                transColumn2.getTree(),
+                transColumn3.getTree(),
+                transColumn4.getTree()
+        ));
+        return new LQuery<>(getSqlBuilder());
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5
+    ) {
+        throw new NotCompiledException();
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5
+    ) {
+
+        unPivot(newNameColumn, newValueColumn, result.getTree(), Arrays.asList(
+                transColumn1.getTree(),
+                transColumn2.getTree(),
+                transColumn3.getTree(),
+                transColumn4.getTree(),
+                transColumn5.getTree()
+        ));
+        return new LQuery<>(getSqlBuilder());
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn6
+    ) {
+        throw new NotCompiledException();
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5,
+            ExprTree<Func1<T, Value>> transColumn6
+    ) {
+
+        unPivot(newNameColumn, newValueColumn, result.getTree(), Arrays.asList(
+                transColumn1.getTree(),
+                transColumn2.getTree(),
+                transColumn3.getTree(),
+                transColumn4.getTree(),
+                transColumn5.getTree(),
+                transColumn6.getTree()
+        ));
+        return new LQuery<>(getSqlBuilder());
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn6,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn7
+    ) {
+        throw new NotCompiledException();
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5,
+            ExprTree<Func1<T, Value>> transColumn6,
+            ExprTree<Func1<T, Value>> transColumn7
+    ) {
+
+        unPivot(newNameColumn, newValueColumn, result.getTree(), Arrays.asList(
+                transColumn1.getTree(),
+                transColumn2.getTree(),
+                transColumn3.getTree(),
+                transColumn4.getTree(),
+                transColumn5.getTree(),
+                transColumn6.getTree(),
+                transColumn7.getTree()
+        ));
+        return new LQuery<>(getSqlBuilder());
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            @Expr(Expr.BodyType.Expr) Func1<T, P> result,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn1,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn2,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn3,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn4,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn5,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn6,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn7,
+            @Expr(Expr.BodyType.Expr) Func1<T, Value> transColumn8
+    ) {
+        throw new NotCompiledException();
+    }
+
+    public <Value, P extends UnPivoted<Value>> LQuery<P> unPivot(
+            String newNameColumn,
+            String newValueColumn,
+            // 转换后的表对象
+            ExprTree<Func1<T, P>> result,
+            ExprTree<Func1<T, Value>> transColumn1,
+            ExprTree<Func1<T, Value>> transColumn2,
+            ExprTree<Func1<T, Value>> transColumn3,
+            ExprTree<Func1<T, Value>> transColumn4,
+            ExprTree<Func1<T, Value>> transColumn5,
+            ExprTree<Func1<T, Value>> transColumn6,
+            ExprTree<Func1<T, Value>> transColumn7,
+            ExprTree<Func1<T, Value>> transColumn8
+    ) {
+
+        unPivot(newNameColumn, newValueColumn, result.getTree(), Arrays.asList(
                 transColumn1.getTree(),
                 transColumn2.getTree(),
                 transColumn3.getTree(),

@@ -17,7 +17,10 @@ package io.github.kiryu1223.drink.db.sqlite;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
+
+import java.util.Collection;
 
 /**
  * Sqlite表达式工厂
@@ -25,10 +28,15 @@ import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactor
  * @author kiryu1223
  * @since 3.0
  */
-public class SqliteExpressionFactory extends DefaultSqlExpressionFactory {
+public class SQLiteExpressionFactory extends DefaultSqlExpressionFactory {
 
-    public SqliteExpressionFactory(IConfig config)
+    public SQLiteExpressionFactory(IConfig config)
     {
         super(config);
+    }
+
+    @Override
+    public ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression) {
+        return new SQLitePivotExpression(tableExpression, aggregationColumn, aggregationType, transColumn, transColumnValues, tempRefExpression, pivotRefExpression);
     }
 }

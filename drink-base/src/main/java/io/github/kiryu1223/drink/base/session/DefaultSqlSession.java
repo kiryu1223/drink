@@ -1,12 +1,14 @@
 package io.github.kiryu1223.drink.base.session;
 
 
-import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 
 public class DefaultSqlSession implements SqlSession {
@@ -18,7 +20,7 @@ public class DefaultSqlSession implements SqlSession {
         this.transactionManager = transactionManager;
     }
 
-    public <R> R executeQuery(Function<ResultSet, R> func, String sql, Collection<SqlValue> sqlValues) {
+    public <R> R executeQuery(Function<R> func, String sql, Collection<SqlValue> sqlValues) {
         if (!transactionManager.currentThreadInTransaction()) {
             try (Connection connection = dataSourceManager.getConnection()) {
                 return executeQuery(connection, func, sql, sqlValues);
@@ -42,7 +44,7 @@ public class DefaultSqlSession implements SqlSession {
         }
     }
 
-    private <R> R executeQuery(Connection connection, Function<ResultSet, R> func, String sql, Collection<SqlValue> sqlValues) {
+    private <R> R executeQuery(Connection connection, Function<R> func, String sql, Collection<SqlValue> sqlValues) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setObjects(preparedStatement, sqlValues);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -54,13 +56,13 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public long executeInsert(String sql, Collection<SqlValue> sqlValues, int length) {
+    public long executeInsert(Action action, String sql, Collection<SqlValue> sqlValues, int length) {
         if (!transactionManager.currentThreadInTransaction()) {
             try (Connection connection = dataSourceManager.getConnection()) {
-                boolean autoCommit = connection.getAutoCommit();
-                connection.setAutoCommit(true);
-                long count = executeInsert(connection, sql, sqlValues, length);
-                connection.setAutoCommit(autoCommit);
+//                boolean autoCommit = connection.getAutoCommit();
+//                connection.setAutoCommit(true);
+                long count = executeInsert(action, connection, sql, sqlValues, length);
+//                connection.setAutoCommit(autoCommit);
                 return count;
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -75,7 +77,7 @@ public class DefaultSqlSession implements SqlSession {
                 else {
                     connection = dataSourceManager.getConnection();
                 }
-                return executeInsert(connection, sql, sqlValues, length);
+                return executeInsert(action,connection, sql, sqlValues, length);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -115,15 +117,19 @@ public class DefaultSqlSession implements SqlSession {
         }
     }
 
-    protected long executeInsert(Connection connection, String sql, Collection<SqlValue> sqlValues, int length) {
+    protected long executeInsert(Action action, Connection connection, String sql, Collection<SqlValue> sqlValues, int length) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             boolean batch = setObjects(preparedStatement, sqlValues, length);
+            int count;
             if (batch) {
-                return preparedStatement.executeBatch().length;
+                count = preparedStatement.executeBatch().length;
             }
             else {
-                return preparedStatement.executeUpdate();
+                count = preparedStatement.executeUpdate();
             }
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            action.invoke(resultSet);
+            return count;
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

@@ -21,11 +21,14 @@ import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public class LInsert<T> extends InsertBase {
+public class LInsert<T> extends InsertBase<LInsert<T>,T> {
     private final Class<T> t;
 
     public LInsert(IConfig c, Class<T> t) {
@@ -39,6 +42,11 @@ public class LInsert<T> extends InsertBase {
 
     public LInsert<T> set(ExprTree<Action1<T>> action) {
         throw new NotCompiledException();
+    }
+
+    @Override
+    protected List<T> getObjects() {
+        return Collections.emptyList();
     }
 
     @Override

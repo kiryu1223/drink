@@ -135,19 +135,15 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression
     @Override
     public String unionStyle(IConfig config, List<SqlValue> values)
     {
-        IDialect disambiguation = config.getDisambiguation();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-
-        StringBuilder selectBuilder = new StringBuilder();
-        StringBuilder fromBuilder = new StringBuilder();
-        StringBuilder unPivotBuilder = new StringBuilder();
 
         List<ISqlQueryableExpression> unionQueryable = new ArrayList<>();
         for (ISqlColumnExpression transColumn : transColumns)
         {
             ISqlQueryableExpression tempQuery = factory.queryable(queryableExpression, tempRefExpression);
             ISqlSelectExpression select = tempQuery.getSelect();
-            ISqlAsExpression name = factory.as(factory.constString("'" + transColumn.getFieldMetaData().getColumn() + "'"), newNameColumnName);
+            String transColumnName = transColumn.getFieldMetaData().getColumn();
+            ISqlAsExpression name = factory.as(factory.constString("'" + transColumnName + "'"), newNameColumnName);
             ISqlAsExpression value = factory.as(transColumn, newValueColumnName);
             select.addColumn(name);
             select.addColumn(value);

@@ -7,18 +7,15 @@ import java.lang.reflect.Type;
 import java.sql.*;
 import java.time.LocalDateTime;
 
-public class LocalDateTimeTypeHandler implements ITypeHandler<LocalDateTime>
-{
+public class LocalDateTimeTypeHandler implements ITypeHandler<LocalDateTime> {
     @Override
-    public LocalDateTime getValue(ResultSet resultSet, int index, Type type) throws SQLException
-    {
+    public LocalDateTime getValue(ResultSet resultSet, int index, Type type) throws SQLException {
         Timestamp timestamp = resultSet.getTimestamp(index);
         return timestamp == null ? null : timestamp.toLocalDateTime();
     }
 
     @Override
-    public void setValue(PreparedStatement preparedStatement, int index, LocalDateTime localDateTime) throws SQLException
-    {
+    public void setValue(PreparedStatement preparedStatement, int index, LocalDateTime localDateTime) throws SQLException {
         if (localDateTime == null) {
             preparedStatement.setNull(index, JDBCType.TIMESTAMP.getVendorTypeNumber());
         }

@@ -34,6 +34,8 @@ public interface IConfig
 
     Filter getFilter();
 
+    Aop getAop();
+
     DbType getDbType();
 
     boolean isPrintSql();

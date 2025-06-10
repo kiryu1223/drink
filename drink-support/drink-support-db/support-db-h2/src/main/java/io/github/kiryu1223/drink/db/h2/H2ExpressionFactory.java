@@ -17,7 +17,10 @@ package io.github.kiryu1223.drink.db.h2;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
+
+import java.util.Collection;
 
 /**
  * H2表达式工厂
@@ -29,5 +32,10 @@ public class H2ExpressionFactory extends DefaultSqlExpressionFactory {
     public H2ExpressionFactory(IConfig config)
     {
         super(config);
+    }
+
+    @Override
+    public ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression) {
+        return new H2PivotExpression(tableExpression, aggregationColumn, aggregationType, transColumn, transColumnValues, tempRefExpression, pivotRefExpression);
     }
 }

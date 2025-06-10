@@ -10,17 +10,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BigDecimalTypeHandler implements ITypeHandler<BigDecimal>
-{
+public class BigDecimalTypeHandler implements ITypeHandler<BigDecimal> {
     @Override
-    public BigDecimal getValue(ResultSet resultSet, int index, Type type) throws SQLException
-    {
+    public BigDecimal getValue(ResultSet resultSet, int index, Type type) throws SQLException {
         return resultSet.getBigDecimal(index);
     }
 
     @Override
-    public void setValue(PreparedStatement preparedStatement, int index, BigDecimal bigDecimal) throws SQLException
-    {
+    public void setValue(PreparedStatement preparedStatement, int index, BigDecimal bigDecimal) throws SQLException {
         if (bigDecimal == null) {
             preparedStatement.setNull(index, JDBCType.DECIMAL.getVendorTypeNumber());
         }

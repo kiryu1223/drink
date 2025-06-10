@@ -29,8 +29,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
     }
 
     @Override
-    public ISqlQueryableExpression getQueryableExpression()
-    {
+    public ISqlQueryableExpression getQueryableExpression() {
         return queryableExpression;
     }
 
@@ -40,8 +39,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
     }
 
     @Override
-    public Class<?> getAggregationType()
-    {
+    public Class<?> getAggregationType() {
         return aggregationType;
     }
 
@@ -61,8 +59,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
     }
 
     @Override
-    public ISqlTableRefExpression getPivotRefExpression()
-    {
+    public ISqlTableRefExpression getPivotRefExpression() {
         return pivotRefExpression;
     }
 
@@ -131,17 +128,9 @@ public class SqlPivotExpression implements ISqlPivotExpression {
         ISqlSelectExpression select = factory.select(getMainTableClass(), tempRefExpression);
         List<String> aggString = aggregationColumn.getTemplateStrings();
         ISqlExpression aggColumn = aggregationColumn.getExpressions().get(0);
-        for (Object transColumnValue : transColumnValues)
-        {
+        for (Object transColumnValue : transColumnValues) {
             // AGG(CASE WHEN 转换的名称字段的值 = 目标值 THEN 转换的值字段的值 ELSE 0 END)
-            ISqlTemplateExpression agg = factory.template(
-                    aggString,
-                    Collections.singletonList(transformer.If(
-                            factory.binary(SqlOperator.EQ, transColumn, factory.value(transColumnValue)),
-                            aggColumn,
-                            factory.constString(0)
-                    ))
-            );
+            ISqlTemplateExpression agg = createAggExpression(config, aggString, transColumnValue, aggColumn);
             // SELECT {选择生成的字段},{聚合函数...}
             select.addColumn(factory.as(agg, transColumnValue.toString()));
         }
@@ -156,13 +145,41 @@ public class SqlPivotExpression implements ISqlPivotExpression {
         ISqlSelectExpression groupSelect = factory.select(getMainTableClass(), tempRefExpression);
         groupBuilder.append("GROUP BY ");
         StringJoiner joiner = new StringJoiner(",");
-        for (ISqlExpression column : groupSelect.getColumns())
-        {
+        for (ISqlExpression column : groupSelect.getColumns()) {
             joiner.add(column.getSqlAndValue(config, values));
         }
         groupBuilder.append(joiner);
 
         return String.join(" ", selectBuilder, fromBuilder, groupBuilder);
+    }
+
+    @Override
+    public ISqlTemplateExpression createAggExpression(IConfig config, List<String> aggString, Object transColumnValue, ISqlExpression aggColumn) {
+        return filterStyle(config, aggString, transColumnValue, aggColumn);
+    }
+
+    @Override
+    public ISqlTemplateExpression ifStyle(IConfig config, List<String> aggString, Object transColumnValue, ISqlExpression aggColumn) {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        Transformer transformer = config.getTransformer();
+        return factory.template(
+                aggString,
+                Collections.singletonList(transformer.If(
+                        factory.binary(SqlOperator.EQ, transColumn, factory.value(transColumnValue)),
+                        aggColumn,
+                        factory.constString(0)
+                ))
+        );
+    }
+
+    @Override
+    public ISqlTemplateExpression filterStyle(IConfig config, List<String> aggString, Object transColumnValue, ISqlExpression aggColumn) {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        List<String> copy = new ArrayList<>(aggString);
+        copy.set(1, ") FILTER (WHERE");
+        copy.add(")");
+        ISqlBinaryExpression condition = factory.binary(SqlOperator.EQ, transColumn, factory.value(transColumnValue));
+        return factory.template(copy, Arrays.asList(aggColumn, condition));
     }
 
     @Override

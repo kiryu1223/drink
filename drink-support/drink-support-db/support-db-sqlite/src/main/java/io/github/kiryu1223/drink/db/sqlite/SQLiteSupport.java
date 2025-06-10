@@ -24,7 +24,7 @@ public class SQLiteSupport implements IDbSupport
     @Override
     public SqlExpressionFactory getSqlExpressionFactory(IConfig config)
     {
-        return new SqliteExpressionFactory(config);
+        return new SQLiteExpressionFactory(config);
     }
 
     @Override

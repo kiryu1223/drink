@@ -3,7 +3,6 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,6 +42,10 @@ public interface ISqlPivotExpression extends ISqlTableExpression
 
     String groupAggStyle(IConfig config, List<SqlValue> values);
 
+    ISqlTemplateExpression createAggExpression(IConfig config,List<String> aggString,Object transColumnValue,ISqlExpression aggColumn);
+
+    ISqlTemplateExpression ifStyle(IConfig config,List<String> aggString,Object transColumnValue,ISqlExpression aggColumn);
+    ISqlTemplateExpression filterStyle(IConfig config,List<String> aggString,Object transColumnValue,ISqlExpression aggColumn);
     @Override
     default Class<?> getMainTableClass()
     {

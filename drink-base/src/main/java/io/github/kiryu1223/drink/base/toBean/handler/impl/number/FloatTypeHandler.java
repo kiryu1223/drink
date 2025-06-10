@@ -9,18 +9,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FloatTypeHandler implements ITypeHandler<Float>
-{
+public class FloatTypeHandler implements ITypeHandler<Float> {
     @Override
-    public Float getValue(ResultSet resultSet, int index, Type type) throws SQLException
-    {
+    public Float getValue(ResultSet resultSet, int index, Type type) throws SQLException {
         float aFloat = resultSet.getFloat(index);
         return resultSet.wasNull() ? null : aFloat;
     }
 
     @Override
-    public void setValue(PreparedStatement preparedStatement, int index, Float aFloat) throws SQLException
-    {
+    public void setValue(PreparedStatement preparedStatement, int index, Float aFloat) throws SQLException {
         if (aFloat == null) {
             preparedStatement.setNull(index, JDBCType.FLOAT.getVendorTypeNumber());
         }

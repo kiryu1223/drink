@@ -9,18 +9,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DoubleTypeHandler implements ITypeHandler<Double>
-{
+public class DoubleTypeHandler implements ITypeHandler<Double> {
     @Override
-    public Double getValue(ResultSet resultSet, int index, Type type) throws SQLException
-    {
+    public Double getValue(ResultSet resultSet, int index, Type type) throws SQLException {
         double aDouble = resultSet.getDouble(index);
         return resultSet.wasNull() ? null : aDouble;
     }
 
     @Override
-    public void setValue(PreparedStatement preparedStatement, int index, Double aDouble) throws SQLException
-    {
+    public void setValue(PreparedStatement preparedStatement, int index, Double aDouble) throws SQLException {
         if (aDouble == null) {
             preparedStatement.setNull(index, JDBCType.DOUBLE.getVendorTypeNumber());
         }

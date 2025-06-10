@@ -17,6 +17,7 @@ package io.github.kiryu1223.drink.base.expression;
 
 import io.github.kiryu1223.drink.base.IConfig;
 
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.isString;
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.isVoid;
 
 /**
@@ -47,6 +48,9 @@ public interface ISqlBinaryExpression extends ISqlExpression {
         Class<?> rightType = getRight().getType();
         if (leftType == rightType) {
             return leftType;
+        }
+        else if (isString(leftType) || isString(rightType)) {
+            return String.class;
         }
         else if (isVoid(leftType) && !isVoid(rightType)) {
             return rightType;

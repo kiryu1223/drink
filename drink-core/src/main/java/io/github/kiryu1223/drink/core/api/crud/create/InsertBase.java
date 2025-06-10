@@ -15,6 +15,7 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.create;
 
+import io.github.kiryu1223.drink.base.Aop;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
@@ -22,22 +23,28 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
+import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
+import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.sqlBuilder.InsertSqlBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public abstract class InsertBase<C> extends CRUD<C> {
+public abstract class InsertBase<C, R> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(InsertBase.class);
 
     private final InsertSqlBuilder sqlBuilder;
@@ -55,61 +62,96 @@ public abstract class InsertBase<C> extends CRUD<C> {
     }
 
     /**
-     * 执行sql语句
-     *
-     * @return 执行后的结果
+     * 执行插入
+     * @param autoIncrement 是否回填id
      */
-    public long executeRows() {
-        List<Object> objects = getObjects();
+    public long executeRows(boolean autoIncrement) {
+        List<R> objects = getObjects();
         if (!objects.isEmpty()) {
-            return objectsExecuteRows();
+            try {
+                return objectsExecuteRows(autoIncrement);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
         else {
             return 0;
         }
     }
 
+    public long executeRows() {
+        return executeRows(false);
+    }
+
     public String toSql() {
         if (!getObjects().isEmpty()) {
-            return makeByObjects(getConfig().getMetaData(getTableType()).getNotIgnoreAndNavigateFields(), null);
+            try {
+                return makeByObjects(getConfig().getMetaData(getTableType()).getNotIgnoreAndNavigateFields(), null);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
         else {
-            return sqlBuilder.getSql();
+            return "";
         }
     }
 
-    protected <T> List<T> getObjects() {
-        return Collections.emptyList();
-    }
+    protected abstract List<R> getObjects();
 
-    protected abstract <T> Class<T> getTableType();
+    protected abstract Class<R> getTableType();
 
-    private long objectsExecuteRows() {
+    private long objectsExecuteRows(boolean autoIncrement) throws InvocationTargetException, IllegalAccessException {
         MetaData metaData = getConfig().getMetaData(getTableType());
-        List<FieldMetaData> notIgnorePropertys = metaData.getNotIgnoreAndNavigateFields();
+        List<FieldMetaData> notIgnoreFields = metaData.getNotIgnoreAndNavigateFields();
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
-        String sql = makeByObjects(notIgnorePropertys, sqlValues);
+        String sql = makeByObjects(notIgnoreFields, sqlValues);
         //tryPrintUseDs(log,config.getDataSourceManager().getDsKey());
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession();
 
-        if (getObjects().size() > 1) {
-            tryPrintBatch(log, getObjects().size());
+        List<R> objectList = getObjects();
+        if (objectList.size() > 1) {
+            tryPrintBatch(log, objectList.size());
         }
         else {
-            tryPrintNoBatch(log, getObjects().size());
+            tryPrintNoBatch(log, objectList.size());
         }
 
-        return session.executeInsert(sql, sqlValues, notIgnorePropertys.size());
+        return session.executeInsert(resultSet -> {
+            if (!autoIncrement) return;
+            List<FieldMetaData> primaryList = metaData.getPrimaryList();
+            Map<String, Integer> indexMap = new HashMap<>();
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+            for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
+                String columnLabel = resultSetMetaData.getColumnLabel(i);
+                indexMap.put(columnLabel, i);
+            }
+            AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
+            int index = 0;
+            while (resultSet.next()) {
+                R r = objectList.get(index++);
+                for (FieldMetaData fieldMetaData : primaryList) {
+                    ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();
+                    Object value = typeHandler.getValue(resultSet, indexMap.get(fieldMetaData.getColumn()), fieldMetaData.getGenericType());
+                    if (value != null) {
+                        ISetterCaller<R> beanSetter = beanCreator.getBeanSetter(fieldMetaData.getFieldName());
+                        beanSetter.call(r, value);
+                    }
+                }
+            }
+        }, sql, sqlValues, notIgnoreFields.size());
     }
 
-    private String makeByObjects(List<FieldMetaData> notIgnorePropertys, List<SqlValue> sqlValues) {
-        IDialect disambiguation = getConfig().getDisambiguation();
-        MetaData metaData = getConfig().getMetaData(getTableType());
+    private String makeByObjects(List<FieldMetaData> notIgnoreFields, List<SqlValue> sqlValues) throws InvocationTargetException, IllegalAccessException {
+        IConfig config = getConfig();
+        Aop aop = config.getAop();
+        IDialect disambiguation = config.getDisambiguation();
+        MetaData metaData = config.getMetaData(getTableType());
+        AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
         List<String> tableFields = new ArrayList<>();
         List<String> tableValues = new ArrayList<>();
-        for (FieldMetaData fieldMetaData : notIgnorePropertys) {
+        for (FieldMetaData fieldMetaData : notIgnoreFields) {
             // 如果不是数据库生成策略，则添加
             if (!fieldMetaData.isGeneratedKey()) {
                 tableFields.add(disambiguation.disambiguation(fieldMetaData.getColumn()));
@@ -117,9 +159,11 @@ public abstract class InsertBase<C> extends CRUD<C> {
             }
         }
         if (sqlValues != null) {
-            for (Object object : getObjects()) {
-                for (FieldMetaData fieldMetaData : notIgnorePropertys) {
-                    Object value = fieldMetaData.getValueByObject(object);
+            for (R object : getObjects()) {
+                aop.callOnInsert(object);
+                for (FieldMetaData fieldMetaData : notIgnoreFields) {
+                    IGetterCaller<R, ?> beanGetter = beanCreator.getBeanGetter(fieldMetaData.getFieldName());
+                    Object value = beanGetter.apply(object);
                     ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();
                     // 值为空同时设置了notNull且没有默认值注解的情况
                     if (value == null && fieldMetaData.isNotNull()) {

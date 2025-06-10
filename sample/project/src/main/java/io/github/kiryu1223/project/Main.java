@@ -2,14 +2,16 @@ package io.github.kiryu1223.project;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.UnPivoted;
 import io.github.kiryu1223.project.handler.GenderHandler;
+import io.github.kiryu1223.project.pojos.Employee;
 import io.github.kiryu1223.project.pojos.QuarterSales;
 import io.github.kiryu1223.project.pojos.SalesByQuarter;
 
@@ -26,7 +28,7 @@ public class Main {
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         return SqlBuilder.bootStrap()
                 // 数据库
-                .setDbType(DbType.SQLServer)
+                .setDbType(DbType.MySQL)
                 // 名称转换风格
                 .setNameConverter(new SnakeNameConverter())
                 // 数据源
@@ -36,7 +38,12 @@ public class Main {
 
     public static void main(String[] args) {
         SqlClient client = boot();
-        SqlSession session = client.getConfig().getSqlSessionFactory().getSession();
+        IConfig config = client.getConfig();
+
+        config.getAop().onInsert(Employee.class, e -> {
+            String firstName = e.getFirstName();
+            e.setFirstName(DrinkUtil.isEmpty(firstName) ? "a" : "b");
+        });
 
 
 //        AbsBeanCreator<Salary> creator = client.getConfig()
@@ -54,39 +61,48 @@ public class Main {
 //        TransPair<String> three = TransPair.of("qar3", "三季度");
 //        TransPair<String> four = TransPair.of("qar4", "四季度");
 
-//        String sql = client.query(SalesByQuarter.class)
-//                .as("sq")
-//                .pivot(
-//                        // 选择需要转换的值列以及对他们的聚合操作
-//                        s -> s.sum(x -> x.getAmount()),
-//                        // 选择需要转换的名称列
-//                        s -> s.getQuarter(),
-//                        // 生成出的新地列名称
-//                        Arrays.asList("一季度", "二季度", "三季度", "四季度"),
-//                        // 选取剩余需要的列(可空)
-//                        s -> new Pivoted<String, Integer>() {
-//                            int year2 = s.getYear();
-//                        }
-//                )
-//                //.where(s -> s.year == 2021)
-//                .select(s -> new QuarterSales() {
-//                    {
-//                        setYear(s.year2);
-//                        setQuarter1(s.column("一季度"));
-//                        setQuarter2(s.column("二季度"));
-//                        setQuarter3(s.column("三季度"));
-//                        setQuarter4(s.column("四季度"));
-//                    }
-//                })
-//                .toSql();
-//
-//        System.out.println(sql);
+
+        String onePlusOne = client.query(Employee.class)
+                .select(e -> "A:" + e.getNumber())
+                .toSql();
+
+        System.out.println(onePlusOne);
+
+        String sql = client.query(SalesByQuarter.class)
+                .as("sq")
+                .pivot(
+                        // 选择需要转换的值列以及对他们的聚合操作
+                        s -> s.sum(x -> x.getAmount()),
+                        // 选择需要转换的名称列
+                        s -> s.getQuarter(),
+                        // 生成出的新地列名称
+                        Arrays.asList("一季度", "二季度", "三季度", "四季度"),
+                        // 选取剩余需要的列(可空)
+                        s -> new Pivoted<String, Integer>() {
+                            int year2 = s.getYear();
+                        }
+                )
+                //.where(s -> s.year == 2021)
+                .select(s -> new QuarterSales() {
+                    {
+                        setYear(s.year2);
+                        setQuarter1(s.column("一季度"));
+                        setQuarter2(s.column("二季度"));
+                        setQuarter3(s.column("三季度"));
+                        setQuarter4(s.column("四季度"));
+                    }
+                })
+                .toSql();
+
+        System.out.println(sql);
 
         String sql2 = client.query(QuarterSales.class)
                 .as("qs")
                 .unPivot(
+                        "Sales",
+                        "Quarter",
                         q -> new UnPivoted<Integer>() {
-                            int year = q.getYear();
+                            int year123 = q.getYear();
                         },
                         q -> q.getQuarter1(),
                         q -> q.getQuarter2(),
@@ -95,7 +111,7 @@ public class Main {
                 )
                 .select(q -> new SalesByQuarter() {
                     {
-                        setYear(q.year);
+                        setYear(q.year123);
                         setQuarter(q.nameColumn());
                         setAmount(q.valueColumn());
                     }

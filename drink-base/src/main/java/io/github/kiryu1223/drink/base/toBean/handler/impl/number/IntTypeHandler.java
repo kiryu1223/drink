@@ -9,18 +9,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class IntTypeHandler implements ITypeHandler<Integer>
-{
+public class IntTypeHandler implements ITypeHandler<Integer> {
     @Override
-    public Integer getValue(ResultSet resultSet, int index, Type type) throws SQLException
-    {
+    public Integer getValue(ResultSet resultSet, int index, Type type) throws SQLException {
         int anInt = resultSet.getInt(index);
         return resultSet.wasNull() ? null : anInt;
     }
 
     @Override
-    public void setValue(PreparedStatement preparedStatement, int index, Integer integer) throws SQLException
-    {
+    public void setValue(PreparedStatement preparedStatement, int index, Integer integer) throws SQLException {
         if (integer == null) {
             preparedStatement.setNull(index, JDBCType.INTEGER.getVendorTypeNumber());
         }

@@ -17,7 +17,10 @@ package io.github.kiryu1223.drink.db.pg;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.expression.impl.DefaultSqlExpressionFactory;
+
+import java.util.Collection;
 
 /**
  * PostgreSQL表达式工厂
@@ -30,5 +33,10 @@ public class PostgreSQLExpressionFactory extends DefaultSqlExpressionFactory {
     public PostgreSQLExpressionFactory(IConfig config)
     {
         super(config);
+    }
+
+    @Override
+    public ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression) {
+        return new PostgrePivotExpression(tableExpression, aggregationColumn, aggregationType, transColumn, transColumnValues, tempRefExpression, pivotRefExpression);
     }
 }
