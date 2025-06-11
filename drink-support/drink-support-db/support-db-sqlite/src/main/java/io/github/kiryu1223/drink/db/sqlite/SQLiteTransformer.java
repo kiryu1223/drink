@@ -137,4 +137,24 @@ public class SQLiteTransformer implements Transformer
         functions.add(")");
         return factory.template(functions, sqlExpressions);
     }
+
+    @Override
+    public ISqlExpression isAfter(ISqlExpression thiz, ISqlExpression that) {
+        ISqlTemplateExpression left = factory.template(Arrays.asList("DATETIME(", ")"), Collections.singletonList(thiz));
+        ISqlTemplateExpression right = factory.template(Arrays.asList("DATETIME(", ")"), Collections.singletonList(that));
+        return factory.binary(SqlOperator.GT, left, right);
+    }
+
+    @Override
+    public ISqlExpression isBefore(ISqlExpression thiz, ISqlExpression that) {
+        ISqlTemplateExpression left = factory.template(Arrays.asList("DATETIME(", ")"), Collections.singletonList(thiz));
+        ISqlTemplateExpression right = factory.template(Arrays.asList("DATETIME(", ")"), Collections.singletonList(that));
+        return factory.binary(SqlOperator.LT, left, right);
+    }
+
+    public ISqlExpression isEqual(ISqlExpression thiz, ISqlExpression that) {
+        ISqlTemplateExpression left = factory.template(Arrays.asList("DATETIME(", ")"), Collections.singletonList(thiz));
+        ISqlTemplateExpression right = factory.template(Arrays.asList("DATETIME(", ")"), Collections.singletonList(that));
+        return factory.binary(SqlOperator.EQ, left, right);
+    }
 }
