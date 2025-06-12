@@ -63,7 +63,6 @@ public class DefaultBeanCreator<T> extends AbsBeanCreator<T> {
                     constructorHandle.type(), 1);
             return (Supplier<T>) site.getTarget().invokeExact();
         } catch (Throwable e) {
-            System.out.println(target);
             throw new DrinkException(e);
         }
     }
