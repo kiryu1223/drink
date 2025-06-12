@@ -70,6 +70,7 @@ public class ObjectInsertOrUpdate<T> {
         }
 
         SqlSession session = config.getSqlSessionFactory().getSession();
+
         return session.executeInsert(
                 resultSet -> {},
                 builder.toString(),
