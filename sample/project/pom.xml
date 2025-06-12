@@ -41,6 +41,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.50.1.0</version>
+        </dependency>
+
         <!--数据库函数-->
         <dependency>
             <groupId>io.github.kiryu1223</groupId>

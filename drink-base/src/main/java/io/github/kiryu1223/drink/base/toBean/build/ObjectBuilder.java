@@ -112,7 +112,7 @@ public class ObjectBuilder<T> {
 
     private void foreach(AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap, T t) throws SQLException, InvocationTargetException, IllegalAccessException {
         for (FieldMetaData metaData : propertyMetaDataList) {
-            Integer index = indexMap.get(metaData.getFieldName());
+            Integer index = indexMap.get(metaData.getColumn());
             if (index != null) {
                 Object value = convertValue(metaData, index);
                 if (value != null) {

@@ -8,6 +8,7 @@ import io.github.kiryu1223.drink.base.toBean.handler.impl.varchar.CharTypeHandle
 import io.github.kiryu1223.drink.base.toBean.handler.impl.varchar.StringTypeHandler;
 
 import java.lang.reflect.Type;
+import java.time.DayOfWeek;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,7 +81,12 @@ public class TypeHandlerManager
         ITypeHandler<T> iTypeHandler = (ITypeHandler<T>) cache.get(type);
         if (iTypeHandler == null)
         {
-            return (ITypeHandler<T>) unKnowTypeHandler;
+            if (type instanceof Class<?> && ((Class<?>) type).isEnum()) {
+                return (ITypeHandler<T>) EnumTypeHandler.Instance;
+            }
+            else {
+                return (ITypeHandler<T>) unKnowTypeHandler;
+            }
         }
         return iTypeHandler;
     }

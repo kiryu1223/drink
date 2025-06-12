@@ -626,7 +626,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // region [FAST RETURN]
 
-    @Contract
     public boolean any(@Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {
         throw new NotCompiledException();
     }

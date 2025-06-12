@@ -114,6 +114,9 @@ public abstract class SqlTreeVisitor {
         else if (expr instanceof ISqlPivotExpression) {
             visit((ISqlPivotExpression) expr);
         }
+        else if (expr instanceof ISqlUnPivotExpression) {
+            visit((ISqlUnPivotExpression) expr);
+        }
     }
 
     public void visit(ISqlUnaryExpression expr) {
@@ -280,7 +283,12 @@ public abstract class SqlTreeVisitor {
     }
 
     public void visit(ISqlPivotExpression expr) {
+        visit(expr.getQueryableExpression());
         visit(expr.getTransColumn());
-        visit(expr.getAggregationColumn());
+    }
+
+    public void visit(ISqlUnPivotExpression expr) {
+        visit(expr.getQueryableExpression());
+        visit(expr.getTransColumns());
     }
 }

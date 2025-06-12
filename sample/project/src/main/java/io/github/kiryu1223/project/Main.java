@@ -4,22 +4,16 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
-import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
-import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
-import io.github.kiryu1223.drink.core.api.crud.read.pivot.UnPivoted;
-import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.pojos.Employee;
-import io.github.kiryu1223.project.pojos.QuarterSales;
-import io.github.kiryu1223.project.pojos.SalesByQuarter;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class Main {
     public static SqlClient boot() {
-        TypeHandlerManager.set(new GenderHandler());
+        //TypeHandlerManager.set(new GenderHandler());
 
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true");
@@ -62,63 +56,63 @@ public class Main {
 //        TransPair<String> four = TransPair.of("qar4", "四季度");
 
 
-        String onePlusOne = client.query(Employee.class)
-                .select(e -> "A:" + e.getNumber())
-                .toSql();
-
-        System.out.println(onePlusOne);
-
-        String sql = client.query(SalesByQuarter.class)
-                .as("sq")
-                .pivot(
-                        // 选择需要转换的值列以及对他们的聚合操作
-                        s -> s.sum(x -> x.getAmount()),
-                        // 选择需要转换的名称列
-                        s -> s.getQuarter(),
-                        // 生成出的新地列名称
-                        Arrays.asList("一季度", "二季度", "三季度", "四季度"),
-                        // 选取剩余需要的列(可空)
-                        s -> new Pivoted<String, Integer>() {
-                            int year2 = s.getYear();
-                        }
-                )
-                //.where(s -> s.year == 2021)
-                .select(s -> new QuarterSales() {
-                    {
-                        setYear(s.year2);
-                        setQuarter1(s.column("一季度"));
-                        setQuarter2(s.column("二季度"));
-                        setQuarter3(s.column("三季度"));
-                        setQuarter4(s.column("四季度"));
-                    }
-                })
-                .toSql();
-
-        System.out.println(sql);
-
-        String sql2 = client.query(QuarterSales.class)
-                .as("qs")
-                .unPivot(
-                        "Sales",
-                        "Quarter",
-                        q -> new UnPivoted<Integer>() {
-                            int year123 = q.getYear();
-                        },
-                        q -> q.getQuarter1(),
-                        q -> q.getQuarter2(),
-                        q -> q.getQuarter3(),
-                        q -> q.getQuarter4()
-                )
-                .select(q -> new SalesByQuarter() {
-                    {
-                        setYear(q.year123);
-                        setQuarter(q.nameColumn());
-                        setAmount(q.valueColumn());
-                    }
-                })
-                .toSql();
-
-        System.out.println(sql2);
+//        String onePlusOne = client.query(Employee.class)
+//                .select(e -> "A:" + e.getNumber())
+//                .toSql();
+//
+//        System.out.println(onePlusOne);
+//
+//        String sql = client.query(SalesByQuarter.class)
+//                .as("sq")
+//                .pivot(
+//                        // 选择需要转换的值列以及对他们的聚合操作
+//                        s -> s.sum(x -> x.getAmount()),
+//                        // 选择需要转换的名称列
+//                        s -> s.getQuarter(),
+//                        // 生成出的新地列名称
+//                        Arrays.asList("一季度", "二季度", "三季度", "四季度"),
+//                        // 选取剩余需要的列(可空)
+//                        s -> new Pivoted<String, Integer>() {
+//                            int year2 = s.getYear();
+//                        }
+//                )
+//                //.where(s -> s.year == 2021)
+//                .select(s -> new QuarterSales() {
+//                    {
+//                        setYear(s.year2);
+//                        setQuarter1(s.column("一季度"));
+//                        setQuarter2(s.column("二季度"));
+//                        setQuarter3(s.column("三季度"));
+//                        setQuarter4(s.column("四季度"));
+//                    }
+//                })
+//                .toSql();
+//
+//        System.out.println(sql);
+//
+//        String sql2 = client.query(QuarterSales.class)
+//                .as("qs")
+//                .unPivot(
+//                        "Sales",
+//                        "Quarter",
+//                        q -> new UnPivoted<Integer>() {
+//                            int year123 = q.getYear();
+//                        },
+//                        q -> q.getQuarter1(),
+//                        q -> q.getQuarter2(),
+//                        q -> q.getQuarter3(),
+//                        q -> q.getQuarter4()
+//                )
+//                .select(q -> new SalesByQuarter() {
+//                    {
+////                        setYear(q.year123);
+////                        setQuarter(q.nameColumn());
+//                        setAmount(q.year123);
+//                    }
+//                })
+//                .toSql();
+//
+//        System.out.println(sql2);
 //        long start = System.currentTimeMillis();
 //        List<Salary> first = client.query(Salary.class).toList();
 //        System.out.println(first.size());
@@ -131,21 +125,24 @@ public class Main {
 //        System.out.println("第一次查询耗时:" + (System.currentTimeMillis() - start2));
 
 
-//        List<? extends Employee> list = client.query(Employee.class)
-//                .where(e -> e.getNumber() < 10020)
-//                .select(s -> new Employee() {
-//                    // select
-//                    {
-//                        // select count(*) from courses as c where c.id = s.id,
-//                        setNumber(client.query(Employee.class).count());
-//                    }
-//                    // (select new {...} from courses as c where c.id = s.id) as `c4`
-//                    List<? extends Employee> c4 = client.query(Employee.class)
-//                            .where(c -> c.getNumber() == s.getNumber())
-//                            .toList();
-//                })
-//                .toList();
+        String list = client.query(Employee.class)
+                .where(e -> e.getNumber() < 10020)
+                .select(s -> new Employee() {
+                    // select
+                    {
+                        // select count(*) from courses as c where c.id = s.id,
+                        setNumber(client.query(Employee.class).count());
+                    }
 
+                    long haha = s.getNumber();
+                    // (select new {...} from courses as c where c.id = s.id) as `c4`
+                    List<? extends Employee> c4 = client.query(Employee.class)
+                            .where(c -> c.getNumber() == s.getNumber())
+                            .toList();
+                })
+                .toSql();
+
+        System.out.println(list);
 //        String sql = client.query(Student.class)
 //                .where(e -> client.query(Course.class)
 //                        .any(c -> c.getCourseId() == e.getStudentId() && c.getCourseName()=="A003")
@@ -230,13 +227,15 @@ public class Main {
 //                z -> z.getTenantId() == 3
 //        );
 //
-//        String list = fSql.query(Employee.class)
+//        List<Employee> list = client.query(Employee.class)
 //                .where(e -> e.query(e.getSalaries())
 //                        .any(s -> s.getSalary() < 39000)
 //                )
-//                .toSql();
+//                .toList();
 //
-//        System.out.println(list);
+//        for (Employee employee : list) {
+//            System.out.println(employee);
+//        }
 //
 //        String sql = fSql.query(Employee.class)
 //                .where(e -> fSql.query(Salary.class)

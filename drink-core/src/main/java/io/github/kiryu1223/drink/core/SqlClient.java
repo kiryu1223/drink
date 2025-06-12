@@ -84,6 +84,12 @@ public final class SqlClient {
         return new EmptyQuery(new QuerySqlBuilder(config, factory.queryable(Empty.class)));
     }
 
+    private void viewCheck(Class<?> c) {
+        if (IView.class.isAssignableFrom(c)) {
+            throw new DrinkException("视图对象无法进行修改");
+        }
+    }
+
     /**
      * 新增
      *
@@ -93,10 +99,15 @@ public final class SqlClient {
      */
     public <T> ObjectInsert<T> insert(@Recode T t) {
         Class<T> aClass = (Class<T>) t.getClass();
-        if (IView.class.isAssignableFrom(aClass)) {
-            throw new DrinkException("视图对象无法进行修改");
-        }
+        viewCheck(aClass);
         ObjectInsert<T> objectInsert = new ObjectInsert<>(config,aClass);
+        return objectInsert.insert(t);
+    }
+
+    public <T> ObjectInsert<T> insertOrUpdate(@Recode T t) {
+        Class<T> c = (Class<T>) t.getClass();
+        viewCheck(c);
+        ObjectInsert<T> objectInsert = new ObjectInsert<>(config,c);
         return objectInsert.insert(t);
     }
 
@@ -109,9 +120,7 @@ public final class SqlClient {
      */
     public <T> ObjectInsert<T> insert(@Recode Collection<T> ts) {
         Class<T> type = getType(ts);
-        if (IView.class.isAssignableFrom(type)) {
-            throw new DrinkException("视图对象无法进行修改");
-        }
+        viewCheck(type);
         ObjectInsert<T> objectInsert = new ObjectInsert<>(config,type);
         return objectInsert.insert(ts);
     }
@@ -124,9 +133,7 @@ public final class SqlClient {
      * @return 更新过程对象
      */
     public <T> LUpdate<T> update(@Recode Class<T> c) {
-        if (IView.class.isAssignableFrom(c)) {
-            throw new DrinkException("视图对象无法进行修改");
-        }
+        viewCheck(c);
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         return new LUpdate<>(new UpdateSqlBuilder(config, factory.update(c)));
     }
@@ -139,9 +146,7 @@ public final class SqlClient {
      * @return 删除过程对象
      */
     public <T> LDelete<T> delete(@Recode Class<T> c) {
-        if (IView.class.isAssignableFrom(c)) {
-            throw new DrinkException("视图对象无法进行修改");
-        }
+        viewCheck(c);
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         return new LDelete<>(new DeleteSqlBuilder(config, factory.delete(c)));
     }

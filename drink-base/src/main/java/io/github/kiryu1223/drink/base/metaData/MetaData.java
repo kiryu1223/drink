@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.annotation.*;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
+import io.github.kiryu1223.drink.base.toBean.handler.UnKnowTypeHandler;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
 import java.beans.*;

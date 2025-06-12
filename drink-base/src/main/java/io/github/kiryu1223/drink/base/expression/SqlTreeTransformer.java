@@ -117,6 +117,9 @@ public abstract class SqlTreeTransformer {
         else if (expr instanceof ISqlPivotExpression) {
             return visit((ISqlPivotExpression) expr);
         }
+        else if (expr instanceof ISqlUnPivotExpression) {
+            return visit((ISqlUnPivotExpression) expr);
+        }
         return null;
     }
 
@@ -459,6 +462,10 @@ public abstract class SqlTreeTransformer {
     }
 
     public ISqlExpression visit(ISqlPivotExpression expr) {
+        return expr;
+    }
+
+    public ISqlExpression visit(ISqlUnPivotExpression expr) {
         return expr;
     }
 }

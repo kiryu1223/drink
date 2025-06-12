@@ -37,20 +37,10 @@ import java.util.stream.Collectors;
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
 
 public class QuerySqlVisitor extends BaseSqlVisitor {
-    //    protected final ISqlFromExpression fromExpression;
-//    protected final ISqlJoinsExpression joinsExpression;
-//    protected boolean isFirst = true;
-//    protected boolean isGroup = false;
-    protected int index = -1;
-    //    protected final List<ISqlTableRefExpression> asNameList = new ArrayList<>();
-//    protected final List<ParameterExpression> parameterExpressionList = new ArrayList<>();
-//    protected final Map<String,ISqlGroupByExpression> groupMap=new HashMap<>();
+    protected int index;
     protected final List<List<ISqlTableRefExpression>> tableRefListList = new ArrayList<>();
     protected final Map<ParameterExpression, ISqlTableRefExpression> asNameMap = new HashMap<>();
     protected final List<ISqlQueryableExpression> queryableList = new ArrayList<>();
-    //protected final Map<String, QuerySqlBuilder> subQueryMap = new HashMap<>();
-//    protected final Deque<QuerySqlBuilder> subQueryDeque = new ArrayDeque<>();
-//    protected QuerySqlBuilder last;
 
     public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression) {
         this(config, sqlQueryableExpression, -1);
@@ -930,8 +920,9 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                                     FieldMetaData setter = metaData.getFieldMetaDataBySetter(method);
                                     String varName = setter.getFieldName();
                                     FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(varName);
-                                    Expression arg = methodCall.getArgs().get(0);
-                                    if (arg != null) {
+                                    List<Expression> args = methodCall.getArgs();
+                                    if (!args.isEmpty()) {
+                                        Expression arg = args.get(0);
                                         ISqlExpression visit = visit(arg);
                                         saveSelectOrSubQuery(visit, arg, expressions, varName, fieldMetaData, valueNames);
                                     }
