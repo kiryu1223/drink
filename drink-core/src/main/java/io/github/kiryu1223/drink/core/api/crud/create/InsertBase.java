@@ -140,7 +140,7 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
                     }
                 }
             }
-        }, sql, sqlValues, notIgnoreFields.size());
+        }, sql, sqlValues, (int) notIgnoreFields.stream().filter(fieldMetaData -> !fieldMetaData.isGeneratedKey()).count());
     }
 
     private String makeByObjects(List<FieldMetaData> notIgnoreFields, List<SqlValue> sqlValues) throws InvocationTargetException, IllegalAccessException {
