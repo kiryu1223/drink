@@ -162,6 +162,8 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
             for (R object : getObjects()) {
                 aop.callOnInsert(object);
                 for (FieldMetaData fieldMetaData : notIgnoreFields) {
+                    // 如果是数据库生成策略，则跳过
+                    if (fieldMetaData.isGeneratedKey()) continue;
                     IGetterCaller<R, ?> beanGetter = beanCreator.getBeanGetter(fieldMetaData.getFieldName());
                     Object value = beanGetter.apply(object);
                     ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();
