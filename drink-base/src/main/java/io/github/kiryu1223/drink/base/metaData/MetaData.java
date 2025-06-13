@@ -20,11 +20,16 @@ import io.github.kiryu1223.drink.base.annotation.*;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
-import io.github.kiryu1223.drink.base.toBean.handler.UnKnowTypeHandler;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
-import java.beans.*;
-import java.lang.reflect.*;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -93,16 +98,20 @@ public class MetaData
                 Method getter = descriptor.getReadMethod();
                 Method setter = descriptor.getWriteMethod();
                 ITypeHandler<?> typeHandler;
-                boolean isIgnoreColumn=ignoreColumn!=null;
+                boolean isIgnoreColumn = ignoreColumn != null;
                 NavigateData navigateData;
                 boolean isPrimaryKey;
                 boolean isGeneratedKey;
                 if (column != null)
                 {
                     columnName = column.value();
+                    if (DrinkUtil.isEmpty(columnName))
+                    {
+                        columnName = nameConverter.convertFieldName(fieldName);
+                    }
                     notNull = column.notNull();
-                    isPrimaryKey=column.primaryKey();
-                    isGeneratedKey=column.generatedKey();
+                    isPrimaryKey = column.primaryKey();
+                    isGeneratedKey = column.generatedKey();
                 }
                 else
                 {
@@ -122,17 +131,20 @@ public class MetaData
                 if (navigate != null)
                 {
                     Class<?> navigateTargetType;
-                    if (Collection.class.isAssignableFrom(field.getType())) {
+                    if (Collection.class.isAssignableFrom(field.getType()))
+                    {
                         Class<? extends Collection<?>> collectionType = (Class<? extends Collection<?>>) field.getType();
                         Type genericType = field.getGenericType();
-                        if(genericType instanceof Class<?>)
+                        if (genericType instanceof Class<?>)
                         {
                             Class<?> aClass = navigate.targetType();
-                            if (aClass != Empty.class) {
+                            if (aClass != Empty.class)
+                            {
                                 navigateTargetType = aClass;
                                 navigateData = new NavigateData(navigate, navigateTargetType, collectionType);
                             }
-                            else {
+                            else
+                            {
                                 throw new RuntimeException("匿名类字段上的@Navigate注解的targetType不能为空:" + field);
                             }
                         }
@@ -142,14 +154,15 @@ public class MetaData
                             navigateData = new NavigateData(navigate, navigateTargetType, collectionType);
                         }
                     }
-                    else {
+                    else
+                    {
                         navigateTargetType = field.getType();
                         navigateData = new NavigateData(navigate, navigateTargetType, null);
                     }
                 }
                 else
                 {
-                    navigateData=null;
+                    navigateData = null;
                 }
                 FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey);
                 fields.add(fieldMetaData);

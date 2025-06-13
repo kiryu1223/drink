@@ -35,18 +35,13 @@ public class PostgreInsertOrUpdate implements IInsertOrUpdate {
                 .stream()
                 .map(fm -> dialect.disambiguation(fm.getColumn()))
                 .collect(Collectors.toList());
-        List<String> notIgnoreAndNavigateAndPrimaryFields = notIgnoreAndNavigateFields
-                .stream()
-                .filter(fm -> !fm.isPrimaryKey())
-                .map(fm -> dialect.disambiguation(fm.getColumn()))
-                .collect(Collectors.toList());
         builder.append(String.join(",", columnNames));
         builder.append(") VALUES (");
-        builder.append(notIgnoreAndNavigateAndPrimaryFields.stream().map(e -> "?").collect(Collectors.joining(",")));
+        builder.append(columnNames.stream().map(e -> "?").collect(Collectors.joining(",")));
         builder.append(") ON CONFLICT (");
         List<String> cs = new ArrayList<>();
         for (ISqlColumnExpression conflictColumn : conflictColumns) {
-            cs.add(conflictColumn.getFieldMetaData().getColumn());
+            cs.add(dialect.disambiguation(conflictColumn.getFieldMetaData().getColumn()));
         }
         builder.append(String.join(",", cs));
         builder.append(") DO UPDATE SET ");

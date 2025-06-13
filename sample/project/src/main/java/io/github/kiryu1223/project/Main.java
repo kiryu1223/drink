@@ -22,7 +22,7 @@ public class Main {
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         return SqlBuilder.bootStrap()
                 // 数据库
-                .setDbType(DbType.MySQL)
+                .setDbType(DbType.PostgreSQL)
                 // 名称转换风格
                 .setNameConverter(new SnakeNameConverter())
                 // 数据源
@@ -42,12 +42,13 @@ public class Main {
         Student student = new Student();
         student.setName("老王");
         student.setAge(38);
-        long l = client.insertOrUpdate(student)
+        String sql = client.insertOrUpdate(student)
                 .onConflict(s -> s.getId())
                 .updateColumn(s -> s.getName())
                 .updateColumn(s -> s.getAge())
-                .executeRows(true);
+                .updateColumn(s -> s.getId())
+                .toSql();
 
-        System.out.println(student);
+        System.out.println(sql);
     }
 }

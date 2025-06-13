@@ -1,9 +1,6 @@
 package io.github.kiryu1223.drink.db.sqlite;
 
-import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.IDbSupport;
-import io.github.kiryu1223.drink.base.IDialect;
+import io.github.kiryu1223.drink.base.*;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 
@@ -31,5 +28,11 @@ public class SQLiteSupport implements IDbSupport
     public Transformer getTransformer(IConfig config)
     {
         return null;
+    }
+
+    @Override
+    public IInsertOrUpdate getInsertOrUpdate(IConfig config)
+    {
+        return new SQLiteInsertOrUpdate();
     }
 }

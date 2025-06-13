@@ -27,7 +27,7 @@ public class Course implements ITable
             selfMapping = StudentCourse.Fields.courseId,
             mappingTable = StudentCourse.class,
             targetMapping = StudentCourse.Fields.studentId,
-            target = Student.Fields.studentId
+            target = Student.Fields.id
     )
     private List<Student> students;
 }

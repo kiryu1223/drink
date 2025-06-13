@@ -34,20 +34,18 @@ public class MySQLInsertOrUpdate implements IInsertOrUpdate {
                 .stream()
                 .map(fm -> dialect.disambiguation(fm.getColumn()))
                 .collect(Collectors.toList());
-        List<String> notIgnoreAndNavigateAndPrimaryFields = notIgnoreAndNavigateFields
-                .stream()
-                .filter(fm -> !fm.isPrimaryKey())
-                .map(fm -> dialect.disambiguation(fm.getColumn()))
-                .collect(Collectors.toList());
         builder.append(String.join(",", columnNames));
         builder.append(") VALUES (");
-        builder.append(notIgnoreAndNavigateAndPrimaryFields.stream().map(e -> "?").collect(Collectors.joining(",")));
+        builder.append(columnNames.stream().map(e -> "?").collect(Collectors.joining(",")));
         builder.append(") AS ");
         String asNew = dialect.disambiguationTableName("new");
         builder.append(asNew);
         builder.append(" ON DUPLICATE KEY UPDATE ");
-        builder.append(notIgnoreAndNavigateAndPrimaryFields.stream()
-                .map(e -> dialect.disambiguation(e) + " = " + asNew + "." + dialect.disambiguation(e))
+        List<String> us = updateColumns.stream()
+                .map(u -> dialect.disambiguation(u.getFieldMetaData().getColumn()))
+                .collect(Collectors.toList());
+        builder.append(us.stream()
+                .map(e -> e + " = " + asNew + "." + e)
                 .collect(Collectors.joining(","))
         );
         return builder.toString();
