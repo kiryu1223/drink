@@ -28,6 +28,8 @@ public interface IConfig
 
     Pager getPager();
 
+    IInsertOrUpdate getInsertOrUpdate();
+
     NameConverter getNameConverter();
 
     MetaData getMetaData(Class<?> c);

@@ -47,6 +47,7 @@ class Config implements IConfig {
     private final SqlExpressionFactory sqlExpressionFactory;
     private final NameConverter nameConverter;
     private final Pager pager;
+    private final IInsertOrUpdate insertOrUpdate;
 
     Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, Pager pager) {
         this.option = option;
@@ -57,9 +58,10 @@ class Config implements IConfig {
         this.dataSourceManager = dataSourceManager;
         this.sqlSessionFactory = sqlSessionFactory;
 
-        this.disambiguation=dbSupport.getIDialect();
-        this.sqlExpressionFactory=dbSupport.getSqlExpressionFactory(this);
-        this.transformer=dbSupport.getTransformer(this);
+        this.disambiguation = dbSupport.getIDialect();
+        this.sqlExpressionFactory = dbSupport.getSqlExpressionFactory(this);
+        this.transformer = dbSupport.getTransformer(this);
+        this.insertOrUpdate = dbSupport.getInsertOrUpdate(this);
         this.nameConverter = nameConverter;
         this.pager = pager;
     }
@@ -127,18 +129,20 @@ class Config implements IConfig {
     }
 
     @Override
-    public NameConverter getNameConverter()
-    {
+    public IInsertOrUpdate getInsertOrUpdate() {
+        return insertOrUpdate;
+    }
+
+    @Override
+    public NameConverter getNameConverter() {
         return nameConverter;
     }
 
     private static final Map<Class<?>, MetaData> metaDataCache = new ConcurrentHashMap<>();
 
-    public MetaData getMetaData(Class<?> c)
-    {
-        if (!metaDataCache.containsKey(c))
-        {
-            metaDataCache.put(c, new MetaData(c,this));
+    public MetaData getMetaData(Class<?> c) {
+        if (!metaDataCache.containsKey(c)) {
+            metaDataCache.put(c, new MetaData(c, this));
         }
         return metaDataCache.get(c);
     }

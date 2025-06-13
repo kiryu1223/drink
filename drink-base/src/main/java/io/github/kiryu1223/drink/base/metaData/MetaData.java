@@ -274,6 +274,11 @@ public class MetaData
         return fields.stream().filter(f -> f.isPrimaryKey()).collect(Collectors.toList());
     }
 
+    public FieldMetaData getGeneratedKey()
+    {
+        return fields.stream().filter(f -> f.isGeneratedKey()).findAny().orElseThrow(() -> new RuntimeException(type + "找不到自增键"));
+    }
+
     /**
      * 获取实体类型
      */

@@ -10,6 +10,7 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.transaction.Transaction;
 import io.github.kiryu1223.drink.core.api.IView;
 import io.github.kiryu1223.drink.core.api.crud.create.ObjectInsert;
+import io.github.kiryu1223.drink.core.api.crud.create.ObjectInsertOrUpdate;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.*;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
@@ -20,6 +21,8 @@ import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public final class SqlClient {
     private final IConfig config;
@@ -104,11 +107,14 @@ public final class SqlClient {
         return objectInsert.insert(t);
     }
 
-    public <T> ObjectInsert<T> insertOrUpdate(@Recode T t) {
-        Class<T> c = (Class<T>) t.getClass();
-        viewCheck(c);
-        ObjectInsert<T> objectInsert = new ObjectInsert<>(config,c);
-        return objectInsert.insert(t);
+    public <T> ObjectInsertOrUpdate<T> insertOrUpdate(@Recode T t) {
+        viewCheck(t.getClass());
+        return new ObjectInsertOrUpdate<>(config, Collections.singletonList(t));
+    }
+
+    public <T> ObjectInsertOrUpdate<T> insertOrUpdate(List<T> ts) {
+        viewCheck(getType(ts));
+        return new ObjectInsertOrUpdate<>(config, ts);
     }
 
     /**

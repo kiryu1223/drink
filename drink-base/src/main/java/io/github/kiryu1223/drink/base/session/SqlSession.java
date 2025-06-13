@@ -2,18 +2,16 @@ package io.github.kiryu1223.drink.base.session;
 
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 
-public interface SqlSession
-{
-    interface Function<R>
-    {
+public interface SqlSession {
+    interface Function<R> {
         R invoke(ResultSet resultSet) throws SQLException, NoSuchFieldException, IllegalAccessException, InvocationTargetException;
     }
 
-    interface Action
-    {
+    interface Action {
         void invoke(ResultSet resultSet) throws SQLException, IllegalAccessException, InvocationTargetException;
     }
 
@@ -29,12 +27,13 @@ public interface SqlSession
     /**
      * 执行插入，并返回影响行数
      *
-     * @param action    对ResultSet进行操作
-     * @param sql       sql语句
-     * @param sqlValues 参数
-     * @param length    批量下每轮的长度
+     * @param action        对ResultSet进行操作
+     * @param sql           sql语句
+     * @param sqlValues     参数
+     * @param length        批量下每轮的长度
+     * @param autoIncrement 是否回填id
      */
-    long executeInsert(Action action,String sql, Collection<SqlValue> sqlValues, int length);
+    long executeInsert(Action action, String sql, Collection<SqlValue> sqlValues, int length, boolean autoIncrement);
 
     /**
      * 执行更新，并返回影响行数

@@ -56,12 +56,12 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public long executeInsert(Action action, String sql, Collection<SqlValue> sqlValues, int length) {
+    public long executeInsert(Action action, String sql, Collection<SqlValue> sqlValues, int length, boolean autoIncrement) {
         if (!transactionManager.currentThreadInTransaction()) {
             try (Connection connection = dataSourceManager.getConnection()) {
 //                boolean autoCommit = connection.getAutoCommit();
 //                connection.setAutoCommit(true);
-                long count = executeInsert(action, connection, sql, sqlValues, length);
+                long count = executeInsert(action, connection, sql, sqlValues, length, autoIncrement);
 //                connection.setAutoCommit(autoCommit);
                 return count;
             } catch (SQLException e) {
@@ -77,7 +77,7 @@ public class DefaultSqlSession implements SqlSession {
                 else {
                     connection = dataSourceManager.getConnection();
                 }
-                return executeInsert(action,connection, sql, sqlValues, length);
+                return executeInsert(action, connection, sql, sqlValues, length, autoIncrement);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -117,8 +117,8 @@ public class DefaultSqlSession implements SqlSession {
         }
     }
 
-    protected long executeInsert(Action action, Connection connection, String sql, Collection<SqlValue> sqlValues, int length) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+    protected long executeInsert(Action action, Connection connection, String sql, Collection<SqlValue> sqlValues, int length, boolean autoIncrement) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, autoIncrement ? PreparedStatement.RETURN_GENERATED_KEYS : PreparedStatement.NO_GENERATED_KEYS)) {
             boolean batch = setObjects(preparedStatement, sqlValues, length);
             int count;
             if (batch) {

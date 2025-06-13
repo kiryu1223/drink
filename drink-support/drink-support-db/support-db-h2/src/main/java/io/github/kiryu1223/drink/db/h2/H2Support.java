@@ -1,9 +1,6 @@
 package io.github.kiryu1223.drink.db.h2;
 
-import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.IDbSupport;
-import io.github.kiryu1223.drink.base.IDialect;
+import io.github.kiryu1223.drink.base.*;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 
@@ -31,5 +28,10 @@ public class H2Support implements IDbSupport
     public Transformer getTransformer(IConfig config)
     {
         return new H2Transformer(config);
+    }
+
+    @Override
+    public IInsertOrUpdate getInsertOrUpdate(IConfig config) {
+        return new H2InsertOrUpdate();
     }
 }

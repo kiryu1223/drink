@@ -33,11 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -120,27 +117,19 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
 
         return session.executeInsert(resultSet -> {
             if (!autoIncrement) return;
-            List<FieldMetaData> primaryList = metaData.getPrimaryList();
-            Map<String, Integer> indexMap = new HashMap<>();
-            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-            for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
-                String columnLabel = resultSetMetaData.getColumnLabel(i);
-                indexMap.put(columnLabel, i);
-            }
+            FieldMetaData generatedKey = metaData.getGeneratedKey();
             AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
             int index = 0;
             while (resultSet.next()) {
                 R r = objectList.get(index++);
-                for (FieldMetaData fieldMetaData : primaryList) {
-                    ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();
-                    Object value = typeHandler.getValue(resultSet, indexMap.get(fieldMetaData.getColumn()), fieldMetaData.getGenericType());
-                    if (value != null) {
-                        ISetterCaller<R> beanSetter = beanCreator.getBeanSetter(fieldMetaData.getFieldName());
-                        beanSetter.call(r, value);
-                    }
+                ITypeHandler<?> typeHandler = generatedKey.getTypeHandler();
+                Object value = typeHandler.getValue(resultSet, 1, generatedKey.getGenericType());
+                if (value != null) {
+                    ISetterCaller<R> beanSetter = beanCreator.getBeanSetter(generatedKey.getFieldName());
+                    beanSetter.call(r, value);
                 }
             }
-        }, sql, sqlValues, (int) notIgnoreFields.stream().filter(fieldMetaData -> !fieldMetaData.isGeneratedKey()).count());
+        }, sql, sqlValues, (int) notIgnoreFields.stream().filter(fieldMetaData -> !fieldMetaData.isGeneratedKey()).count(), autoIncrement);
     }
 
     private String makeByObjects(List<FieldMetaData> notIgnoreFields, List<SqlValue> sqlValues) throws InvocationTargetException, IllegalAccessException {
@@ -153,10 +142,9 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
         List<String> tableValues = new ArrayList<>();
         for (FieldMetaData fieldMetaData : notIgnoreFields) {
             // 如果不是数据库生成策略，则添加
-            if (!fieldMetaData.isGeneratedKey()) {
-                tableFields.add(disambiguation.disambiguation(fieldMetaData.getColumn()));
-                tableValues.add("?");
-            }
+            if (fieldMetaData.isGeneratedKey()) continue;
+            tableFields.add(disambiguation.disambiguation(fieldMetaData.getColumn()));
+            tableValues.add("?");
         }
         if (sqlValues != null) {
             for (R object : getObjects()) {
