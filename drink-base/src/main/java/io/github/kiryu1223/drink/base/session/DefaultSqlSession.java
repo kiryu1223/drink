@@ -44,6 +44,40 @@ public class DefaultSqlSession implements SqlSession {
         }
     }
 
+    @Override
+    public ResultSet executeQuery(String sql, Collection<SqlValue> sqlValues, int fetchSize)
+    {
+        if (!transactionManager.currentThreadInTransaction()) {
+            try (Connection connection = dataSourceManager.getConnection()) {
+                return getResultSet(connection, sql, sqlValues,fetchSize);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            try {
+                Connection connection;
+                if (transactionManager.isOpenTransaction()) {
+                    connection = transactionManager.getCurTransaction().getConnection();
+                }
+                else {
+                    connection = dataSourceManager.getConnection();
+                }
+                return getResultSet(connection, sql, sqlValues,fetchSize);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private ResultSet getResultSet(Connection connection,String sql, Collection<SqlValue> sqlValues,int fetchSize) throws SQLException
+    {
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setFetchSize(fetchSize);
+        setObjects(preparedStatement, sqlValues);
+        return preparedStatement.executeQuery();
+    }
+
     private <R> R executeQuery(Connection connection, Function<R> func, String sql, Collection<SqlValue> sqlValues) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setObjects(preparedStatement, sqlValues);
@@ -127,8 +161,10 @@ public class DefaultSqlSession implements SqlSession {
             else {
                 count = preparedStatement.executeUpdate();
             }
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            action.invoke(resultSet);
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys())
+            {
+                action.invoke(resultSet);
+            }
             return count;
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);

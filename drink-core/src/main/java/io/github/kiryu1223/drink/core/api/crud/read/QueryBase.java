@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.util.*;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
@@ -120,6 +121,21 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // endregion
 
+    protected ResultSet toResultSet(int fetchSize)
+    {
+        IConfig config = getConfig();
+        Class<R> targetClass = sqlBuilder.getTargetClass();
+        List<SqlValue> values = new ArrayList<>();
+        String sql = sqlBuilder.getSqlAndValue(values);
+        boolean single = sqlBuilder.isSingle();
+        List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
+        ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
+        tryPrintSql(log, sql);
+        SqlSession session = config.getSqlSessionFactory().getSession();
+        ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
+        return session.executeQuery(sql, values, fetchSize);
+    }
+
     // region [toList]
     protected List<R> toList() {
         IConfig config = getConfig();
@@ -163,7 +179,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         return result.getResult();
     }
 
-    private ITypeHandler<R> getSingleTypeHandler(boolean single) {
+    protected ITypeHandler<R> getSingleTypeHandler(boolean single) {
         ITypeHandler<R> typeHandler = null;
         if (single) {
             List<ISqlExpression> columns = sqlBuilder.getQueryable().getSelect().getColumns();

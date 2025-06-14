@@ -9,7 +9,11 @@ import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.project.pojos.Employee;
-import io.github.kiryu1223.project.pojos.Student;
+import io.github.kiryu1223.project.pojos.Std;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 public class Main {
     public static SqlClient boot() {
@@ -22,7 +26,7 @@ public class Main {
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         return SqlBuilder.bootStrap()
                 // 数据库
-                .setDbType(DbType.PostgreSQL)
+                .setDbType(DbType.MySQL)
                 // 名称转换风格
                 .setNameConverter(new SnakeNameConverter())
                 // 数据源
@@ -39,13 +43,13 @@ public class Main {
             e.setFirstName(DrinkUtil.isEmpty(firstName) ? "a" : "b");
         });
 
-        Student student = new Student();
-        student.setName("老王");
-        student.setAge(38);
-        String sql = client.insertOrUpdate(student)
-                //.onConflict(s -> s.getId())
+        Std std = new Std();
+        std.setName("老王");
+        std.setAge(38);
+        String sql = client.insertOrUpdate(std)
+                .onConflict(s -> s.getId())
                 .updateColumn(s -> s.getName())
-                //.updateColumn(s -> s.getAge())
+                .updateColumn(s -> s.getAge())
                 .toSql();
 
         System.out.println(sql);

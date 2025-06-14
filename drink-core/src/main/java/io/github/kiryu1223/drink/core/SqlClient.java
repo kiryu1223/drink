@@ -107,11 +107,17 @@ public final class SqlClient {
         return objectInsert.insert(t);
     }
 
+    /**
+     * 新增或插入
+     */
     public <T> ObjectInsertOrUpdate<T> insertOrUpdate(@Recode T t) {
         viewCheck(t.getClass());
         return new ObjectInsertOrUpdate<>(config, Collections.singletonList(t));
     }
 
+    /**
+     * 批量新增或插入
+     */
     public <T> ObjectInsertOrUpdate<T> insertOrUpdate(List<T> ts) {
         viewCheck(getType(ts));
         return new ObjectInsertOrUpdate<>(config, ts);

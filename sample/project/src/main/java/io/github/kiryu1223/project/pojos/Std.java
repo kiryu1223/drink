@@ -6,9 +6,10 @@ import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
 @Data
-@Table("students")
+@Table("stds")
 @FieldNameConstants
-public class Student {
+public class Std
+{
     @Column(primaryKey = true, generatedKey = true)
     private int id;
     private String name;

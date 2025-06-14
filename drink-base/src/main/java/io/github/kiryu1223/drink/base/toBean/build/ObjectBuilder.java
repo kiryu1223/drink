@@ -23,16 +23,21 @@ public class ObjectBuilder<T> {
     private final boolean isSingle;
     private final IConfig config;
     private final ITypeHandler<T> singleTypeHandler;
+    private final int fetchSize;
 
     public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config) {
         return start(resultSet, target, propertyMetaDataList, isSingle, config, null);
     }
 
     public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler) {
-        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle, config, singleTypeHandler);
+        return start(resultSet, target, propertyMetaDataList, isSingle, config, singleTypeHandler,0);
     }
 
-    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler) {
+    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler,int fetchSize) {
+        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle, config, singleTypeHandler,fetchSize);
+    }
+
+    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler,int fetchSize) {
         this.resultSet = resultSet;
         this.target = target;
         this.propertyMetaDataList = propertyMetaDataList;
@@ -40,6 +45,7 @@ public class ObjectBuilder<T> {
         this.config = config;
         //this.valueGetter = config.getValueGetter();
         this.singleTypeHandler = singleTypeHandler;
+        this.fetchSize=fetchSize;
     }
 
     public <Key> Map<Key, T> createMap(String column) throws SQLException, IllegalAccessException, InvocationTargetException {
@@ -156,65 +162,95 @@ public class ObjectBuilder<T> {
         Map<String, Integer> indexMap = getIndexMap();
         JdbcResult<T> jdbcResult = new JdbcResult<>();
         if (exValues == null) {
-            while (resultSet.next()) {
-                T t = creator.get();
-                foreach(beanCreator, indexMap, t);
-                jdbcResult.addResult(t);
+            if(fetchSize > 0)
+            {
+                for (int i = 0; i < fetchSize; i++)
+                {
+                    onNotHasExValues(creator, beanCreator, indexMap, jdbcResult);
+                }
+            }
+            else
+            {
+                onNotHasExValues(creator, beanCreator, indexMap, jdbcResult);
             }
         }
         else {
-            List<ExtensionObject> extensionValueResult = jdbcResult.getExtensionValueResult();
-            List<ExtensionObject> extensionKeyResult = jdbcResult.getExtensionKeyResult();
-            while (resultSet.next()) {
-                T t = creator.get();
-                foreach(beanCreator, indexMap, t);
-                Map<String, ExtensionField> extensionValueFieldMap = new HashMap<>();
-                Map<String, ExtensionField> extensionKeyFieldMap = new HashMap<>();
-                for (Map.Entry<String, FieldMetaData> entry : exValues.getExValueMap().entrySet()) {
-                    String key = entry.getKey();
-                    FieldMetaData fieldMetaData = entry.getValue();
-                    Object o = convertValue(fieldMetaData, indexMap.get(key));
-                    extensionValueFieldMap.put(key, new ExtensionField(fieldMetaData, o));
+            if(fetchSize > 0)
+            {
+                for (int i = 0; i < fetchSize; i++)
+                {
+                    onHasExValues(exValues, jdbcResult, creator, beanCreator, indexMap);
                 }
-                for (Map.Entry<String, FieldMetaData> entry : exValues.getExKeyMap().entrySet()) {
-                    String key = entry.getKey();
-                    FieldMetaData fieldMetaData = entry.getValue();
-                    Object o = convertValue(fieldMetaData, indexMap.get(key));
-                    extensionKeyFieldMap.put(key, new ExtensionField(fieldMetaData, o));
-                }
-
-                // region [value:?:xxx]
-                Optional<ExtensionObject> optValue = extensionValueResult.stream()
-                        .filter(e -> e.getExtensionFieldMap().equals(extensionValueFieldMap))
-                        .findAny();
-                ExtensionObject valueEx;
-                if (optValue.isPresent()) {
-                    valueEx = optValue.get();
-                }
-                else {
-                    valueEx = new ExtensionObject(extensionValueFieldMap);
-                    extensionValueResult.add(valueEx);
-                }
-                valueEx.addObject(t);
-                // endregion
-
-                // region [value(key):?:xxx]
-                Optional<ExtensionObject> optKey = extensionKeyResult.stream()
-                        .filter(e -> e.getExtensionFieldMap().equals(extensionKeyFieldMap))
-                        .findAny();
-                ExtensionObject keyEx;
-                if (optKey.isPresent()) {
-                    keyEx = optKey.get();
-                }
-                else {
-                    keyEx = new ExtensionObject(extensionKeyFieldMap);
-                    extensionKeyResult.add(keyEx);
-                }
-                keyEx.addObject(t);
-                // endregion
+            }
+            else
+            {
+                onHasExValues(exValues, jdbcResult, creator, beanCreator, indexMap);
             }
         }
         return jdbcResult;
+    }
+
+    private void onHasExValues(ExValues exValues, JdbcResult<T> jdbcResult, Supplier<T> creator, AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap) throws SQLException, InvocationTargetException, IllegalAccessException
+    {
+        List<ExtensionObject> extensionValueResult = jdbcResult.getExtensionValueResult();
+        List<ExtensionObject> extensionKeyResult = jdbcResult.getExtensionKeyResult();
+        while (resultSet.next()) {
+            T t = creator.get();
+            foreach(beanCreator, indexMap, t);
+            Map<String, ExtensionField> extensionValueFieldMap = new HashMap<>();
+            Map<String, ExtensionField> extensionKeyFieldMap = new HashMap<>();
+            for (Map.Entry<String, FieldMetaData> entry : exValues.getExValueMap().entrySet()) {
+                String key = entry.getKey();
+                FieldMetaData fieldMetaData = entry.getValue();
+                Object o = convertValue(fieldMetaData, indexMap.get(key));
+                extensionValueFieldMap.put(key, new ExtensionField(fieldMetaData, o));
+            }
+            for (Map.Entry<String, FieldMetaData> entry : exValues.getExKeyMap().entrySet()) {
+                String key = entry.getKey();
+                FieldMetaData fieldMetaData = entry.getValue();
+                Object o = convertValue(fieldMetaData, indexMap.get(key));
+                extensionKeyFieldMap.put(key, new ExtensionField(fieldMetaData, o));
+            }
+
+            // region [value:?:xxx]
+            Optional<ExtensionObject> optValue = extensionValueResult.stream()
+                    .filter(e -> e.getExtensionFieldMap().equals(extensionValueFieldMap))
+                    .findAny();
+            ExtensionObject valueEx;
+            if (optValue.isPresent()) {
+                valueEx = optValue.get();
+            }
+            else {
+                valueEx = new ExtensionObject(extensionValueFieldMap);
+                extensionValueResult.add(valueEx);
+            }
+            valueEx.addObject(t);
+            // endregion
+
+            // region [value(key):?:xxx]
+            Optional<ExtensionObject> optKey = extensionKeyResult.stream()
+                    .filter(e -> e.getExtensionFieldMap().equals(extensionKeyFieldMap))
+                    .findAny();
+            ExtensionObject keyEx;
+            if (optKey.isPresent()) {
+                keyEx = optKey.get();
+            }
+            else {
+                keyEx = new ExtensionObject(extensionKeyFieldMap);
+                extensionKeyResult.add(keyEx);
+            }
+            keyEx.addObject(t);
+            // endregion
+        }
+    }
+
+    private void onNotHasExValues(Supplier<T> creator, AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap, JdbcResult<T> jdbcResult) throws SQLException, InvocationTargetException, IllegalAccessException
+    {
+        while (resultSet.next()) {
+            T t = creator.get();
+            foreach(beanCreator, indexMap, t);
+            jdbcResult.addResult(t);
+        }
     }
 
     private Map<String, Integer> getIndexMap() throws SQLException {

@@ -2,7 +2,6 @@ package io.github.kiryu1223.project.pojos;
 
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.IView;
-import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import lombok.Data;
 
@@ -16,7 +15,7 @@ public class Klass implements IView<Klass> {
     @Override
     public QueryBase<?, Klass> createView(SqlClient client) {
         return client.query(Course.class)
-                .leftJoin(Student.class, (a, b) -> a.getStudents().contains(b))
+                .leftJoin(Std.class, (a, b) -> a.getStds().contains(b))
                 .select((c, s) -> new Klass() {
                     {
                         setId(c.getCourseId());

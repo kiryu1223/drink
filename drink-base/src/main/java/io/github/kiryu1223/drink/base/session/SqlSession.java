@@ -25,6 +25,11 @@ public interface SqlSession {
     <R> R executeQuery(Function<R> func, String sql, Collection<SqlValue> sqlValues);
 
     /**
+     * 执行查询，返回结果ResultSet
+     */
+    ResultSet executeQuery(String sql,Collection<SqlValue> sqlValues,int fetchSize);
+
+    /**
      * 执行插入，并返回影响行数
      *
      * @param action        对ResultSet进行操作
