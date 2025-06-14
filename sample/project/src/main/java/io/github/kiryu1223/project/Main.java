@@ -43,10 +43,9 @@ public class Main {
         student.setName("老王");
         student.setAge(38);
         String sql = client.insertOrUpdate(student)
-                .onConflict(s -> s.getId())
+                //.onConflict(s -> s.getId())
                 .updateColumn(s -> s.getName())
-                .updateColumn(s -> s.getAge())
-                .updateColumn(s -> s.getId())
+                //.updateColumn(s -> s.getAge())
                 .toSql();
 
         System.out.println(sql);

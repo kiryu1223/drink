@@ -109,7 +109,7 @@ public class OracleInsertOrUpdate implements IInsertOrUpdate
                 .map(f -> source + "." + dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))
         );
-        builder.append(")");
+        builder.append(");");
         return builder.toString();
     }
 }

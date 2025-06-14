@@ -89,7 +89,7 @@ public class H2InsertOrUpdate implements IInsertOrUpdate
                 .map(f -> source + "." + dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))
         );
-        builder.append(")");
+        builder.append(");");
         return builder.toString();
     }
 }
