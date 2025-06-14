@@ -33,6 +33,6 @@ public class SQLiteSupport implements IDbSupport
     @Override
     public IInsertOrUpdate getInsertOrUpdate(IConfig config)
     {
-        return new SQLiteInsertOrUpdate();
+        return new SQLiteInsertOrUpdate(config);
     }
 }

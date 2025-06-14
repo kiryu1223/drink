@@ -28,7 +28,8 @@ public class MySQLInsertOrUpdate implements IInsertOrUpdate {
         IDialect dialect = config.getDisambiguation();
         StringBuilder builder = new StringBuilder();
         builder.append("INSERT INTO ");
-        builder.append(dialect.disambiguationTableName(metaData.getTableName()));
+        String tableName = dialect.disambiguationTableName(metaData.getTableName());
+        builder.append(tableName);
         builder.append(" (");
         List<String> columnNames = notIgnoreAndNavigateFields
                 .stream()
@@ -41,13 +42,25 @@ public class MySQLInsertOrUpdate implements IInsertOrUpdate {
         String asNew = dialect.disambiguationTableName("new");
         builder.append(asNew);
         builder.append(" ON DUPLICATE KEY UPDATE ");
-        List<String> us = updateColumns.stream()
-                .map(u -> dialect.disambiguation(u.getFieldMetaData().getColumn()))
-                .collect(Collectors.toList());
-        builder.append(us.stream()
-                .map(e -> e + " = " + asNew + "." + e)
-                .collect(Collectors.joining(","))
-        );
+        // 如果重复时需要更新的字段为空说明就是忽略更新
+        if (updateColumns.isEmpty())
+        {
+            FieldMetaData primary = metaData.getPrimary();
+            String primaryKeyName = dialect.disambiguation(primary.getColumn());
+            String set = tableName + "." + primaryKeyName;
+            builder.append(set).append(" = ").append(set);
+        }
+        else
+        {
+            List<String> us = updateColumns.stream()
+                    .map(u -> dialect.disambiguation(u.getFieldMetaData().getColumn()))
+                    .collect(Collectors.toList());
+            builder.append(us.stream()
+                    .map(e -> e + " = " + asNew + "." + e)
+                    .collect(Collectors.joining(","))
+            );
+        }
+
         return builder.toString();
     }
 }

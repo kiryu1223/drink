@@ -32,6 +32,6 @@ public class H2Support implements IDbSupport
 
     @Override
     public IInsertOrUpdate getInsertOrUpdate(IConfig config) {
-        return new H2InsertOrUpdate();
+        return new H2InsertOrUpdate(config);
     }
 }

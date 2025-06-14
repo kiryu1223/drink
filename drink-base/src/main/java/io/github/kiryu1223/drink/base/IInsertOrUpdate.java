@@ -10,12 +10,7 @@ public interface IInsertOrUpdate {
 
     boolean apply();
 
-    default String insertOrUpdate(
-            MetaData metaData,
-            List<FieldMetaData> notIgnoreAndNavigateFields,
-            List<ISqlColumnExpression> conflictColumns,
-            List<ISqlColumnExpression> updateColumns
-    ) {
+    default String insertOrUpdate(MetaData metaData, List<FieldMetaData> notIgnoreAndNavigateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         return "";
     }
 }

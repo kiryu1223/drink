@@ -44,14 +44,22 @@ public class PostgreInsertOrUpdate implements IInsertOrUpdate {
             cs.add(dialect.disambiguation(conflictColumn.getFieldMetaData().getColumn()));
         }
         builder.append(String.join(",", cs));
-        builder.append(") DO UPDATE SET ");
-        List<String> us = new ArrayList<>();
-        for (ISqlColumnExpression updateColumn : updateColumns) {
-            FieldMetaData field = updateColumn.getFieldMetaData();
-            String column = dialect.disambiguation(field.getColumn());
-            us.add(column + " = EXCLUDED." + column);
+        builder.append(") ");
+        if (updateColumns.isEmpty())
+        {
+            builder.append("DO NOTHING");
         }
-        builder.append(String.join(",", us));
+        else
+        {
+            builder.append("DO UPDATE SET ");
+            List<String> us = new ArrayList<>();
+            for (ISqlColumnExpression updateColumn : updateColumns) {
+                FieldMetaData field = updateColumn.getFieldMetaData();
+                String column = dialect.disambiguation(field.getColumn());
+                us.add(column + " = EXCLUDED." + column);
+            }
+            builder.append(String.join(",", us));
+        }
         return builder.toString();
     }
 }

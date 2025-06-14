@@ -34,6 +34,6 @@ public class OracleSupport implements IDbSupport
 
     @Override
     public IInsertOrUpdate getInsertOrUpdate(IConfig config) {
-        return new OracleInsertOrUpdate();
+        return new OracleInsertOrUpdate(config);
     }
 }

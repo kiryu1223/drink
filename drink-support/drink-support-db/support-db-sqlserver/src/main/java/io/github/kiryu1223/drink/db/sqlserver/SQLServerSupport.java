@@ -35,6 +35,6 @@ public class SQLServerSupport implements IDbSupport
     @Override
     public IInsertOrUpdate getInsertOrUpdate(IConfig config)
     {
-        return new SQLServerInsertOrUpdate();
+        return new SQLServerInsertOrUpdate(config);
     }
 }

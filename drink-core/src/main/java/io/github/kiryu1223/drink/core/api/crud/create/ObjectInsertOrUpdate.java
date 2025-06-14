@@ -43,7 +43,7 @@ public class ObjectInsertOrUpdate<T> {
         this.ts = ts;
         this.tClass = (Class<T>) ts.get(0).getClass();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        updateExpression = factory.update(ts.get(0).getClass(), factory.tableRef("new"));
+        updateExpression = factory.update(tClass);
     }
 
     private List<ISqlColumnExpression> defaultConflictColumns() {
@@ -79,8 +79,8 @@ public class ObjectInsertOrUpdate<T> {
         List<FieldMetaData> notIgnoreAndNavigateFields = metaData.getNotIgnoreAndNavigateFields();
         IInsertOrUpdate ii = config.getInsertOrUpdate();
         List<ISqlColumnExpression> cc = conflictColumns.isEmpty() ? defaultConflictColumns() : conflictColumns;
-        List<ISqlColumnExpression> uc = updateColumns.isEmpty() ? defaultUpdateColumns() : updateColumns;
-        String sql = ii.insertOrUpdate(metaData, notIgnoreAndNavigateFields, cc, uc);
+//        List<ISqlColumnExpression> uc = updateColumns.isEmpty() ? defaultUpdateColumns() : updateColumns;
+        String sql = ii.insertOrUpdate(metaData, notIgnoreAndNavigateFields, cc, updateColumns);
 
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(tClass);
         List<SqlValue> sqlValues;
@@ -148,8 +148,8 @@ public class ObjectInsertOrUpdate<T> {
         List<FieldMetaData> notIgnoreAndNavigateFields = metaData.getNotIgnoreAndNavigateFields();
         IInsertOrUpdate ii = config.getInsertOrUpdate();
         List<ISqlColumnExpression> cc = conflictColumns.isEmpty() ? defaultConflictColumns() : conflictColumns;
-        List<ISqlColumnExpression> uc = updateColumns.isEmpty() ? defaultUpdateColumns() : updateColumns;
-        return ii.insertOrUpdate(metaData, notIgnoreAndNavigateFields, cc, uc);
+//        List<ISqlColumnExpression> uc = updateColumns.isEmpty() ? defaultUpdateColumns() : updateColumns;
+        return ii.insertOrUpdate(metaData, notIgnoreAndNavigateFields, cc, updateColumns);
     }
 
     private List<SqlValue> values(AbsBeanCreator<T> beanCreator, List<FieldMetaData> notIgnoreAndNavigateFields) throws InvocationTargetException, IllegalAccessException {
