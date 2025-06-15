@@ -487,6 +487,24 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     // endregion
 
+    // region [IgnoreColumn]
+
+    /**
+     * 忽略选择的字段
+     */
+    public <R> EndQuery<T> ignoreColumn(@Expr(Expr.BodyType.Expr) Func1<T,R> expr)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> EndQuery<T> ignoreColumn(ExprTree<Func1<T,R>> expr)
+    {
+        ignoreColumn(expr.getTree());
+        return new EndQuery<>(getSqlBuilder());
+    }
+
+    // endregion
+
     // region [INCLUDE]
 
     /**

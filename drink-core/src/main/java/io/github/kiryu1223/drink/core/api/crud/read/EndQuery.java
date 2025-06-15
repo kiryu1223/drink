@@ -17,7 +17,11 @@ package io.github.kiryu1223.drink.core.api.crud.read;
 
 import io.github.kiryu1223.drink.base.page.DefaultPager;
 import io.github.kiryu1223.drink.base.page.PagedResult;
+import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
+import io.github.kiryu1223.expressionTree.delegate.Func1;
+import io.github.kiryu1223.expressionTree.expressions.ExprTree;
+import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 
 import java.util.List;
 
@@ -72,5 +76,19 @@ public class EndQuery<T> extends QueryBase<EndQuery<T>,T> {
      */
     public PagedResult<T> toPagedResult(int pageIndex, int pageSize) {
         return toPagedResult((long) pageIndex, (long) pageSize);
+    }
+
+    /**
+     * 忽略选择的字段
+     */
+    public <R> EndQuery<T> ignoreColumn(@Expr(Expr.BodyType.Expr) Func1<T,R> expr)
+    {
+        throw new NotCompiledException();
+    }
+
+    public <R> EndQuery<T> ignoreColumn(ExprTree<Func1<T,R>> expr)
+    {
+        ignoreColumn(expr.getTree());
+        return this;
     }
 }

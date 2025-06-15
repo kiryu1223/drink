@@ -16,7 +16,6 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
-import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.visitor.UpdateSqlVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
@@ -137,6 +136,24 @@ public class ObjectInsertOrUpdate<T> {
         return this;
     }
 
+    public ObjectInsertOrUpdate<T> updateAll()
+    {
+        return updateAll(false);
+    }
+
+    public ObjectInsertOrUpdate<T> updateAll(boolean usePrimaryKey)
+    {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
+        MetaData metaData = config.getMetaData(tClass);
+        ISqlTableRefExpression ref = updateExpression.getFrom().getTableRefExpression();
+        for (FieldMetaData f : metaData.getNotIgnoreAndNavigateFields())
+        {
+            if(f.isPrimaryKey()&&!usePrimaryKey)continue;
+            updateColumns.add(factory.column(f,ref));
+        }
+        return this;
+    }
+    
     /**
      * 寻找保存时发生数据冲突条件的字段，mysql下无效
      */

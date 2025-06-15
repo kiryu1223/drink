@@ -982,5 +982,29 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         sqlBuilder.setQueryable(factory.queryable(unPivot, factory.tableRef(tempRef.getName())));
     }
 
+    protected void ignoreColumn(LambdaExpression<?> lambdaExpression)
+    {
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        QuerySqlVisitor visitor = new QuerySqlVisitor(getConfig(), queryable);
+        ISqlColumnExpression column = visitor.toColumn(lambdaExpression);
+        String selectFieldName = column.getFieldMetaData().getFieldName();
+        ISqlSelectExpression select = queryable.getSelect();
+        // 匹配移除
+        select.getColumns().removeIf(s ->
+        {
+            if(s instanceof ISqlAsExpression)
+            {
+                s=((ISqlAsExpression) s).getExpression();
+            }
+            if (s instanceof ISqlColumnExpression)
+            {
+                ISqlColumnExpression sqlExpression = (ISqlColumnExpression) s;
+                String f1 = sqlExpression.getFieldMetaData().getFieldName();
+                return f1.equals(selectFieldName);
+            }
+            return false;
+        });
+    }
+
     // endregion
 }
