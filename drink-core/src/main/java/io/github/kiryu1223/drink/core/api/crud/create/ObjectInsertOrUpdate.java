@@ -16,17 +16,21 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.visitor.UpdateSqlVisitor;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectInsertOrUpdate<T> {
+    private static final Logger log = LoggerFactory.getLogger(ObjectInsertOrUpdate.class);
     private final IConfig config;
     private final List<T> ts;
     private final Class<T> tClass;
@@ -91,6 +95,10 @@ public class ObjectInsertOrUpdate<T> {
         }
 
         SqlSession session = config.getSqlSessionFactory().getSession();
+
+        if (config.isPrintSql()) {
+            log.info("==> {}", sql);
+        }
 
         return session.executeInsert(
                 resultSet -> {
