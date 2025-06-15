@@ -26,6 +26,8 @@ import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.base.page.PagedResult;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
+import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
@@ -36,6 +38,7 @@ import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
+import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +49,7 @@ import java.sql.ResultSet;
 import java.util.*;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
+import static io.github.kiryu1223.drink.core.util.ExpressionUtil.buildTree;
 
 
 /**
@@ -191,6 +195,45 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             }
         }
         return typeHandler;
+    }
+
+    protected List<R> toTreeList(LambdaExpression<?> lambdaExpression,Func1<R, Collection<R>> getter)
+    {
+        IConfig config = getConfig();
+        MetaData metaData = config.getMetaData(sqlBuilder.getQueryable().getMainTableClass());
+        AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get((Class<R>) metaData.getType());
+        FieldMetaData navigateField;
+        IGetterCaller<R, Collection<R>> navigateGetter;
+        if (lambdaExpression == null)
+        {
+            navigateField = metaData.getChildrenField();
+            navigateGetter = (IGetterCaller<R, Collection<R>>) beanCreator.getBeanGetter(navigateField.getFieldName());
+        }
+        else
+        {
+            QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(config, sqlBuilder.getQueryable());
+            navigateField = sqlVisitor.toField(lambdaExpression);
+            navigateGetter =r->getter.invoke(r);
+            if (!navigateField.hasNavigate())
+            {
+                throw new SqLinkException("toTreeList指定的字段需要被@Navigate修饰");
+            }
+        }
+        NavigateData navigateData = navigateField.getNavigateData();
+        try
+        {
+            return buildTree(
+                    toList(),
+                    beanCreator.getBeanGetter(navigateData.getSelfFieldName()),
+                    beanCreator.getBeanGetter(navigateData.getTargetFieldName()),
+                    beanCreator.getBeanSetter(navigateField.getFieldName()),
+                    navigateGetter
+            );
+        }
+        catch (InvocationTargetException | IllegalAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     // endregion
@@ -457,6 +500,43 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     public final C limit(long offset, long rows) {
         sqlBuilder.setLimit(offset, rows);
         return (C) this;
+    }
+
+    // endregion
+
+    // region [cte]
+
+    protected void asTreeCte(LambdaExpression<?> lambdaExpression,int level)
+    {
+        QuerySqlBuilder sqlBuilder = getSqlBuilder();
+        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
+        FieldMetaData navigateField;
+
+        if (lambdaExpression == null)
+        {
+            MetaData metaData = getConfig().getMetaData(queryable.getMainTableClass());
+            navigateField = metaData.getChildrenField();
+        }
+        else
+        {
+            QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), queryable);
+            navigateField = sqlVisitor.toField(lambdaExpression);
+            if (!navigateField.hasNavigate())
+            {
+                throw new SqLinkException("asTreeCTE指定的字段需要被@Navigate修饰");
+            }
+        }
+
+        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
+        NavigateData navigateData = navigateField.getNavigateData();
+        MetaData metaData = getConfig().getMetaData(navigateField.getParentType());
+        FieldMetaData parent = metaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
+        FieldMetaData child = metaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
+        ISqlSelectExpression select = queryable.getSelect().copy(getConfig());
+        ISqlTableRefExpression tableRef = queryable.getFrom().getTableRefExpression();
+        ISqlRecursionExpression recursion = factory.recursion(queryable, parent, child, level);
+        ISqlQueryableExpression newQuery = factory.queryable(select, factory.from(recursion, tableRef));
+        sqlBuilder.setQueryable(newQuery);
     }
 
     // endregion

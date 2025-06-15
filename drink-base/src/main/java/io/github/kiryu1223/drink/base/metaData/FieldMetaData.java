@@ -210,15 +210,15 @@ public class FieldMetaData {
         return isGeneratedKey;
     }
 
-    /**
-     * 反射获取值
-     */
-    public <T> T getValueByObject(Object o) {
-        try {
-            return (T) getter.invoke(o);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    /**
+//     * 反射获取值
+//     */
+//    public <T> T getValueByObject(Object o) {
+//        try {
+//            return (T) getter.invoke(o);
+//        }
+//        catch (IllegalAccessException | InvocationTargetException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

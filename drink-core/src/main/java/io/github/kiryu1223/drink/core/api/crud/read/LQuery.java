@@ -52,7 +52,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.Consumer;
 
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.buildTree;
 
@@ -614,23 +613,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
         return super.toList();
     }
 
-//    /**
-//     * list集合形式返回数据，并且执行你想要对已写入内存中的数据进行的操作，执行后再返回list
-//     *
-//     * @param func 执行操作的lambda
-//     * @return List
-//     */
-//    public <R> List<R> toList(Func1<T, R> func)
-//    {
-//        List<T> list = toList();
-//        List<R> rList = new ArrayList<>(list.size());
-//        for (T t : list)
-//        {
-//            rList.add(func.invoke(t));
-//        }
-//        return rList;
-//    }
-
     /**
      * Map形式返回数据，无数据则返回空Map
      *
@@ -680,17 +662,12 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public List<T> toTreeList(ExprTree<Func1<T, Collection<T>>> expr)
     {
-        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), getSqlBuilder().getQueryable());
-        FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
-        if (!fieldMetaData.hasNavigate())
-        {
-            throw new SqLinkException("toTreeList指定的字段需要被@Navigate修饰");
-        }
-        NavigateData navigateData = fieldMetaData.getNavigateData();
-        MetaData metaData = getConfig().getMetaData(fieldMetaData.getParentType());
-        FieldMetaData parent = metaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-        FieldMetaData child = metaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-        return buildTree(toList(), child, parent, fieldMetaData, expr.getDelegate());
+        return toTreeList(expr.getTree(),expr.getDelegate());
+    }
+
+    public List<T> toTreeList()
+    {
+        return toTreeList(null,null);
     }
 
     private void toChunk(int size, Action1<Chunk<T>> action)
@@ -895,6 +872,18 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     // region [CTE]
 
+    public LQuery<T> asTreeCTE()
+    {
+        asTreeCte(null,0);
+        return this;
+    }
+
+    public LQuery<T> asTreeCTE(int level)
+    {
+        asTreeCte(null,level);
+        return this;
+    }
+
     public LQuery<T> asTreeCTE(@Expr(Expr.BodyType.Expr) Func1<T, Collection<T>> expr, int level)
     {
         throw new NotCompiledException();
@@ -902,24 +891,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public LQuery<T> asTreeCTE(ExprTree<Func1<T, Collection<T>>> expr, int level)
     {
-        QuerySqlBuilder sqlBuilder = getSqlBuilder();
-        ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
-        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), queryable);
-        FieldMetaData fieldMetaData = sqlVisitor.toField(expr.getTree());
-        if (!fieldMetaData.hasNavigate())
-        {
-            throw new SqLinkException("asTreeCTE指定的字段需要被@Navigate修饰");
-        }
-        SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        NavigateData navigateData = fieldMetaData.getNavigateData();
-        MetaData metaData = getConfig().getMetaData(fieldMetaData.getParentType());
-        FieldMetaData parent = metaData.getFieldMetaDataByFieldName(navigateData.getTargetFieldName());
-        FieldMetaData child = metaData.getFieldMetaDataByFieldName(navigateData.getSelfFieldName());
-        ISqlSelectExpression select = queryable.getSelect().copy(getConfig());
-        ISqlTableRefExpression tableRef = queryable.getFrom().getTableRefExpression();
-        ISqlRecursionExpression recursion = factory.recursion(queryable, parent, child, level);
-        ISqlQueryableExpression newQuery = factory.queryable(select, factory.from(recursion, tableRef));
-        sqlBuilder.setQueryable(newQuery);
+        asTreeCte(expr.getTree(),level);
         return this;
     }
 
@@ -930,7 +902,8 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T>
 
     public LQuery<T> asTreeCTE(ExprTree<Func1<T, Collection<T>>> expr)
     {
-        return asTreeCTE(expr, 0);
+        asTreeCte(expr.getTree(),0);
+        return this;
     }
 
     // endregion

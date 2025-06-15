@@ -18,6 +18,7 @@ package io.github.kiryu1223.drink.base.metaData;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.*;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
@@ -330,5 +331,10 @@ public class MetaData
     public Constructor<?> getConstructor()
     {
         return constructor;
+    }
+
+    public FieldMetaData getChildrenField()
+    {
+        return fields.stream().filter(f -> f.hasNavigate() && f.getNavigateData().getNavigateTargetType() == type).findAny().orElseThrow(() -> new DrinkException(String.format("%s类找不到配置了导航属性的子字段", type)));
     }
 }

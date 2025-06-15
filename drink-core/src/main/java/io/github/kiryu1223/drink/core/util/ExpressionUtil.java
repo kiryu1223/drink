@@ -15,14 +15,14 @@
  */
 package io.github.kiryu1223.drink.core.util;
 
-import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
+import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
+import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.crud.read.IDynamicTable;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.Pivoted;
 import io.github.kiryu1223.drink.core.api.crud.read.pivot.UnPivoted;
-import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.MethodCallExpression;
 
 import java.lang.reflect.InvocationTargetException;
@@ -337,33 +337,30 @@ public class ExpressionUtil {
         }
     }
 
-    public static <T> java.util.List<T> buildTree(java.util.List<T> flatList, FieldMetaData child, FieldMetaData parent, FieldMetaData list, Func1<T, Collection<T>> func) {
+    public static <R> java.util.List<R> buildTree(java.util.List<R> flatList, IGetterCaller<R,?> selfFieldGetter, IGetterCaller<R,?> targetGetter, ISetterCaller<R> navigateSetter, IGetterCaller<R, Collection<R>> navigateGetter) throws InvocationTargetException, IllegalAccessException
+    {
         // 用 Map 存储所有节点，以便快速查找
-        Map<Object, T> nodeMap = new HashMap<>();
-        java.util.List<T> rootNodes = new ArrayList<>();
+        Map<Object, R> nodeMap = new HashMap<>();
+        java.util.List<R> rootNodes = new ArrayList<>();
 
         // 将所有节点加入 Map
-        for (T node : flatList) {
-            nodeMap.put(child.getValueByObject(node), node);
+        for (R node : flatList) {
+            nodeMap.put(selfFieldGetter.apply(node), node);
         }
 
         // 构建树结构
-        for (T node : flatList) {
-            Object parentValue = parent.getValueByObject(node);
-            T parentNode = nodeMap.get(parentValue);
+        for (R node : flatList) {
+            Object parentValue = targetGetter.apply(node);
+            R parentNode = nodeMap.get(parentValue);
             // 如果没有父节点，则将当前节点作为根节点
             if (parentNode == null) {
                 rootNodes.add(node);
             }
             else {
-                Collection<T> collection = func.invoke(parentNode);
+                Collection<R> collection = navigateGetter.apply(parentNode);
                 if (collection == null) {
                     collection = new ArrayList<>();
-                    try {
-                        list.getSetter().invoke(parentNode, collection);
-                    } catch (InvocationTargetException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
+                    navigateSetter.call(parentNode, collection);
                 }
                 collection.add(node);
             }
