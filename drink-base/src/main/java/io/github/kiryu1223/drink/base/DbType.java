@@ -9,4 +9,5 @@ public enum DbType
     Oracle,
     SQLite,
     PostgreSQL,
+    Doris,
 }

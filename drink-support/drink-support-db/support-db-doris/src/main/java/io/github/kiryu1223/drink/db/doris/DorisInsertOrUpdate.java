@@ -1,4 +1,4 @@
-package io.github.kiryu1223.drink.db.oracle;
+package io.github.kiryu1223.drink.db.doris;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
@@ -11,39 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class OracleInsertOrUpdate implements IInsertOrUpdate
-{
+public class DorisInsertOrUpdate implements IInsertOrUpdate {
+
     private final IConfig config;
 
-    public OracleInsertOrUpdate(IConfig config)
-    {
+    public DorisInsertOrUpdate(IConfig config) {
         this.config = config;
     }
 
     @Override
-    public boolean apply()
-    {
+    public boolean apply() {
         return true;
     }
 
-    //  MERGE INTO target_table target
-    //  USING (
-    //      SELECT value1 AS col1, value2 AS col2 FROM dual
-    //      UNION ALL
-    //      SELECT value3 AS col1, value4 AS col2 FROM dual
-    //      -- 可以添加更多行
-    //  ) source
-    //  ON (target.key_column = source.key_column)
-    //  WHEN MATCHED THEN
-    //      UPDATE SET
-    //          target.column1 = source.column1,
-    //          target.column2 = source.column2
-    //  WHEN NOT MATCHED THEN
-    //      INSERT (column1, column2, ...)
-    //      VALUES (source.column1, source.column2, ...);
     @Override
-    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns)
-    {
+    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         IDialect dialect = config.getDisambiguation();
 
         String tableName = dialect.disambiguationTableName(metaData.getTableName());
@@ -76,20 +58,17 @@ public class OracleInsertOrUpdate implements IInsertOrUpdate
         );
         builder.append(") ON ");
         List<String> cs = new ArrayList<>();
-        for (ISqlColumnExpression c : conflictColumns)
-        {
+        for (ISqlColumnExpression c : conflictColumns) {
             String column = dialect.disambiguation(c.getFieldMetaData().getColumn());
             cs.add(target + "." + column + " = " + source + "." + column);
         }
         builder.append(String.join(" AND ", cs));
         builder.append(" ");
-        if (!updateColumns.isEmpty())
-        {
+        if (!updateColumns.isEmpty()) {
             builder.append("WHEN MATCHED THEN ");
             builder.append("UPDATE SET ");
             List<String> uc = new ArrayList<>();
-            for (ISqlColumnExpression u : updateColumns)
-            {
+            for (ISqlColumnExpression u : updateColumns) {
                 String column = dialect.disambiguation(u.getFieldMetaData().getColumn());
                 uc.add(target + "." + column + " = " + source + "." + column);
             }

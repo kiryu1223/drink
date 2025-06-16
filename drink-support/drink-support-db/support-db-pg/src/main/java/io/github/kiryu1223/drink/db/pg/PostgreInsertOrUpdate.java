@@ -24,14 +24,14 @@ public class PostgreInsertOrUpdate implements IInsertOrUpdate {
     }
 
     @Override
-    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> notIgnoreAndNavigateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
+    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         IDialect dialect = config.getDisambiguation();
 
         StringBuilder builder = new StringBuilder();
         builder.append("INSERT INTO ");
         builder.append(dialect.disambiguationTableName(metaData.getTableName()));
         builder.append(" (");
-        List<String> columnNames = notIgnoreAndNavigateFields
+        List<String> columnNames = onInsertOrUpdateFields
                 .stream()
                 .map(fm -> dialect.disambiguation(fm.getColumn()))
                 .collect(Collectors.toList());

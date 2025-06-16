@@ -13,37 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.kiryu1223.drink.core.api.crud.create;
+package io.github.kiryu1223.drink.db.doris;
 
-import io.github.kiryu1223.drink.base.IConfig;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import io.github.kiryu1223.drink.base.IDialect;
 
 /**
- * 新增过程对象
+ * MySQL方言
  *
  * @author kiryu1223
  * @since 3.0
  */
-public class ObjectInsert<T> extends InsertBase<ObjectInsert<T>,T> {
-    private final List<T> ts;
-    private final Class<T> tableType;
-
-    public ObjectInsert(IConfig config, List<T> ts) {
-        super(config);
-        this.ts=ts;
-        this.tableType = (Class<T>) ts.get(0).getClass();
-    }
-
+public class DorisDialect implements IDialect {
     @Override
-    protected List<T> getObjects() {
-        return ts;
-    }
-
-    @Override
-    protected Class<T> getTableType() {
-        return tableType;
+    public String disambiguation(String property) {
+        return "`" + property + "`";
     }
 }

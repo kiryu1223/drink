@@ -103,8 +103,15 @@ public final class SqlClient {
     public <T> ObjectInsert<T> insert(@Recode T t) {
         Class<T> aClass = (Class<T>) t.getClass();
         viewCheck(aClass);
-        ObjectInsert<T> objectInsert = new ObjectInsert<>(config,aClass);
-        return objectInsert.insert(t);
+        return new ObjectInsert<>(config, Collections.singletonList(t));
+    }
+
+    /**
+     * 多个新增
+     */
+    public <T> ObjectInsert<T> insert(List<T> ts) {
+        viewCheck(getType(ts));
+        return new ObjectInsert<>(config, ts);
     }
 
     /**
@@ -121,20 +128,6 @@ public final class SqlClient {
     public <T> ObjectInsertOrUpdate<T> insertOrUpdate(List<T> ts) {
         viewCheck(getType(ts));
         return new ObjectInsertOrUpdate<>(config, ts);
-    }
-
-    /**
-     * 集合新增
-     *
-     * @param ts  数据类对象集合
-     * @param <T> 数据类类型
-     * @return 新增过程对象
-     */
-    public <T> ObjectInsert<T> insert(@Recode Collection<T> ts) {
-        Class<T> type = getType(ts);
-        viewCheck(type);
-        ObjectInsert<T> objectInsert = new ObjectInsert<>(config,type);
-        return objectInsert.insert(ts);
     }
 
     /**
@@ -177,9 +170,9 @@ public final class SqlClient {
     private <T> ISqlQueryableExpression tryView(Class<T> c) {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         if (IView.class.isAssignableFrom(c)) {
-            AbsBeanCreator<IView<T>> creator = config.getBeanCreatorFactory().get((Class<IView<T>>)c);
+            AbsBeanCreator<IView<T>> creator = config.getBeanCreatorFactory().get((Class<IView<T>>) c);
             IView<T> view = creator.getBeanCreator().get();
-            QueryBase<?,T> with = view.createView(this);
+            QueryBase<?, T> with = view.createView(this);
             ISqlQueryableExpression queryable = with.getSqlBuilder().getQueryable();
             MetaData metaData = config.getMetaData(c);
             return factory.queryable(factory.with(queryable, metaData.getTableName()));

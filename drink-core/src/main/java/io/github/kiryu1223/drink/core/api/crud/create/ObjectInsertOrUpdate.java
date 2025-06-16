@@ -79,16 +79,16 @@ public class ObjectInsertOrUpdate<T> {
     public long executeRows(boolean autoIncrement) {
         MetaData metaData = config.getMetaData(tClass);
 
-        List<FieldMetaData> notIgnoreAndNavigateFields = metaData.getNotIgnoreAndNavigateFields();
+        List<FieldMetaData> onInsertOrUpdateFields = metaData.getOnInsertOrUpdateFields();
         IInsertOrUpdate ii = config.getInsertOrUpdate();
         List<ISqlColumnExpression> cc = conflictColumns.isEmpty() ? defaultConflictColumns() : conflictColumns;
 //        List<ISqlColumnExpression> uc = updateColumns.isEmpty() ? defaultUpdateColumns() : updateColumns;
-        String sql = ii.insertOrUpdate(metaData, notIgnoreAndNavigateFields, cc, updateColumns);
+        String sql = ii.insertOrUpdate(metaData, onInsertOrUpdateFields, cc, updateColumns);
 
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(tClass);
         List<SqlValue> sqlValues;
         try {
-            sqlValues = values(beanCreator, notIgnoreAndNavigateFields);
+            sqlValues = values(beanCreator, onInsertOrUpdateFields);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new DrinkException(e);
         }
@@ -117,7 +117,7 @@ public class ObjectInsertOrUpdate<T> {
                 },
                 sql,
                 sqlValues,
-                notIgnoreAndNavigateFields.size(),
+                onInsertOrUpdateFields.size(),
                 autoIncrement
         );
     }
@@ -146,7 +146,7 @@ public class ObjectInsertOrUpdate<T> {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         MetaData metaData = config.getMetaData(tClass);
         ISqlTableRefExpression ref = updateExpression.getFrom().getTableRefExpression();
-        for (FieldMetaData f : metaData.getNotIgnoreAndNavigateFields())
+        for (FieldMetaData f : metaData.getOnInsertOrUpdateFields())
         {
             if(f.isPrimaryKey()&&!usePrimaryKey)continue;
             updateColumns.add(factory.column(f,ref));
@@ -170,19 +170,19 @@ public class ObjectInsertOrUpdate<T> {
 
     public String toSql() {
         MetaData metaData = config.getMetaData(tClass);
-        List<FieldMetaData> notIgnoreAndNavigateFields = metaData.getNotIgnoreAndNavigateFields();
+        List<FieldMetaData> onInsertOrUpdateFields = metaData.getOnInsertOrUpdateFields();
         IInsertOrUpdate ii = config.getInsertOrUpdate();
         List<ISqlColumnExpression> cc = conflictColumns.isEmpty() ? defaultConflictColumns() : conflictColumns;
 //        List<ISqlColumnExpression> uc = updateColumns.isEmpty() ? defaultUpdateColumns() : updateColumns;
-        return ii.insertOrUpdate(metaData, notIgnoreAndNavigateFields, cc, updateColumns);
+        return ii.insertOrUpdate(metaData, onInsertOrUpdateFields, cc, updateColumns);
     }
 
-    private List<SqlValue> values(AbsBeanCreator<T> beanCreator, List<FieldMetaData> notIgnoreAndNavigateFields) throws InvocationTargetException, IllegalAccessException {
+    private List<SqlValue> values(AbsBeanCreator<T> beanCreator, List<FieldMetaData> onInsertOrUpdateFields) throws InvocationTargetException, IllegalAccessException {
         Aop aop = config.getAop();
         List<SqlValue> sqlValues = new ArrayList<>();
         for (T object : ts) {
             aop.callOnInsert(object);
-            for (FieldMetaData fieldMetaData : notIgnoreAndNavigateFields) {
+            for (FieldMetaData fieldMetaData : onInsertOrUpdateFields) {
                 IGetterCaller<T, ?> beanGetter = beanCreator.getBeanGetter(fieldMetaData.getFieldName());
                 Object value = beanGetter.apply(object);
                 ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();

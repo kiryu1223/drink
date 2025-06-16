@@ -86,8 +86,8 @@ public class MetaData
             if (type.isInterface()) return;
             for (PropertyDescriptor descriptor : propertyDescriptors(type))
             {
-                String name = descriptor.getName();
-                Field field = DrinkUtil.findField(type, name);
+                String fieldName = descriptor.getName();
+                Field field = DrinkUtil.findField(type, fieldName);
                 Column column = field.getAnnotation(Column.class);
                 UseTypeHandler useTypeHandler = field.getAnnotation(UseTypeHandler.class);
                 IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
@@ -95,7 +95,6 @@ public class MetaData
 
                 boolean notNull;
                 String columnName;
-                String fieldName = name;
                 Method getter = descriptor.getReadMethod();
                 Method setter = descriptor.getWriteMethod();
                 ITypeHandler<?> typeHandler;
@@ -105,11 +104,12 @@ public class MetaData
                 boolean isGeneratedKey;
                 if (column != null)
                 {
-                    columnName = column.value();
-                    if (DrinkUtil.isEmpty(columnName))
+                    String value = column.value();
+                    if (DrinkUtil.isEmpty(value))
                     {
-                        columnName = nameConverter.convertFieldName(fieldName);
+                        value = nameConverter.convertFieldName(fieldName);
                     }
+                    columnName=value;
                     notNull = column.notNull();
                     isPrimaryKey = column.primaryKey();
                     isGeneratedKey = column.generatedKey();
@@ -208,6 +208,15 @@ public class MetaData
     public List<FieldMetaData> getNotIgnoreAndNavigateFields()
     {
         return fields.stream().filter(f -> !f.isIgnoreColumn() && !f.hasNavigate()).collect(Collectors.toList());
+    }
+
+    public List<FieldMetaData> getOnInsertOrUpdateFields() {
+        return fields.stream()
+                // 首先不是忽略字段
+                // 其次不是导航字段
+                // 最后是主键字段或者不是数据库生成值的字段
+                .filter(f -> !f.isIgnoreColumn()&&!f.hasNavigate() && (f.isPrimaryKey()||!f.isGeneratedKey()))
+                .collect(Collectors.toList());
     }
 
     /**

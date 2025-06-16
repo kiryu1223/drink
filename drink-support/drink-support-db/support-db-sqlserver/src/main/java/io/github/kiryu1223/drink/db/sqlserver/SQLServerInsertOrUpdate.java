@@ -42,7 +42,7 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate
     //      INSERT (column1, column2, ...)
     //      VALUES (source.column1, source.column2, ...);
     @Override
-    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> notIgnoreAndNavigateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns)
+    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns)
     {
         IDialect dialect = config.getDisambiguation();
 
@@ -56,7 +56,7 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate
         builder.append(" AS ");
         builder.append(target);
         builder.append(" USING ( VALUES (");
-        builder.append(notIgnoreAndNavigateFields
+        builder.append(onInsertOrUpdateFields
                 .stream()
                 .map(f -> "?")
                 .collect(Collectors.joining(","))
@@ -64,7 +64,7 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate
         builder.append(")) AS ");
         builder.append(source);
         builder.append(" (");
-        builder.append(notIgnoreAndNavigateFields
+        builder.append(onInsertOrUpdateFields
                 .stream()
                 .map(f -> dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))
@@ -93,13 +93,13 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate
         }
         builder.append("WHEN NOT MATCHED THEN ");
         builder.append("INSERT (");
-        builder.append(notIgnoreAndNavigateFields
+        builder.append(onInsertOrUpdateFields
                 .stream()
                 .map(f -> dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))
         );
         builder.append(") VALUES (");
-        builder.append(notIgnoreAndNavigateFields
+        builder.append(onInsertOrUpdateFields
                 .stream()
                 .map(f -> source + "." + dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))

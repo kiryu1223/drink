@@ -21,7 +21,7 @@ public @interface Column
     String value() default "";
 
     /**
-     * 是否是数据库生成列(自增or默认值等)
+     * 是否是数据库生成值(自增or默认值等)
      */
     boolean generatedKey() default false;
 

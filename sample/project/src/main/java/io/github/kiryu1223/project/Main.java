@@ -37,21 +37,30 @@ public class Main {
     public static void main(String[] args) {
         SqlClient client = boot();
         IConfig config = client.getConfig();
-        Aop aop = config.getAop();
-        aop.onInsert(Employee.class, e -> {
-            String firstName = e.getFirstName();
-            e.setFirstName(DrinkUtil.isEmpty(firstName) ? "a" : "b");
-        });
+//        Aop aop = config.getAop();
+//        aop.onInsert(Employee.class, e -> {
+//            String firstName = e.getFirstName();
+//            e.setFirstName(DrinkUtil.isEmpty(firstName) ? "a" : "b");
+//        });
+//
+//        Std std = new Std();
+//        std.setName("老王");
+//        std.setAge(38);
+//        String sql = client.insertOrUpdate(std)
+//                .onConflict(s -> s.getId())
+//                .updateColumn(s -> s.getName())
+//                .updateColumn(s -> s.getAge())
+//                .toSql();
+//
+//        System.out.println(sql);
 
-        Std std = new Std();
-        std.setName("老王");
-        std.setAge(38);
-        String sql = client.insertOrUpdate(std)
-                .onConflict(s -> s.getId())
-                .updateColumn(s -> s.getName())
-                .updateColumn(s -> s.getAge())
-                .toSql();
+        List<Employee> list = client.query(Employee.class)
+                .as("emp")
+                .where(e -> e.getNumber() == 10001)
+                .ignoreColumn(e -> e.getNumber())
+                .ignoreColumn(e -> e.getHireDay())
+                .toList();
 
-        System.out.println(sql);
+        System.out.println(list);
     }
 }
