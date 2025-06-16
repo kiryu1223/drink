@@ -1018,21 +1018,6 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
         return factory.typeCast(typeCast.getTargetType(), visit(typeCast.getExpr()));
     }
 
-    protected SqlExtensionExpression getSqlFuncExt(SqlExtensionExpression[] sqlExtensionExpressions) {
-        DbType dbType = config.getDbType();
-        Optional<SqlExtensionExpression> first = Arrays.stream(sqlExtensionExpressions).filter(a -> a.dbType() == dbType).findFirst();
-        if (!first.isPresent()) {
-            Optional<SqlExtensionExpression> any = Arrays.stream(sqlExtensionExpressions).filter(a -> a.dbType() == DbType.Any).findFirst();
-            if (any.isPresent()) {
-                return any.get();
-            }
-            throw new SqlFuncExtNotFoundException(dbType);
-        }
-        else {
-            return first.get();
-        }
-    }
-
     protected ParamMatcher match(String input) {
         ParamMatcher paramMatcher = new ParamMatcher();
 

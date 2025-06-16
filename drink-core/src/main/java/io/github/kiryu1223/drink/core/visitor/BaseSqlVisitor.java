@@ -1,18 +1,23 @@
 package io.github.kiryu1223.drink.core.visitor;
 
+import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlValueExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.expression.SqlOperator;
+import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.transform.*;
 import io.github.kiryu1223.drink.core.exception.SqLinkIllegalExpressionException;
+import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.isVoid;
@@ -327,5 +332,20 @@ public abstract class BaseSqlVisitor extends ResultThrowVisitor<ISqlExpression> 
             }
         });
         return atomicBoolean.get();
+    }
+
+    protected SqlExtensionExpression getSqlFuncExt(SqlExtensionExpression[] sqlExtensionExpressions) {
+        DbType dbType = config.getDbType();
+        Optional<SqlExtensionExpression> match = Arrays.stream(sqlExtensionExpressions).filter(a -> Arrays.stream(a.dbType()).anyMatch(b -> b == dbType)).findAny();
+        if (!match.isPresent()) {
+            Optional<SqlExtensionExpression> any = Arrays.stream(sqlExtensionExpressions).filter(a -> Arrays.stream(a.dbType()).anyMatch(b -> b == DbType.Any)).findAny();
+            if (any.isPresent()) {
+                return any.get();
+            }
+            throw new SqlFuncExtNotFoundException(dbType);
+        }
+        else {
+            return match.get();
+        }
     }
 }
