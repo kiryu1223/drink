@@ -45,7 +45,6 @@ import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
-import org.jetbrains.annotations.Contract;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
