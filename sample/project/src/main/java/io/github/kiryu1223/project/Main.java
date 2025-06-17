@@ -8,6 +8,7 @@ import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
+import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.project.pojos.Employee;
 import io.github.kiryu1223.project.pojos.Std;
 

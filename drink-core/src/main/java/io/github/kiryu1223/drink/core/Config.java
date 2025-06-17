@@ -141,9 +141,6 @@ class Config implements IConfig {
     private static final Map<Class<?>, MetaData> metaDataCache = new ConcurrentHashMap<>();
 
     public MetaData getMetaData(Class<?> c) {
-        if (!metaDataCache.containsKey(c)) {
-            metaDataCache.put(c, new MetaData(c, this));
-        }
-        return metaDataCache.get(c);
+        return metaDataCache.computeIfAbsent(c, clazz -> new MetaData(clazz, this));
     }
 }

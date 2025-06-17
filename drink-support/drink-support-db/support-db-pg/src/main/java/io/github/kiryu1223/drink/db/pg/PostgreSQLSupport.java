@@ -22,7 +22,7 @@ public class PostgreSQLSupport implements IDbSupport {
 
     @Override
     public Transformer getTransformer(IConfig config) {
-        return null;
+        return new PostgreSQLTransformer(config);
     }
 
     @Override

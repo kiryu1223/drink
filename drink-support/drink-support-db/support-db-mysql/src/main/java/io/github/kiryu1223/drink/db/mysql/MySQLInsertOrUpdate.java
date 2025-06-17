@@ -4,8 +4,11 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.IInsertOrUpdate;
 import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.metaData.SqlLogicColumn;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ public class MySQLInsertOrUpdate implements IInsertOrUpdate {
     @Override
     public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         IDialect dialect = config.getDisambiguation();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
         StringBuilder builder = new StringBuilder();
         builder.append("INSERT INTO ");
         String tableName = dialect.disambiguationTableName(metaData.getTableName());
@@ -37,7 +41,16 @@ public class MySQLInsertOrUpdate implements IInsertOrUpdate {
                 .collect(Collectors.toList());
         builder.append(String.join(",", columnNames));
         builder.append(") VALUES (");
-        builder.append(columnNames.stream().map(e -> "?").collect(Collectors.joining(",")));
+        builder.append(onInsertOrUpdateFields.stream().map(f -> {
+            if (f.hasLogicColumn()) {
+                SqlLogicColumn sqlLogicColumn = f.getSqlLogicColumn();
+                ISqlExpression expression = sqlLogicColumn.onWrite(config, factory.constString("?"));
+                return expression.getSql(config);
+            }
+            else {
+                return "?";
+            }
+        }).collect(Collectors.joining(",")));
         builder.append(") AS ");
         String asNew = dialect.disambiguationTableName("new");
         builder.append(asNew);

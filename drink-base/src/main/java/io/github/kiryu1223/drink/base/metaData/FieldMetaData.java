@@ -78,14 +78,16 @@ public class FieldMetaData {
      * 泛型类型
      */
     private final Type genericType;
+    private final SqlLogicColumn sqlLogicColumn;
 
-    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey) {
+    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey, SqlLogicColumn sqlLogicColumn) {
         this.notNull = notNull;
         this.fieldName = fieldName;
         this.column = column;
         this.ignoreColumn = ignoreColumn;
         this.isPrimaryKey = isPrimaryKey;
         this.isGeneratedKey = isGeneratedKey;
+        this.sqlLogicColumn = sqlLogicColumn;
         getter.setAccessible(true);
         this.getter = getter;
         setter.setAccessible(true);
@@ -210,15 +212,11 @@ public class FieldMetaData {
         return isGeneratedKey;
     }
 
-//    /**
-//     * 反射获取值
-//     */
-//    public <T> T getValueByObject(Object o) {
-//        try {
-//            return (T) getter.invoke(o);
-//        }
-//        catch (IllegalAccessException | InvocationTargetException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    public SqlLogicColumn getSqlLogicColumn() {
+        return sqlLogicColumn;
+    }
+
+    public boolean hasLogicColumn() {
+        return sqlLogicColumn != null;
+    }
 }

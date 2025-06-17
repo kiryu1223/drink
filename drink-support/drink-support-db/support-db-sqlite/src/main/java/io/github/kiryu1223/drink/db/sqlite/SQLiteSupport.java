@@ -27,7 +27,7 @@ public class SQLiteSupport implements IDbSupport
     @Override
     public Transformer getTransformer(IConfig config)
     {
-        return null;
+        return new SQLiteTransformer(config);
     }
 
     @Override

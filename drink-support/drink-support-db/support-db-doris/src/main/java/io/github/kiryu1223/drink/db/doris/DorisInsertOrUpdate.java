@@ -4,8 +4,11 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.IInsertOrUpdate;
 import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.metaData.SqlLogicColumn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,7 @@ public class DorisInsertOrUpdate implements IInsertOrUpdate {
     @Override
     public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         IDialect dialect = config.getDisambiguation();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
         String tableName = dialect.disambiguationTableName(metaData.getTableName());
         String target = dialect.disambiguation("target");
@@ -35,20 +39,24 @@ public class DorisInsertOrUpdate implements IInsertOrUpdate {
         StringBuilder builder = new StringBuilder();
         builder.append("MERGE INTO ");
         builder.append(tableName);
-        builder.append(" ");
+        builder.append(" AS ");
         builder.append(target);
-        builder.append(" USING ( ");
-
-        // SELECT value1 AS col1, value2 AS col2 FROM dual
-        builder.append("SELECT ");
+        builder.append(" USING ( VALUES (");
         builder.append(onInsertOrUpdateFields
                 .stream()
-                .map(f -> "? AS " + dialect.disambiguation(f.getColumn()))
+                .map(f -> {
+                    if (f.hasLogicColumn()) {
+                        SqlLogicColumn sqlLogicColumn = f.getSqlLogicColumn();
+                        ISqlExpression expression = sqlLogicColumn.onWrite(config, factory.constString("?"));
+                        return expression.getSql(config);
+                    }
+                    else {
+                        return "?";
+                    }
+                })
                 .collect(Collectors.joining(","))
         );
-        builder.append(" FROM dual");
-
-        builder.append(" )) ");
+        builder.append(")) AS ");
         builder.append(source);
         builder.append(" (");
         builder.append(onInsertOrUpdateFields

@@ -4,8 +4,11 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.IInsertOrUpdate;
 import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.metaData.SqlLogicColumn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +30,9 @@ public class H2InsertOrUpdate implements IInsertOrUpdate
     }
 
     @Override
-    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns)
-    {
+    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         IDialect dialect = config.getDisambiguation();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
         String tableName = dialect.disambiguationTableName(metaData.getTableName());
         String target = dialect.disambiguation("target");
@@ -43,7 +46,16 @@ public class H2InsertOrUpdate implements IInsertOrUpdate
         builder.append(" USING ( VALUES (");
         builder.append(onInsertOrUpdateFields
                 .stream()
-                .map(f -> "?")
+                .map(f -> {
+                    if (f.hasLogicColumn()) {
+                        SqlLogicColumn sqlLogicColumn = f.getSqlLogicColumn();
+                        ISqlExpression expression = sqlLogicColumn.onWrite(config, factory.constString("?"));
+                        return expression.getSql(config);
+                    }
+                    else {
+                        return "?";
+                    }
+                })
                 .collect(Collectors.joining(","))
         );
         builder.append(")) AS ");

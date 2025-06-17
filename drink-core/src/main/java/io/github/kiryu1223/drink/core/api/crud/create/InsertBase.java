@@ -19,8 +19,11 @@ import io.github.kiryu1223.drink.base.Aop;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
+import io.github.kiryu1223.drink.base.expression.ISqlExpression;
+import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
+import io.github.kiryu1223.drink.base.metaData.SqlLogicColumn;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
@@ -134,6 +137,7 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
 
     private String makeByObjects(List<FieldMetaData> notIgnoreFields, List<SqlValue> sqlValues) throws InvocationTargetException, IllegalAccessException {
         IConfig config = getConfig();
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
         Aop aop = config.getAop();
         IDialect disambiguation = config.getDisambiguation();
         MetaData metaData = config.getMetaData(getTableType());
@@ -144,7 +148,15 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
             // 如果不是数据库生成策略，则添加
             if (fieldMetaData.isGeneratedKey()) continue;
             tableFields.add(disambiguation.disambiguation(fieldMetaData.getColumn()));
-            tableValues.add("?");
+            if (fieldMetaData.hasLogicColumn()) {
+                SqlLogicColumn sqlLogicColumn = fieldMetaData.getSqlLogicColumn();
+                ISqlExpression expression = sqlLogicColumn.onWrite(config, factory.constString("?"));
+                tableValues.add(expression.getSql(config));
+            }
+            else {
+
+                tableValues.add("?");
+            }
         }
         if (sqlValues != null) {
             for (R object : getObjects()) {

@@ -1,21 +1,15 @@
 package io.github.kiryu1223.project.pojos;
 
-import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.*;
-import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.util.List;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
-import io.github.kiryu1223.expressionTree.util.ReflectUtil;
-import io.github.kiryu1223.project.handler.GenderHandler;
+import io.github.kiryu1223.project.handler.MoneyLogicColumn;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 
 @Data
@@ -26,6 +20,7 @@ import java.util.ArrayList;
 public class Employee implements ITable
 {
     @Column("emp_no")
+    @LogicColumn(MoneyLogicColumn.class)
     private long number;
     @Column("birth_date")
     private LocalDate birthDay;

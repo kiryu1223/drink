@@ -2335,7 +2335,7 @@ public final class SqlFunctions {
 //    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "CONVERT({targetType},{value})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "CAST({value} AS {targetType})")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "CONVERT({targetType},{value})")
-//    public static <T> T convert(Object value, Class<T> targetType)
+//    public static <T> T onRead(Object value, Class<T> targetType)
 //    {
 //        boom();
 //        return (T) new Object();
