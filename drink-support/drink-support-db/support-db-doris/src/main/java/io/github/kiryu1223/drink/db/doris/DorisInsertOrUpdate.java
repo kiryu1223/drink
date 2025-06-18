@@ -8,7 +8,7 @@ import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.SqlLogicColumn;
+import io.github.kiryu1223.drink.base.metaData.LogicColumn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +46,8 @@ public class DorisInsertOrUpdate implements IInsertOrUpdate {
                 .stream()
                 .map(f -> {
                     if (f.hasLogicColumn()) {
-                        SqlLogicColumn sqlLogicColumn = f.getSqlLogicColumn();
-                        ISqlExpression expression = sqlLogicColumn.onWrite(config, factory.constString("?"));
-                        return expression.getSql(config);
+                        LogicColumn logicColumn = f.getLogicColumn();
+                        return logicColumn.onWrite(config);
                     }
                     else {
                         return "?";

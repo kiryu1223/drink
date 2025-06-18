@@ -10,19 +10,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
 
-public class SqlLogicColumn {
+public class LogicColumn {
+    public LogicColumn() {
+
+    }
     public ISqlExpression onRead(IConfig config, ISqlColumnExpression column) {
         return column;
     }
 
-    public ISqlExpression onWrite(IConfig config, ISqlExpression value) {
-        return value;
+    public String onWrite(IConfig config) {
+        return "?";
     }
 
-    private static final Map<Class<? extends SqlLogicColumn>, ? extends SqlLogicColumn> map=new ConcurrentHashMap<>();
+    private static final Map<Class<? extends LogicColumn>, ? extends LogicColumn> map = new ConcurrentHashMap<>();
 
-    public static SqlLogicColumn get(Class<? extends SqlLogicColumn> clazz) {
-        return map.computeIfAbsent(clazz, k->{
+    public static LogicColumn get(Class<? extends LogicColumn> clazz) {
+        return map.computeIfAbsent(clazz, k -> {
             try {
                 return cast(clazz.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {

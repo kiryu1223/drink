@@ -23,7 +23,7 @@ import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.metaData.SqlLogicColumn;
+import io.github.kiryu1223.drink.base.metaData.LogicColumn;
 import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
@@ -149,9 +149,8 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
             if (fieldMetaData.isGeneratedKey()) continue;
             tableFields.add(disambiguation.disambiguation(fieldMetaData.getColumn()));
             if (fieldMetaData.hasLogicColumn()) {
-                SqlLogicColumn sqlLogicColumn = fieldMetaData.getSqlLogicColumn();
-                ISqlExpression expression = sqlLogicColumn.onWrite(config, factory.constString("?"));
-                tableValues.add(expression.getSql(config));
+                LogicColumn logicColumn = fieldMetaData.getLogicColumn();
+                tableValues.add(logicColumn.onWrite(config));
             }
             else {
 

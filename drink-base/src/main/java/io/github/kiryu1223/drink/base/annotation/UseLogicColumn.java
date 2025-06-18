@@ -1,6 +1,6 @@
 package io.github.kiryu1223.drink.base.annotation;
 
-import io.github.kiryu1223.drink.base.metaData.SqlLogicColumn;
+import io.github.kiryu1223.drink.base.metaData.LogicColumn;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface LogicColumn {
-    Class<? extends SqlLogicColumn> value();
+public @interface UseLogicColumn {
+    Class<? extends LogicColumn> value();
 }

@@ -78,16 +78,16 @@ public class FieldMetaData {
      * 泛型类型
      */
     private final Type genericType;
-    private final SqlLogicColumn sqlLogicColumn;
+    private final LogicColumn logicColumn;
 
-    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey, SqlLogicColumn sqlLogicColumn) {
+    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey, LogicColumn logicColumn) {
         this.notNull = notNull;
         this.fieldName = fieldName;
         this.column = column;
         this.ignoreColumn = ignoreColumn;
         this.isPrimaryKey = isPrimaryKey;
         this.isGeneratedKey = isGeneratedKey;
-        this.sqlLogicColumn = sqlLogicColumn;
+        this.logicColumn = logicColumn;
         getter.setAccessible(true);
         this.getter = getter;
         setter.setAccessible(true);
@@ -212,11 +212,11 @@ public class FieldMetaData {
         return isGeneratedKey;
     }
 
-    public SqlLogicColumn getSqlLogicColumn() {
-        return sqlLogicColumn;
+    public LogicColumn getLogicColumn() {
+        return logicColumn;
     }
 
     public boolean hasLogicColumn() {
-        return sqlLogicColumn != null;
+        return logicColumn != null;
     }
 }

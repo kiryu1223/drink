@@ -86,7 +86,7 @@ public class MetaData {
                 Field field = DrinkUtil.findField(type, fieldName);
                 Column column = field.getAnnotation(Column.class);
                 UseTypeHandler useTypeHandler = field.getAnnotation(UseTypeHandler.class);
-                LogicColumn logicColumn = field.getAnnotation(LogicColumn.class);
+                UseLogicColumn useLogicColumn = field.getAnnotation(UseLogicColumn.class);
                 IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
                 Navigate navigate = field.getAnnotation(Navigate.class);
 
@@ -99,7 +99,7 @@ public class MetaData {
                 NavigateData navigateData;
                 boolean isPrimaryKey;
                 boolean isGeneratedKey;
-                SqlLogicColumn sqlLogicColumn = null;
+                LogicColumn logicColumn = null;
                 if (column != null) {
                     String value = column.value();
                     if (DrinkUtil.isEmpty(value)) {
@@ -150,10 +150,10 @@ public class MetaData {
                 else {
                     navigateData = null;
                 }
-                if (logicColumn != null) {
-                    sqlLogicColumn = SqlLogicColumn.get(logicColumn.value());
+                if (useLogicColumn != null) {
+                    logicColumn = LogicColumn.get(useLogicColumn.value());
                 }
-                FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey,sqlLogicColumn);
+                FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey, logicColumn);
                 fields.add(fieldMetaData);
             }
         } catch (NoSuchMethodException e) {

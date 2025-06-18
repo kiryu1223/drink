@@ -18,6 +18,7 @@ package io.github.kiryu1223.drink.base.expression.impl;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
+import io.github.kiryu1223.drink.base.metaData.LogicColumn;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.sqlExt.ISqlKeywords;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
@@ -51,11 +52,13 @@ public class SqlSetExpression implements ISqlSetExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+        SqlExpressionFactory factory = config.getSqlExpressionFactory();
         List<String> strings = new ArrayList<>();
         strings.add(column.getSqlAndValue(config, values));
         strings.add("=");
         FieldMetaData fieldMetaData = column.getFieldMetaData();
         ITypeHandler<?> typeHandler = fieldMetaData.getTypeHandler();
+
         if (value instanceof ISqlValueExpression) {
             if (value instanceof ISqlSingleValueExpression) {
                 ISqlSingleValueExpression sqlSingleValueExpression = (ISqlSingleValueExpression) value;
@@ -67,10 +70,13 @@ public class SqlSetExpression implements ISqlSetExpression {
                 else {
                     if (values != null) {
                         values.add(new SqlValue(value1, typeHandler));
-                        strings.add("?");
+                    }
+                    if (fieldMetaData.hasLogicColumn()) {
+                        LogicColumn logicColumn = fieldMetaData.getLogicColumn();
+                        strings.add(logicColumn.onWrite(config));
                     }
                     else {
-                        strings.add("NULL");
+                        strings.add("?");
                     }
                 }
             }
@@ -81,12 +87,18 @@ public class SqlSetExpression implements ISqlSetExpression {
                     values.add(new SqlValue(collection, typeHandler));
                     List<String> ss = new ArrayList<>(collection.size());
                     for (Object o : collection) {
-                        ss.add("?");
+                        if (fieldMetaData.hasLogicColumn()) {
+                            LogicColumn logicColumn = fieldMetaData.getLogicColumn();
+                            ss.add(logicColumn.onWrite(config));
+                        }
+                        else {
+                            ss.add("?");
+                        }
                     }
                     strings.add(String.join(",", ss));
                 }
                 else {
-                    strings.add("NULL");
+                    strings.add("?");
                 }
             }
         }
