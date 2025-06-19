@@ -45,7 +45,6 @@ public class Main {
     public static void main(String[] args) {
         SqlClient client = boot();
         IConfig config = client.getConfig();
-        config.setPager();
 //        Aop aop = config.getAop();
 //        aop.onInsert(Employee.class, e -> {
 //            String firstName = e.getFirstName();
