@@ -5,6 +5,9 @@ import io.github.kiryu1223.drink.base.Aop;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
+import io.github.kiryu1223.drink.base.page.DefaultPager;
+import io.github.kiryu1223.drink.base.page.PagedResult;
+import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
@@ -35,9 +38,14 @@ public class Main {
                 .build();
     }
 
+    static class PP extends DefaultPager {
+
+    }
+
     public static void main(String[] args) {
         SqlClient client = boot();
         IConfig config = client.getConfig();
+        config.setPager();
 //        Aop aop = config.getAop();
 //        aop.onInsert(Employee.class, e -> {
 //            String firstName = e.getFirstName();

@@ -722,7 +722,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // region [page]
 
-    protected <T> PagedResult<T> toPagedResult0(long pageIndex, long pageSize) {
+    protected PagedResult<R> toPagedResult0(long pageIndex, long pageSize) {
         IConfig config = getConfig();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         QuerySqlBuilder boxedQuerySqlBuilder = sqlBuilder.getCopy();
@@ -732,12 +732,18 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         boxedQuerySqlBuilder.setSelect(factory.select(Collections.singletonList(transformer.count()), long.class, true, false));
         LQuery<Long> countQuery = new LQuery<>(boxedQuerySqlBuilder);
         long total = countQuery.toList().get(0);
-        QuerySqlBuilder dataQuerySqlBuilder = getSqlBuilder().getCopy();
-        LQuery<T> dataQuery = new LQuery<>(dataQuerySqlBuilder);
+
+        ISqlLimitExpression limit = sqlBuilder.getQueryable().getLimit();
+        long tempRows = limit.getRows();
+        long tempOffset = limit.getOffset();
         long take = Math.max(pageSize, 1);
         long index = Math.max(pageIndex, 1);
         long offset = (index - 1) * take;
-        List<T> list = dataQuery.limit(offset, take).toList();
+
+        limit(offset, take);
+        List<R> list = toList();
+        limit(tempOffset, tempRows);
+
         return config.getPager().getPagedResult(total, list);
     }
 

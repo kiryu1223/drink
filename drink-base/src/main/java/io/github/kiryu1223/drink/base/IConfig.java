@@ -28,6 +28,8 @@ public interface IConfig
 
     Pager getPager();
 
+    void setPager(Pager pager);
+
     IInsertOrUpdate getInsertOrUpdate();
 
     NameConverter getNameConverter();

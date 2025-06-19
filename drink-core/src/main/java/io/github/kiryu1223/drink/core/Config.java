@@ -46,7 +46,7 @@ class Config implements IConfig {
     private final Transformer transformer;
     private final SqlExpressionFactory sqlExpressionFactory;
     private final NameConverter nameConverter;
-    private final Pager pager;
+    private Pager pager;
     private final IInsertOrUpdate insertOrUpdate;
 
     Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, Pager pager) {
@@ -124,8 +124,14 @@ class Config implements IConfig {
         return transformer;
     }
 
+    @Override
     public Pager getPager() {
         return pager;
+    }
+
+    @Override
+    public void setPager(Pager pager) {
+        this.pager = pager;
     }
 
     @Override
