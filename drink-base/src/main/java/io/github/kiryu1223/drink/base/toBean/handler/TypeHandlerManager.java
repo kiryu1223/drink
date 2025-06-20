@@ -35,6 +35,11 @@ public class TypeHandlerManager
         cache.put(actualType, typeHandler);
     }
 
+    public static <T> void setHandler(ITypeHandler<T> typeHandler)
+    {
+        handlerCache.put((Class<? extends ITypeHandler<?>>) typeHandler.getClass(),typeHandler);
+    }
+
     static
     {
         //varchar

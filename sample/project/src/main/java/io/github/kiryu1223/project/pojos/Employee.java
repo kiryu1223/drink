@@ -5,6 +5,7 @@ import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.util.List;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
+import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.handler.MoneyLogicColumn;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
@@ -28,6 +29,7 @@ public class Employee implements ITable
     private String firstName;
     @Column("last_name")
     private String lastName;
+    @UseTypeHandler(GenderHandler.class)
     private Gender gender;
     @Column("hire_date")
     private LocalDate hireDay;
