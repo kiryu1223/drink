@@ -5,9 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EnumTypeHandler<T extends Enum<T>> implements ITypeHandler<T> {
+public abstract class EnumTypeHandler<T extends Enum<T>> implements ITypeHandler<T> {
 
-    public static final EnumTypeHandler<?> Instance = new EnumTypeHandler<>();
+    public static final EnumTypeHandler<?> Instance = new EnumTypeHandler(){
+        Void v;
+        @Override
+        public Class<?> getActualType()
+        {
+            return Enum.class;
+        }
+    };
 
     @Override
     public T getValue(ResultSet resultSet, int index, Type type) throws SQLException {
@@ -20,7 +27,5 @@ public class EnumTypeHandler<T extends Enum<T>> implements ITypeHandler<T> {
     }
 
     @Override
-    public Type getActualType() {
-        return Enum.class;
-    }
+    public abstract Class<T> getActualType();
 }

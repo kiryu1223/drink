@@ -104,7 +104,7 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression
         fromBuilder.append("FROM (")
                 .append(queryableExpression.getSqlAndValue(config, values))
                 .append(") AS ")
-                .append(disambiguation.disambiguation(tempRefExpression.getDisPlayName()));
+                .append(tempRefExpression.getSqlAndValue(config,values));
 
         unPivotBuilder.append("UNPIVOT (")
                 .append(disambiguation.disambiguation(newValueColumnName))
@@ -119,7 +119,7 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression
         }
         unPivotBuilder.append(joiner)
                 .append(")) AS ")
-                .append(disambiguation.disambiguation(unpivotRefExpression.getDisPlayName()));
+                .append(unpivotRefExpression.getSqlAndValue(config,values));
 
         return String.join(" ", selectBuilder, fromBuilder, unPivotBuilder);
     }

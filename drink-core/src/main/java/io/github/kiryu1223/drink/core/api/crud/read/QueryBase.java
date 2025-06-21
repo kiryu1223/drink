@@ -627,7 +627,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 ISqlJoinExpression mappingJoin = factory.join(JoinType.INNER, navigateData.getMappingTableType());
                 ISqlTableRefExpression mappingRef = mappingJoin.getTableRefExpression();
                 ISqlBinaryExpression eq = factory.binary(SqlOperator.EQ, factory.column(targetMappingField, mappingRef), factory.column(targetField, targetRef));
-                ISqlBinaryExpression in = factory.binary(SqlOperator.IN, factory.column(selfMappingField, targetRef), ids);
+                ISqlBinaryExpression in = factory.binary(SqlOperator.IN, factory.column(selfMappingField, mappingRef), ids);
                 mappingJoin.addConditions(eq);
                 mappingJoin.addConditions(in);
                 targetQuery.addJoin(mappingJoin);
@@ -669,7 +669,8 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         ISqlTemplateExpression over = transformer.over(Collections.emptyList());
         ISqlConstStringExpression rowNumber = transformer.rowNumber();
-        ISqlTemplateExpression merged = DrinkUtil.mergeTemplates(config, over, factory.template(Collections.singletonList(rowNumber.getString()), Collections.emptyList()));
+        // ISqlTemplateExpression merged = DrinkUtil.mergeTemplates(config,factory.template(Collections.singletonList(rowNumber.getString()), Collections.emptyList()), over);
+        ISqlTemplateExpression merged = factory.template(Arrays.asList(""," ",""),Arrays.asList(rowNumber,over));
         sourceQuery.getSelect().addColumn(factory.as(merged, rowNumberAsName));
 
         ISqlQueryableExpression warpedQuery = factory.queryable(sourceQuery);
@@ -679,7 +680,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         warpedQuery.addWhere(factory.binary(
                 SqlOperator.BETWEEN,
                 factory.dynamicColumn(rowNumberAsName, long.class, warpedRef),
-                factory.binary(SqlOperator.AND, factory.constString(offset + 1), factory.constString(offset + rows + 1))
+                factory.binary(SqlOperator.AND, factory.constString(offset + 1), factory.constString(offset + rows))
         ));
 
         return warpedQuery;

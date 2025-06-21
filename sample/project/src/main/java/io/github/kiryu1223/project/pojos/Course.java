@@ -1,5 +1,6 @@
 package io.github.kiryu1223.project.pojos;
 
+import io.github.kiryu1223.drink.base.annotation.Column;
 import io.github.kiryu1223.drink.base.annotation.Navigate;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.annotation.Table;
@@ -15,19 +16,17 @@ import java.util.List;
 @FieldNameConstants
 public class Course implements ITable
 {
-    private int courseId;
-    private String courseName;
-    private BigDecimal credit;
-    private String department;
-    private String teacher;
-    private String classroom;
+    @Column(primaryKey = true, generatedKey = true)
+    private Integer id;
+    private String title;
+    private Integer creditHours;
     @Navigate(
             value = RelationType.ManyToMany,
-            self = Fields.courseId,
-            selfMapping = StudentCourse.Fields.courseId,
+            self = Fields.id,
+            selfMapping = StudentCourse.Fields.couId,
             mappingTable = StudentCourse.class,
-            targetMapping = StudentCourse.Fields.studentId,
-            target = Std.Fields.id
+            targetMapping = StudentCourse.Fields.stuId,
+            target = Students.Fields.id
     )
-    private List<Std> stds;
+    private List<Students> students;
 }

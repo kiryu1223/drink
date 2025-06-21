@@ -161,9 +161,12 @@ public class DefaultSqlSession implements SqlSession {
             else {
                 count = preparedStatement.executeUpdate();
             }
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys())
+            if (autoIncrement)
             {
-                action.invoke(resultSet);
+                try (ResultSet resultSet = preparedStatement.getGeneratedKeys())
+                {
+                    action.invoke(resultSet);
+                }
             }
             return count;
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {

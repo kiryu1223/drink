@@ -59,7 +59,7 @@ public class SqlFromExpression implements ISqlFromExpression {
             tableBuilder.insert(0, "(");
             tableBuilder.append(")");
         }
-        return "FROM " + tableBuilder + " AS " + disambiguation.disambiguation(tableRefExpression.getDisPlayName());
+        return "FROM " + tableBuilder + " AS " + tableRefExpression.getSqlAndValue(config,values);
     }
 
     @Override

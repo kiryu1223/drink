@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -69,17 +70,13 @@ public class DrinkAutoConfiguration implements ApplicationListener<ContextRefres
         Map<String, ITypeHandler<?>> typeHandlerMap = cast(context.getBeansOfType(ITypeHandler.class));
         for (ITypeHandler<?> value : typeHandlerMap.values())
         {
-            TypeHandlerManager.setHandler(value);
-        }
-
-        Map<String, Object> globalMap = context.getBeansWithAnnotation(GlobalTypeHandler.class);
-        for (Object value : globalMap.values())
-        {
-            if (value instanceof ITypeHandler<?>)
+            // 标记为全局的类型处理器注册到按type缓存
+            if (AnnotationUtils.isAnnotationDeclaredLocally(GlobalTypeHandler.class, value.getClass()))
             {
-                ITypeHandler<?> typeHandler = (ITypeHandler<?>) value;
-                TypeHandlerManager.set(typeHandler);
+                TypeHandlerManager.set(value);
             }
+            // 注册到按typeHandler缓存
+            TypeHandlerManager.setHandler(value);
         }
     }
 }

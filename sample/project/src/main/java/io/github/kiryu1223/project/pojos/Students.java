@@ -2,16 +2,17 @@ package io.github.kiryu1223.project.pojos;
 
 import io.github.kiryu1223.drink.base.annotation.Column;
 import io.github.kiryu1223.drink.base.annotation.Table;
+import io.github.kiryu1223.drink.core.api.ITable;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
 @Data
-@Table("stds")
+@Table("students")
 @FieldNameConstants
-public class Std
+public class Students implements ITable
 {
     @Column(primaryKey = true, generatedKey = true)
-    private int id;
+    private Integer id;
     private String name;
-    private int age;
+    private String email;
 }

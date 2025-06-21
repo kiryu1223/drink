@@ -7,7 +7,7 @@ import java.util.Map;
 public interface ISqlTableRefExpression extends ISqlExpression {
     void setName(String name);
     String getName();
-    String getDisPlayName();
+    // String getDisPlayName();
     @Override
     default ISqlTableRefExpression copy(IConfig config) {
         return this;

@@ -65,6 +65,6 @@ public class SqlCollectedValueExpression implements ISqlCollectedValueExpression
                 values.add(new SqlValue(obj, typeHandler));
             }
         }
-        return "(" + String.join(delimiter, strings) + ")";
+        return String.join(delimiter, strings);
     }
 }

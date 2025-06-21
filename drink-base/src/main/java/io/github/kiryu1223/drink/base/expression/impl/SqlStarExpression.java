@@ -25,13 +25,6 @@ public class SqlStarExpression implements ISqlStarExpression
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values)
     {
-        if (tableRefExpression == null)
-        {
-            return "*";
-        }
-        else
-        {
-            return tableRefExpression.getDisPlayName()+".*";
-        }
+        return tableRefExpression.getSqlAndValue(config,values)+".*";
     }
 }

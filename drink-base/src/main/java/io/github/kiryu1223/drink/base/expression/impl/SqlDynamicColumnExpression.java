@@ -38,6 +38,6 @@ public class SqlDynamicColumnExpression implements ISqlDynamicColumnExpression {
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         IDialect dialect = config.getDisambiguation();
         String columnName = dialect.disambiguation(column);
-        return dialect.disambiguation(tableRefExpression.getDisPlayName()) + "." + columnName;
+        return tableRefExpression.getSqlAndValue(config,values) + "." + columnName;
     }
 }

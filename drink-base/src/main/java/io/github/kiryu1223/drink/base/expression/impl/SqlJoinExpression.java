@@ -74,10 +74,13 @@ public class SqlJoinExpression implements ISqlJoinExpression {
             ISqlWithExpression table = (ISqlWithExpression) joinTable;
             builder.append(disambiguation.disambiguationTableName(table.withTableName()));
         }
+        else if(joinTable instanceof ISqlRealTableExpression){
+            builder.append(joinTable.getSqlAndValue(config, values));
+        }
         else {
             builder.append("(").append(joinTable.getSqlAndValue(config, values)).append(")");
         }
-        builder.append(" AS ").append(disambiguation.disambiguation(tableRefExpression.getDisPlayName()));
+        builder.append(" AS ").append(tableRefExpression.getSqlAndValue(config,values));
         if (conditions != null) {
             builder.append(" ON ").append(conditions.getSqlAndValue(config, values));
         }

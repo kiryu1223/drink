@@ -11,12 +11,9 @@ import java.time.LocalDateTime;
 
 @Data
 @FieldNameConstants
-@Table("student_courses")
+@Table("stu_cou")
 public class StudentCourse implements IMappingTable
 {
-    private int id;
-    private int studentId;
-    private int courseId;
-    private LocalDateTime selectionDate;
-    private BigDecimal score;
+    private Integer stuId;
+    private Integer couId;
 }

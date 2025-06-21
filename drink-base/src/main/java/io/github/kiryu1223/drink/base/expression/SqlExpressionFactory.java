@@ -429,10 +429,6 @@ public interface SqlExpressionFactory {
 
     ISqlStarExpression star(ISqlTableRefExpression tableRefExpression);
 
-    default ISqlStarExpression star() {
-        return star(null);
-    }
-
     ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression pivotRefExpression);
 
     default ISqlPivotExpression pivot(ISqlQueryableExpression tableExpression, ISqlTemplateExpression aggregationColumn, Class<?> aggregationType, ISqlColumnExpression transColumn, Collection<Object> transColumnValues, ISqlTableRefExpression tempRefExpression)

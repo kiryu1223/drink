@@ -27,7 +27,6 @@ public class SqlTableRefExpression implements ISqlTableRefExpression {
         return name;
     }
 
-    @Override
     public String getDisPlayName() {
         Map<ISqlTableRefExpression, String> asNameStringMap = AsNameManager.get();
         String s = asNameStringMap.get(this);
@@ -45,6 +44,6 @@ public class SqlTableRefExpression implements ISqlTableRefExpression {
 
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-        return getDisPlayName();
+        return config.getDisambiguation().disambiguation(getDisPlayName());
     }
 }

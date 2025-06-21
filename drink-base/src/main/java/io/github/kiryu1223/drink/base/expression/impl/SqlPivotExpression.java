@@ -87,7 +87,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
         String from = String.format(
                 "FROM (%s) AS %s",
                 tableName,
-                dialect.disambiguation(tempRefExpression.getDisPlayName())
+                tempRefExpression.getSqlAndValue(config,values)
         );
 
         // 3. 构建 PIVOT 部分
@@ -98,7 +98,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
                 transColumnValues.stream()
                         .map(e -> dialect.disambiguation(e.toString()))
                         .collect(Collectors.joining(",")),
-                dialect.disambiguationTableName(pivotRefExpression.getDisPlayName())
+                pivotRefExpression.getSqlAndValue(config,values)
         );
 
         // 4. 合并 SQL 语句
@@ -140,7 +140,7 @@ public class SqlPivotExpression implements ISqlPivotExpression {
         fromBuilder.append("FROM (")
                 .append(queryableExpression.getSqlAndValue(config, values))
                 .append(") AS ")
-                .append(disambiguation.disambiguation(tempRefExpression.getDisPlayName()));
+                .append(tempRefExpression.getSqlAndValue(config,values));
 
         ISqlSelectExpression groupSelect = factory.select(getMainTableClass(), tempRefExpression);
         groupBuilder.append("GROUP BY ");
