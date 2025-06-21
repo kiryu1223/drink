@@ -61,6 +61,6 @@ public class OracleFromExpression extends SqlFromExpression {
             builder.append(")");
         }
 
-        return "FROM " + builder + config.getDisambiguation().disambiguation(tableRefExpression.getDisPlayName());
+        return "FROM " + builder + tableRefExpression.getSqlAndValue(config,values);
     }
 }

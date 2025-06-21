@@ -51,7 +51,7 @@ public class OracleJoinExpression extends SqlJoinExpression {
         else {
             builder.append("(").append(joinTable.getSqlAndValue(config, values)).append(")");
         }
-        builder.append(" ").append(disambiguation.disambiguation(tableRefExpression.getDisPlayName())).append(" ");
+        builder.append(" ").append(tableRefExpression.getSqlAndValue(config,values)).append(" ");
         builder.append(" ON ");
         builder.append(conditions.getSqlAndValue(config, values));
         return builder.toString();
