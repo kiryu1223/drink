@@ -1,15 +1,16 @@
 package io.github.kiryu1223.project.pojos;
 
 import io.github.kiryu1223.drink.base.annotation.*;
+import io.github.kiryu1223.drink.base.toBean.handler.JsonTypeHandler;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.util.List;
 import io.github.kiryu1223.expressionTree.expressions.annos.Getter;
 import io.github.kiryu1223.expressionTree.expressions.annos.Setter;
-import io.github.kiryu1223.project.handler.GenderHandler;
 import io.github.kiryu1223.project.handler.MoneyLogicColumn;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 
 
@@ -29,7 +30,6 @@ public class Employee implements ITable
     private String firstName;
     @Column("last_name")
     private String lastName;
-    @UseTypeHandler(GenderHandler.class)
     private Gender gender;
     @Column("hire_date")
     private LocalDate hireDay;
@@ -40,6 +40,21 @@ public class Employee implements ITable
     )
     private List<Salary> salaries;
 
+    static class My<T> extends JsonTypeHandler<T>
+    {
+
+        @Override
+        public T jsonToObject(String json, Type type)
+        {
+            return null;
+        }
+
+        @Override
+        public String objectToJson(T value)
+        {
+            return "";
+        }
+    }
 
 
 //    public String toString(IConfig config)

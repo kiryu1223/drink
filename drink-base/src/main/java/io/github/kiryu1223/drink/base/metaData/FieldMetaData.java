@@ -79,8 +79,9 @@ public class FieldMetaData {
      */
     private final Type genericType;
     private final LogicColumn logicColumn;
+    private final boolean isJsonObject;
 
-    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey, LogicColumn logicColumn) {
+    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey, LogicColumn logicColumn, boolean isJsonObject) {
         this.notNull = notNull;
         this.fieldName = fieldName;
         this.column = column;
@@ -88,6 +89,7 @@ public class FieldMetaData {
         this.isPrimaryKey = isPrimaryKey;
         this.isGeneratedKey = isGeneratedKey;
         this.logicColumn = logicColumn;
+        this.isJsonObject = isJsonObject;
         getter.setAccessible(true);
         this.getter = getter;
         setter.setAccessible(true);
@@ -218,5 +220,10 @@ public class FieldMetaData {
 
     public boolean hasLogicColumn() {
         return logicColumn != null;
+    }
+
+    public boolean isJsonObject()
+    {
+        return isJsonObject;
     }
 }

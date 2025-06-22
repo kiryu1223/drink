@@ -89,6 +89,7 @@ public class MetaData {
                 UseLogicColumn useLogicColumn = field.getAnnotation(UseLogicColumn.class);
                 IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
                 Navigate navigate = field.getAnnotation(Navigate.class);
+                JsonObject jsonObject=field.getAnnotation(JsonObject.class);
 
                 boolean notNull;
                 String columnName;
@@ -100,6 +101,18 @@ public class MetaData {
                 boolean isPrimaryKey;
                 boolean isGeneratedKey;
                 LogicColumn logicColumn = null;
+                boolean isJsonObject;
+                if (jsonObject != null)
+                {
+                    isJsonObject=true;
+                }
+                else
+                {
+                    Class<?> fieldType = field.getType();
+                    boolean annotationPresent = fieldType.isAnnotationPresent(JsonObject.class);
+                    boolean assignableFrom = IJsonObject.class.isAssignableFrom(fieldType);
+                    isJsonObject = annotationPresent || assignableFrom;
+                }
                 if (column != null) {
                     String value = column.value();
                     if (DrinkUtil.isEmpty(value)) {
@@ -120,7 +133,14 @@ public class MetaData {
                     typeHandler = TypeHandlerManager.getByHandlerType(cast(useTypeHandler.value()));
                 }
                 else {
-                    typeHandler = TypeHandlerManager.get(field.getGenericType());
+                    if (isJsonObject)
+                    {
+                        typeHandler = TypeHandlerManager.getJsonTypeHandler();
+                    }
+                    else
+                    {
+                        typeHandler = TypeHandlerManager.get(field.getGenericType());
+                    }
                 }
                 if (navigate != null) {
                     Class<?> navigateTargetType;
@@ -153,7 +173,7 @@ public class MetaData {
                 if (useLogicColumn != null) {
                     logicColumn = LogicColumn.get(useLogicColumn.value());
                 }
-                FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey, logicColumn);
+                FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey, logicColumn,isJsonObject);
                 fields.add(fieldMetaData);
             }
         } catch (NoSuchMethodException e) {

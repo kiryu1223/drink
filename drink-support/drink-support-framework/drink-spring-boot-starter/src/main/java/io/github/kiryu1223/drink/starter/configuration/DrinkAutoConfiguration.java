@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.starter.configuration;
 
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.JsonTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
@@ -70,8 +71,13 @@ public class DrinkAutoConfiguration implements ApplicationListener<ContextRefres
         Map<String, ITypeHandler<?>> typeHandlerMap = cast(context.getBeansOfType(ITypeHandler.class));
         for (ITypeHandler<?> value : typeHandlerMap.values())
         {
+            // Json类型单独处理
+            if(value instanceof JsonTypeHandler<?>)
+            {
+                TypeHandlerManager.setJsonTypeHandler((JsonTypeHandler<?>) value);
+            }
             // 标记为全局的类型处理器注册到按type缓存
-            if (AnnotationUtils.isAnnotationDeclaredLocally(GlobalTypeHandler.class, value.getClass()))
+            else if (AnnotationUtils.isAnnotationDeclaredLocally(GlobalTypeHandler.class, value.getClass()))
             {
                 TypeHandlerManager.set(value);
             }

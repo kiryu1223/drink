@@ -5,18 +5,34 @@ import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.page.DefaultPager;
+import io.github.kiryu1223.drink.base.toBean.handler.JsonTypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.project.pojos.Course;
 import io.github.kiryu1223.project.pojos.Students;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class Main
 {
     public static SqlClient boot()
     {
-        //TypeHandlerManager.set(new GenderHandler());
+        TypeHandlerManager.setJsonTypeHandler(new JsonTypeHandler<Object>()
+        {
+            @Override
+            public Object jsonToObject(String json, Type type)
+            {
+                return new Object();
+            }
+
+            @Override
+            public String objectToJson(Object value)
+            {
+                return "{}";
+            }
+        });
 
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/employees?rewriteBatchedStatements=true");
@@ -33,11 +49,6 @@ public class Main
                 .build();
     }
 
-    static class PP extends DefaultPager
-    {
-
-    }
-
     public static void main(String[] args)
     {
         SqlClient client = boot();
@@ -49,14 +60,10 @@ public class Main
 //        });
 //
 
-        List<Course> list = client.query(Course.class)
-                .where(s -> s.getTitle() == "数据库系统")
-                .includeMany(s -> s.getStudents(),q->q.limit(1,2))
-                .toList();
+        String sql = client.query(Course.class)
+                .where(c -> c.getJson().get(3).getAaa() > 100)
+                .toSql();
 
-        for (Course course : list)
-        {
-            System.out.println(course);
-        }
+        System.out.println(sql);
     }
 }

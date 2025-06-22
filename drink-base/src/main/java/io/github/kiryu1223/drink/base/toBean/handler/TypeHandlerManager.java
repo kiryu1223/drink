@@ -1,5 +1,6 @@
 package io.github.kiryu1223.drink.base.toBean.handler;
 
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.datetime.*;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.list.*;
 import io.github.kiryu1223.drink.base.toBean.handler.impl.number.*;
@@ -17,7 +18,7 @@ public class TypeHandlerManager
     private static final Map<Type, ITypeHandler<?>> cache = new HashMap<>();
     private static final Map<Class<? extends ITypeHandler<?>>, ITypeHandler<?>> handlerCache = new HashMap<>();
     private static final UnKnowTypeHandler<?> unKnowTypeHandler = new UnKnowTypeHandler<>();
-
+    private static JsonTypeHandler<?> jsonTypeHandler;
 //    public static <T> void set(TypeRef<T> typeRef, ITypeHandler<T> typeHandler)
 //    {
 //        cache.put(typeRef.getActualType(), typeHandler);
@@ -38,6 +39,20 @@ public class TypeHandlerManager
     public static <T> void setHandler(ITypeHandler<T> typeHandler)
     {
         handlerCache.put((Class<? extends ITypeHandler<?>>) typeHandler.getClass(),typeHandler);
+    }
+
+    public static void setJsonTypeHandler(JsonTypeHandler<?> jsonTypeHandler)
+    {
+        TypeHandlerManager.jsonTypeHandler=jsonTypeHandler;
+    }
+
+    public static JsonTypeHandler<?> getJsonTypeHandler()
+    {
+        if (jsonTypeHandler == null)
+        {
+            throw new DrinkException("使用json对象模式必须要注册一个JsonTypeHandler");
+        }
+        return jsonTypeHandler;
     }
 
     static

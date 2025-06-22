@@ -215,4 +215,10 @@ public class DefaultSqlExpressionFactory implements SqlExpressionFactory {
     public ISqlUnPivotExpression unPivot(ISqlQueryableExpression tableExpression, String newNameColumnName, String newValueColumnName, Class<?> newValueColumnType, List<ISqlColumnExpression> transColumns, ISqlTableRefExpression tempRefExpression, ISqlTableRefExpression unPovitRefExpression) {
         return new SqlUnPivotExpression(tableExpression, newNameColumnName, newValueColumnName, newValueColumnType, transColumns, tempRefExpression,unPovitRefExpression );
     }
+
+    @Override
+    public ISqlJsonObject jsonProperty(ISqlColumnExpression columnExpression)
+    {
+        return new SqlJsonObject(columnExpression);
+    }
 }

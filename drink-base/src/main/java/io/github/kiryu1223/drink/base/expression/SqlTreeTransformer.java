@@ -3,7 +3,6 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class SqlTreeTransformer {
     protected final IConfig config;
@@ -119,6 +118,10 @@ public abstract class SqlTreeTransformer {
         }
         else if (expr instanceof ISqlUnPivotExpression) {
             return visit((ISqlUnPivotExpression) expr);
+        }
+        else if (expr instanceof ISqlJsonObject)
+        {
+            return visit((ISqlJsonObject) expr);
         }
         return null;
     }
@@ -466,6 +469,23 @@ public abstract class SqlTreeTransformer {
     }
 
     public ISqlExpression visit(ISqlUnPivotExpression expr) {
+        return expr;
+    }
+
+    public ISqlExpression visit(ISqlJsonObject expr)
+    {
+        ISqlColumnExpression column = expr.getColumnExpression();
+        ISqlColumnExpression visit = (ISqlColumnExpression)visit(column);
+        if (column!=visit)
+        {
+            ISqlJsonObject jsonProperty = factory.jsonProperty(visit);
+            jsonProperty.setIndex(expr.getIndex());
+            for (JsonProperty property : expr.getJsonPropertyList())
+            {
+                jsonProperty.addJsonProperty(property);
+            }
+            return jsonProperty;
+        }
         return expr;
     }
 }

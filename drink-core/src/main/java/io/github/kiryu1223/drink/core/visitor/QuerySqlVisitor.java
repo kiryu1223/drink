@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.core.visitor;
 
-import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
@@ -20,7 +19,6 @@ import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -610,9 +608,30 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                     throw new SqLinkException(String.format("意外的sql表达式类型:%s 表达式为:%s", left.getClass(), methodCall));
                 }
             }
-//            else if (method.getName().equals("stream")) {
-//                流支持的功能太少了，就不写了
-//            }
+            else if(method.getName().equals("get"))
+            {
+                ISqlExpression left = visit(methodCall.getExpr());
+                if (left instanceof ISqlJsonObject)
+                {
+                    ISqlJsonObject jsonObject = (ISqlJsonObject) left;
+                    Expression expression = methodCall.getArgs().get(0);
+                    Integer index = (Integer) expression.getValue();
+                    List<JsonProperty> jsonPropertyList = jsonObject.getJsonPropertyList();
+                    if (jsonPropertyList.isEmpty())
+                    {
+                        jsonObject.setIndex(index);
+                    }
+                    else
+                    {
+                        last(jsonPropertyList).setIndex(index);
+                    }
+                    return left;
+                }
+                else
+                {
+                    throw new SqLinkException(String.format("意外的sql表达式类型:%s 表达式为:%s", left.getClass(), methodCall));
+                }
+            }
             else {
                 return checkAndReturnValue(methodCall);
             }
@@ -639,79 +658,6 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
             return objectsHandler(methodCall);
         }
         else {
-//            if (isProperty(asNameMap, methodCall)) {
-//                if (isGetter(methodCall.getMethod())) {
-//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-//                    Method getter = methodCall.getMethod();
-//                    MetaData metaData = config.getMetaData(getter.getDeclaringClass());
-//                    ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
-//                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
-//                }
-//                else if (isGroupValue(asNameMap, methodCall.getExpr())) // g.value?.field
-//                {
-//                    FieldSelectExpression expr = (FieldSelectExpression) methodCall.getExpr();
-//                    String vname = expr.getField().getName();
-//                    int valueIndex = Integer.parseInt(vname.replace("value", ""));
-//                    List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
-//                    ISqlTableRefExpression asName = asNameList.get(valueIndex);
-//                    Method getter = methodCall.getMethod();
-//                    MetaData metaData = config.getMetaData(getter.getDeclaringClass());
-//                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
-//                }
-//                else if (isSetter(methodCall.getMethod())) {
-//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-//                    Method setter = methodCall.getMethod();
-//                    MetaData metaData = config.getMetaData(setter.getDeclaringClass());
-//                    FieldMetaData fieldMetaData = metaData.getFieldMetaDataBySetter(setter);
-//                    ISqlColumnExpression columnExpression = factory.column(fieldMetaData, asNameMap.get(parameter));
-//                    ISqlExpression value = visit(methodCall.getArgs().get(0));
-//                    return factory.set(columnExpression, value);
-//                }
-//                else if (isDynamicColumn(methodCall.getMethod())) {
-//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-//                    List<Expression> args = methodCall.getArgs();
-//                    Expression expression = args.get(0);
-//                    String columnName = expression.getValue().toString();
-//                    Expression expression1 = args.get(1);
-//                    Class<?> value = (Class<?>) expression1.getValue();
-//                    ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
-//                    return factory.dynamicColumn(columnName, value, asName);
-//                }
-//                else {
-//                    return checkAndReturnValue(methodCall);
-//                }
-//            }
-//            else {
-//                ISqlExpression left = visit(methodCall.getExpr());
-//                // if left is A.B()
-//                if (left instanceof ISqlColumnExpression) {
-//                    ISqlColumnExpression columnExpression = (ISqlColumnExpression) left;
-//                    Method method = methodCall.getMethod();
-//                    if (isGetter(method)) {
-//                        // A.B() => SELECT ... FROM B WHERE B.ID = A.ID
-//                        // ISqlQueryableExpression changed = columnToQuery(columnExpression);
-//                        // A.B().C() => SELECT ... FROM C WHERE C.ID = (SELECT B.ID FROM B WHERE B.ID = A.ID)
-//                        //  return queryToQuery(changed, method);
-//                    }
-//                    else {
-//                        return checkAndReturnValue(methodCall);
-//                    }
-//                }
-//                // if left is A.B()...N()
-//                else if (left instanceof ISqlQueryableExpression) {
-//                    Method method = methodCall.getMethod();
-//                    if (isGetter(method)) {
-//                        ISqlQueryableExpression queryableExpression = (ISqlQueryableExpression) left;
-//                        return queryToQuery(queryableExpression, method);
-//                    }
-//                    else {
-//                        return checkAndReturnValue(methodCall);
-//                    }
-//                }
-//                else {
-//                    return checkAndReturnValue(methodCall);
-//                }
-//            }
             Expression expression = methodCall.getExpr();
             Method method = methodCall.getMethod();
             ISqlExpression left = visit(expression);
@@ -727,7 +673,15 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                         return getterToSqlAst(getter, tableRef);
                     }
                     else {
-                            return factory.column(getter, tableRef);
+                        ISqlColumnExpression column = factory.column(getter, tableRef);
+                        if (getter.isJsonObject())
+                        {
+                            return factory.jsonProperty(column);
+                        }
+                        else
+                        {
+                            return column;
+                        }
                     }
                 }
                 else if(isPivoted(method))
@@ -757,14 +711,26 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                     return checkAndReturnValue(methodCall);
                 }
             }
+            // (a) -> a.jsonObjectField
+            if (left instanceof ISqlJsonObject)
+            {
+                ISqlJsonObject jsonObject = (ISqlJsonObject) left;
+                MetaData metaData = config.getMetaData(method.getDeclaringClass());
+                FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
+                jsonObject.addJsonProperty(new JsonProperty(getter));
+                return jsonObject;
+            }
             // ?.table()
-            else if (left instanceof ISqlQueryableExpression) {
+            else if (left instanceof ISqlQueryableExpression)
+            {
                 ISqlQueryableExpression leftQuery = (ISqlQueryableExpression) left;
                 // ?.table().getter()
-                if (isGetter(method)) {
+                if (isGetter(method))
+                {
                     MetaData metaData = config.getMetaData(method.getDeclaringClass());
                     FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
-                    if (getter.hasNavigate()) {
+                    if (getter.hasNavigate())
+                    {
                         ISqlQueryableExpression query = queryToQueryable(leftQuery, getter);
                         // 弹出旧的
                         pop();
@@ -772,7 +738,8 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                         push(query);
                         return query;
                     }
-                    else {
+                    else
+                    {
                         // select ? from table ...
                         // select table.getter from table ...
                         leftQuery.setSelect(factory.select(Collections.singletonList(factory.column(getter, leftQuery.getFrom().getTableRefExpression())), getter.getType()));
@@ -786,11 +753,13 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
 //                    leftQuery.setSelect(factory.select(Collections.singletonList(factory.dynamicColumn(column, type, leftQuery.getFrom().getTempRefExpression())), type));
 //                    return leftQuery;
 //                }
-                else {
+                else
+                {
                     throw new DrinkException(methodCall.toString());
                 }
             }
-            else {
+            else
+            {
                 return checkAndReturnValue(methodCall);
             }
         }

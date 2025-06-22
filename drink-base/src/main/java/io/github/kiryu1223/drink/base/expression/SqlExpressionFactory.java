@@ -442,4 +442,6 @@ public interface SqlExpressionFactory {
     {
         return unPivot(tableExpression, newNameColumnName, newValueColumnName, newValueColumnType, transColumns, tempRefExpression, tableRef("<unpivot>"));
     }
+
+    ISqlJsonObject jsonProperty(ISqlColumnExpression columnExpression);
 }

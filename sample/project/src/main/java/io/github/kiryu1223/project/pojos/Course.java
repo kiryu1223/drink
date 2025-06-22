@@ -1,9 +1,6 @@
 package io.github.kiryu1223.project.pojos;
 
-import io.github.kiryu1223.drink.base.annotation.Column;
-import io.github.kiryu1223.drink.base.annotation.Navigate;
-import io.github.kiryu1223.drink.base.annotation.RelationType;
-import io.github.kiryu1223.drink.base.annotation.Table;
+import io.github.kiryu1223.drink.base.annotation.*;
 import io.github.kiryu1223.drink.core.api.ITable;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
@@ -29,4 +26,6 @@ public class Course implements ITable
             target = Students.Fields.id
     )
     private List<Students> students;
+    @JsonObject
+    private List<Json> json;
 }

@@ -1,6 +1,5 @@
 package io.github.kiryu1223.drink.base.expression;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -116,6 +115,10 @@ public abstract class SqlTreeVisitor {
         }
         else if (expr instanceof ISqlUnPivotExpression) {
             visit((ISqlUnPivotExpression) expr);
+        }
+        else if (expr instanceof ISqlJsonObject)
+        {
+            visit((ISqlJsonObject) expr);
         }
     }
 
@@ -290,5 +293,10 @@ public abstract class SqlTreeVisitor {
     public void visit(ISqlUnPivotExpression expr) {
         visit(expr.getQueryableExpression());
         visit(expr.getTransColumns());
+    }
+
+    public void visit(ISqlJsonObject expr)
+    {
+        visit(expr.getColumnExpression());
     }
 }
