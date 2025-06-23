@@ -9,7 +9,7 @@ import io.github.kiryu1223.drink.base.toBean.handler.UnKnowTypeHandler;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static com.sun.jmx.mbeanserver.Util.cast;
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
 
 public class SqlValue
 {
