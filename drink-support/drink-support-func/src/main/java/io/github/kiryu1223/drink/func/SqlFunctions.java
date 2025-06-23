@@ -15,6 +15,7 @@
  */
 package io.github.kiryu1223.drink.func;
 
+import io.github.kiryu1223.drink.base.annotation.IJsonObject;
 import io.github.kiryu1223.drink.base.exception.Winner;
 import io.github.kiryu1223.drink.base.sqlExt.GroupJoinExtension;
 import io.github.kiryu1223.drink.base.sqlExt.Over;
@@ -2357,10 +2358,76 @@ public final class SqlFunctions {
         return error();
     }
 
-    // endregion
-
     public final static class When<R> {
         private When() {
         }
     }
+
+    // endregion
+
+    // region [JSON]
+
+    /**
+     * 是否为json对象
+     */
+    @SqlExtensionExpression(dbType = {MySQL,Doris},template = "(JSON_VALID({o}) = 1)")
+    @SqlExtensionExpression(dbType = SQLServer,template = "(ISJSON({o}) = 1)")
+    @SqlExtensionExpression(dbType = {PostgreSQL,Oracle} ,template = "({o} IS JSON)")
+    @SqlExtensionExpression(dbType = H2 ,template = "({o} IS JSON VALUE)")
+    public static boolean isJson(Object o) {return error();}
+
+    /**
+     * 取指定路径的标量值
+     */
+    @SqlExtensionExpression(template = "JSON_VALUE({json},{path})")
+    public static <T> T jsonValue(String json,T path) {return error();}
+
+    /**
+     * 取指定路径的对象
+     */
+    @SqlExtensionExpression(template = "JSON_QUERY({json},{path})")
+    public static <T> T jsonQuery(String json,T path) {return error();}
+
+    /**
+     * 取指定路径的值
+     */
+    @SqlExtensionExpression(dbType = {MySQL,H2,Doris}, template = "JSON_EXTRACT({json},{path})")
+    public static <T> T jsonExtract(String json,T path) {return error();}
+
+    /**
+     * 生成一个json对象
+     */
+    @SqlExtensionExpression(dbType = {MySQL,Doris,H2,Oracle,SQLServer}, template = "JSON_OBJECT({kv})")
+    @SqlExtensionExpression(dbType = PostgreSQL, template = "JSON_BUILD_OBJECT({kv})")
+    public static <T extends IJsonObject,V> T jsonObject(JsonKV kv)
+    {
+        return error();
+    }
+
+    /**
+     * 生成一个json对象
+     */
+    @SqlExtensionExpression(dbType = {MySQL,Doris,H2,Oracle,SQLServer},template = "JSON_OBJECT({k},{v},{kvs})")
+    @SqlExtensionExpression(dbType = PostgreSQL,template = "JSON_BUILD_OBJECT({k},{v},{kvs})")
+    public static <T extends IJsonObject> T jsonObject(JsonKV kv, JsonKV... kvs)
+    {
+        return error();
+    }
+
+    @SqlExtensionExpression(template = "{k},{v}")
+    @SqlExtensionExpression(dbType = Oracle,template = "KEY {k} VALUE {v}")
+    @SqlExtensionExpression(dbType = SQLServer,template = "{k}:{v}")
+    @SqlExtensionExpression(dbType = H2,template = "{k} VALUE {v}")
+    public static JsonKV kv(String k,Object v)
+    {
+        return error();
+    }
+
+    public static class JsonKV {
+        private JsonKV()
+        {
+        }
+    }
+
+    // endregion
 }

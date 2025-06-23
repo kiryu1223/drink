@@ -8,6 +8,7 @@ import lombok.experimental.FieldNameConstants;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @FieldNameConstants
@@ -16,4 +17,6 @@ public class StudentCourse implements IMappingTable
 {
     private Integer stuId;
     private Integer couId;
+
+    private List<Students> students;
 }

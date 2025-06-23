@@ -10,6 +10,7 @@ import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.project.pojos.Course;
+import io.github.kiryu1223.project.pojos.StudentCourse;
 import io.github.kiryu1223.project.pojos.Students;
 
 import java.lang.reflect.Type;
@@ -62,6 +63,19 @@ public class Main
 
         String sql = client.query(Course.class)
                 .where(c -> c.getJson().get(3).getAaa() > 100)
+                .select(c->new Course(){
+                    {
+                        setStudents(
+                                client.query(Students.class)
+                                        .where(s->s.getId() == c.getId())
+                                        .toList()
+                        );
+                    }
+                    List<? extends Students> names= client.query(StudentCourse.class)
+                            .where(s->s.getCouId()==c.getId())
+                            .selectMany(s->s.getStudents())
+                            .toList();
+                })
                 .toSql();
 
         System.out.println(sql);
