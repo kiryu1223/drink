@@ -233,19 +233,51 @@ spring:
     username: root
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
 
 # Drink 配置
 drink:
-  database: mysql        # 数据库类型
+  enable: true          # 启用
+  database: mysql       # 数据库类型
   print-sql: true       # 是否打印 SQL
-  print-batch: false    # 是否打印批量操作信息
-  name-conversion: snake_case  # 命名转换策略
 
 server:
   port: 8080
+```
+
+> jdk15+用户需要修改项目根目录下的文件（没有则新建）
+ 
+gradle项目: */gradle.properties文件*
+
+```properties
+org.gradle.jvmargs=\
+--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED \
+--add-exports=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED
+
+```
+
+maven项目: */mvn/jvm.config文件*
+
+```config
+--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED
+--add-exports=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED
 ```
 
 #### 3. 使用示例
