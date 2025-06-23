@@ -50,7 +50,7 @@ public class IncludeBuilder {
 
     private void tryPrintSql(String sql) {
         if (config.isPrintSql()) {
-            log.info("includeQuery: ==> {}",sql);
+            log.info("includeQuery: ==> {}", sql);
         }
     }
 
@@ -159,7 +159,7 @@ public class IncludeBuilder {
 
         if (!includes.isEmpty()) {
             List<?> flatList = includeResultMap.values().stream().flatMap(o -> o.stream()).collect(Collectors.toList());
-            recursion(session,flatList);
+            recursion(session, flatList);
         }
     }
 
@@ -209,7 +209,7 @@ public class IncludeBuilder {
 
         if (!includes.isEmpty()) {
             List<Object> flatList = map.values().stream().flatMap(o -> o.stream()).collect(Collectors.toList());
-            recursion(session,flatList);
+            recursion(session, flatList);
         }
     }
 
@@ -253,6 +253,7 @@ public class IncludeBuilder {
     }
 
     private void recursion(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
+        if (source.isEmpty()) return;
         for (IncludeBuilder include : includes) {
             include.include(session, source);
         }
