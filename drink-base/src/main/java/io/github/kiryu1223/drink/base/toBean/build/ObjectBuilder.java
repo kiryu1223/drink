@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 public class ObjectBuilder<T> {
     private final ResultSet resultSet;
     private final Class<T> target;
-    private final List<FieldMetaData> propertyMetaDataList;
+    private final List<FieldMetaData> fieldMetaDataList;
     private final boolean isSingle;
     private final IConfig config;
     private final ITypeHandler<T> singleTypeHandler;
@@ -30,22 +30,22 @@ public class ObjectBuilder<T> {
     }
 
     public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler) {
-        return start(resultSet, target, propertyMetaDataList, isSingle, config, singleTypeHandler,0);
+        return start(resultSet, target, propertyMetaDataList, isSingle, config, singleTypeHandler, 0);
     }
 
-    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler,int fetchSize) {
-        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle, config, singleTypeHandler,fetchSize);
+    public static <T> ObjectBuilder<T> start(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler, int fetchSize) {
+        return new ObjectBuilder<>(resultSet, target, propertyMetaDataList, isSingle, config, singleTypeHandler, fetchSize);
     }
 
-    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<FieldMetaData> propertyMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler,int fetchSize) {
+    private ObjectBuilder(ResultSet resultSet, Class<T> target, List<FieldMetaData> fieldMetaDataList, boolean isSingle, IConfig config, ITypeHandler<T> singleTypeHandler, int fetchSize) {
         this.resultSet = resultSet;
         this.target = target;
-        this.propertyMetaDataList = propertyMetaDataList;
+        this.fieldMetaDataList = fieldMetaDataList;
         this.isSingle = isSingle;
         this.config = config;
         //this.valueGetter = config.getValueGetter();
         this.singleTypeHandler = singleTypeHandler;
-        this.fetchSize=fetchSize;
+        this.fetchSize = fetchSize;
     }
 
     public <Key> Map<Key, T> createMap(String column) throws SQLException, IllegalAccessException, InvocationTargetException {
@@ -56,7 +56,7 @@ public class ObjectBuilder<T> {
         while (resultSet.next()) {
             T t = creator.get();
             Key key = null;
-            for (FieldMetaData metaData : propertyMetaDataList) {
+            for (FieldMetaData metaData : fieldMetaDataList) {
                 Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
                 if (column.equals(metaData.getColumn())) {
                     key = (Key) value;
@@ -77,7 +77,7 @@ public class ObjectBuilder<T> {
         while (resultSet.next()) {
             T t = creator.get();
             Key key = null;
-            for (FieldMetaData metaData : propertyMetaDataList) {
+            for (FieldMetaData metaData : fieldMetaDataList) {
                 String column = metaData.getColumn();
                 //System.out.println(column);
                 Object value = convertValue(metaData, indexMap.get(column));
@@ -104,22 +104,24 @@ public class ObjectBuilder<T> {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
+        int[] indexes = getIndexes(indexMap);
         int anotherKeyIndex = indexMap.get(mappingKeyName);
         Map<Key, List<T>> map = new HashMap<>();
         while (resultSet.next()) {
             T t = creator.get();
             Key key = (Key) convertValue(mappingKey, anotherKeyIndex);
-            foreach(beanCreator, indexMap, t);
+            foreach(beanCreator, indexes, t);
             List<T> list = map.computeIfAbsent(key, k -> new ArrayList<>());
             list.add(t);
         }
         return map;
     }
 
-    private void foreach(AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap, T t) throws SQLException, InvocationTargetException, IllegalAccessException {
-        for (FieldMetaData metaData : propertyMetaDataList) {
-            Integer index = indexMap.get(metaData.getColumn());
-            if (index != null) {
+    private void foreach(AbsBeanCreator<T> beanCreator, int[] indexes, T t) throws SQLException, InvocationTargetException, IllegalAccessException {
+        int offset = 0;
+        for (FieldMetaData metaData : fieldMetaDataList) {
+            int index = indexes[offset++];
+            if (index > 0) {
                 Object value = convertValue(metaData, index);
                 if (value != null) {
                     ISetterCaller<T> setter = beanCreator.getBeanSetter(metaData.getFieldName());
@@ -129,8 +131,7 @@ public class ObjectBuilder<T> {
         }
     }
 
-    public JdbcResult<T> createList() throws SQLException, NoSuchFieldException, InvocationTargetException, IllegalAccessException
-    {
+    public JdbcResult<T> createList() throws SQLException, NoSuchFieldException, InvocationTargetException, IllegalAccessException {
         return createList(null);
     }
 
@@ -160,43 +161,37 @@ public class ObjectBuilder<T> {
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(target);
         Supplier<T> creator = beanCreator.getBeanCreator();
         Map<String, Integer> indexMap = getIndexMap();
+        int[] indexes = getIndexes(indexMap);
         JdbcResult<T> jdbcResult = new JdbcResult<>();
         if (exValues == null) {
-            if(fetchSize > 0)
-            {
-                for (int i = 0; i < fetchSize; i++)
-                {
-                    onNotHasExValues(creator, beanCreator, indexMap, jdbcResult);
+            if (fetchSize > 0) {
+                for (int i = 0; i < fetchSize; i++) {
+                    onNotHasExValues(creator, beanCreator, indexes, jdbcResult);
                 }
             }
-            else
-            {
-                onNotHasExValues(creator, beanCreator, indexMap, jdbcResult);
+            else {
+                onNotHasExValues(creator, beanCreator, indexes, jdbcResult);
             }
         }
         else {
-            if(fetchSize > 0)
-            {
-                for (int i = 0; i < fetchSize; i++)
-                {
-                    onHasExValues(exValues, jdbcResult, creator, beanCreator, indexMap);
+            if (fetchSize > 0) {
+                for (int i = 0; i < fetchSize; i++) {
+                    onHasExValues(exValues, jdbcResult, creator, beanCreator, indexMap,indexes);
                 }
             }
-            else
-            {
-                onHasExValues(exValues, jdbcResult, creator, beanCreator, indexMap);
+            else {
+                onHasExValues(exValues, jdbcResult, creator, beanCreator, indexMap,indexes);
             }
         }
         return jdbcResult;
     }
 
-    private void onHasExValues(ExValues exValues, JdbcResult<T> jdbcResult, Supplier<T> creator, AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap) throws SQLException, InvocationTargetException, IllegalAccessException
-    {
+    private void onHasExValues(ExValues exValues, JdbcResult<T> jdbcResult, Supplier<T> creator, AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap,int[] indexes) throws SQLException, InvocationTargetException, IllegalAccessException {
         List<ExtensionObject> extensionValueResult = jdbcResult.getExtensionValueResult();
         List<ExtensionObject> extensionKeyResult = jdbcResult.getExtensionKeyResult();
         while (resultSet.next()) {
             T t = creator.get();
-            foreach(beanCreator, indexMap, t);
+            foreach(beanCreator, indexes, t);
             Map<String, ExtensionField> extensionValueFieldMap = new HashMap<>();
             Map<String, ExtensionField> extensionKeyFieldMap = new HashMap<>();
             for (Map.Entry<String, FieldMetaData> entry : exValues.getExValueMap().entrySet()) {
@@ -244,11 +239,10 @@ public class ObjectBuilder<T> {
         }
     }
 
-    private void onNotHasExValues(Supplier<T> creator, AbsBeanCreator<T> beanCreator, Map<String, Integer> indexMap, JdbcResult<T> jdbcResult) throws SQLException, InvocationTargetException, IllegalAccessException
-    {
+    private void onNotHasExValues(Supplier<T> creator, AbsBeanCreator<T> beanCreator, int[] indexes, JdbcResult<T> jdbcResult) throws SQLException, InvocationTargetException, IllegalAccessException {
         while (resultSet.next()) {
             T t = creator.get();
-            foreach(beanCreator, indexMap, t);
+            foreach(beanCreator, indexes, t);
             jdbcResult.addResult(t);
         }
     }
@@ -261,6 +255,21 @@ public class ObjectBuilder<T> {
             indexMap.put(columnLabel, i);
         }
         return indexMap;
+    }
+
+    private int[] getIndexes(Map<String, Integer> indexMap) throws SQLException {
+        int[] indexes = new int[fieldMetaDataList.size()];
+        int offset = 0;
+        for (FieldMetaData fieldMetaData : fieldMetaDataList) {
+            Integer index = indexMap.get(fieldMetaData.getColumn());
+            if (index != null) {
+                indexes[offset++] = index;
+            }
+            else {
+                indexes[offset++] = 0;
+            }
+        }
+        return indexes;
     }
 
     private Object convertValue(FieldMetaData metaData, int index) throws SQLException {
