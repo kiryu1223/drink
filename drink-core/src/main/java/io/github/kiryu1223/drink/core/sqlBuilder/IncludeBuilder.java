@@ -55,6 +55,8 @@ public class IncludeBuilder {
     }
 
     public void include(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
+        if (source.isEmpty()) return;
+
         NavigateData navigateData = includeField.getNavigateData();
         BeanCreatorFactory beanCreatorFactory = config.getBeanCreatorFactory();
         AbsBeanCreator<?> sourceBeanCreator = beanCreatorFactory.get(includeField.getParentType());
@@ -253,7 +255,6 @@ public class IncludeBuilder {
     }
 
     private void recursion(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
-        if (source.isEmpty()) return;
         for (IncludeBuilder include : includes) {
             include.include(session, source);
         }
