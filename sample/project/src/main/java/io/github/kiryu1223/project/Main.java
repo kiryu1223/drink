@@ -61,23 +61,30 @@ public class Main
 //        });
 //
 
-        String sql = client.query(Course.class)
-                .where(c -> c.getJson().get(3).getAaa() > 100)
-                .select(c->new Course(){
-                    {
-                        setStudents(
-                                client.query(Students.class)
-                                        .where(s->s.getId() == c.getId())
-                                        .toList()
-                        );
-                    }
-                    List<? extends Students> names= client.query(StudentCourse.class)
-                            .where(s->s.getCouId()==c.getId())
-                            .selectMany(s->s.getStudents())
-                            .toList();
-                })
+        Course course = new Course();
+        course.setId(1);
+        String sql = client.insertOrUpdate(course)
                 .toSql();
 
         System.out.println(sql);
+
+//        String sql = client.query(Course.class)
+//                .where(c -> c.getJson().get(3).getAaa() > 100)
+//                .select(c->new Course(){
+//                    {
+//                        setStudents(
+//                                client.query(Students.class)
+//                                        .where(s->s.getId() == c.getId())
+//                                        .toList()
+//                        );
+//                    }
+//                    List<? extends Students> names= client.query(StudentCourse.class)
+//                            .where(s->s.getCouId()==c.getId())
+//                            .selectMany(s->s.getStudents())
+//                            .toList();
+//                })
+//                .toSql();
+//
+//        System.out.println(sql);
     }
 }

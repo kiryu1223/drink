@@ -46,12 +46,15 @@ class Config implements IConfig {
     private final Transformer transformer;
     private final SqlExpressionFactory sqlExpressionFactory;
     private final NameConverter nameConverter;
-    private Pager pager;
     private final IInsertOrUpdate insertOrUpdate;
+    private final DataBaseMetaData dataBaseMetaData;
+    private Pager pager;
 
-    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, Pager pager) {
+
+    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, DataBaseMetaData dataBaseMetaData, Pager pager) {
         this.option = option;
         this.dbType = dbType;
+        this.dataBaseMetaData = dataBaseMetaData;
         this.beanCreatorFactory = new BeanCreatorFactory(this);
 
         this.transactionManager = transactionManager;
@@ -148,5 +151,10 @@ class Config implements IConfig {
 
     public MetaData getMetaData(Class<?> c) {
         return metaDataCache.computeIfAbsent(c, clazz -> new MetaData(clazz, this));
+    }
+
+    @Override
+    public DataBaseMetaData getDataBaseMetaData() {
+        return dataBaseMetaData;
     }
 }

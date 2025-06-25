@@ -4,11 +4,10 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.IInsertOrUpdate;
 import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
-import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.LogicColumn;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,27 +49,36 @@ public class MySQLInsertOrUpdate implements IInsertOrUpdate {
                 return "?";
             }
         }).collect(Collectors.joining(",")));
-        builder.append(") AS ");
+        builder.append(")");
         String asNew = dialect.disambiguationTableName("new");
-        builder.append(asNew);
+        if (MySQLUtil.isAfter8(config)) {
+            builder.append(" AS ");
+            builder.append(asNew);
+        }
         builder.append(" ON DUPLICATE KEY UPDATE ");
         // 如果重复时需要更新的字段为空说明就是忽略更新
-        if (updateColumns.isEmpty())
-        {
+        if (updateColumns.isEmpty()) {
             FieldMetaData primary = metaData.getPrimary();
             String primaryKeyName = dialect.disambiguation(primary.getColumn());
             String set = tableName + "." + primaryKeyName;
             builder.append(set).append(" = ").append(set);
         }
-        else
-        {
+        else {
             List<String> us = updateColumns.stream()
                     .map(u -> dialect.disambiguation(u.getFieldMetaData().getColumn()))
                     .collect(Collectors.toList());
-            builder.append(us.stream()
-                    .map(e -> e + " = " + asNew + "." + e)
-                    .collect(Collectors.joining(","))
-            );
+            if (MySQLUtil.isAfter8(config)) {
+                builder.append(us.stream()
+                        .map(e -> e + " = " + asNew + "." + e)
+                        .collect(Collectors.joining(","))
+                );
+            }
+            else {
+                builder.append(us.stream()
+                        .map(e -> e + " = VALUES(" + e + ")")
+                        .collect(Collectors.joining(","))
+                );
+            }
         }
 
         return builder.toString();

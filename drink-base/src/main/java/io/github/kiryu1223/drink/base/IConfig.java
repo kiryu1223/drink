@@ -42,6 +42,8 @@ public interface IConfig
 
     DbType getDbType();
 
+    DataBaseMetaData getDataBaseMetaData();
+
     boolean isPrintSql();
 
     boolean isPrintBatch();

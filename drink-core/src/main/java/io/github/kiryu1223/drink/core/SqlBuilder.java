@@ -15,6 +15,7 @@
  */
 package io.github.kiryu1223.drink.core;
 
+import io.github.kiryu1223.drink.base.DataBaseMetaData;
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IDbSupport;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
@@ -25,19 +26,20 @@ import io.github.kiryu1223.drink.base.page.DefaultPager;
 import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
-import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.ServiceLoader;
 
 /**
  * @author kiryu1223
  * @since 3.0
  */
-public class SqlBuilder
-{
+public class SqlBuilder {
 
     public static SqlBuilder bootStrap() {
         return new SqlBuilder();
@@ -89,8 +91,23 @@ public class SqlBuilder
         if (dbSupport == null) {
             dbSupport = getSpi();
         }
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, dbSupport, nameConverter, pager);
+        DataBaseMetaData dataBaseMetaData = tryGetDbMetadate(dataSourceManager);
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, dbSupport, nameConverter, dataBaseMetaData, pager);
         return new SqlClient(config);
+    }
+
+    private DataBaseMetaData tryGetDbMetadate(DataSourceManager dataSourceManager) {
+        try (Connection connection = dataSourceManager.getConnection()) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            DataBaseMetaData dataBaseMetaData = new DataBaseMetaData();
+            dataBaseMetaData.setProductName(metaData.getDatabaseProductName());
+            dataBaseMetaData.setProductVersion(metaData.getDatabaseProductVersion());
+            dataBaseMetaData.setDriverName(metaData.getDriverName());
+            dataBaseMetaData.setDriverVersion(metaData.getDriverVersion());
+            return dataBaseMetaData;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private IDbSupport getSpi() {
@@ -103,8 +120,7 @@ public class SqlBuilder
         throw new DrinkException(String.format("找不到%s数据库支持", dbType));
     }
 
-    public void setDbSupport(IDbSupport dbSupport)
-    {
+    public void setDbSupport(IDbSupport dbSupport) {
         this.dbSupport = dbSupport;
     }
 
