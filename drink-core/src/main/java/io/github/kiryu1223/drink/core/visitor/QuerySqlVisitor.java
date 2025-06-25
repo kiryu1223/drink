@@ -987,6 +987,11 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
         return factory.typeCast(typeCast.getTargetType(), visit(typeCast.getExpr()));
     }
 
+    @Override
+    public ISqlExpression visit(StaticClassExpression staticClassExpression) {
+        return new JavaType(staticClassExpression.getType());
+    }
+
     protected ParamMatcher match(String input) {
         ParamMatcher paramMatcher = new ParamMatcher();
 

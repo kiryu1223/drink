@@ -6,6 +6,7 @@ import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlValueExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.expression.SqlOperator;
+import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.transform.*;
 import io.github.kiryu1223.drink.core.exception.SqLinkIllegalExpressionException;
@@ -346,6 +347,29 @@ public abstract class BaseSqlVisitor extends ResultThrowVisitor<ISqlExpression> 
         }
         else {
             return match.get();
+        }
+    }
+
+    protected static class JavaType implements ISqlExpression {
+
+        private final Class<?> javaType;
+
+        public JavaType(Class<?> javaType) {
+            this.javaType = javaType;
+        }
+
+        @Override
+        public String getSqlAndValue(IConfig config, List<SqlValue> values) {
+            return "";
+        }
+
+        @Override
+        public <T extends ISqlExpression> T copy(IConfig config) {
+            return null;
+        }
+
+        public Class<?> getJavaType() {
+            return javaType;
         }
     }
 }
