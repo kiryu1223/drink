@@ -15,11 +15,11 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.update;
 
+import io.github.kiryu1223.drink.core.exception.NotCompiledException;
+import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.expressionTree.delegate.Func10;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
-import io.github.kiryu1223.drink.core.exception.NotCompiledException;
-import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 
 /**
  * @author kiryu1223
@@ -48,7 +48,7 @@ public class LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends UpdateBa
         return this;
     }
 
-    public <R> LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> setColumn(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> func, Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> value) {
+    public <R> LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> setColumn(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> func, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> value) {
         throw new NotCompiledException();
     }
 
@@ -66,7 +66,7 @@ public class LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends UpdateBa
         return this;
     }
 
-    public <R> LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> func, Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> value) {
+    public <R> LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> func, @Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> value) {
         throw new NotCompiledException();
     }
 

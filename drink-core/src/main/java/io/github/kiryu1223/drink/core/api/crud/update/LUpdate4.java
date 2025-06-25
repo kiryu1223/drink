@@ -107,7 +107,7 @@ public class LUpdate4<T1, T2, T3, T4> extends UpdateBase<LUpdate4<T1, T2, T3, T4
         return this;
     }
 
-    public <R> LUpdate4<T1, T2, T3, T4> setColumn(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> func, Func4<T1, T2, T3, T4, R> value) {
+    public <R> LUpdate4<T1, T2, T3, T4> setColumn(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> func,@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> value) {
         throw new NotCompiledException();
     }
 
@@ -125,7 +125,7 @@ public class LUpdate4<T1, T2, T3, T4> extends UpdateBase<LUpdate4<T1, T2, T3, T4
         return this;
     }
 
-    public <R> LUpdate4<T1, T2, T3, T4> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> func, Func4<T1, T2, T3, T4, R> value) {
+    public <R> LUpdate4<T1, T2, T3, T4> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> func,@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> value) {
         throw new NotCompiledException();
     }
 

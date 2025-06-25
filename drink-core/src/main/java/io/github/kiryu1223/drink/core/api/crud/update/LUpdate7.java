@@ -107,7 +107,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase<LUpdate7<T1
         return this;
     }
 
-    public <R> LUpdate7<T1, T2, T3, T4, T5, T6, T7> setColumn(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> func, Func7<T1, T2, T3, T4, T5, T6, T7, R> value) {
+    public <R> LUpdate7<T1, T2, T3, T4, T5, T6, T7> setColumn(@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> func,@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> value) {
         throw new NotCompiledException();
     }
 
@@ -125,7 +125,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase<LUpdate7<T1
         return this;
     }
 
-    public <R> LUpdate7<T1, T2, T3, T4, T5, T6, T7> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> func, Func7<T1, T2, T3, T4, T5, T6, T7, R> value) {
+    public <R> LUpdate7<T1, T2, T3, T4, T5, T6, T7> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> func,@Expr(Expr.BodyType.Expr) Func7<T1, T2, T3, T4, T5, T6, T7, R> value) {
         throw new NotCompiledException();
     }
 

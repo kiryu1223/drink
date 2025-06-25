@@ -109,7 +109,7 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
-    public <R> LUpdate<T> setColumn(@Expr(Expr.BodyType.Expr) Func1<T, R> func, Func1<T, R> value) {
+    public <R> LUpdate<T> setColumn(@Expr(Expr.BodyType.Expr) Func1<T, R> func,@Expr(Expr.BodyType.Expr) Func1<T, R> value) {
         throw new NotCompiledException();
     }
 
@@ -127,7 +127,7 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
-    public <R> LUpdate<T> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> func, Func1<T, R> value) {
+    public <R> LUpdate<T> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> func,@Expr(Expr.BodyType.Expr) Func1<T, R> value) {
         throw new NotCompiledException();
     }
 
