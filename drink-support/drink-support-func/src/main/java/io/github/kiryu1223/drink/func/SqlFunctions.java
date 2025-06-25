@@ -2370,14 +2370,14 @@ public final class SqlFunctions {
     /**
      * 是否为json对象
      */
-    @SqlExtensionExpression(dbType = {MySQL,Doris},template = "(JSON_VALID({o}) = 1)")
-    @SqlExtensionExpression(dbType = SQLServer,template = "(ISJSON({o}) = 1)")
-    @SqlExtensionExpression(dbType = {PostgreSQL,Oracle} ,template = "({o} IS JSON)")
-    @SqlExtensionExpression(dbType = H2 ,template = "({o} IS JSON VALUE)")
-    public static boolean isJson(Object o) {return error();}
+    @SqlExtensionExpression(dbType = {MySQL,Doris},template = "(JSON_VALID({s}) = 1)")
+    @SqlExtensionExpression(dbType = SQLServer,template = "(ISJSON({s}) = 1)")
+    @SqlExtensionExpression(dbType = {PostgreSQL,Oracle} ,template = "({s} IS JSON)")
+    @SqlExtensionExpression(dbType = H2 ,template = "({s} IS JSON VALUE)")
+    public static boolean isJson(String s) {return error();}
 
     /**
-     * 取指定路径的标量值
+     * 取指定路径的值
      */
     @SqlExtensionExpression(template = "JSON_VALUE({json},{path})")
     public static <T> T jsonValue(String json,T path) {return error();}
@@ -2389,10 +2389,14 @@ public final class SqlFunctions {
     public static <T> T jsonQuery(String json,T path) {return error();}
 
     /**
-     * 取指定路径的值
+     * 生成一个json对象
      */
-    @SqlExtensionExpression(dbType = {MySQL,H2,Doris}, template = "JSON_EXTRACT({json},{path})")
-    public static <T> T jsonExtract(String json,T path) {return error();}
+    @SqlExtensionExpression(dbType = {MySQL,Doris,H2,Oracle,SQLServer}, template = "JSON_OBJECT({json})")
+    @SqlExtensionExpression(dbType = PostgreSQL, template = "JSON_BUILD_OBJECT({json})")
+    public static <T extends IJsonObject,V> T jsonObject(String json)
+    {
+        return error();
+    }
 
     /**
      * 生成一个json对象
