@@ -89,7 +89,7 @@ public class MetaData {
                 UseLogicColumn useLogicColumn = field.getAnnotation(UseLogicColumn.class);
                 IgnoreColumn ignoreColumn = field.getAnnotation(IgnoreColumn.class);
                 Navigate navigate = field.getAnnotation(Navigate.class);
-                JsonObject jsonObject=field.getAnnotation(JsonObject.class);
+                JsonObject jsonObject = field.getAnnotation(JsonObject.class);
 
                 boolean notNull;
                 String columnName;
@@ -102,12 +102,10 @@ public class MetaData {
                 boolean isGeneratedKey;
                 LogicColumn logicColumn = null;
                 boolean isJsonObject;
-                if (jsonObject != null)
-                {
-                    isJsonObject=true;
+                if (jsonObject != null) {
+                    isJsonObject = true;
                 }
-                else
-                {
+                else {
                     Class<?> fieldType = field.getType();
                     boolean annotationPresent = fieldType.isAnnotationPresent(JsonObject.class);
                     boolean assignableFrom = IJsonObject.class.isAssignableFrom(fieldType);
@@ -133,12 +131,10 @@ public class MetaData {
                     typeHandler = TypeHandlerManager.getByHandlerType(cast(useTypeHandler.value()));
                 }
                 else {
-                    if (isJsonObject)
-                    {
+                    if (isJsonObject) {
                         typeHandler = TypeHandlerManager.getJsonTypeHandler();
                     }
-                    else
-                    {
+                    else {
                         typeHandler = TypeHandlerManager.get(field.getGenericType());
                     }
                 }
@@ -173,7 +169,7 @@ public class MetaData {
                 if (useLogicColumn != null) {
                     logicColumn = LogicColumn.get(useLogicColumn.value());
                 }
-                FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey, logicColumn,isJsonObject);
+                FieldMetaData fieldMetaData = new FieldMetaData(notNull, fieldName, columnName, getter, setter, field, typeHandler, isIgnoreColumn, navigateData, isPrimaryKey, isGeneratedKey, logicColumn, isJsonObject);
                 fields.add(fieldMetaData);
             }
         } catch (NoSuchMethodException e) {
@@ -224,7 +220,7 @@ public class MetaData {
      * @param key 字段名
      */
     public FieldMetaData getFieldMetaDataByFieldName(String key) {
-        return fields.stream().filter(f -> f.getFieldName().equals(key)).findFirst().orElseThrow(() -> new RuntimeException(key));
+        return fields.stream().filter(f -> f.getFieldName().equals(key)).findFirst().orElseThrow(() -> new DrinkException(key));
     }
 
     /**
@@ -233,7 +229,7 @@ public class MetaData {
      * @param columnName 列名
      */
     public FieldMetaData getFieldMetaDataByColumnName(String columnName) {
-        return fields.stream().filter(f -> f.getColumn().equals(columnName)).findFirst().orElseThrow(() -> new RuntimeException(columnName));
+        return fields.stream().filter(f -> f.getColumn().equals(columnName)).findFirst().orElseThrow(() -> new DrinkException(columnName));
     }
 
     /**
@@ -242,11 +238,11 @@ public class MetaData {
      * @param getter getter方法
      */
     public FieldMetaData getFieldMetaDataByGetter(Method getter) {
-        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter.toGenericString()));
+        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new DrinkException(getter.toGenericString()));
     }
 
     public FieldMetaData getFieldMetaDataByGetterName(String getter) {
-        return fields.stream().filter(f -> f.getGetter().getName().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter));
+        return fields.stream().filter(f -> f.getGetter().getName().equals(getter)).findFirst().orElseThrow(() -> new DrinkException(getter));
     }
 
     /**
@@ -255,7 +251,7 @@ public class MetaData {
      * @param setter setter方法
      */
     public FieldMetaData getFieldMetaDataBySetter(Method setter) {
-        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new RuntimeException(setter.toGenericString()));
+        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new DrinkException(setter.toGenericString()));
     }
 
     /**
@@ -264,7 +260,7 @@ public class MetaData {
      * @param getter getter方法
      */
     public String getColumnNameByGetter(Method getter) {
-        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new RuntimeException(getter.toGenericString())).getColumn();
+        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new DrinkException(getter.toGenericString())).getColumn();
     }
 
     /**
@@ -273,22 +269,22 @@ public class MetaData {
      * @param setter setter方法
      */
     public String getColumnNameBySetter(Method setter) {
-        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new RuntimeException(setter.toGenericString())).getColumn();
+        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new DrinkException(setter.toGenericString())).getColumn();
     }
 
     /**
      * 获取主键的字段元数据
      */
     public FieldMetaData getPrimary() {
-        return fields.stream().filter(f -> f.isPrimaryKey()).findFirst().orElseThrow(() -> new RuntimeException(type + "找不到主键"));
+        return fields.stream().filter(f -> f.isPrimaryKey()).findFirst().orElseThrow(() -> new DrinkException(type + "找不到主键"));
     }
 
     public List<FieldMetaData> getPrimaryList() {
         return fields.stream().filter(f -> f.isPrimaryKey()).collect(Collectors.toList());
     }
 
-    public FieldMetaData getGeneratedKey() {
-        return fields.stream().filter(f -> f.isGeneratedKey()).findAny().orElseThrow(() -> new RuntimeException(type + "找不到自增键"));
+    public FieldMetaData getGeneratedPrimaryKey() {
+        return fields.stream().filter(f -> f.isPrimaryKey() && f.isGeneratedKey()).findAny().orElseThrow(() -> new DrinkException(type + "找不到自增键"));
     }
 
     /**

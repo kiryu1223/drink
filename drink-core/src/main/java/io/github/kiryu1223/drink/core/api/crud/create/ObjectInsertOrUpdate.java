@@ -102,7 +102,7 @@ public class ObjectInsertOrUpdate<T> {
         return session.executeInsert(
                 resultSet -> {
                     if (!autoIncrement) return;
-                    FieldMetaData generatedKey = metaData.getGeneratedKey();
+                    FieldMetaData generatedKey = metaData.getGeneratedPrimaryKey();
                     ITypeHandler<?> typeHandler = generatedKey.getTypeHandler();
                     IGetterCaller<T, ?> beanGetter = beanCreator.getBeanGetter(generatedKey.getFieldName());
                     ISetterCaller<T> beanSetter = beanCreator.getBeanSetter(generatedKey.getFieldName());

@@ -19,7 +19,6 @@ import io.github.kiryu1223.drink.base.Aop;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
-import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
@@ -120,15 +119,15 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
 
         return session.executeInsert(resultSet -> {
             if (!autoIncrement) return;
-            FieldMetaData generatedKey = metaData.getGeneratedKey();
+            FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
             AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
             int index = 0;
             while (resultSet.next()) {
                 R r = objectList.get(index++);
-                ITypeHandler<?> typeHandler = generatedKey.getTypeHandler();
-                Object value = typeHandler.getValue(resultSet, 1, generatedKey.getGenericType());
+                ITypeHandler<?> typeHandler = generatedPrimaryKey.getTypeHandler();
+                Object value = typeHandler.getValue(resultSet, 1, generatedPrimaryKey.getGenericType());
                 if (value != null) {
-                    ISetterCaller<R> beanSetter = beanCreator.getBeanSetter(generatedKey.getFieldName());
+                    ISetterCaller<R> beanSetter = beanCreator.getBeanSetter(generatedPrimaryKey.getFieldName());
                     beanSetter.call(r, value);
                 }
             }
