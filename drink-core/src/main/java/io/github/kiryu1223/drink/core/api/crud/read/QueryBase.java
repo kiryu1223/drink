@@ -119,8 +119,11 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         SqlSession session = config.getSqlSessionFactory().getSession();
         List<SqlValue> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
-        tryPrintSql(log, sql);
-        return session.executeQuery(rs -> rs.next(), sql, values);
+        printSql(sql);
+        printValues(values);
+        boolean any= session.executeQuery(rs -> rs.next(), sql, values);
+        printTotal(1);
+        return any;
     }
 
     // endregion
@@ -134,7 +137,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         boolean single = sqlBuilder.isSingle();
         List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
         ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
-        tryPrintSql(log, sql);
+        printSql(sql);
         SqlSession session = config.getSqlSessionFactory().getSession();
         ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
         return session.executeQuery(sql, values, fetchSize);
@@ -149,7 +152,8 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         boolean single = sqlBuilder.isSingle();
         List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
         ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
-        tryPrintSql(log, sql);
+        printSql(sql);
+        printValues(values);
         SqlSession session = config.getSqlSessionFactory().getSession();
         ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
         JdbcResult<R> result = session.executeQuery(
@@ -158,13 +162,15 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 sql,
                 values
         );
+        List<R> jdbcResult = result.getResult();
+        printTotal(jdbcResult.size());
 
         if (!single) {
             List<IncludeBuilder> includes = sqlBuilder.getIncludes();
             if (!includes.isEmpty()) {
                 try {
                     for (IncludeBuilder include : includes) {
-                        include.include(session, result.getResult());
+                        include.include(session, jdbcResult);
                     }
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     throw new RuntimeException(e);
@@ -183,7 +189,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             }
         }
 
-        return result.getResult();
+        return jdbcResult;
     }
 
     protected ITypeHandler<R> getSingleTypeHandler(boolean single) {

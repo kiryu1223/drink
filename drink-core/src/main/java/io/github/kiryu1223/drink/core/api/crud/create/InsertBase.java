@@ -106,18 +106,13 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = makeByObjects(notIgnoreFields, sqlValues);
         //tryPrintUseDs(log,config.getDataSourceManager().getDsKey());
-        tryPrintSql(log, sql);
+        printSql(sql);
         SqlSession session = config.getSqlSessionFactory().getSession();
 
         List<R> objectList = getObjects();
-        if (objectList.size() > 1) {
-            tryPrintBatch(log, objectList.size());
-        }
-        else {
-            tryPrintNoBatch(log, objectList.size());
-        }
+        printValues(sqlValues);
 
-        return session.executeInsert(resultSet -> {
+        long l= session.executeInsert(resultSet -> {
             if (!autoIncrement) return;
             FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
             AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
@@ -132,6 +127,9 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
                 }
             }
         }, sql, sqlValues, (int) notIgnoreFields.stream().filter(fieldMetaData -> !fieldMetaData.isGeneratedKey()).count(), autoIncrement);
+
+        printTotal(l);
+        return l;
     }
 
     private String makeByObjects(List<FieldMetaData> notIgnoreFields, List<SqlValue> sqlValues) throws InvocationTargetException, IllegalAccessException {

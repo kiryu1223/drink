@@ -22,6 +22,8 @@ import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
+import io.github.kiryu1223.drink.base.log.DefaultSqlLogger;
+import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.page.DefaultPager;
 import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
@@ -69,6 +71,8 @@ public class SqlBuilder {
 
     private IDbSupport dbSupport;
 
+    private ISqlLogger sqlLogger;
+
     /**
      * 构建Client对象
      */
@@ -91,8 +95,12 @@ public class SqlBuilder {
         if (dbSupport == null) {
             dbSupport = getSpi();
         }
+        if (sqlLogger == null)
+        {
+            sqlLogger=new DefaultSqlLogger();
+        }
         DataBaseMetaData dataBaseMetaData = tryGetDbMetadate(dataSourceManager);
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, dbSupport, nameConverter, dataBaseMetaData, pager);
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, dbSupport, nameConverter, dataBaseMetaData,sqlLogger, pager);
         return new SqlClient(config);
     }
 
@@ -176,6 +184,12 @@ public class SqlBuilder {
 
     public SqlBuilder setPager(Pager pager) {
         this.pager = pager;
+        return this;
+    }
+
+    public SqlBuilder setSqlLogger(ISqlLogger sqlLogger)
+    {
+        this.sqlLogger = sqlLogger;
         return this;
     }
 }

@@ -3,6 +3,7 @@ package io.github.kiryu1223.drink.base;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
@@ -44,9 +45,13 @@ public interface IConfig
 
     DataBaseMetaData getDataBaseMetaData();
 
+    ISqlLogger getSqlLogger();
+
     boolean isPrintSql();
 
-    boolean isPrintBatch();
+    boolean isPrintValues();
+
+    boolean isPrintTotal();
 
     boolean isIgnoreDeleteNoWhere();
 

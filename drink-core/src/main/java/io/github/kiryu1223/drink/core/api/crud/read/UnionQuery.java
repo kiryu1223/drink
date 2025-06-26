@@ -86,14 +86,17 @@ public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
         boolean single = unionBuilder.isSingle();
         List<FieldMetaData> mappingData = single ? Collections.emptyList() : unionBuilder.getMappingData();
         String sql = unionBuilder.getSqlAndValue(sqlValues);
-        tryPrintSql(log, sql);
+        printSql(sql);
+        printValues(sqlValues);
         Class<T> targetClass = unionBuilder.getTargetClass();
         SqlSession session = config.getSqlSessionFactory().getSession();
-        return session.executeQuery(
+        List<T> result = session.executeQuery(
                 r -> ObjectBuilder.start(r, targetClass, mappingData, single, config).createList(),
                 sql,
                 sqlValues
         ).getResult();
+        printTotal(result.size());
+        return result;
     }
 
     // endregion

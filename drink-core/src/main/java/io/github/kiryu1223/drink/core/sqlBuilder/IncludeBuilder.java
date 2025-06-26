@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.expression.ISqlCollectedValueExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
+import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.base.session.SqlSession;
@@ -48,12 +49,6 @@ public class IncludeBuilder {
         return includes;
     }
 
-    private void tryPrintSql(String sql) {
-        if (config.isPrintSql()) {
-            log.info("includeQuery: ==> {}", sql);
-        }
-    }
-
     public void include(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
         if (source.isEmpty()) return;
 
@@ -77,7 +72,8 @@ public class IncludeBuilder {
         List<SqlValue> sqlValues = new ArrayList<>(source.size());
         String sql = builder.getSqlAndValue(sqlValues);
 
-        tryPrintSql(sql);
+        ISqlLogger logger = config.getSqlLogger();
+        logger.printSql(config, sql);
 
         switch (relationType) {
             case OneToOne:

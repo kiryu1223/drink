@@ -17,9 +17,12 @@ package io.github.kiryu1223.drink.core.api.crud;
 
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.core.api.crud.update.UpdateBase;
+import io.github.kiryu1223.drink.base.log.ISqlLogger;
+import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.core.sqlBuilder.ISqlBuilder;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 /**
  * @author kiryu1223
@@ -35,30 +38,22 @@ public abstract class CRUD<C> {
      */
     protected abstract String toSql();
 
-    protected void tryPrintSql(Logger log, String sql) {
-        if (getConfig().isPrintSql()) {
-            log.info("==> {}", sql);
-        }
+    protected void printSql(String sql) {
+        IConfig config = getConfig();
+        ISqlLogger sqlLogger = config.getSqlLogger();
+        sqlLogger.printSql(config,sql);
     }
 
-//    protected void tryPrintUseDs(Logger log, String ds)
-//    {
-//        if (getConfig().isPrintUseDs())
-//        {
-//            log.info("Current use datasource: {}", ds == null ? "default" : ds);
-//        }
-//    }
-
-    protected void tryPrintBatch(Logger log, long count) {
-        if (getConfig().isPrintBatch()) {
-            log.info("DataSize: {} Use batch execute", count);
-        }
+    protected void printValues(List<SqlValue> values) {
+        IConfig config = getConfig();
+        ISqlLogger sqlLogger = config.getSqlLogger();
+        sqlLogger.printValues(config,values);
     }
 
-    protected void tryPrintNoBatch(Logger log, long count) {
-        if (getConfig().isPrintBatch()) {
-            log.info("DataSize: {} Use normal execute", count);
-        }
+    protected void printTotal(long total) {
+        IConfig config = getConfig();
+        ISqlLogger sqlLogger = config.getSqlLogger();
+        sqlLogger.printTotal(config,total);
     }
 
     protected abstract ISqlBuilder getSqlBuilder();

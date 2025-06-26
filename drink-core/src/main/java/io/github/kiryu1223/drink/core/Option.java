@@ -34,10 +34,10 @@ public class Option {
      * 是否打印sql
      */
     private boolean printSql = true;
-    /**
-     * 是否打印批量sql
-     */
-    private boolean printBatch = false;
+
+    private boolean printValues;
+
+    private boolean printTotal;
 
     /**
      * 是否忽略没有条件的update
@@ -81,17 +81,23 @@ public class Option {
         this.printSql = printSql;
     }
 
-    /**
-     * 是否打印批量sql
-     */
-    public boolean isPrintBatch() {
-        return printBatch;
+    public boolean isPrintValues()
+    {
+        return printValues;
     }
 
-    /**
-     * 设置是否打印批量sql
-     */
-    public void setPrintBatch(boolean printBatch) {
-        this.printBatch = printBatch;
+    public void setPrintValues(boolean printValues)
+    {
+        this.printValues = printValues;
+    }
+
+    public boolean isPrintTotal()
+    {
+        return printTotal;
+    }
+
+    public void setPrintTotal(boolean printTotal)
+    {
+        this.printTotal = printTotal;
     }
 }
