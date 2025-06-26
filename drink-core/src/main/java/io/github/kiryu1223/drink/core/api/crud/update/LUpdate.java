@@ -15,13 +15,13 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.update;
 
+import io.github.kiryu1223.drink.base.expression.JoinType;
+import io.github.kiryu1223.drink.core.exception.NotCompiledException;
+import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
-import io.github.kiryu1223.drink.base.expression.JoinType;
-import io.github.kiryu1223.drink.core.exception.NotCompiledException;
-import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
 
 /**
  * 更新过程对象
@@ -109,7 +109,7 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
-    public <R> LUpdate<T> setColumn(@Expr(Expr.BodyType.Expr) Func1<T, R> func,@Expr(Expr.BodyType.Expr) Func1<T, R> value) {
+    public <R> LUpdate<T> setColumn(@Expr(Expr.BodyType.Expr) Func1<T, R> func, @Expr(Expr.BodyType.Expr) Func1<T, R> value) {
         throw new NotCompiledException();
     }
 
@@ -127,7 +127,7 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
-    public <R> LUpdate<T> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> func,@Expr(Expr.BodyType.Expr) Func1<T, R> value) {
+    public <R> LUpdate<T> setColumnIf(boolean condition, @Expr(Expr.BodyType.Expr) Func1<T, R> func, @Expr(Expr.BodyType.Expr) Func1<T, R> value) {
         throw new NotCompiledException();
     }
 
@@ -136,6 +136,29 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
+    /**
+     * 当value不为null时更新字段
+     */
+    public <R> LUpdate<T> setIfNotNull(@Expr(Expr.BodyType.Expr) Func1<T, R> func, R value) {
+        throw new NotCompiledException();
+    }
+
+    public <R> LUpdate<T> setIfNotNull(ExprTree<Func1<T, R>> func, R value) {
+        setIf(value != null, func, value);
+        return this;
+    }
+
+    /**
+     * 当value匹配条件时更新字段
+     */
+    public <R> LUpdate<T> setIfMatch(@Expr(Expr.BodyType.Expr) Func1<T, R> func, R value,Func1<R,Boolean> predicate) {
+        throw new NotCompiledException();
+    }
+
+    public <R> LUpdate<T> setIfMatch(ExprTree<Func1<T, R>> func, R value,Func1<R,Boolean> predicate) {
+        setIf(predicate.invoke(value), func, value);
+        return this;
+    }
 
     //endregion
 

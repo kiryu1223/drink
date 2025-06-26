@@ -15,6 +15,8 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.update;
 
+import io.github.kiryu1223.expressionTree.delegate.Func1;
+import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.delegate.Func8;
 import io.github.kiryu1223.expressionTree.delegate.Func9;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -130,6 +132,30 @@ public class LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> extends UpdateBase<LUpdate
 
     public <R> LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> setColumnIf(boolean condition, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, R>> func, ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, R>> value) {
         if (condition) set(func.getTree(), value.getTree());
+        return this;
+    }
+
+    /**
+     * 当value不为null时更新字段
+     */
+    public <R> LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> setIfNotNull(@Expr(Expr.BodyType.Expr) Func8<T1, T2, T3, T4, T5, T6, T7, T8, R> func, R value) {
+        throw new NotCompiledException();
+    }
+
+    public <R> LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> setIfNotNull(ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, R>> func, R value) {
+        setIf(value != null, func, value);
+        return this;
+    }
+
+    /**
+     * 当value匹配条件时更新字段
+     */
+    public <R> LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> setIfMatch(@Expr(Expr.BodyType.Expr) Func8<T1, T2, T3, T4, T5, T6, T7, T8, R> func, R value, Func1<R,Boolean> predicate) {
+        throw new NotCompiledException();
+    }
+
+    public <R> LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> setIfMatch(ExprTree<Func8<T1, T2, T3, T4, T5, T6, T7, T8, R>> func, R value,Func1<R,Boolean> predicate) {
+        setIf(predicate.invoke(value), func, value);
         return this;
     }
 

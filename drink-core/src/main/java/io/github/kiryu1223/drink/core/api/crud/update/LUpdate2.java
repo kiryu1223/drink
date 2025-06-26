@@ -15,6 +15,7 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.update;
 
+import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.delegate.Func3;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -131,6 +132,30 @@ public class LUpdate2<T1, T2> extends UpdateBase<LUpdate2<T1, T2>> {
 
     public <R> LUpdate2<T1, T2> setColumnIf(boolean condition, ExprTree<Func2<T1, T2, R>> func, ExprTree<Func2<T1, T2, R>> value) {
         if (condition) set(func.getTree(), value.getTree());
+        return this;
+    }
+
+    /**
+     * 当value不为null时更新字段
+     */
+    public <R> LUpdate2<T1, T2> setIfNotNull(@Expr(Expr.BodyType.Expr) Func2<T1, T2, R> func, R value) {
+        throw new NotCompiledException();
+    }
+
+    public <R> LUpdate2<T1, T2> setIfNotNull(ExprTree<Func2<T1, T2, R>> func, R value) {
+        setIf(value != null, func, value);
+        return this;
+    }
+
+    /**
+     * 当value匹配条件时更新字段
+     */
+    public <R> LUpdate2<T1, T2> setIfMatch(@Expr(Expr.BodyType.Expr) Func2<T1, T2, R> func, R value,Func1<R,Boolean> predicate) {
+        throw new NotCompiledException();
+    }
+
+    public <R> LUpdate2<T1, T2> setIfMatch(ExprTree<Func2<T1, T2, R>> func, R value,Func1<R,Boolean> predicate) {
+        setIf(predicate.invoke(value), func, value);
         return this;
     }
 

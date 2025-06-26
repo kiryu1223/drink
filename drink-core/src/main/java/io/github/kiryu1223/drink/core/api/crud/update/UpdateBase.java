@@ -63,7 +63,9 @@ public class UpdateBase<C> extends CRUD<C> {
      * @return 执行后的结果
      */
     public long executeRows() {
-        checkHasSet();
+        if (!sqlBuilder.hasSet()) {
+            return 0;
+        }
         checkHasWhere();
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
@@ -72,12 +74,6 @@ public class UpdateBase<C> extends CRUD<C> {
         tryPrintSql(log, sql);
         SqlSession session = config.getSqlSessionFactory().getSession();
         return session.executeUpdate(sql, sqlValues);
-    }
-
-    private void checkHasSet() {
-        if (!sqlBuilder.hasSet()) {
-            throw new SqLinkException("SET为空");
-        }
     }
 
     private void checkHasWhere() {

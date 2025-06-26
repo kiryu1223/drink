@@ -13,6 +13,8 @@ public class DrinkProperties {
     private DbType database = DbType.MySQL;
     private boolean printSql = true;
     private boolean printBatch = false;
+    private boolean ignoreUpdateNoWhere = false;
+    private boolean ignoreDeleteNoWhere = false;
     private NameConversionType nameConversion = NameConversionType.LowerCamelCase;
 
     public boolean isEnable() {
@@ -47,6 +49,22 @@ public class DrinkProperties {
         this.printBatch = printBatch;
     }
 
+    public boolean isIgnoreUpdateNoWhere() {
+        return ignoreUpdateNoWhere;
+    }
+
+    public void setIgnoreUpdateNoWhere(boolean ignoreUpdateNoWhere) {
+        this.ignoreUpdateNoWhere = ignoreUpdateNoWhere;
+    }
+
+    public boolean isIgnoreDeleteNoWhere() {
+        return ignoreDeleteNoWhere;
+    }
+
+    public void setIgnoreDeleteNoWhere(boolean ignoreDeleteNoWhere) {
+        this.ignoreDeleteNoWhere = ignoreDeleteNoWhere;
+    }
+
     public NameConversionType getNameConversion() {
         return nameConversion;
     }
@@ -59,6 +77,8 @@ public class DrinkProperties {
         Option option = new Option();
         option.setPrintSql(printSql);
         option.setPrintBatch(printBatch);
+        option.setIgnoreUpdateNoWhere(ignoreUpdateNoWhere);
+        option.setIgnoreDeleteNoWhere(ignoreDeleteNoWhere);
         return option;
     }
 }
