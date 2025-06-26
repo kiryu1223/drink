@@ -159,27 +159,30 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                 values
         );
 
-        List<IncludeBuilder> includes = sqlBuilder.getIncludes();
-        if (!includes.isEmpty()) {
-            try {
-                for (IncludeBuilder include : includes) {
-                    include.include(session, result.getResult());
+        if (!single) {
+            List<IncludeBuilder> includes = sqlBuilder.getIncludes();
+            if (!includes.isEmpty()) {
+                try {
+                    for (IncludeBuilder include : includes) {
+                        include.include(session, result.getResult());
+                    }
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
+            }
+
+            List<SubQueryBuilder> subQueryBuilders = sqlBuilder.getQueryable().getSelect().getSubQueryBuilders();
+            if (!subQueryBuilders.isEmpty()) {
+                try {
+                    for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
+                        subQueryBuilder.subQuery(session, new ArrayList<>(Collections.singletonList(result)));
+                    }
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
-        List<SubQueryBuilder> subQueryBuilders = sqlBuilder.getQueryable().getSelect().getSubQueryBuilders();
-        if (!subQueryBuilders.isEmpty()) {
-            try {
-                for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
-                    subQueryBuilder.subQuery(session, new ArrayList<>(Collections.singletonList(result)));
-                }
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
         return result.getResult();
     }
 
@@ -725,14 +728,9 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected PagedResult<R> toPagedResult0(long pageIndex, long pageSize) {
         IConfig config = getConfig();
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
-        QuerySqlBuilder boxedQuerySqlBuilder = sqlBuilder.getCopy();
-        boxedQuerySqlBuilder.boxed();
-        Transformer transformer = config.getTransformer();
+
         //SELECT COUNT(*) ...
-        boxedQuerySqlBuilder.setSelect(factory.select(Collections.singletonList(transformer.count()), long.class, true, false));
-        LQuery<Long> countQuery = new LQuery<>(boxedQuerySqlBuilder);
-        long total = countQuery.toList().get(0);
+        long total = count0(null);
 
         ISqlLimitExpression limit = sqlBuilder.getQueryable().getLimit();
         long tempRows = limit.getRows();
