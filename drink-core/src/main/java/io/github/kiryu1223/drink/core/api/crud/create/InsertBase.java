@@ -128,7 +128,7 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
             }
         }, sql, sqlValues, (int) notIgnoreFields.stream().filter(fieldMetaData -> !fieldMetaData.isGeneratedKey()).count(), autoIncrement);
 
-        printTotal(l);
+        printUpdate(l);
         return l;
     }
 

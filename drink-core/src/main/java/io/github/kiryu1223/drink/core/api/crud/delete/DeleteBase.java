@@ -68,7 +68,7 @@ public abstract class DeleteBase<C> extends CRUD<C> {
         printValues(sqlValues);
         SqlSession session = config.getSqlSessionFactory().getSession();
         long l = session.executeDelete(sql, sqlValues);
-        printTotal(l);
+        printUpdate(l);
         return l;
     }
 

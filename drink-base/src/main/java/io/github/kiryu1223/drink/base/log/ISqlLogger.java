@@ -39,4 +39,13 @@ public interface ISqlLogger
             logger.info("<==      Total: {}",total);
         }
     }
+
+    default void printUpdate(IConfig config,long update)
+    {
+        if(config.isPrintTotal())
+        {
+            Logger logger = getLogger();
+            logger.info("<==     Update: {}",update);
+        }
+    }
 }

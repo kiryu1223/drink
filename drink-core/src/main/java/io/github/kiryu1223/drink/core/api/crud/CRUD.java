@@ -20,7 +20,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.core.sqlBuilder.ISqlBuilder;
-import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -41,19 +40,25 @@ public abstract class CRUD<C> {
     protected void printSql(String sql) {
         IConfig config = getConfig();
         ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printSql(config,sql);
+        sqlLogger.printSql(config, sql);
     }
 
     protected void printValues(List<SqlValue> values) {
         IConfig config = getConfig();
         ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printValues(config,values);
+        sqlLogger.printValues(config, values);
     }
 
     protected void printTotal(long total) {
         IConfig config = getConfig();
         ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printTotal(config,total);
+        sqlLogger.printTotal(config, total);
+    }
+
+    protected void printUpdate(long update) {
+        IConfig config = getConfig();
+        ISqlLogger sqlLogger = config.getSqlLogger();
+        sqlLogger.printUpdate(config, update);
     }
 
     protected abstract ISqlBuilder getSqlBuilder();

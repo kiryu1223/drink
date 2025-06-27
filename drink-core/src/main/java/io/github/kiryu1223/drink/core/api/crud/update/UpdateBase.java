@@ -75,7 +75,7 @@ public class UpdateBase<C> extends CRUD<C> {
         printValues(sqlValues);
         SqlSession session = config.getSqlSessionFactory().getSession();
         long l = session.executeUpdate(sql, sqlValues);
-        printTotal(l);
+        printUpdate(l);
         return l;
     }
 
