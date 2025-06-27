@@ -19,6 +19,7 @@ import io.github.kiryu1223.drink.base.*;
 import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.page.Pager;
 import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
@@ -48,13 +49,14 @@ class Config implements IConfig {
     private final NameConverter nameConverter;
     private final IInsertOrUpdate insertOrUpdate;
     private final DataBaseMetaData dataBaseMetaData;
+    private final ISqlLogger sqlLogger;
     private Pager pager;
 
-
-    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, DataBaseMetaData dataBaseMetaData, Pager pager) {
+    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, DataBaseMetaData dataBaseMetaData, ISqlLogger sqlLogger, Pager pager) {
         this.option = option;
         this.dbType = dbType;
         this.dataBaseMetaData = dataBaseMetaData;
+        this.sqlLogger = sqlLogger;
         this.beanCreatorFactory = new BeanCreatorFactory(this);
 
         this.transactionManager = transactionManager;
@@ -102,16 +104,24 @@ class Config implements IConfig {
         return option.isPrintSql();
     }
 
+    @Override
+    public boolean isPrintValues()
+    {
+        return option.isPrintValues();
+    }
+
+    @Override
+    public boolean isPrintTotal()
+    {
+        return option.isPrintTotal();
+    }
+
     public TransactionManager getTransactionManager() {
         return transactionManager;
     }
 
     public SqlSessionFactory getSqlSessionFactory() {
         return sqlSessionFactory;
-    }
-
-    public boolean isPrintBatch() {
-        return option.isPrintBatch();
     }
 
     public SqlExpressionFactory getSqlExpressionFactory() {
@@ -156,5 +166,11 @@ class Config implements IConfig {
     @Override
     public DataBaseMetaData getDataBaseMetaData() {
         return dataBaseMetaData;
+    }
+
+    @Override
+    public ISqlLogger getSqlLogger()
+    {
+        return sqlLogger;
     }
 }

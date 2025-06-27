@@ -8,6 +8,7 @@ import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlUpdateExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.session.SqlSession;
@@ -95,11 +96,11 @@ public class ObjectInsertOrUpdate<T> {
 
         SqlSession session = config.getSqlSessionFactory().getSession();
 
-        if (config.isPrintSql()) {
-            log.info("==> {}", sql);
-        }
+        ISqlLogger sqlLogger = config.getSqlLogger();
+        sqlLogger.printSql(config,sql);
+        sqlLogger.printValues(config,sqlValues);
 
-        return session.executeInsert(
+        long l= session.executeInsert(
                 resultSet -> {
                     if (!autoIncrement) return;
                     FieldMetaData generatedKey = metaData.getGeneratedPrimaryKey();
@@ -120,6 +121,10 @@ public class ObjectInsertOrUpdate<T> {
                 onInsertOrUpdateFields.size(),
                 autoIncrement
         );
+
+        sqlLogger.printTotal(config,l);
+
+        return l;
     }
 
     /**

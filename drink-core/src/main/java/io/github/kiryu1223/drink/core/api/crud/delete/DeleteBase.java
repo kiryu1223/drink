@@ -64,9 +64,12 @@ public abstract class DeleteBase<C> extends CRUD<C> {
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(sqlValues);
         //tryPrintUseDs(log,config.getDataSourceManager().getDsKey());
-        tryPrintSql(log, sql);
+        printSql(sql);
+        printValues(sqlValues);
         SqlSession session = config.getSqlSessionFactory().getSession();
-        return session.executeDelete(sql, sqlValues);
+        long l = session.executeDelete(sql, sqlValues);
+        printTotal(l);
+        return l;
     }
 
     public String toSql() {

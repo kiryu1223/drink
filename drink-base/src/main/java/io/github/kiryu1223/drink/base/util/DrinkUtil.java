@@ -173,4 +173,9 @@ public class DrinkUtil {
         }
         throw new DrinkException("无法获取集合的目标类型:" + type);
     }
+
+    public static String showValueAndType(Object o)
+    {
+        return Objects.isNull(o)?"null":String.format("%s(%s)",o,o.getClass().getSimpleName());
+    }
 }

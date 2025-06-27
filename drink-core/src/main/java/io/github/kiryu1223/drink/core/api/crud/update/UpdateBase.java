@@ -71,9 +71,12 @@ public class UpdateBase<C> extends CRUD<C> {
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(sqlValues);
         //tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
-        tryPrintSql(log, sql);
+        printSql(sql);
+        printValues(sqlValues);
         SqlSession session = config.getSqlSessionFactory().getSession();
-        return session.executeUpdate(sql, sqlValues);
+        long l = session.executeUpdate(sql, sqlValues);
+        printTotal(l);
+        return l;
     }
 
     private void checkHasWhere() {

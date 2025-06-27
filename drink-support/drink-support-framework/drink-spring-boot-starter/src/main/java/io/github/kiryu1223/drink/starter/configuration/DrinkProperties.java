@@ -12,7 +12,8 @@ public class DrinkProperties {
     private boolean enable = false;
     private DbType database = DbType.MySQL;
     private boolean printSql = true;
-    private boolean printBatch = false;
+    private boolean printValues = true;
+    private boolean printTotal = true;
     private boolean ignoreUpdateNoWhere = false;
     private boolean ignoreDeleteNoWhere = false;
     private NameConversionType nameConversion = NameConversionType.LowerCamelCase;
@@ -41,14 +42,6 @@ public class DrinkProperties {
         this.printSql = printSql;
     }
 
-    public boolean isPrintBatch() {
-        return printBatch;
-    }
-
-    public void setPrintBatch(boolean printBatch) {
-        this.printBatch = printBatch;
-    }
-
     public boolean isIgnoreUpdateNoWhere() {
         return ignoreUpdateNoWhere;
     }
@@ -73,10 +66,31 @@ public class DrinkProperties {
         this.nameConversion = nameConversion;
     }
 
+    public boolean isPrintValues()
+    {
+        return printValues;
+    }
+
+    public void setPrintValues(boolean printValues)
+    {
+        this.printValues = printValues;
+    }
+
+    public boolean isPrintTotal()
+    {
+        return printTotal;
+    }
+
+    public void setPrintTotal(boolean printTotal)
+    {
+        this.printTotal = printTotal;
+    }
+
     public Option bulidOption() {
         Option option = new Option();
         option.setPrintSql(printSql);
-        option.setPrintBatch(printBatch);
+        option.setPrintValues(printValues);
+        option.setPrintTotal(printTotal);
         option.setIgnoreUpdateNoWhere(ignoreUpdateNoWhere);
         option.setIgnoreDeleteNoWhere(ignoreDeleteNoWhere);
         return option;

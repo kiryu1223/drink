@@ -37,4 +37,9 @@ public class SqlValue
     public void preparedStatementSetValue(PreparedStatement preparedStatement, int index) throws SQLException {
         typeHandler.setValue(preparedStatement, index, cast(value));
     }
+
+    public Object getValue()
+    {
+        return value;
+    }
 }
