@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.kiryu1223</groupId>
         <artifactId>drink-support</artifactId>
-        <version>1.0.27</version>
+        <version>1.0.28</version>
     </parent>
     <artifactId>drink-support-framework</artifactId>
     <packaging>pom</packaging>
