@@ -67,24 +67,25 @@ public class SqlBinaryExpression implements ISqlBinaryExpression {
                 sb.append(build(config, sqlValues));
             }
         }
-        else
-        {
+        else {
             sb.append(build(config, sqlValues));
         }
         return sb.toString();
     }
 
     private String build(IConfig config, List<SqlValue> sqlValues) {
-        List<String> strings=new ArrayList<>(3);
-        strings.add(left.getSqlAndValue(config, sqlValues));
+        List<String> strings = new ArrayList<>(3);
+        boolean leftIsQuery = left instanceof ISqlQueryableExpression;
+        boolean rightIsQuery = right instanceof ISqlQueryableExpression;
+        String ls = left.getSqlAndValue(config, sqlValues);
+        strings.add(leftIsQuery? "(" + ls + ")" : ls);
         strings.add(operator.getOperator());
-        if (operator == SqlOperator.IN)
-        {
-            strings.add("("+right.getSqlAndValue(config,sqlValues)+")");
+        String rs = right.getSqlAndValue(config, sqlValues);
+        if (operator == SqlOperator.IN) {
+            strings.add("(" + rs + ")");
         }
-        else
-        {
-            strings.add(right.getSqlAndValue(config,sqlValues));
+        else {
+            strings.add(rightIsQuery? "(" + rs + ")" : rs);
         }
         return String.join(" ", strings);
     }
