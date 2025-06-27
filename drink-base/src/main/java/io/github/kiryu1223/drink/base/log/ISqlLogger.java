@@ -26,7 +26,7 @@ public interface ISqlLogger
         if (config.isPrintValues())
         {
             Logger logger = getLogger();
-            String collect = values.stream().map(v -> DrinkUtil.showValueAndType(v.getValue())).collect(Collectors.joining(","));
+            String collect = values.stream().map(v -> DrinkUtil.showValueAndType(v.getValue())).collect(Collectors.joining(", "));
             logger.info("==> Parameters: {}",collect);
         }
     }
