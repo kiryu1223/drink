@@ -78,14 +78,14 @@ public class SqlBinaryExpression implements ISqlBinaryExpression {
         boolean leftIsQuery = left instanceof ISqlQueryableExpression;
         boolean rightIsQuery = right instanceof ISqlQueryableExpression;
         String ls = left.getSqlAndValue(config, sqlValues);
-        strings.add(leftIsQuery? "(" + ls + ")" : ls);
+        strings.add(leftIsQuery ? "(" + ls + ")" : ls);
         strings.add(operator.getOperator());
         String rs = right.getSqlAndValue(config, sqlValues);
         if (operator == SqlOperator.IN) {
             strings.add("(" + rs + ")");
         }
         else {
-            strings.add(rightIsQuery? "(" + rs + ")" : rs);
+            strings.add(rightIsQuery ? "(" + rs + ")" : rs);
         }
         return String.join(" ", strings);
     }
