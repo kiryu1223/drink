@@ -122,7 +122,7 @@ public class ObjectInsertOrUpdate<T> {
                 autoIncrement
         );
 
-        sqlLogger.printTotal(config,l);
+        sqlLogger.printUpdate(config,l);
 
         return l;
     }
