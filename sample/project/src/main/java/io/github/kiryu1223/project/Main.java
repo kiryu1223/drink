@@ -14,7 +14,9 @@ import io.github.kiryu1223.project.pojos.StudentCourse;
 import io.github.kiryu1223.project.pojos.Students;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Main
 {
@@ -53,38 +55,14 @@ public class Main
     public static void main(String[] args)
     {
         SqlClient client = boot();
-        IConfig config = client.getConfig();
-//        Aop aop = config.getAop();
-//        aop.onInsert(Employee.class, e -> {
-//            String firstName = e.getFirstName();
-//            e.setFirstName(DrinkUtil.isEmpty(firstName) ? "a" : "b");
-//        });
-//
 
-        Course course = new Course();
-        course.setId(1);
-        String sql = client.insertOrUpdate(course)
-                .toSql();
 
-        System.out.println(sql);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("小王",1);
+        map.put("小张",2);
+        map.put("小明",3);
 
-//        String sql = client.query(Course.class)
-//                .where(c -> c.getJson().get(3).getAaa() > 100)
-//                .select(c->new Course(){
-//                    {
-//                        setStudents(
-//                                client.query(Students.class)
-//                                        .where(s->s.getId() == c.getId())
-//                                        .toList()
-//                        );
-//                    }
-//                    List<? extends Students> names= client.query(StudentCourse.class)
-//                            .where(s->s.getCouId()==c.getId())
-//                            .selectMany(s->s.getStudents())
-//                            .toList();
-//                })
-//                .toSql();
-//
-//        System.out.println(sql);
+        client.query(Students.class)
+                .where(s->map.getOrDefault(s.getName(),2)==2);
     }
 }

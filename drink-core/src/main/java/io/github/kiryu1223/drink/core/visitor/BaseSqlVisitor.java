@@ -2,10 +2,7 @@ package io.github.kiryu1223.drink.core.visitor;
 
 import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.expression.ISqlExpression;
-import io.github.kiryu1223.drink.base.expression.ISqlValueExpression;
-import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.base.expression.SqlOperator;
+import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.transform.*;
@@ -15,10 +12,7 @@ import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.isVoid;
@@ -300,6 +294,48 @@ public abstract class BaseSqlVisitor extends ResultThrowVisitor<ISqlExpression> 
         }
         else if (method.getName().equals("nonNull")) {
             return objects.notNull(visit(methodCall.getArgs().get(0)));
+        }
+        else {
+            return checkAndReturnValue(methodCall);
+        }
+    }
+
+    protected ISqlExpression mapHandler(MethodCallExpression methodCall) {
+        Method method = methodCall.getMethod();
+        List<Expression> args = methodCall.getArgs();
+        ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) visit(methodCall.getExpr());
+        Map<?, ?> map = (Map<?, ?>) valueExpression.getValue();
+        if (method.getName().equals("get")) {
+            List<String> strings=new ArrayList<>();
+            List<ISqlExpression> argList=new ArrayList<>();
+            strings.add("(CASE ");
+            argList.add(visit(args.get(0)));
+            for (Map.Entry<?, ?> entry : map.entrySet())
+            {
+                strings.add(" WHEN ");
+                argList.add(factory.AnyValue(entry.getKey()));
+                strings.add(" THEN ");
+                argList.add(factory.AnyValue(entry.getValue()));
+            }
+            strings.add(" ELSE NULL END)");
+            return factory.template(strings,argList);
+        }
+        else if (method.getName().equals("getOrDefault")) {
+            List<String> strings=new ArrayList<>();
+            List<ISqlExpression> argList=new ArrayList<>();
+            strings.add("(CASE ");
+            argList.add(visit(args.get(0)));
+            for (Map.Entry<?, ?> entry : map.entrySet())
+            {
+                strings.add(" WHEN ");
+                argList.add(factory.AnyValue(entry.getKey()));
+                strings.add(" THEN ");
+                argList.add(factory.AnyValue(entry.getValue()));
+            }
+            strings.add(" ELSE ");
+            argList.add(visit(args.get(1)));
+            strings.add(" END)");
+            return factory.template(strings,argList);
         }
         else {
             return checkAndReturnValue(methodCall);

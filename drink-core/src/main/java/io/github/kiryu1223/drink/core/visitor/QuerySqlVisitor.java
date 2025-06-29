@@ -636,6 +636,10 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                 return checkAndReturnValue(methodCall);
             }
         }
+        else if(Map.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass()))
+        {
+            return mapHandler(methodCall);
+        }
         // 字符串的函数
         else if (String.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
             return stringHandler(methodCall);
