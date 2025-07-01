@@ -15,7 +15,6 @@
  */
 package io.github.kiryu1223.drink.core.visitor;
 
-import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.annotation.RelationType;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
@@ -25,11 +24,11 @@ import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.base.transform.*;
+import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.core.exception.SqlFuncExtNotFoundException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -43,6 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.last;
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
 
 /**
@@ -256,20 +256,65 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
 //        }
     }
 
-    /**
-     * 方法调用表达式解析
-     */
-    @Override
     public ISqlExpression visit(MethodCallExpression methodCall) {
-        // equals
-        if (isEquals(methodCall)) {
-            return factory.binary(SqlOperator.EQ, visit(methodCall.getExpr()), visit(methodCall.getArgs().get(0)));
+        Method method = methodCall.getMethod();
+        List<Expression> args = methodCall.getArgs();
+        ISqlExpression left = visit(methodCall.getExpr());
+        // (a) -> a
+        if (left instanceof ISqlTableRefExpression) {
+            ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
+            // a.getter()
+            if (isGetter(method)) {
+                FieldMetaData getter = methodToFieldMetaData(method, tableRef);
+                // 如果这个getter是导航属性
+                // 那么他应该被映射成sql语句
+                if (getter.hasNavigate()) {
+                    return getterToSqlAst(getter, tableRef);
+                }
+                else {
+                    ISqlColumnExpression column = factory.column(getter, tableRef);
+                    if (getter.isJsonObject()) {
+                        return factory.jsonProperty(column);
+                    }
+                    else {
+                        return column;
+                    }
+                }
+            }
         }
-        // SQL扩展函数
-        else if (isSqlExtensionExpressionMethod(methodCall.getMethod())) {
-            Method sqlFunction = methodCall.getMethod();
-            SqlExtensionExpression sqlFuncExt = getSqlFuncExt(sqlFunction.getAnnotationsByType(SqlExtensionExpression.class));
-            List<Expression> args = methodCall.getArgs();
+        // (a) -> a.jsonObjectField
+        else if (left instanceof ISqlJsonObject) {
+            ISqlJsonObject jsonObject = (ISqlJsonObject) left;
+            MetaData metaData = config.getMetaData(method.getDeclaringClass());
+            FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
+            jsonObject.addJsonProperty(new JsonProperty(getter));
+            return jsonObject;
+        }
+        // a.Navigate()
+        else if (left instanceof ISqlQueryableExpression) {
+            ISqlQueryableExpression leftQuery = (ISqlQueryableExpression) left;
+            // ?.table().getter()
+            if (isGetter(method)) {
+                MetaData metaData = config.getMetaData(method.getDeclaringClass());
+                FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
+                if (getter.hasNavigate()) {
+                    ISqlQueryableExpression query = queryToQueryable(leftQuery, getter);
+                    // 弹出旧的
+                    pop();
+                    //  在子查询发起的地方压入
+                    push(query);
+                    return query;
+                }
+                else {
+                    // select ? from table ...
+                    // select table.getter from table ...
+                    leftQuery.setSelect(factory.select(Collections.singletonList(factory.column(getter, leftQuery.getFrom().getTableRefExpression())), getter.getType()));
+                    return leftQuery;
+                }
+            }
+        }
+        else if (isSqlExtensionExpressionMethod(method)) {
+            SqlExtensionExpression sqlFuncExt = getSqlFuncExt(method.getAnnotationsByType(SqlExtensionExpression.class));
             List<ISqlExpression> expressions = new ArrayList<>(args.size());
             if (sqlFuncExt.extension() != BaseSqlExtension.class) {
                 for (Expression arg : args) {
@@ -277,7 +322,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 }
                 BaseSqlExtension sqlExtension = BaseSqlExtension.getCache(sqlFuncExt.extension());
                 boolean[] useSuper = {false};
-                ISqlExpression parse = sqlExtension.parse(config, sqlFunction, expressions, useSuper);
+                ISqlExpression parse = sqlExtension.parse(config, method, expressions, useSuper);
                 if (useSuper[0]) {
                     parse = sqlExtension.callSuper(visit(methodCall.getExpr()), parse);
                 }
@@ -298,8 +343,8 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                             expressions.add(visit(methodCall.getExpr()));
                         }
                         else {
-                            boolean isAnd=param.startsWith("&");
-                            String paramFinal=isAnd?param.substring(1):param;
+                            boolean isAnd = param.startsWith("&");
+                            String paramFinal = isAnd ? param.substring(1) : param;
                             Parameter targetParam = methodParameters.stream()
                                     .filter(f -> f.getName().equals(paramFinal))
                                     .findFirst()
@@ -307,28 +352,28 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                             int index = methodParameters.indexOf(targetParam);
 
                             // 如果是可变参数
-                            if (targetParam.isVarArgs()) {
+//                            System.out.println(targetParam);
+                            boolean varArgs = targetParam.isVarArgs();
+                            if (varArgs) {
                                 while (index < args.size()) {
-                                    if (isAnd)
-                                    {
+                                    if (isAnd) {
                                         parse$(args.get(index), strings);
                                     }
-                                    else
-                                    {
+                                    else {
                                         expressions.add(visit(args.get(index)));
-                                        if (index < args.size() - 1) strings.add(sqlFuncExt.separator());
+                                        if (index < args.size() - 1) {
+                                            strings.add(sqlFuncExt.separator());
+                                        }
                                         index++;
                                     }
                                 }
                             }
                             // 正常情况
                             else {
-                                if (isAnd)
-                                {
+                                if (isAnd) {
                                     parse$(args.get(index), strings);
                                 }
-                                else
-                                {
+                                else {
                                     expressions.add(visit(args.get(index)));
                                 }
                             }
@@ -338,10 +383,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 return factory.template(strings, expressions);
             }
         }
-        // SQL运算符
-        else if (isSqlOperatorMethod(methodCall.getMethod())) {
-            Method method = methodCall.getMethod();
-            List<Expression> args = methodCall.getArgs();
+        else if (isSqlOperatorMethod(method)) {
             SqlOperatorMethod operatorMethod = method.getAnnotation(SqlOperatorMethod.class);
             SqlOperator operator = operatorMethod.value();
             if (operator == SqlOperator.BETWEEN) {
@@ -359,653 +401,79 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                     return factory.unary(operator, visit);
                 }
                 else {
-                    ISqlExpression left = visit(methodCall.getArgs().get(0));
-                    ISqlExpression right = visit(methodCall.getArgs().get(1));
-                    if (left instanceof ISqlQueryableExpression) {
-                        left = factory.parens(left);
+                    ISqlExpression l = visit(args.get(0));
+                    ISqlExpression r = visit(args.get(1));
+                    if (l instanceof ISqlQueryableExpression) {
+                        l = factory.parens(l);
                     }
-                    if (right instanceof ISqlQueryableExpression) {
-                        right = factory.parens(right);
+                    if (r instanceof ISqlQueryableExpression) {
+                        r = factory.parens(r);
                     }
-                    return factory.binary(operator, left, right);
+                    return factory.binary(operator, l, r);
                 }
             }
         }
-        // 子查询发起者
-        else if (isStartQuery(methodCall.getMethod())) {
-            Expression expression = methodCall.getArgs().get(0);
-            return visit(expression);
+        else if (left instanceof JavaType) {
+            JavaType javaType = (JavaType) left;
+            Class<?> type = javaType.getType();
+            if (Objects.class.isAssignableFrom(type)) {
+                return objectsStaticHandler(methodCall);
+            }
+            else if (String.class.isAssignableFrom(type)) {
+                return stringStaticHandler(methodCall);
+            }
+            else if (Math.class.isAssignableFrom(type)) {
+                return mathStaticHandler(methodCall);
+            }
+            else if (DrinkUtil.isBigNumber(type)) {
+                return bigNumberStaticHandler(methodCall);
+            }
         }
-        else if (SqlClient.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            Method method = methodCall.getMethod();
-            String methodName = method.getName();
-            Expression expression = methodCall.getArgs().get(0);
-            if (methodName.equals("query") && expression.getKind() == Kind.StaticClass) {
-                StaticClassExpression staticClass = (StaticClassExpression) expression;
-                return factory.queryable(staticClass.getType());
+        else if (left instanceof ISqlSingleValueExpression) {
+            ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) left;
+            Object value = valueExpression.getValue();
+            if (value instanceof String) {
+                return stringHandler(methodCall);
             }
-            return checkAndReturnValue(methodCall);
-        }
-        // 子查询
-        else if (QueryBase.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())
-                 ||isList(methodCall.getMethod())) {
-            Method method = methodCall.getMethod();
-            String methodName = method.getName();
-            if (methodName.equals("count")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = null;
-                if (!methodCall.getArgs().isEmpty()) {
-                    column = visit(methodCall.getArgs().get(0));
-                }
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.count(column)), long.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
+            else if (value instanceof BigInteger || value instanceof BigDecimal) {
+                return bigNumberHandler(methodCall);
             }
-            else if (methodName.equals("sum")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.sum(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
+            else if (value instanceof Temporal) {
+                return dateTimeHandler(methodCall);
             }
-            else if (methodName.equals("avg")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.avg(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
+            else if (value instanceof Date) {
+                return oldDateTimeHandler(methodCall);
             }
-            else if (methodName.equals("min")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.min(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
+            else if (value instanceof Collection) {
+                return collectionHandler(methodCall);
             }
-            else if (methodName.equals("max")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.max(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
+            else if (value instanceof Map) {
+                return mapHandler(methodCall);
             }
-            else if (methodName.equals("any")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                List<Expression> args = methodCall.getArgs();
-                if (!args.isEmpty()) {
-                    Expression expression = args.get(0);
-                    ISqlExpression cond = visit(expression);
-                    queryable.addWhere(cond);
-                }
-                queryable.setSelect(factory.select(Collections.singletonList(factory.constString("1")), int.class));
-                ISqlUnaryExpression any = factory.unary(SqlOperator.EXISTS, queryable);
-                // 在终结的地方弹出
-                pop();
-                return any;
+            else if (isStartQuery(methodCall.getMethod())) {
+                Expression expression = methodCall.getArgs().get(0);
+                return visit(expression);
             }
-            else if (methodName.equals("where")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
+            else if (value instanceof SqlClient) {
+                String name = method.getName();
+                Expression arg = args.get(0);
+                if (name.equals("query") && arg.getKind() == Kind.StaticClass) {
+                    StaticClassExpression staticClass = (StaticClassExpression) arg;
+                    ISqlQueryableExpression queryable = factory.queryable(staticClass.getType());
+                    push(queryable);
+                    return queryable;
                 }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression cond = visit(methodCall.getArgs().get(0));
-                queryable.addWhere(cond);
-                return queryable;
             }
-            else if (methodName.equals("select")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression select = visit(methodCall.getArgs().get(0));
-                queryable.setSelect(factory.select(Collections.singletonList(select), queryable.getMainTableClass()));
-                return factory.queryable(queryable.getSelect(), factory.from(queryable, queryable.getFrom().getTableRefExpression()));
-            }
-            else if (methodName.equals("distinct")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                List<Expression> args = methodCall.getArgs();
-                if (args.isEmpty()) {
-                    queryable.setDistinct(true);
-                }
-                else {
-                    ISqlExpression value = visit(args.get(0));
-                    if (value instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) value;
-                        queryable.setDistinct((boolean) iSqlSingleValueExpression.getValue());
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                return queryable;
-            }
-            else if (methodName.equals("orderBy")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                List<Expression> args = methodCall.getArgs();
-                ISqlExpression orderByColumn = visit(args.get(0));
-
-                if (args.size() > 1) {
-                    ISqlExpression value = visit(args.get(1));
-                    if (value instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) value;
-                        queryable.addOrder(factory.order(orderByColumn, (boolean) iSqlSingleValueExpression.getValue()));
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                else {
-                    queryable.addOrder(factory.order(orderByColumn));
-                }
-                return queryable;
-            }
-            else if (methodName.equals("leftJoin")) {
-                throw new SqLinkException("过于复杂的表达式:" + methodCall);
-            }
-            else if (methodName.equals("innerJoin")) {
-                throw new SqLinkException("过于复杂的表达式:" + methodCall);
-            }
-            else if (methodName.equals("rightJoin")) {
-                throw new SqLinkException("过于复杂的表达式:" + methodCall);
-            }
-            else if (methodName.equals("groupBy")) {
-                throw new SqLinkException("过于复杂的表达式:" + methodCall);
-            }
-            else if (methodName.equals("having")) {
-                throw new SqLinkException("过于复杂的表达式:" + methodCall);
-            }
-            else if (methodName.equals("limit")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-
-                List<Expression> args = methodCall.getArgs();
-                if (args.size() == 1) {
-                    ISqlExpression rows = visit(args.get(0));
-                    if (rows instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) rows;
-                        queryable.setLimit(0, (long) iSqlSingleValueExpression.getValue());
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                else if (args.size() == 2) {
-                    ISqlExpression offset = visit(args.get(0));
-                    ISqlExpression rows = visit(args.get(1));
-                    if (rows instanceof ISqlSingleValueExpression && offset instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression rowsValue = (ISqlSingleValueExpression) rows;
-                        ISqlSingleValueExpression offsetValue = (ISqlSingleValueExpression) offset;
-                        queryable.setLimit((long) offsetValue.getValue(), (long) rowsValue.getValue());
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                return queryable;
-            }
-            else if (methodName.equals("toList")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                // 在终结的地方弹出
-                pop();
-                return visit;
+            else if (value instanceof QueryBase || isList(methodCall.getMethod())) {
+                return queryOrDrinkListHandler(methodCall);
             }
             else {
-                return checkAndReturnValue(methodCall);
+                if (isEquals(methodCall)) {
+                    return factory.binary(SqlOperator.EQ, visit(methodCall.getExpr()), visit(methodCall.getArgs().get(0)));
+                }
             }
         }
-        // 框架内List函数
-        else if (isList(methodCall.getMethod())) {
-            Method method = methodCall.getMethod();
-            String methodName = method.getName();
-            if (methodName.equals("count")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = null;
-                if (!methodCall.getArgs().isEmpty()) {
-                    column = visit(methodCall.getArgs().get(0));
-                }
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.count(column)), long.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
-            }
-            else if (methodName.equals("sum")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.sum(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
-            }
-            else if (methodName.equals("avg")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.avg(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
-            }
-            else if (methodName.equals("min")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.min(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
-            }
-            else if (methodName.equals("max")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression column = visit(methodCall.getArgs().get(0));
-                IAggregateMethods agg = config.getTransformer();
-                queryable.setSelect(factory.select(Collections.singletonList(agg.max(column)), BigDecimal.class));
-                // 在终结的地方弹出
-                pop();
-                return queryable;
-            }
-            else if (methodName.equals("any")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                List<Expression> args = methodCall.getArgs();
-                if (!args.isEmpty()) {
-                    Expression expression = args.get(0);
-                    ISqlExpression cond = visit(expression);
-                    queryable.addWhere(cond);
-                }
-                queryable.setSelect(factory.select(Collections.singletonList(factory.constString("1")), int.class));
-                ISqlUnaryExpression any = factory.unary(SqlOperator.EXISTS, queryable);
-                // 在终结的地方弹出
-                pop();
-                return any;
-            }
-            else if (methodName.equals("where")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression cond = visit(methodCall.getArgs().get(0));
-                queryable.addWhere(cond);
-                return queryable;
-            }
-            else if (methodName.equals("select")) {
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                ISqlExpression select = visit(methodCall.getArgs().get(0));
-                queryable.setSelect(factory.select(Collections.singletonList(select), queryable.getMainTableClass()));
-                return factory.queryable(queryable.getSelect(), factory.from(queryable, queryable.getFrom().getTableRefExpression()));
-            }
-            else if (methodName.equals("distinct")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                List<Expression> args = methodCall.getArgs();
-                if (args.isEmpty()) {
-                    queryable.setDistinct(true);
-                }
-                else {
-                    ISqlExpression value = visit(args.get(0));
-                    if (value instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) value;
-                        queryable.setDistinct((boolean) iSqlSingleValueExpression.getValue());
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                return queryable;
-            }
-            else if (methodName.equals("orderBy")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-                List<Expression> args = methodCall.getArgs();
-                ISqlExpression orderByColumn = visit(args.get(0));
-
-                if (args.size() > 1) {
-                    ISqlExpression value = visit(args.get(1));
-                    if (value instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) value;
-                        queryable.addOrder(factory.order(orderByColumn, (boolean) iSqlSingleValueExpression.getValue()));
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                else {
-                    queryable.addOrder(factory.order(orderByColumn));
-                }
-                return queryable;
-            }
-            else if (methodName.equals("limit")) {
-
-                ISqlExpression visit = visit(methodCall.getExpr());
-                if (!(visit instanceof ISqlQueryableExpression)) {
-                    throw new SqLinkException("不支持的表达式:" + methodCall);
-                }
-                ISqlQueryableExpression queryable = (ISqlQueryableExpression) visit;
-
-                List<Expression> args = methodCall.getArgs();
-                if (args.size() == 1) {
-                    ISqlExpression rows = visit(args.get(0));
-                    if (rows instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression iSqlSingleValueExpression = (ISqlSingleValueExpression) rows;
-                        queryable.setLimit(0, (long) iSqlSingleValueExpression.getValue());
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                else if (args.size() == 2) {
-                    ISqlExpression offset = visit(args.get(0));
-                    ISqlExpression rows = visit(args.get(1));
-                    if (rows instanceof ISqlSingleValueExpression && offset instanceof ISqlSingleValueExpression) {
-                        ISqlSingleValueExpression rowsValue = (ISqlSingleValueExpression) rows;
-                        ISqlSingleValueExpression offsetValue = (ISqlSingleValueExpression) offset;
-                        queryable.setLimit((long) offsetValue.getValue(), (long) rowsValue.getValue());
-                    }
-                    else {
-                        throw new SqLinkException("不支持的表达式:" + methodCall);
-                    }
-                }
-                return queryable;
-            }
-            else {
-                return checkAndReturnValue(methodCall);
-            }
-        }
-        // 集合的函数
-        else if (Collection.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            Method method = methodCall.getMethod();
-            if (method.getName().equals("contains")) {
-                ISqlExpression left = visit(methodCall.getArgs().get(0));
-                ISqlExpression right = visit(methodCall.getExpr());
-                ISqlBinaryExpression binary = factory.binary(SqlOperator.IN, left, right);
-                // 在终结的地方弹出
-                pop();
-                return binary;
-            }
-            else if (method.getName().equals("size")) {
-                ISqlExpression left = visit(methodCall.getExpr());
-                if (left instanceof ISqlQueryableExpression) {
-                    ISqlQueryableExpression query = (ISqlQueryableExpression) left;
-                    IAggregateMethods agg = config.getTransformer();
-                    query.setSelect(factory.select(Collections.singletonList(agg.count()), long.class));
-                    // 在终结的地方弹出
-                    pop();
-                    return query;
-                }
-                else {
-                    throw new DrinkException(String.format("意外的sql表达式类型:%s 表达式为:%s", left.getClass(), methodCall));
-                }
-            }
-            else if (method.getName().equals("isEmpty")) {
-                ISqlExpression left = visit(methodCall.getExpr());
-                if (left instanceof ISqlQueryableExpression) {
-                    ISqlQueryableExpression query = (ISqlQueryableExpression) left;
-                    query.setSelect(factory.select(Collections.singletonList(factory.constString("1")), int.class));
-                    ISqlUnaryExpression not = factory.unary(SqlOperator.NOT, factory.unary(SqlOperator.EXISTS, query));
-                    // 在终结的地方弹出
-                    pop();
-                    return not;
-                }
-                else {
-                    throw new SqLinkException(String.format("意外的sql表达式类型:%s 表达式为:%s", left.getClass(), methodCall));
-                }
-            }
-//            else if (method.getName().equals("stream")) {
-//                流支持的功能太少了，就不写了
-//            }
-            else {
-                return checkAndReturnValue(methodCall);
-            }
-        }
-        // 字符串的函数
-        else if (String.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            return stringHandler(methodCall);
-        }
-        // Math的函数
-        else if (Math.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            return mathHandler(methodCall);
-        }
-        // BigDecimal||BigInteger的函数
-        else if (BigDecimal.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())
-                 || BigInteger.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            return bigNumberHandler(methodCall);
-        }
-        // 时间的函数
-        else if (Temporal.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            return dateTimeHandler(methodCall);
-        }
-        // Objects的函数
-        else if (Objects.class.isAssignableFrom(methodCall.getMethod().getDeclaringClass())) {
-            return objectsHandler(methodCall);
-        }
-        else {
-//            if (isProperty(asNameMap, methodCall)) {
-//                if (isGetter(methodCall.getMethod())) {
-//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-//                    Method getter = methodCall.getMethod();
-//                    MetaData metaData = config.getMetaData(getter.getDeclaringClass());
-//                    ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
-//                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
-//                }
-//                else if (isGroupValue(asNameMap, methodCall.getExpr())) // g.value?.field
-//                {
-//                    FieldSelectExpression expr = (FieldSelectExpression) methodCall.getExpr();
-//                    String vname = expr.getField().getName();
-//                    int valueIndex = Integer.parseInt(vname.replace("value", ""));
-//                    List<ISqlTableRefExpression> asNameList = asNameListDeque.peek();
-//                    ISqlTableRefExpression asName = asNameList.get(valueIndex);
-//                    Method getter = methodCall.getMethod();
-//                    MetaData metaData = config.getMetaData(getter.getDeclaringClass());
-//                    return factory.column(metaData.getFieldMetaDataByGetter(getter), asName);
-//                }
-//                else if (isSetter(methodCall.getMethod())) {
-//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-//                    Method setter = methodCall.getMethod();
-//                    MetaData metaData = config.getMetaData(setter.getDeclaringClass());
-//                    FieldMetaData fieldMetaData = metaData.getFieldMetaDataBySetter(setter);
-//                    ISqlColumnExpression columnExpression = factory.column(fieldMetaData, asNameMap.get(parameter));
-//                    ISqlExpression value = visit(methodCall.getArgs().get(0));
-//                    return factory.set(columnExpression, value);
-//                }
-//                else if (isDynamicColumn(methodCall.getMethod())) {
-//                    ParameterExpression parameter = (ParameterExpression) methodCall.getExpr();
-//                    List<Expression> args = methodCall.getArgs();
-//                    Expression expression = args.get(0);
-//                    String columnName = expression.getValue().toString();
-//                    Expression expression1 = args.get(1);
-//                    Class<?> value = (Class<?>) expression1.getValue();
-//                    ISqlTableRefExpression asName = getISqlTableRefExpressionByIndex(parameter);
-//                    return factory.dynamicColumn(columnName, value, asName);
-//                }
-//                else {
-//                    return checkAndReturnValue(methodCall);
-//                }
-//            }
-//            else {
-//                ISqlExpression left = visit(methodCall.getExpr());
-//                // if left is A.B()
-//                if (left instanceof ISqlColumnExpression) {
-//                    ISqlColumnExpression columnExpression = (ISqlColumnExpression) left;
-//                    Method method = methodCall.getMethod();
-//                    if (isGetter(method)) {
-//                        // A.B() => SELECT ... FROM B WHERE B.ID = A.ID
-//                        // ISqlQueryableExpression changed = columnToQuery(columnExpression);
-//                        // A.B().C() => SELECT ... FROM C WHERE C.ID = (SELECT B.ID FROM B WHERE B.ID = A.ID)
-//                        //  return queryToQuery(changed, method);
-//                    }
-//                    else {
-//                        return checkAndReturnValue(methodCall);
-//                    }
-//                }
-//                // if left is A.B()...N()
-//                else if (left instanceof ISqlQueryableExpression) {
-//                    Method method = methodCall.getMethod();
-//                    if (isGetter(method)) {
-//                        ISqlQueryableExpression queryableExpression = (ISqlQueryableExpression) left;
-//                        return queryToQuery(queryableExpression, method);
-//                    }
-//                    else {
-//                        return checkAndReturnValue(methodCall);
-//                    }
-//                }
-//                else {
-//                    return checkAndReturnValue(methodCall);
-//                }
-//            }
-            Expression expression = methodCall.getExpr();
-            Method method = methodCall.getMethod();
-            ISqlExpression left = visit(expression);
-            // (a) -> a
-            if (left instanceof ISqlTableRefExpression) {
-                ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
-                // a.getter()
-                if (isGetter(method)) {
-                    FieldMetaData getter = methodToFieldMetaData(method, tableRef);
-                    // 如果这个getter是导航属性
-                    // 那么他应该被映射成sql语句
-                    if (getter.hasNavigate()) {
-                        return getterToSqlAst(getter, tableRef);
-                    }
-                    else {
-                        return factory.column(getter, tableRef);
-                    }
-                }
-                // else if (isDynamicColumn(method)) {
-                //     List<Expression> args = methodCall.getArgs();
-                //     String column = args.get(0).getValue().toString();
-                //     Class<?> type = (Class<?>) args.get(1).getValue();
-                //     return factory.dynamicColumn(column, type, tableRef);
-                // }
-                else {
-                    return checkAndReturnValue(methodCall);
-                }
-            }
-            // ?.table()
-            else if (left instanceof ISqlQueryableExpression) {
-                ISqlQueryableExpression leftQuery = (ISqlQueryableExpression) left;
-                // ?.table().getter()
-                if (isGetter(method)) {
-                    MetaData metaData = config.getMetaData(method.getDeclaringClass());
-                    FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
-                    if (getter.hasNavigate()) {
-                        return queryToQueryable(leftQuery, getter);
-                    }
-                    else {
-                        // select ? from table ...
-                        // select table.getter from table ...
-                        leftQuery.setSelect(factory.select(Collections.singletonList(factory.column(getter, leftQuery.getFrom().getTableRefExpression())), getter.getType()));
-                        return leftQuery;
-                    }
-                }
-                else if (isDynamicColumn(method)) {
-                    List<Expression> args = methodCall.getArgs();
-                    String column = args.get(0).getValue().toString();
-                    Class<?> type = (Class<?>) args.get(1).getValue();
-                    leftQuery.setSelect(factory.select(Collections.singletonList(factory.dynamicColumn(column, type, leftQuery.getFrom().getTableRefExpression())), type));
-                    return leftQuery;
-                }
-                else {
-                    throw new DrinkException(methodCall.toString());
-                }
-            }
-            else {
-                return checkAndReturnValue(methodCall);
-            }
-        }
+        return checkAndReturnValue(methodCall);
     }
 
     /**

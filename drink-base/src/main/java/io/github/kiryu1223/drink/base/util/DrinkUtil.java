@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -160,6 +161,14 @@ public class DrinkUtil {
      */
     public static boolean isDecimal(Class<?> type) {
         return type == BigDecimal.class;
+    }
+
+    public static boolean isBigInt(Class<?> type) {
+        return type == BigInteger.class;
+    }
+
+    public static boolean isBigNumber(Class<?> type) {
+        return isBigInt(type) || isDecimal(type);
     }
 
     public static Class<?> getTargetType(Type type) {

@@ -2,6 +2,7 @@ package io.github.kiryu1223.drink.base.transform;
 
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
+import io.github.kiryu1223.drink.base.expression.SqlOperator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +15,6 @@ public interface INumberMethods {
      */
     default ISqlExpression remainder(ISqlExpression left, ISqlExpression right) {
         SqlExpressionFactory factory = getSqlExpressionFactory();
-        List<String> function = Arrays.asList("(", " % ", ")");
-        return factory.template(function, Arrays.asList(left, right));
+        return factory.binary(SqlOperator.MOD, left, right);
     }
 }

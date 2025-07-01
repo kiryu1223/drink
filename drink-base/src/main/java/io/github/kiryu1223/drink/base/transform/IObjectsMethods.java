@@ -7,11 +7,4 @@ import io.github.kiryu1223.drink.base.expression.SqlOperator;
 public interface IObjectsMethods {
 
     SqlExpressionFactory getSqlExpressionFactory();
-    /**
-     * 不为空
-     */
-    default ISqlExpression notNull(ISqlExpression expression) {
-        SqlExpressionFactory factory = getSqlExpressionFactory();
-        return factory.binary(SqlOperator.IS_NOT, expression, factory.AnyValue(null));
-    }
 }

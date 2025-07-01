@@ -315,7 +315,7 @@ public interface SqlExpressionFactory {
      */
     ISqlSingleValueExpression value(Object value);
 
-    default ISqlSingleValueExpression value() {
+    default ISqlSingleValueExpression nullValue() {
         return value((Object) null);
     }
 
