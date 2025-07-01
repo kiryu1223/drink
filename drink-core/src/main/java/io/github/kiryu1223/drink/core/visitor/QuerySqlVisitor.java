@@ -941,8 +941,8 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                 return bigNumberStaticHandler(methodCall);
             }
         }
-        else if (left instanceof ISqlSingleValueExpression) {
-            ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) left;
+        else if (left instanceof ISqlValueExpression) {
+            ISqlValueExpression valueExpression = (ISqlValueExpression) left;
             Object value = valueExpression.getValue();
             if (value instanceof String) {
                 return stringHandler(methodCall);

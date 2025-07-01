@@ -33,6 +33,10 @@ public interface ISqlCollectedValueExpression extends ISqlValueExpression {
      */
     Collection<?> getCollection();
 
+    default Object getValue() {
+        return getCollection();
+    }
+
     @Override
     default Class<?> getType() {
         Collection<?> collection = getCollection();

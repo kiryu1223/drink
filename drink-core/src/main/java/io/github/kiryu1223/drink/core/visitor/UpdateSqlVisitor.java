@@ -313,6 +313,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 }
             }
         }
+        // 扩展表达式
         else if (isSqlExtensionExpressionMethod(method)) {
             SqlExtensionExpression sqlFuncExt = getSqlFuncExt(method.getAnnotationsByType(SqlExtensionExpression.class));
             List<ISqlExpression> expressions = new ArrayList<>(args.size());
@@ -383,6 +384,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 return factory.template(strings, expressions);
             }
         }
+        // 扩展运算符
         else if (isSqlOperatorMethod(method)) {
             SqlOperatorMethod operatorMethod = method.getAnnotation(SqlOperatorMethod.class);
             SqlOperator operator = operatorMethod.value();
@@ -413,6 +415,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 }
             }
         }
+        // 静态类调用
         else if (left instanceof JavaType) {
             JavaType javaType = (JavaType) left;
             Class<?> type = javaType.getType();
@@ -429,8 +432,9 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 return bigNumberStaticHandler(methodCall);
             }
         }
-        else if (left instanceof ISqlSingleValueExpression) {
-            ISqlSingleValueExpression valueExpression = (ISqlSingleValueExpression) left;
+        // 非静态类调用
+        else if (left instanceof ISqlValueExpression) {
+            ISqlValueExpression valueExpression = (ISqlValueExpression) left;
             Object value = valueExpression.getValue();
             if (value instanceof String) {
                 return stringHandler(methodCall);

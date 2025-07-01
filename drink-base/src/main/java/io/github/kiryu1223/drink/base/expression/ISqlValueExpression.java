@@ -22,4 +22,5 @@ package io.github.kiryu1223.drink.base.expression;
  * @since 3.0
  */
 public interface ISqlValueExpression extends ISqlExpression {
+    Object getValue();
 }
