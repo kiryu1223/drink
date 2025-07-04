@@ -45,11 +45,18 @@ public class JdbcExecutor {
     }
 
     public static JdbcQueryResultSet executeQuery(IConfig config, String sql, List<SqlValue> values) {
+        return executeQuery(config, sql, values, 0);
+    }
+
+    public static JdbcQueryResultSet executeQuery(IConfig config, String sql, List<SqlValue> values, int fetchSize) {
         try {
             Connection connection = connection(config);
             logSql(config, sql);
             logValues(config, values);
             PreparedStatement preparedStatement = statement(connection, sql, values);
+            if (fetchSize > 0) {
+                preparedStatement.setFetchSize(fetchSize);
+            }
             boolean printTime = config.isPrintTime();
             long start = printTime ? System.currentTimeMillis() : 0;
             ResultSet resultSet = preparedStatement.executeQuery();

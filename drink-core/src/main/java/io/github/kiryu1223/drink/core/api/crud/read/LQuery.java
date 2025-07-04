@@ -617,31 +617,8 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return toTreeList(null, null);
     }
 
-    private void toChunk(int size, Action1<Chunk<T>> action) {
-        try (ResultSet resultSet = toResultSet(Math.max(size, 1))) {
-            QuerySqlBuilder sqlBuilder = getSqlBuilder();
-            IConfig config = sqlBuilder.getConfig();
-            Class<T> targetClass = sqlBuilder.getTargetClass();
-            List<SqlValue> values = new ArrayList<>();
-            String sql = sqlBuilder.getSqlAndValue(values);
-            boolean single = sqlBuilder.isSingle();
-            List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
-            ITypeHandler<T> typeHandler = getSingleTypeHandler();
-            ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
-            ObjectBuilder<T> builder = ObjectBuilder.start(
-                    resultSet, targetClass, mappingData,
-                    single, config, typeHandler, size);
-            while (true) {
-                JdbcResult<T> result = builder.createList(exValues);
-                List<T> resultList = result.getResult();
-                if (resultList.isEmpty()) break;
-                Chunk<T> c = new Chunk<>(resultList);
-                action.invoke(c);
-                if (c.isEnd()) break;
-            }
-        } catch (SQLException | NoSuchFieldException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public void toChunk(int size, Action1<Chunk<T>> action) {
+        chunk(size, action);
     }
 
     // endregion

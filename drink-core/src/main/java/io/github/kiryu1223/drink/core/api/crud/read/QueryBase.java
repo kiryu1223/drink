@@ -29,17 +29,18 @@ import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
+import io.github.kiryu1223.drink.base.toBean.executor.CreateBeanExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcQueryResultSet;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.base.transform.Transformer;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
-import io.github.kiryu1223.drink.base.toBean.executor.CreateBeanExecutor;
-import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
-import io.github.kiryu1223.drink.base.toBean.executor.JdbcQueryResultSet;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
+import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
@@ -47,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
 import java.util.*;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
@@ -130,18 +130,46 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // endregion
 
-    protected ResultSet toResultSet(int fetchSize) {
+    protected void chunk(int fetchSize, Action1<Chunk<R>> action) {
+        // fetchSize最小为1
+        fetchSize = Math.max(fetchSize, 1);
         IConfig config = getConfig();
         Class<R> targetClass = sqlBuilder.getTargetClass();
+        boolean single = sqlBuilder.isSingle();
         List<SqlValue> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
-        boolean single = sqlBuilder.isSingle();
-        List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
-        ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
-        printSql(sql);
-        SqlSession session = config.getSqlSessionFactory().getSession();
-        ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
-        return session.executeQuery(sql, values, fetchSize);
+        try (JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values, fetchSize)) {
+            if (single) {
+                while (true) {
+                    List<R> result = CreateBeanExecutor.singleList(jdbcQueryResultSet, getSingleTypeHandler(), targetClass, fetchSize);
+                    if (result.isEmpty()) {
+                        break;
+                    }
+                    Chunk<R> chunk = new Chunk<>(result);
+                    action.invoke(chunk);
+                    if (chunk.isEnd()) {
+                        break;
+                    }
+                }
+
+            }
+            else {
+                ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
+                while (true) {
+                    JdbcResult<R> jdbcResult = CreateBeanExecutor.classList(config, jdbcQueryResultSet, targetClass, exValues, fetchSize);
+                    List<R> result = jdbcResult.getResult();
+                    if (result.isEmpty()) {
+                        break;
+                    }
+                    includeAndSubQuery(jdbcResult, result);
+                    Chunk<R> chunk = new Chunk<>(result);
+                    action.invoke(chunk);
+                    if (chunk.isEnd()) {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // region [toList]
@@ -152,7 +180,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         String sql = sqlBuilder.getSqlAndValue(values);
         List<R> result;
         boolean single = sqlBuilder.isSingle();
-        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values))
+        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values);
         if (single) {
             ITypeHandler<R> singleTypeHandler = getSingleTypeHandler();
             result = CreateBeanExecutor.singleList(jdbcQueryResultSet, singleTypeHandler, targetClass);
@@ -163,32 +191,34 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             result = jdbcResult.getResult();
             config.getSqlLogger().printTotal(result.size());
 
-            List<IncludeBuilder> includes = sqlBuilder.getIncludes();
-            if (!includes.isEmpty()) {
-                try {
-                    for (IncludeBuilder include : includes) {
-                        include.include(result);
-                    }
-                } catch (InvocationTargetException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            List<SubQueryBuilder> subQueryBuilders = sqlBuilder.getQueryable().getSelect().getSubQueryBuilders();
-            if (!subQueryBuilders.isEmpty()) {
-                try {
-                    for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
-                        subQueryBuilder.subQuery(new ArrayList<>(Collections.singletonList(jdbcResult)));
-                    }
-                } catch (InvocationTargetException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-
+            includeAndSubQuery(jdbcResult, result);
         }
 
         return result;
+    }
+
+    protected void includeAndSubQuery(JdbcResult<R> jdbcResult, List<R> result) {
+        List<IncludeBuilder> includes = sqlBuilder.getIncludes();
+        if (!includes.isEmpty()) {
+            try {
+                for (IncludeBuilder include : includes) {
+                    include.include(result);
+                }
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        List<SubQueryBuilder> subQueryBuilders = sqlBuilder.getQueryable().getSelect().getSubQueryBuilders();
+        if (!subQueryBuilders.isEmpty()) {
+            try {
+                for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
+                    subQueryBuilder.subQuery(new ArrayList<>(Collections.singletonList(jdbcResult)));
+                }
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     protected ITypeHandler<R> getSingleTypeHandler() {

@@ -11,6 +11,7 @@ public class JdbcQueryResultSet implements AutoCloseable {
     private final ResultSet rs;
     private final PreparedStatement preparedStatement;
     private final Connection connection;
+    private boolean isLast = false;
 
     public JdbcQueryResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection) {
         this.rs = rs;
@@ -20,6 +21,14 @@ public class JdbcQueryResultSet implements AutoCloseable {
 
     public ResultSet getRs() {
         return rs;
+    }
+
+    public boolean isLast() {
+        return isLast;
+    }
+
+    public void setLast(boolean last) {
+        isLast = last;
     }
 
     @Override
