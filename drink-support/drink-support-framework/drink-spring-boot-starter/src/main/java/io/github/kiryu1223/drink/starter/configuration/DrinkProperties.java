@@ -14,6 +14,8 @@ public class DrinkProperties {
     private boolean printSql = true;
     private boolean printValues = true;
     private boolean printTotal = true;
+    private boolean printUpdate = true;
+    private boolean printTime = true;
     private boolean ignoreUpdateNoWhere = false;
     private boolean ignoreDeleteNoWhere = false;
     private NameConversionType nameConversion = NameConversionType.LowerCamelCase;
@@ -86,11 +88,29 @@ public class DrinkProperties {
         this.printTotal = printTotal;
     }
 
+    public boolean isPrintUpdate() {
+        return printUpdate;
+    }
+
+    public void setPrintUpdate(boolean printUpdate) {
+        this.printUpdate = printUpdate;
+    }
+
+    public boolean isPrintTime() {
+        return printTime;
+    }
+
+    public void setPrintTime(boolean printTime) {
+        this.printTime = printTime;
+    }
+
     public Option bulidOption() {
         Option option = new Option();
         option.setPrintSql(printSql);
         option.setPrintValues(printValues);
         option.setPrintTotal(printTotal);
+        option.setPrintUpdate(printUpdate);
+        option.setPrintTime(printTime);
         option.setIgnoreUpdateNoWhere(ignoreUpdateNoWhere);
         option.setIgnoreDeleteNoWhere(ignoreDeleteNoWhere);
         return option;

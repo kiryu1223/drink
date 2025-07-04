@@ -45,11 +45,10 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public ResultSet executeQuery(String sql, Collection<SqlValue> sqlValues, int fetchSize)
-    {
+    public ResultSet executeQuery(String sql, Collection<SqlValue> sqlValues, int fetchSize) {
         if (!transactionManager.currentThreadInTransaction()) {
             try (Connection connection = dataSourceManager.getConnection()) {
-                return getResultSet(connection, sql, sqlValues,fetchSize);
+                return getResultSet(connection, sql, sqlValues, fetchSize);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -63,15 +62,14 @@ public class DefaultSqlSession implements SqlSession {
                 else {
                     connection = dataSourceManager.getConnection();
                 }
-                return getResultSet(connection, sql, sqlValues,fetchSize);
+                return getResultSet(connection, sql, sqlValues, fetchSize);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private ResultSet getResultSet(Connection connection,String sql, Collection<SqlValue> sqlValues,int fetchSize) throws SQLException
-    {
+    private ResultSet getResultSet(Connection connection, String sql, Collection<SqlValue> sqlValues, int fetchSize) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setFetchSize(fetchSize);
         setObjects(preparedStatement, sqlValues);
@@ -161,10 +159,8 @@ public class DefaultSqlSession implements SqlSession {
             else {
                 count = preparedStatement.executeUpdate();
             }
-            if (autoIncrement)
-            {
-                try (ResultSet resultSet = preparedStatement.getGeneratedKeys())
-                {
+            if (autoIncrement) {
+                try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                     action.invoke(resultSet);
                 }
             }

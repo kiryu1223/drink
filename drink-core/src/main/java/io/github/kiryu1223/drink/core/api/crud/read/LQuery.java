@@ -626,7 +626,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
             String sql = sqlBuilder.getSqlAndValue(values);
             boolean single = sqlBuilder.isSingle();
             List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
-            ITypeHandler<T> typeHandler = getSingleTypeHandler(single);
+            ITypeHandler<T> typeHandler = getSingleTypeHandler();
             ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
             ObjectBuilder<T> builder = ObjectBuilder.start(
                     resultSet, targetClass, mappingData,

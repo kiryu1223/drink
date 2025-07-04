@@ -205,6 +205,10 @@ public class MetaData {
         return fields.stream().filter(f -> !f.isIgnoreColumn() && !f.hasNavigate()).collect(Collectors.toList());
     }
 
+    public List<FieldMetaData> getNotNavigateFields() {
+        return fields.stream().filter(f -> !f.hasNavigate()).collect(Collectors.toList());
+    }
+
     public List<FieldMetaData> getOnInsertOrUpdateFields() {
         return fields.stream()
                 // 首先不是忽略字段

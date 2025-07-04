@@ -7,15 +7,16 @@ import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.NavigateData;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
-import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
+import io.github.kiryu1223.drink.base.toBean.executor.CreateBeanExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcQueryResultSet;
 import io.github.kiryu1223.drink.core.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class IncludeBuilder {
         return includes;
     }
 
-    public void include(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
+    public void include(Collection<?> source) throws InvocationTargetException, IllegalAccessException {
         if (source.isEmpty()) return;
 
         NavigateData navigateData = includeField.getNavigateData();
@@ -73,13 +74,12 @@ public class IncludeBuilder {
         String sql = builder.getSqlAndValue(sqlValues);
 
         ISqlLogger logger = config.getSqlLogger();
-        logger.printSql(config, sql);
+        logger.printSql(sql);
 
         switch (relationType) {
             case OneToOne:
             case ManyToOne:
                 oneOneOrManyOne(
-                        session,
                         source,
                         targetType,
                         sql,
@@ -92,7 +92,6 @@ public class IncludeBuilder {
                 break;
             case OneToMany:
                 oneMany(
-                        session,
                         source,
                         targetType,
                         sql,
@@ -105,7 +104,6 @@ public class IncludeBuilder {
                 break;
             case ManyToMany: {
                 manyMany(
-                        session,
                         source,
                         targetType,
                         navigateData,
@@ -119,18 +117,10 @@ public class IncludeBuilder {
         }
     }
 
-    private void manyMany(SqlSession session, Collection<?> source, Class<?> targetType, NavigateData navigateData, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter) throws InvocationTargetException, IllegalAccessException {
-        Map<Object, ? extends List<?>> includeResultMap = session.executeQuery(rs -> ObjectBuilder.start(
-                                rs,
-                                targetType,
-                                subQuery.getMappingData(config),
-                                false,
-                                config
-                        )
-                        .createMapListByAnotherKey(navigateData.getSelfMappingFieldMetaData(config), mappingKeyName),
-                sql,
-                sqlValues
-        );
+    private void manyMany(Collection<?> source, Class<?> targetType, NavigateData navigateData, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter) throws InvocationTargetException, IllegalAccessException {
+
+        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, sqlValues);
+        Map<Object, ? extends List<?>> includeResultMap = CreateBeanExecutor.classListAnotherKeyMap(config, jdbcQueryResultSet, targetType, navigateData.getSelfMappingFieldMetaData(config),mappingKeyName);
 
         Class<? extends Collection<?>> warpType = navigateData.getCollectionWrapperType();
         boolean isDrinkList = ExpressionUtil.isDrinkList(warpType);
@@ -157,22 +147,25 @@ public class IncludeBuilder {
 
         if (!includes.isEmpty()) {
             List<?> flatList = includeResultMap.values().stream().flatMap(o -> o.stream()).collect(Collectors.toList());
-            recursion(session, flatList);
+            recursion(flatList);
         }
     }
 
-    private void oneMany(SqlSession session, Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, NavigateData navigateData, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter) throws InvocationTargetException, IllegalAccessException {
-        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
-                                rs,
-                                targetType,
-                                subQuery.getMappingData(config),
-                                false,
-                                config
-                        )
-                        .createList(),
-                sql,
-                sqlValues
-        );
+    private void oneMany(Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, NavigateData navigateData, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter) throws InvocationTargetException, IllegalAccessException {
+//        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
+//                                rs,
+//                                targetType,
+//                                subQuery.getMappingData(config),
+//                                false,
+//                                config
+//                        )
+//                        .createList(),
+//                sql,
+//                sqlValues
+//        );
+
+        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, sqlValues);
+        JdbcResult<?> includeResult = CreateBeanExecutor.classList(config, jdbcQueryResultSet, targetType);
 
         // <b.targetId,List<b>>
         Map<Object, List<Object>> map = new HashMap<>();
@@ -207,22 +200,25 @@ public class IncludeBuilder {
 
         if (!includes.isEmpty()) {
             List<Object> flatList = map.values().stream().flatMap(o -> o.stream()).collect(Collectors.toList());
-            recursion(session, flatList);
+            recursion(flatList);
         }
     }
 
-    private void oneOneOrManyOne(SqlSession session, Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter, RelationType relationType) throws InvocationTargetException, IllegalAccessException {
-        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
-                                rs,
-                                targetType,
-                                subQuery.getMappingData(config),
-                                false,
-                                config
-                        )
-                        .createList(),
-                sql,
-                sqlValues
-        );
+    private void oneOneOrManyOne(Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter, RelationType relationType) throws InvocationTargetException, IllegalAccessException {
+//        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
+//                                rs,
+//                                targetType,
+//                                subQuery.getMappingData(config),
+//                                false,
+//                                config
+//                        )
+//                        .createList(),
+//                sql,
+//                sqlValues
+//        );
+
+        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, sqlValues);
+        JdbcResult<?> includeResult = CreateBeanExecutor.classList(config, jdbcQueryResultSet, targetType);
 
         // <b.targetId,b>
         Map<Object, Object> map = new HashMap<>();
@@ -246,13 +242,13 @@ public class IncludeBuilder {
         }
 
         if (!includes.isEmpty()) {
-            recursion(session, map.values());
+            recursion(map.values());
         }
     }
 
-    private void recursion(SqlSession session, Collection<?> source) throws InvocationTargetException, IllegalAccessException {
+    private void recursion(Collection<?> source) throws InvocationTargetException, IllegalAccessException {
         for (IncludeBuilder include : includes) {
-            include.include(session, source);
+            include.include(source);
         }
     }
 }

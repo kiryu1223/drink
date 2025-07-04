@@ -29,12 +29,14 @@ import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
-import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.base.transform.Transformer;
-import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
+import io.github.kiryu1223.drink.base.toBean.executor.CreateBeanExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcQueryResultSet;
 import io.github.kiryu1223.drink.core.sqlBuilder.IncludeBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.QuerySqlVisitor;
@@ -121,15 +123,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         String sql = querySqlBuilder.getSqlAndValue(values);
         printSql(sql);
         printValues(values);
-        boolean any= session.executeQuery(rs -> rs.next(), sql, values);
+        boolean any = session.executeQuery(rs -> rs.next(), sql, values);
         printTotal(1);
         return any;
     }
 
     // endregion
 
-    protected ResultSet toResultSet(int fetchSize)
-    {
+    protected ResultSet toResultSet(int fetchSize) {
         IConfig config = getConfig();
         Class<R> targetClass = sqlBuilder.getTargetClass();
         List<SqlValue> values = new ArrayList<>();
@@ -149,28 +150,24 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         Class<R> targetClass = sqlBuilder.getTargetClass();
         List<SqlValue> values = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(values);
+        List<R> result;
         boolean single = sqlBuilder.isSingle();
-        List<FieldMetaData> mappingData = single ? Collections.emptyList() : sqlBuilder.getMappingData();
-        ITypeHandler<R> typeHandler = getSingleTypeHandler(single);
-        printSql(sql);
-        printValues(values);
-        SqlSession session = config.getSqlSessionFactory().getSession();
-        ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
-        JdbcResult<R> result = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config, typeHandler)
-                        .createList(exValues),
-                sql,
-                values
-        );
-        List<R> jdbcResult = result.getResult();
-        printTotal(jdbcResult.size());
+        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values))
+        if (single) {
+            ITypeHandler<R> singleTypeHandler = getSingleTypeHandler();
+            result = CreateBeanExecutor.singleList(jdbcQueryResultSet, singleTypeHandler, targetClass);
+        }
+        else {
+            ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
+            JdbcResult<R> jdbcResult = CreateBeanExecutor.classList(config, jdbcQueryResultSet, targetClass, exValues);
+            result = jdbcResult.getResult();
+            config.getSqlLogger().printTotal(result.size());
 
-        if (!single) {
             List<IncludeBuilder> includes = sqlBuilder.getIncludes();
             if (!includes.isEmpty()) {
                 try {
                     for (IncludeBuilder include : includes) {
-                        include.include(session, jdbcResult);
+                        include.include(result);
                     }
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     throw new RuntimeException(e);
@@ -181,56 +178,54 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             if (!subQueryBuilders.isEmpty()) {
                 try {
                     for (SubQueryBuilder subQueryBuilder : subQueryBuilders) {
-                        subQueryBuilder.subQuery(session, new ArrayList<>(Collections.singletonList(result)));
+                        subQueryBuilder.subQuery(new ArrayList<>(Collections.singletonList(jdbcResult)));
                     }
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
+
+
         }
 
-        return jdbcResult;
+        return result;
     }
 
-    protected ITypeHandler<R> getSingleTypeHandler(boolean single) {
-        ITypeHandler<R> typeHandler = null;
-        if (single) {
-            List<ISqlExpression> columns = sqlBuilder.getQueryable().getSelect().getColumns();
-            for (ISqlExpression column : columns) {
-                if (column instanceof ISqlColumnExpression) {
-                    ISqlColumnExpression columnExpression = (ISqlColumnExpression) column;
-                    typeHandler = (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
-                }
+    protected ITypeHandler<R> getSingleTypeHandler() {
+        List<ISqlExpression> columns = sqlBuilder.getQueryable().getSelect().getColumns();
+        for (ISqlExpression column : columns) {
+            if (column instanceof ISqlColumnExpression) {
+                ISqlColumnExpression columnExpression = (ISqlColumnExpression) column;
+                return (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
+            }
+            else if (column instanceof ISqlValueExpression) {
+                ISqlValueExpression iSqlValueExpression = (ISqlValueExpression) column;
+                return TypeHandlerManager.get(iSqlValueExpression.getType());
             }
         }
-        return typeHandler;
+        throw new DrinkException("无法获取结果类型处理器");
     }
 
-    protected List<R> toTreeList(LambdaExpression<?> lambdaExpression,Func1<R, Collection<R>> getter)
-    {
+    protected List<R> toTreeList(LambdaExpression<?> lambdaExpression, Func1<R, Collection<R>> getter) {
         IConfig config = getConfig();
         MetaData metaData = config.getMetaData(sqlBuilder.getQueryable().getMainTableClass());
         AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get((Class<R>) metaData.getType());
         FieldMetaData navigateField;
         IGetterCaller<R, Collection<R>> navigateGetter;
-        if (lambdaExpression == null)
-        {
+        if (lambdaExpression == null) {
             navigateField = metaData.getChildrenField();
             navigateGetter = (IGetterCaller<R, Collection<R>>) beanCreator.getBeanGetter(navigateField.getFieldName());
         }
-        else
-        {
+        else {
             QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(config, sqlBuilder.getQueryable());
             navigateField = sqlVisitor.toField(lambdaExpression);
-            navigateGetter =r->getter.invoke(r);
-            if (!navigateField.hasNavigate())
-            {
+            navigateGetter = r -> getter.invoke(r);
+            if (!navigateField.hasNavigate()) {
                 throw new SqLinkException("toTreeList指定的字段需要被@Navigate修饰");
             }
         }
         NavigateData navigateData = navigateField.getNavigateData();
-        try
-        {
+        try {
             return buildTree(
                     toList(),
                     beanCreator.getBeanGetter(navigateData.getSelfFieldName()),
@@ -238,9 +233,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                     beanCreator.getBeanSetter(navigateField.getFieldName()),
                     navigateGetter
             );
-        }
-        catch (InvocationTargetException | IllegalAccessException e)
-        {
+        } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -515,23 +508,19 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // region [cte]
 
-    protected void asTreeCte(LambdaExpression<?> lambdaExpression,int level)
-    {
+    protected void asTreeCte(LambdaExpression<?> lambdaExpression, int level) {
         QuerySqlBuilder sqlBuilder = getSqlBuilder();
         ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
         FieldMetaData navigateField;
 
-        if (lambdaExpression == null)
-        {
+        if (lambdaExpression == null) {
             MetaData metaData = getConfig().getMetaData(queryable.getMainTableClass());
             navigateField = metaData.getChildrenField();
         }
-        else
-        {
+        else {
             QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), queryable);
             navigateField = sqlVisitor.toField(lambdaExpression);
-            if (!navigateField.hasNavigate())
-            {
+            if (!navigateField.hasNavigate()) {
                 throw new SqLinkException("asTreeCTE指定的字段需要被@Navigate修饰");
             }
         }
@@ -679,7 +668,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         ISqlTemplateExpression over = transformer.over(Collections.emptyList());
         ISqlConstStringExpression rowNumber = transformer.rowNumber();
         // ISqlTemplateExpression merged = DrinkUtil.mergeTemplates(config,factory.template(Collections.singletonList(rowNumber.getString()), Collections.emptyList()), over);
-        ISqlTemplateExpression merged = factory.template(Arrays.asList(""," ",""),Arrays.asList(rowNumber,over));
+        ISqlTemplateExpression merged = factory.template(Arrays.asList("", " ", ""), Arrays.asList(rowNumber, over));
         sourceQuery.getSelect().addColumn(factory.as(merged, rowNumberAsName));
 
         ISqlQueryableExpression warpedQuery = factory.queryable(sourceQuery);
@@ -993,8 +982,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         sqlBuilder.setQueryable(factory.queryable(unPivot, factory.tableRef(tempRef.getName())));
     }
 
-    protected void ignoreColumn(LambdaExpression<?> lambdaExpression)
-    {
+    protected void ignoreColumn(LambdaExpression<?> lambdaExpression) {
         ISqlQueryableExpression queryable = sqlBuilder.getQueryable();
         QuerySqlVisitor visitor = new QuerySqlVisitor(getConfig(), queryable);
         ISqlColumnExpression column = visitor.toColumn(lambdaExpression);
@@ -1003,12 +991,10 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         // 匹配移除
         select.getColumns().removeIf(s ->
         {
-            if(s instanceof ISqlAsExpression)
-            {
-                s=((ISqlAsExpression) s).getExpression();
+            if (s instanceof ISqlAsExpression) {
+                s = ((ISqlAsExpression) s).getExpression();
             }
-            if (s instanceof ISqlColumnExpression)
-            {
+            if (s instanceof ISqlColumnExpression) {
                 ISqlColumnExpression sqlExpression = (ISqlColumnExpression) s;
                 String f1 = sqlExpression.getFieldMetaData().getFieldName();
                 return f1.equals(selectFieldName);

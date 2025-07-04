@@ -12,18 +12,20 @@ public interface ISqlLogger
 {
     Logger getLogger();
 
-    default void printSql(IConfig config,String sql)
+    IConfig getConfig();
+
+    default void printSql(String sql)
     {
-        if (config.isPrintSql())
+        if (getConfig().isPrintSql())
         {
             Logger logger = getLogger();
             logger.info("==>  Preparing: {}",sql);
         }
     }
 
-    default void printValues(IConfig config,List<SqlValue> values)
+    default void printValues(List<SqlValue> values)
     {
-        if (config.isPrintValues())
+        if (getConfig().isPrintValues())
         {
             Logger logger = getLogger();
             String collect = values.stream().map(v -> DrinkUtil.showValueAndType(v.getValue())).collect(Collectors.joining(", "));
@@ -31,21 +33,30 @@ public interface ISqlLogger
         }
     }
 
-    default void printTotal(IConfig config,long total)
+    default void printTotal(long total)
     {
-        if(config.isPrintTotal())
+        if(getConfig().isPrintTotal())
         {
             Logger logger = getLogger();
             logger.info("<==      Total: {}",total);
         }
     }
 
-    default void printUpdate(IConfig config,long update)
+    default void printUpdate(long update)
     {
-        if(config.isPrintTotal())
+        if(getConfig().isPrintUpdate())
         {
             Logger logger = getLogger();
             logger.info("<==     Update: {}",update);
+        }
+    }
+
+    default void printTime(long time)
+    {
+        if(getConfig().isPrintTime())
+        {
+            Logger logger = getLogger();
+            logger.info("<==       Time: {}(ms)",time);
         }
     }
 }

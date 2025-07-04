@@ -26,6 +26,7 @@ import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.base.transform.Transformer;
+import io.github.kiryu1223.drink.core.log.DefaultSqlLogger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,11 +53,11 @@ class Config implements IConfig {
     private final ISqlLogger sqlLogger;
     private Pager pager;
 
-    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, DataBaseMetaData dataBaseMetaData, ISqlLogger sqlLogger, Pager pager) {
+    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, DataBaseMetaData dataBaseMetaData, Pager pager) {
         this.option = option;
         this.dbType = dbType;
         this.dataBaseMetaData = dataBaseMetaData;
-        this.sqlLogger = sqlLogger;
+        this.sqlLogger = new DefaultSqlLogger(this);
         this.beanCreatorFactory = new BeanCreatorFactory(this);
 
         this.transactionManager = transactionManager;
@@ -114,6 +115,16 @@ class Config implements IConfig {
     public boolean isPrintTotal()
     {
         return option.isPrintTotal();
+    }
+
+    @Override
+    public boolean isPrintUpdate() {
+        return option.isPrintUpdate();
+    }
+
+    @Override
+    public boolean isPrintTime() {
+        return option.isPrintTime();
     }
 
     public TransactionManager getTransactionManager() {

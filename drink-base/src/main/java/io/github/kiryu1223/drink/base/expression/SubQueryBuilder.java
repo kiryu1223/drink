@@ -3,7 +3,6 @@ package io.github.kiryu1223.drink.base.expression;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
@@ -11,6 +10,9 @@ import io.github.kiryu1223.drink.base.toBean.build.ExtensionField;
 import io.github.kiryu1223.drink.base.toBean.build.ExtensionObject;
 import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
+import io.github.kiryu1223.drink.base.toBean.executor.CreateBeanExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcQueryResultSet;
 import io.github.kiryu1223.drink.base.util.DrinkUtil;
 
 import java.lang.reflect.InvocationTargetException;
@@ -101,8 +103,6 @@ public class SubQueryBuilder
     }
 
     public void subQuery(
-            // 会话
-            SqlSession session,
             // 原始集合
             List<JdbcResult<?>> jdbcResultList
             // 上下文参数
@@ -182,17 +182,9 @@ public class SubQueryBuilder
         AsNameManager.start();
         String sql = iSqlUnionQueryableExpression.getSqlAndValue(config, sqlValues);
         AsNameManager.clear();
-        JdbcResult<?> result = session.executeQuery(
-                resultSet -> ObjectBuilder.start(
-                        resultSet,
-                        iSqlUnionQueryableExpression.getMainTableClass(),
-                        queryableExpression.getMappingData(config),
-                        false,
-                        config
-                ).createList(exValues),
-                sql,
-                sqlValues
-        );
+
+        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, sqlValues);
+        JdbcResult<?> jdbcResult = CreateBeanExecutor.classList(config, jdbcQueryResultSet, iSqlUnionQueryableExpression.getMainTableClass());
 
         AbsBeanCreator<?> absBeanCreator = config.getBeanCreatorFactory().get(fieldMetaData.getParentType());
         ISetterCaller<?> beanSetter = absBeanCreator.getBeanSetter(fieldMetaData.getFieldName());
@@ -201,7 +193,7 @@ public class SubQueryBuilder
         for (ExtensionObject extensionObject : currentResult.getExtensionValueResult())
         {
             Map<String, ExtensionField> valueFieldMap = extensionObject.getExtensionFieldMap();
-            for (ExtensionObject eob : result.getExtensionKeyResult())
+            for (ExtensionObject eob : jdbcResult.getExtensionKeyResult())
             {
                 Map<String, ExtensionField> keyFieldMap = eob.getExtensionFieldMap();
                 if (compareCommonValues(keyFieldMap, valueFieldMap))
@@ -215,10 +207,10 @@ public class SubQueryBuilder
         List<SubQueryBuilder> subQueryBuilders = queryableExpression.getSelect().getSubQueryBuilders();
         if(!subQueryBuilders.isEmpty())
         {
-            jdbcResultList.add(result);
+            jdbcResultList.add(jdbcResult);
             for (SubQueryBuilder subQueryBuilder : subQueryBuilders)
             {
-                subQueryBuilder.subQuery(session,jdbcResultList);
+                subQueryBuilder.subQuery(jdbcResultList);
             }
             jdbcResultList.remove(jdbcResultList.size() - 1);
         }

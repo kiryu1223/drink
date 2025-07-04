@@ -39,6 +39,10 @@ public class Option {
 
     private boolean printTotal;
 
+    private boolean printUpdate;
+
+    private boolean printTime;
+
     /**
      * 是否忽略没有条件的update
      */
@@ -99,5 +103,21 @@ public class Option {
     public void setPrintTotal(boolean printTotal)
     {
         this.printTotal = printTotal;
+    }
+
+    public boolean isPrintUpdate() {
+        return printUpdate;
+    }
+
+    public void setPrintUpdate(boolean printUpdate) {
+        this.printUpdate = printUpdate;
+    }
+
+    public boolean isPrintTime() {
+        return printTime;
+    }
+
+    public void setPrintTime(boolean printTime) {
+        this.printTime = printTime;
     }
 }

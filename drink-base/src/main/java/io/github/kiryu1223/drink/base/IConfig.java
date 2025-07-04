@@ -53,6 +53,10 @@ public interface IConfig
 
     boolean isPrintTotal();
 
+    boolean isPrintUpdate();
+
+    boolean isPrintTime();
+
     boolean isIgnoreDeleteNoWhere();
 
     boolean isIgnoreUpdateNoWhere();
