@@ -223,17 +223,14 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected ITypeHandler<R> getSingleTypeHandler() {
         List<ISqlExpression> columns = sqlBuilder.getQueryable().getSelect().getColumns();
-        for (ISqlExpression column : columns) {
-            if (column instanceof ISqlColumnExpression) {
-                ISqlColumnExpression columnExpression = (ISqlColumnExpression) column;
-                return (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
-            }
-            else if (column instanceof ISqlValueExpression) {
-                ISqlValueExpression iSqlValueExpression = (ISqlValueExpression) column;
-                return TypeHandlerManager.get(iSqlValueExpression.getType());
-            }
+        ISqlExpression expression = columns.get(0);
+        if (expression instanceof ISqlColumnExpression) {
+            ISqlColumnExpression columnExpression = (ISqlColumnExpression) expression;
+            return (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
         }
-        throw new DrinkException("无法获取结果类型处理器");
+        else  {
+            return TypeHandlerManager.get(expression.getType());
+        }
     }
 
     protected List<R> toTreeList(LambdaExpression<?> lambdaExpression, Func1<R, Collection<R>> getter) {
