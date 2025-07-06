@@ -9,6 +9,7 @@
         <version>1.0.29</version>
     </parent>
     <artifactId>drink-support-framework</artifactId>
+    <name>drink-support-framework</name>
     <packaging>pom</packaging>
     <modules>
         <module>drink-spring-boot-starter</module>

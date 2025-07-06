@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>drink-support-db</artifactId>
+    <name>drink-support-db</name>
     <packaging>pom</packaging>
     <modules>
         <module>support-db-mysql</module>

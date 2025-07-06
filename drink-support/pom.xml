@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>drink-support</artifactId>
+    <name>drink-support</name>
     <packaging>pom</packaging>
     <modules>
         <module>drink-support-framework</module>

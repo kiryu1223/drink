@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>drink-base</artifactId>
+    <name>drink-base</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

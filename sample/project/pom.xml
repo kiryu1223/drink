@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>project</artifactId>
+    <name>project</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

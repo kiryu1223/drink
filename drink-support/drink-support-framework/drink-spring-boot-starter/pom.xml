@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>drink-spring-boot-starter</artifactId>
+    <name>drink-spring-boot-starter</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

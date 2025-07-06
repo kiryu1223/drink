@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>support-db-sqlserver</artifactId>
+    <name>support-db-sqlserver</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

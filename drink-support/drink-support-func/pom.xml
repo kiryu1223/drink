@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>drink-support-func</artifactId>
+    <name>drink-support-func</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

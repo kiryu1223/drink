@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>sample</artifactId>
+    <name>sample</name>
     <packaging>pom</packaging>
     <modules>
 <!--        <module>springboot</module>-->

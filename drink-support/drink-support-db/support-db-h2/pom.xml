@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>support-db-h2</artifactId>
+    <name>support-db-h2</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
