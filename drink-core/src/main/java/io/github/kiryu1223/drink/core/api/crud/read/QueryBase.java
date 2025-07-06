@@ -24,7 +24,6 @@ import io.github.kiryu1223.drink.base.metaData.IMappingTable;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.NavigateData;
 import io.github.kiryu1223.drink.base.page.PagedResult;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
@@ -48,6 +47,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.cast;
@@ -118,14 +119,19 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             querySqlBuilder.addAndOrWhere(cond, true);
         }
         //查询
-        SqlSession session = config.getSqlSessionFactory().getSession();
         List<SqlValue> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
-        printSql(sql);
-        printValues(values);
-        boolean any = session.executeQuery(rs -> rs.next(), sql, values);
-        printTotal(1);
-        return any;
+        try (JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values))
+        {
+            ResultSet rs = jdbcQueryResultSet.getRs();
+            boolean any=rs.next();
+            config.getSqlLogger().printTotal(any?1:0);
+            return any;
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     // endregion

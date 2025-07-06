@@ -2,9 +2,14 @@ package io.github.kiryu1223.drink.core.api.crud.read;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
 import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
+import io.github.kiryu1223.drink.base.toBean.executor.CreateBeanExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcQueryResultSet;
+import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
+import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.UnionBuilder;
@@ -84,19 +89,33 @@ public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         boolean single = unionBuilder.isSingle();
-        List<FieldMetaData> mappingData = single ? Collections.emptyList() : unionBuilder.getMappingData();
         String sql = unionBuilder.getSqlAndValue(sqlValues);
-        printSql(sql);
-        printValues(sqlValues);
         Class<T> targetClass = unionBuilder.getTargetClass();
-        SqlSession session = config.getSqlSessionFactory().getSession();
-        List<T> result = session.executeQuery(
-                r -> ObjectBuilder.start(r, targetClass, mappingData, single, config).createList(),
-                sql,
-                sqlValues
-        ).getResult();
-        printTotal(result.size());
+        List<T> result;
+        try (JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, sqlValues)) {
+            if (single) {
+                ITypeHandler<T> singleTypeHandler = getSingleTypeHandler();
+                result = CreateBeanExecutor.singleList(jdbcQueryResultSet, singleTypeHandler, targetClass);
+            }
+            else {
+                JdbcResult<T> jdbcResult = CreateBeanExecutor.classList(config, jdbcQueryResultSet, targetClass);
+                result = jdbcResult.getResult();
+                config.getSqlLogger().printTotal(result.size());
+            }
+        }
         return result;
+    }
+
+    protected ITypeHandler<T> getSingleTypeHandler() {
+        List<ISqlExpression> columns = unionBuilder.getUnionQueryable().getQueryable().get(0).getSelect().getColumns();
+        ISqlExpression expression = columns.get(0);
+        if (expression instanceof ISqlColumnExpression) {
+            ISqlColumnExpression columnExpression = (ISqlColumnExpression) expression;
+            return (ITypeHandler<T>) columnExpression.getFieldMetaData().getTypeHandler();
+        }
+        else  {
+            return TypeHandlerManager.get(expression.getType());
+        }
     }
 
     // endregion

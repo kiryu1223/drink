@@ -8,10 +8,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcQueryResultSet implements AutoCloseable {
-    private final ResultSet rs;
-    private final PreparedStatement preparedStatement;
-    private final Connection connection;
-    private boolean isLast = false;
+    protected final ResultSet rs;
+    protected final PreparedStatement preparedStatement;
+    protected final Connection connection;
+    protected boolean isLast = false;
 
     public JdbcQueryResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection) {
         this.rs = rs;

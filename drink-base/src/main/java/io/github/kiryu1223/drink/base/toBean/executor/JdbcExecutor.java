@@ -119,28 +119,36 @@ public class JdbcExecutor {
         }
     }
 
-    public static JdbcInsertResultSet executeInsert(IConfig config, String sql, List<List<SqlValue>> sqlValues, boolean generatedKeys) throws SQLException {
-        Connection connection = connection(config);
-        logSql(config, sql);
-        logValueList(config, sqlValues);
-        boolean batch = sqlValues.size() > 1;
-        PreparedStatement preparedStatement = batchStatement(connection, sql, sqlValues, generatedKeys);
-        int count;
-        boolean printTime = config.isPrintTime();
-        long start = printTime ? System.currentTimeMillis() : 0;
-        if (batch) {
-            count = preparedStatement.executeBatch().length;
+    public static JdbcInsertResultSet executeInsert(IConfig config, String sql, List<List<SqlValue>> sqlValues, boolean generatedKeys) {
+        try
+        {
+            Connection connection = connection(config);
+            logSql(config, sql);
+            logValueList(config, sqlValues);
+            boolean batch = sqlValues.size() > 1;
+            PreparedStatement preparedStatement = batchStatement(connection, sql, sqlValues, generatedKeys);
+            int count;
+            boolean printTime = config.isPrintTime();
+            long start = printTime ? System.currentTimeMillis() : 0;
+            if (batch) {
+                count = preparedStatement.executeBatch().length;
+            }
+            else {
+                count = preparedStatement.executeUpdate();
+            }
+            long end = printTime ? System.currentTimeMillis() : 0;
+            logTime(config, end - start);
+            ResultSet resultSet = null;
+            if (generatedKeys) {
+                resultSet = preparedStatement.getGeneratedKeys();
+            }
+            return new JdbcInsertResultSet(resultSet, preparedStatement, connection, count);
         }
-        else {
-            count = preparedStatement.executeUpdate();
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
         }
-        long end = printTime ? System.currentTimeMillis() : 0;
-        logTime(config, end - start);
-        ResultSet resultSet = null;
-        if (generatedKeys) {
-            resultSet = preparedStatement.getGeneratedKeys();
-        }
-        return new JdbcInsertResultSet(resultSet, preparedStatement, connection, count);
+
     }
 
     private static PreparedStatement batchStatement(Connection connection, String sql, List<List<SqlValue>> sqlValues, boolean generatedKeys) throws SQLException {

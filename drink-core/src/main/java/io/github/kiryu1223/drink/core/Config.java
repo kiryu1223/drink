@@ -22,7 +22,6 @@ import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.page.Pager;
-import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.toBean.beancreator.BeanCreatorFactory;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 import io.github.kiryu1223.drink.base.transform.Transformer;
@@ -40,7 +39,6 @@ class Config implements IConfig {
     private final DbType dbType;
     private final TransactionManager transactionManager;
     private final DataSourceManager dataSourceManager;
-    private final SqlSessionFactory sqlSessionFactory;
     private final BeanCreatorFactory beanCreatorFactory;
     private final Filter filter = new Filter();
     private final Aop aop = new Aop();
@@ -53,7 +51,7 @@ class Config implements IConfig {
     private final ISqlLogger sqlLogger;
     private Pager pager;
 
-    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, SqlSessionFactory sqlSessionFactory, IDbSupport dbSupport, NameConverter nameConverter, DataBaseMetaData dataBaseMetaData, Pager pager) {
+    Config(Option option, DbType dbType, TransactionManager transactionManager, DataSourceManager dataSourceManager, IDbSupport dbSupport, NameConverter nameConverter, DataBaseMetaData dataBaseMetaData, Pager pager) {
         this.option = option;
         this.dbType = dbType;
         this.dataBaseMetaData = dataBaseMetaData;
@@ -62,7 +60,6 @@ class Config implements IConfig {
 
         this.transactionManager = transactionManager;
         this.dataSourceManager = dataSourceManager;
-        this.sqlSessionFactory = sqlSessionFactory;
 
         this.disambiguation = dbSupport.getIDialect();
         this.sqlExpressionFactory = dbSupport.getSqlExpressionFactory(this);
@@ -129,10 +126,6 @@ class Config implements IConfig {
 
     public TransactionManager getTransactionManager() {
         return transactionManager;
-    }
-
-    public SqlSessionFactory getSqlSessionFactory() {
-        return sqlSessionFactory;
     }
 
     public SqlExpressionFactory getSqlExpressionFactory() {

@@ -22,12 +22,8 @@ import io.github.kiryu1223.drink.base.converter.NameConverter;
 import io.github.kiryu1223.drink.base.dataSource.DataSourceManager;
 import io.github.kiryu1223.drink.base.dataSource.DefaultDataSourceManager;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
-import io.github.kiryu1223.drink.core.log.DefaultSqlLogger;
-import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.page.DefaultPager;
 import io.github.kiryu1223.drink.base.page.Pager;
-import io.github.kiryu1223.drink.base.session.DefaultSqlSessionFactory;
-import io.github.kiryu1223.drink.base.session.SqlSessionFactory;
 import io.github.kiryu1223.drink.base.transaction.DefaultTransactionManager;
 import io.github.kiryu1223.drink.base.transaction.TransactionManager;
 
@@ -60,10 +56,6 @@ public class SqlBuilder {
      * 事务管理器
      */
     private TransactionManager transactionManager;
-    /**
-     * 会话工厂
-     */
-    private SqlSessionFactory sqlSessionFactory;
 
     private NameConverter nameConverter;
 
@@ -81,9 +73,6 @@ public class SqlBuilder {
         if (transactionManager == null) {
             transactionManager = new DefaultTransactionManager(dataSourceManager);
         }
-        if (sqlSessionFactory == null) {
-            sqlSessionFactory = new DefaultSqlSessionFactory(dataSourceManager, transactionManager);
-        }
         if (nameConverter == null) {
             nameConverter = new NameConverter();
         }
@@ -94,7 +83,7 @@ public class SqlBuilder {
             dbSupport = getSpi();
         }
         DataBaseMetaData dataBaseMetaData = tryGetDbMetadate(dataSourceManager);
-        Config config = new Config(option, dbType, transactionManager, dataSourceManager, sqlSessionFactory, dbSupport, nameConverter, dataBaseMetaData, pager);
+        Config config = new Config(option, dbType, transactionManager, dataSourceManager, dbSupport, nameConverter, dataBaseMetaData, pager);
         return new SqlClient(config);
     }
 
@@ -144,14 +133,6 @@ public class SqlBuilder {
      */
     public SqlBuilder setTransactionManager(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
-        return this;
-    }
-
-    /**
-     * 设置会话工厂
-     */
-    public SqlBuilder setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
-        this.sqlSessionFactory = sqlSessionFactory;
         return this;
     }
 

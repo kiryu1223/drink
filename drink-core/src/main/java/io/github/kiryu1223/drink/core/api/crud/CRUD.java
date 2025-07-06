@@ -32,34 +32,8 @@ public abstract class CRUD<C> {
 
     /**
      * 获取Sql语句
-     *
-     * @return Sql
      */
     protected abstract String toSql();
-
-    protected void printSql(String sql) {
-        IConfig config = getConfig();
-        ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printSql(config, sql);
-    }
-
-    protected void printValues(List<SqlValue> values) {
-        IConfig config = getConfig();
-        ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printValues(config, values);
-    }
-
-    protected void printTotal(long total) {
-        IConfig config = getConfig();
-        ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printTotal(config, total);
-    }
-
-    protected void printUpdate(long update) {
-        IConfig config = getConfig();
-        ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printUpdate(config, update);
-    }
 
     protected abstract ISqlBuilder getSqlBuilder();
 

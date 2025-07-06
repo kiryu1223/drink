@@ -11,11 +11,12 @@ import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcInsertResultSet;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.visitor.UpdateSqlVisitor;
@@ -26,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,44 +90,36 @@ public class ObjectInsertOrUpdate<T> {
         String sql = ii.insertOrUpdate(metaData, onInsertOrUpdateFields, cc, updateColumns);
 
         AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(tClass);
-        List<SqlValue> sqlValues;
+        List<List<SqlValue>> sqlValues;
         try {
             sqlValues = values(beanCreator, onInsertOrUpdateFields);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new DrinkException(e);
         }
 
-        SqlSession session = config.getSqlSessionFactory().getSession();
-
-        ISqlLogger sqlLogger = config.getSqlLogger();
-        sqlLogger.printSql(config,sql);
-        sqlLogger.printValues(config,sqlValues);
-
-        long l= session.executeInsert(
-                resultSet -> {
-                    if (!autoIncrement) return;
-                    FieldMetaData generatedKey = metaData.getGeneratedPrimaryKey();
-                    ITypeHandler<?> typeHandler = generatedKey.getTypeHandler();
-                    IGetterCaller<T, ?> beanGetter = beanCreator.getBeanGetter(generatedKey.getFieldName());
-                    ISetterCaller<T> beanSetter = beanCreator.getBeanSetter(generatedKey.getFieldName());
-                    for (T bean : ts) {
-                        Object value = beanGetter.apply(bean);
-                        if (value == null) {
-                            resultSet.next();
-                            Object v = typeHandler.getValue(resultSet, 1, generatedKey.getType());
-                            beanSetter.call(bean, v);
-                        }
+        try (JdbcInsertResultSet jdbcInsertResultSet = JdbcExecutor.executeInsert(config, sql, sqlValues, autoIncrement))
+        {
+            if (autoIncrement)
+            {
+                ResultSet resultSet = jdbcInsertResultSet.getRs();
+                FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
+                int index = 0;
+                while (resultSet.next()) {
+                    T r = ts.get(index++);
+                    ITypeHandler<?> typeHandler = generatedPrimaryKey.getTypeHandler();
+                    Object value = typeHandler.getValue(resultSet, 1, generatedPrimaryKey.getGenericType());
+                    if (value != null) {
+                        ISetterCaller<T> beanSetter = beanCreator.getBeanSetter(generatedPrimaryKey.getFieldName());
+                        beanSetter.call(r, value);
                     }
-                },
-                sql,
-                sqlValues,
-                onInsertOrUpdateFields.size(),
-                autoIncrement
-        );
-
-        sqlLogger.printUpdate(config,l);
-
-        return l;
+                }
+            }
+            return jdbcInsertResultSet.getCount();
+        }
+        catch (SQLException | InvocationTargetException | IllegalAccessException e)
+        {
+            throw new DrinkException(e);
+        }
     }
 
     /**
@@ -158,7 +153,7 @@ public class ObjectInsertOrUpdate<T> {
         }
         return this;
     }
-    
+
     /**
      * 寻找保存时发生数据冲突条件的字段，mysql下无效
      */
@@ -182,10 +177,11 @@ public class ObjectInsertOrUpdate<T> {
         return ii.insertOrUpdate(metaData, onInsertOrUpdateFields, cc, updateColumns);
     }
 
-    private List<SqlValue> values(AbsBeanCreator<T> beanCreator, List<FieldMetaData> onInsertOrUpdateFields) throws InvocationTargetException, IllegalAccessException {
+    private List<List<SqlValue>> values(AbsBeanCreator<T> beanCreator, List<FieldMetaData> onInsertOrUpdateFields) throws InvocationTargetException, IllegalAccessException {
         Aop aop = config.getAop();
-        List<SqlValue> sqlValues = new ArrayList<>();
+        List<List<SqlValue>> sqlValues = new ArrayList<>(ts.size());
         for (T object : ts) {
+            List<SqlValue> values = new ArrayList<>();
             aop.callOnInsert(object);
             for (FieldMetaData fieldMetaData : onInsertOrUpdateFields) {
                 IGetterCaller<T, ?> beanGetter = beanCreator.getBeanGetter(fieldMetaData.getFieldName());
@@ -194,8 +190,9 @@ public class ObjectInsertOrUpdate<T> {
                 if (value == null && fieldMetaData.isNotNull()) {
                     throw new DrinkException(String.format("%s类的%s字段被设置为notnull，但是字段值为空且没有设置默认值注解", fieldMetaData.getParentType(), fieldMetaData.getFieldName()));
                 }
-                sqlValues.add(new SqlValue(value, typeHandler));
+                values.add(new SqlValue(value, typeHandler));
             }
+            sqlValues.add(values);
         }
         return sqlValues;
     }

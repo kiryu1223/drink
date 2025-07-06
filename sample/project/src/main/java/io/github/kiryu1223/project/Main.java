@@ -52,16 +52,10 @@ public class Main {
         map.put("小张", 2);
         map.put("小明", 3);
 
-        client.query(Students.class)
-                .where(s -> map.get(s.getName()) == 2)
-                .toChunk(10, c -> {
-                    List<Students> values = c.getValues();
-                    for (Students students : values) {
-                        System.out.println(students.getName());
-                    }
-                    if (1 + 1 == 2) {
-                        c.end();
-                    }
-                });
+        String sql = client.query(Students.class)
+                .where(s -> map.getOrDefault(s.getName(),2) == 2)
+                .toSql();
+
+        System.out.println(sql);
     }
 }

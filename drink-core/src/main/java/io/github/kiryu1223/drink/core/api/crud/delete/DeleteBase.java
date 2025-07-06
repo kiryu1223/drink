@@ -16,11 +16,12 @@
 package io.github.kiryu1223.drink.core.api.crud.delete;
 
 import io.github.kiryu1223.drink.base.IConfig;
+import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.JoinType;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.UpdateSqlVisitor;
@@ -28,6 +29,7 @@ import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,13 +65,14 @@ public abstract class DeleteBase<C> extends CRUD<C> {
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(sqlValues);
-        //tryPrintUseDs(log,config.getDataSourceManager().getDsKey());
-        printSql(sql);
-        printValues(sqlValues);
-        SqlSession session = config.getSqlSessionFactory().getSession();
-        long l = session.executeDelete(sql, sqlValues);
-        printUpdate(l);
-        return l;
+        try
+        {
+            return JdbcExecutor.executeDelete(config, sql, sqlValues);
+        }
+        catch (SQLException e)
+        {
+            throw new DrinkException(e);
+        }
     }
 
     public String toSql() {

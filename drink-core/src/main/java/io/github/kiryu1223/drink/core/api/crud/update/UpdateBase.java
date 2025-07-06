@@ -17,8 +17,8 @@ package io.github.kiryu1223.drink.core.api.crud.update;
 
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
-import io.github.kiryu1223.drink.base.session.SqlSession;
 import io.github.kiryu1223.drink.base.session.SqlValue;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
@@ -28,6 +28,7 @@ import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,13 +71,14 @@ public class UpdateBase<C> extends CRUD<C> {
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(sqlValues);
-        //tryPrintUseDs(log, config.getDataSourceManager().getDsKey());
-        printSql(sql);
-        printValues(sqlValues);
-        SqlSession session = config.getSqlSessionFactory().getSession();
-        long l = session.executeUpdate(sql, sqlValues);
-        printUpdate(l);
-        return l;
+        try
+        {
+            return JdbcExecutor.executeUpdate(config,sql,sqlValues);
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private void checkHasWhere() {
