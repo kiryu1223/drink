@@ -85,7 +85,7 @@ public class OracleQueryableExpression extends SqlQueryableExpression {
             MetaData metaData = config.getMetaData(from.getSqlTableExpression().getMainTableClass());
             FieldMetaData primary = metaData.getPrimary();
             if (primary == null) {
-                throw new DrinkException(DbType.Oracle.name());
+                throw new DrinkException(String.format("%s设置limit需要orderBy字段但是找不到主键也没有设置orderBy", config.getDbType()));
             }
             SqlExpressionFactory factory = config.getSqlExpressionFactory();
             ISqlOrderByExpression sqlOrderByExpression = factory.orderBy();

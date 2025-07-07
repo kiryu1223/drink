@@ -39,13 +39,7 @@ public interface ISqlCollectedValueExpression extends ISqlValueExpression {
 
     @Override
     default Class<?> getType() {
-        Collection<?> collection = getCollection();
-        if (collection != null && !collection.isEmpty()) {
-            return collection.iterator().next().getClass();
-        }
-        else {
-            return ISqlValueExpression.super.getType();
-        }
+        return Collection.class;
     }
 
     /**

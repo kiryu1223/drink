@@ -103,6 +103,18 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
      * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
      */
     protected boolean any(LambdaExpression<?> lambda) {
+        return select1(lambda);
+    }
+
+    public boolean none() {
+        return none(null);
+    }
+
+    protected boolean none(LambdaExpression<?> lambda) {
+        return !select1(lambda);
+    }
+
+    private boolean select1(LambdaExpression<?> lambda) {
         IConfig config = getConfig();
         //获取拷贝的查询对象
         ISqlQueryableExpression queryableCopy = getSqlBuilder().getQueryable().copy(config);
@@ -121,15 +133,12 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         //查询
         List<SqlValue> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
-        try (JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values))
-        {
+        try (JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values)) {
             ResultSet rs = jdbcQueryResultSet.getRs();
-            boolean any=rs.next();
-            config.getSqlLogger().printTotal(any?1:0);
+            boolean any = rs.next();
+            config.getSqlLogger().printTotal(any ? 1 : 0);
             return any;
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -234,7 +243,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
             ISqlColumnExpression columnExpression = (ISqlColumnExpression) expression;
             return (ITypeHandler<R>) columnExpression.getFieldMetaData().getTypeHandler();
         }
-        else  {
+        else {
             return TypeHandlerManager.get(expression.getType());
         }
     }
@@ -276,11 +285,20 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     // region [first]
 
     protected R first() {
+        return get(0);
+    }
+
+    // endregion
+
+    // region [get]
+
+    protected R get(long index) {
+        index = Math.max(0, index);
         ISqlLimitExpression limit = sqlBuilder.getQueryable().getLimit();
         long offset = limit.getOffset();
         long rows = limit.getRows();
-        limit.setOffset(0);
-        limit.setRows(1);
+        limit.setOffset(index);
+        limit.setRows(index+1);
         List<R> list = toList();
         limit.setOffset(offset);
         limit.setRows(rows);

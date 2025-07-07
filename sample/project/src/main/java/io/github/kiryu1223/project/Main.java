@@ -52,10 +52,10 @@ public class Main {
         map.put("小张", 2);
         map.put("小明", 3);
 
-        String sql = client.query(Students.class)
+        Students stu = client.query(Students.class)
                 .where(s -> map.getOrDefault(s.getName(),2) == 2)
-                .toSql();
+                .get(2);
 
-        System.out.println(sql);
+        System.out.println(stu);
     }
 }

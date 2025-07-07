@@ -72,6 +72,7 @@ public enum SqlOperator {
     IS_NOT("IS NOT"),
     BETWEEN,
     EXISTS(true),
+    NOT_EXISTS("NOT EXISTS",true),
     ;
 
     private final String operator;

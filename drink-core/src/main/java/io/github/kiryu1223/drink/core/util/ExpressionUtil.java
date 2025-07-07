@@ -36,6 +36,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.isString;
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.isVoid;
+
 /**
  * 表达式工具
  *
@@ -200,142 +203,6 @@ public class ExpressionUtil {
 //        }
 //        return original;
 //    }
-
-    /**
-     * 是否为void类型
-     */
-    public static boolean isVoid(Class<?> c) {
-        return c == Void.class || c == void.class;
-    }
-
-    /**
-     * 是否为bool类型
-     */
-    public static boolean isBool(Class<?> type) {
-        return type == boolean.class || type == Boolean.class;
-    }
-
-    /**
-     * 是否为char类型
-     */
-    public static boolean isChar(Class<?> type) {
-        return type == char.class || type == Character.class;
-    }
-
-    /**
-     * 是否为string类型
-     */
-    public static boolean isString(Class<?> type) {
-        return type == String.class;
-    }
-
-    /**
-     * 是否为int类型
-     */
-    public static boolean isInt(Class<?> type) {
-        return type == int.class || type == Integer.class;
-    }
-
-    /**
-     * 是否为long类型
-     */
-    public static boolean isLong(Class<?> type) {
-        return type == long.class || type == Long.class;
-    }
-
-    /**
-     * 是否为byte类型
-     */
-    public static boolean isByte(Class<?> type) {
-        return type == byte.class || type == Byte.class;
-    }
-
-    /**
-     * 是否为datetime类型
-     */
-    public static boolean isDateTime(Class<?> type) {
-        return type == Date.class || type == LocalDateTime.class || type == Timestamp.class;
-    }
-
-    /**
-     * 是否为time类型
-     */
-    public static boolean isTime(Class<?> type) {
-        return type == Time.class || type == LocalTime.class;
-    }
-
-    /**
-     * 是否为date类型
-     */
-    public static boolean isDate(Class<?> type) {
-        return type == java.sql.Date.class || type == LocalDate.class;
-    }
-
-    /**
-     * 是否为short类型
-     */
-    public static boolean isShort(Class<?> type) {
-        return type == short.class || type == Short.class;
-    }
-
-    /**
-     * 是否为float类型
-     */
-    public static boolean isFloat(Class<?> type) {
-        return type == float.class || type == Float.class;
-    }
-
-    /**
-     * 是否为double类型
-     */
-    public static boolean isDouble(Class<?> type) {
-        return type == double.class || type == Double.class;
-    }
-
-    /**
-     * 是否为decimal类型
-     */
-    public static boolean isDecimal(Class<?> type) {
-        return type == BigDecimal.class;
-    }
-
-    /**
-     * 转换为包装类型
-     */
-    public static Class<?> upperClass(Class<?> c) {
-        if (c.isPrimitive()) {
-            if (c == Character.TYPE) {
-                return Character.class;
-            }
-            if (c == Byte.TYPE) {
-                return Byte.class;
-            }
-            else if (c == Short.TYPE) {
-                return Short.class;
-            }
-            else if (c == Integer.TYPE) {
-                return Integer.class;
-            }
-            else if (c == Long.TYPE) {
-                return Long.class;
-            }
-            else if (c == Float.TYPE) {
-                return Float.class;
-            }
-            else if (c == Double.TYPE) {
-                return Double.class;
-            }
-            else if (c == Boolean.TYPE) {
-                return Boolean.class;
-            }
-            else {
-                return Void.class;
-            }
-        }
-        else {
-            return c;
-        }
-    }
 
     public static <R> java.util.List<R> buildTree(java.util.List<R> flatList, IGetterCaller<R,?> selfFieldGetter, IGetterCaller<R,?> targetGetter, ISetterCaller<R> navigateSetter, IGetterCaller<R, Collection<R>> navigateGetter) throws InvocationTargetException, IllegalAccessException
     {

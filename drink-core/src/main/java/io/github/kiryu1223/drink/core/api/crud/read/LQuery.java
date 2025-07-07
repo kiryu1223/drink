@@ -548,6 +548,11 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     // region [toAny]
 
+    @Override
+    public T get(long index) {
+        return super.get(index);
+    }
+
     /**
      * 返回一条数据，会调用各种数据库limit 1的具体实现，无数据则返回null
      *
@@ -624,6 +629,14 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
     // endregion
 
     // region [FAST RETURN]
+
+    public boolean none(@Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public boolean none(ExprTree<Func1<T, Boolean>> expr) {
+        return none(expr.getTree());
+    }
 
     public boolean any(@Expr(Expr.BodyType.Expr) Func1<T, Boolean> func) {
         throw new NotCompiledException();

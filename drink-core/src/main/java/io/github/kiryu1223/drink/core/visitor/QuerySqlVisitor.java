@@ -12,8 +12,6 @@ import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
-import io.github.kiryu1223.drink.base.transform.IAggregateMethods;
-import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
@@ -25,15 +23,14 @@ import io.github.kiryu1223.expressionTree.expressions.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.github.kiryu1223.drink.base.util.DrinkUtil.last;
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.*;
+import static io.github.kiryu1223.drink.core.util.ExpressionUtil.isList;
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
 
 public class QuerySqlVisitor extends BaseSqlVisitor {
@@ -824,6 +821,9 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                     return leftQuery;
                 }
             }
+            else {
+                return queryOrDrinkListHandler(leftQuery, args, method,methodCall);
+            }
         }
         else if (isSqlExtensionExpressionMethod(method)) {
             SqlExtensionExpression sqlFuncExt = getSqlFuncExt(method.getAnnotationsByType(SqlExtensionExpression.class));
@@ -937,36 +937,37 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
             else if (Math.class.isAssignableFrom(type)) {
                 return mathStaticHandler(methodCall);
             }
-            else if (DrinkUtil.isBigNumber(type)) {
+            else if (isBigNumber(type)) {
                 return bigNumberStaticHandler(methodCall);
             }
         }
-        else if (left instanceof ISqlValueExpression) {
-            ISqlValueExpression valueExpression = (ISqlValueExpression) left;
-            Object value = valueExpression.getValue();
-            if (value instanceof String) {
-                return stringHandler(methodCall);
+        else if (isEquals(methodCall)) {
+            return factory.binary(SqlOperator.EQ, left, visit(args.get(0)));
+        }
+        else {
+            Class<?> type = left.getType();
+            if (isString(type)) {
+                return stringHandler(left, args, method, methodCall);
             }
-            else if (value instanceof BigInteger || value instanceof BigDecimal) {
-                return bigNumberHandler(methodCall);
+            else if (isBigNumber(type)) {
+                return bigNumberHandler(left, args, method, methodCall);
             }
-            else if (value instanceof Temporal) {
-                return dateTimeHandler(methodCall);
+            else if (Temporal.class.isAssignableFrom(type)) {
+                return dateTimeHandler(left, args, method,methodCall);
             }
-            else if (value instanceof Date) {
-                return oldDateTimeHandler(methodCall);
+            else if (isDate(type)) {
+                return oldDateTimeHandler(left, args, method,methodCall);
             }
-            else if (value instanceof Collection) {
-                return collectionHandler(methodCall);
+            else if (Collection.class.isAssignableFrom(type)) {
+                return collectionHandler(left, args, method,methodCall);
             }
-            else if (value instanceof Map) {
-                return mapHandler(methodCall);
+            else if (Map.class.isAssignableFrom(type)) {
+                return mapHandler(left, args, method,methodCall);
             }
             else if (isStartQuery(methodCall.getMethod())) {
-                Expression expression = methodCall.getArgs().get(0);
-                return visit(expression);
+                return visit(args.get(0));
             }
-            else if (value instanceof SqlClient) {
+            else if (SqlClient.class.isAssignableFrom(type)) {
                 String name = method.getName();
                 Expression arg = args.get(0);
                 if (name.equals("query") && arg.getKind() == Kind.StaticClass) {
@@ -974,14 +975,6 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                     ISqlQueryableExpression queryable = factory.queryable(staticClass.getType());
                     push(queryable);
                     return queryable;
-                }
-            }
-            else if (value instanceof QueryBase || isList(methodCall.getMethod())) {
-                return queryOrDrinkListHandler(methodCall);
-            }
-            else {
-                if (isEquals(methodCall)) {
-                    return factory.binary(SqlOperator.EQ, visit(methodCall.getExpr()), visit(methodCall.getArgs().get(0)));
                 }
             }
         }

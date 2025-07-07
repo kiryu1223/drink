@@ -105,7 +105,6 @@
                 <version>0.8.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <!--  对应maven的setting.xml<servers> <server> <id>ossrh</id> -->
                     <publishingServerId>release</publishingServerId>
                     <!-- 是否自动发布，false需要在手动发布：https://central.sonatype.com/publishing -->
                     <autoPublish>true</autoPublish>

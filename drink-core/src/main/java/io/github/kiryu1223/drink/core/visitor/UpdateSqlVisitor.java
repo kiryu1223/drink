@@ -42,7 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.github.kiryu1223.drink.base.util.DrinkUtil.last;
+import static io.github.kiryu1223.drink.base.util.DrinkUtil.*;
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
 
 /**
@@ -210,7 +210,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
             else {
                 ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
                 MetaData metaData = config.getMetaData(field.getDeclaringClass());
-                FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(field.getName());
+                FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(fieldName);
                 if (fieldMetaData.hasNavigate()) {
                     return getterToSqlAst(fieldMetaData, tableRef);
                 }
@@ -281,6 +281,12 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                     }
                 }
             }
+            // else if (isDynamicColumn(method)) {
+            //     List<Expression> args = methodCall.getArgs();
+            //     String column = args.get(0).getValue().toString();
+            //     Class<?> type = (Class<?>) args.get(1).getValue();
+            //     return factory.dynamicColumn(column, type, tableRef);
+            // }
         }
         // (a) -> a.jsonObjectField
         else if (left instanceof ISqlJsonObject) {
@@ -312,8 +318,10 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                     return leftQuery;
                 }
             }
+            else {
+                queryOrDrinkListHandler(leftQuery, args, method,methodCall);
+            }
         }
-        // 扩展表达式
         else if (isSqlExtensionExpressionMethod(method)) {
             SqlExtensionExpression sqlFuncExt = getSqlFuncExt(method.getAnnotationsByType(SqlExtensionExpression.class));
             List<ISqlExpression> expressions = new ArrayList<>(args.size());
@@ -384,7 +392,6 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 return factory.template(strings, expressions);
             }
         }
-        // 扩展运算符
         else if (isSqlOperatorMethod(method)) {
             SqlOperatorMethod operatorMethod = method.getAnnotation(SqlOperatorMethod.class);
             SqlOperator operator = operatorMethod.value();
@@ -415,7 +422,6 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 }
             }
         }
-        // 静态类调用
         else if (left instanceof JavaType) {
             JavaType javaType = (JavaType) left;
             Class<?> type = javaType.getType();
@@ -428,37 +434,37 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
             else if (Math.class.isAssignableFrom(type)) {
                 return mathStaticHandler(methodCall);
             }
-            else if (DrinkUtil.isBigNumber(type)) {
+            else if (isBigNumber(type)) {
                 return bigNumberStaticHandler(methodCall);
             }
         }
-        // 非静态类调用
-        else if (left instanceof ISqlValueExpression) {
-            ISqlValueExpression valueExpression = (ISqlValueExpression) left;
-            Object value = valueExpression.getValue();
-            if (value instanceof String) {
-                return stringHandler(methodCall);
+        else if (isEquals(methodCall)) {
+            return factory.binary(SqlOperator.EQ, left, visit(args.get(0)));
+        }
+        else {
+            Class<?> type = left.getType();
+            if (isString(type)) {
+                return stringHandler(left, args, method, methodCall);
             }
-            else if (value instanceof BigInteger || value instanceof BigDecimal) {
-                return bigNumberHandler(methodCall);
+            else if (isBigNumber(type)) {
+                return bigNumberHandler(left, args, method, methodCall);
             }
-            else if (value instanceof Temporal) {
-                return dateTimeHandler(methodCall);
+            else if (Temporal.class.isAssignableFrom(type)) {
+                return dateTimeHandler(left, args, method,methodCall);
             }
-            else if (value instanceof Date) {
-                return oldDateTimeHandler(methodCall);
+            else if (isDate(type)) {
+                return oldDateTimeHandler(left, args, method,methodCall);
             }
-            else if (value instanceof Collection) {
-                return collectionHandler(methodCall);
+            else if (Collection.class.isAssignableFrom(type)) {
+                return collectionHandler(left, args, method,methodCall);
             }
-            else if (value instanceof Map) {
-                return mapHandler(methodCall);
+            else if (Map.class.isAssignableFrom(type)) {
+                return mapHandler(left, args, method,methodCall);
             }
             else if (isStartQuery(methodCall.getMethod())) {
-                Expression expression = methodCall.getArgs().get(0);
-                return visit(expression);
+                return visit(args.get(0));
             }
-            else if (value instanceof SqlClient) {
+            else if (SqlClient.class.isAssignableFrom(type)) {
                 String name = method.getName();
                 Expression arg = args.get(0);
                 if (name.equals("query") && arg.getKind() == Kind.StaticClass) {
@@ -466,14 +472,6 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                     ISqlQueryableExpression queryable = factory.queryable(staticClass.getType());
                     push(queryable);
                     return queryable;
-                }
-            }
-            else if (value instanceof QueryBase || isList(methodCall.getMethod())) {
-                return queryOrDrinkListHandler(methodCall);
-            }
-            else {
-                if (isEquals(methodCall)) {
-                    return factory.binary(SqlOperator.EQ, visit(methodCall.getExpr()), visit(methodCall.getArgs().get(0)));
                 }
             }
         }
