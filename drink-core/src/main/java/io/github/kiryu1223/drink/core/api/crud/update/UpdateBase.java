@@ -37,7 +37,7 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class UpdateBase<C> extends CRUD<C> {
+public abstract class UpdateBase<C> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(UpdateBase.class);
 
     private final UpdateSqlBuilder sqlBuilder;
@@ -56,6 +56,24 @@ public class UpdateBase<C> extends CRUD<C> {
 
     public String toSql() {
         return sqlBuilder.getSql();
+    }
+
+    @Override
+    public C DisableFilter(String filterId) {
+        sqlBuilder.addIgnoreFilterId(filterId);
+        return (C) this;
+    }
+
+    @Override
+    public C DisableFilterAll(boolean condition) {
+        sqlBuilder.setIgnoreFilterAll(condition);
+        return (C) this;
+    }
+
+    @Override
+    public C DisableFilterAll() {
+        sqlBuilder.setIgnoreFilterAll(true);
+        return (C) this;
     }
 
     /**

@@ -57,5 +57,10 @@ public class Main {
                 .get(2);
 
         System.out.println(stu);
+
+        Map<String, Students> mm = client.query(Students.class)
+                .where(s -> map.getOrDefault(s.getName(), 2) == 2)
+                .toMap(s -> s.getEmail());
+
     }
 }

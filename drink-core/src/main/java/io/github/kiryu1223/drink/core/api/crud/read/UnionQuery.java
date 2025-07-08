@@ -85,6 +85,24 @@ public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
         return unionBuilder.getSql();
     }
 
+    @Override
+    public UnionQuery<T> DisableFilter(String filterId) {
+        unionBuilder.addIgnoreFilterId(filterId);
+        return this;
+    }
+
+    @Override
+    public UnionQuery<T> DisableFilterAll(boolean condition) {
+        unionBuilder.setIgnoreFilterAll(condition);
+        return this;
+    }
+
+    @Override
+    public UnionQuery<T> DisableFilterAll() {
+        unionBuilder.setIgnoreFilterAll(true);
+        return this;
+    }
+
     public List<T> toList() {
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();

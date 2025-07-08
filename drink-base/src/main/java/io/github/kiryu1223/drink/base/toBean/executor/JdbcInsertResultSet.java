@@ -8,15 +8,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcInsertResultSet extends JdbcQueryResultSet {
-    private final long count;
+    private final long row;
 
-    public JdbcInsertResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, long count) {
+    public JdbcInsertResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, long row) {
         super(rs, preparedStatement, connection);
-        this.count = count;
+        this.row = row;
     }
 
-    public long getCount() {
-        return count;
+    public long getRow() {
+        return row;
     }
 
     @Override

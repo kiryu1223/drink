@@ -8,7 +8,6 @@ import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlTableRefExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlUpdateExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.base.log.ISqlLogger;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.session.SqlValue;
@@ -114,7 +113,7 @@ public class ObjectInsertOrUpdate<T> {
                     }
                 }
             }
-            return jdbcInsertResultSet.getCount();
+            return jdbcInsertResultSet.getRow();
         }
         catch (SQLException | InvocationTargetException | IllegalAccessException e)
         {

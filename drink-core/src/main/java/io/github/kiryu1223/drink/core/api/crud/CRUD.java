@@ -35,20 +35,9 @@ public abstract class CRUD<C> {
      */
     protected abstract String toSql();
 
-    protected abstract ISqlBuilder getSqlBuilder();
+    public abstract C DisableFilter(String filterId);
 
-    public C DisableFilter(String filterId) {
-        getSqlBuilder().addIgnoreFilterId(filterId);
-        return (C) this;
-    }
+    public abstract C DisableFilterAll(boolean condition);
 
-    public C DisableFilterAll(boolean condition) {
-        getSqlBuilder().setIgnoreFilterAll(condition);
-        return (C) this;
-    }
-
-    public C DisableFilterAll() {
-        getSqlBuilder().setIgnoreFilterAll(true);
-        return (C) this;
-    }
+    public abstract C DisableFilterAll();
 }

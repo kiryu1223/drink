@@ -308,29 +308,29 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody User user) {
-        long count = drinkClient.insert(user).executeRows();
-        return ResponseEntity.ok("创建成功，影响行数：" + count);
+        long row = drinkClient.insert(user).executeRows();
+        return ResponseEntity.ok("创建成功，影响行数：" + row);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id,
                                            @RequestBody User user) {
-        long count = drinkClient.update(User.class)
+        long row = drinkClient.update(User.class)
                 .set(u -> {
                     u.setName(user.getName());
                     u.setAge(user.getAge());
                 })
                 .where(u -> u.getId().equals(id))
                 .executeRows();
-        return ResponseEntity.ok("更新成功，影响行数：" + count);
+        return ResponseEntity.ok("更新成功，影响行数：" + row);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        long count = drinkClient.delete(User.class)
+        long row = drinkClient.delete(User.class)
                 .where(u -> u.getId().equals(id))
                 .executeRows();
-        return ResponseEntity.ok("删除成功，影响行数：" + count);
+        return ResponseEntity.ok("删除成功，影响行数：" + row);
     }
 }
 
@@ -570,9 +570,9 @@ List<String> names = client.query(User.class)
         .toList();
 
 // 聚合查询
-long count = client.query(User.class)
+long row = client.query(User.class)
         .where(u -> u.getAge() >= 18)
-        .count();
+        .row();
 
 Integer maxAge = client.query(User.class).max(u -> u.getAge());
 Integer minAge = client.query(User.class).min(u -> u.getAge());
@@ -598,7 +598,7 @@ List<? extends Result> result = client.query(User.class)
         .where((u, o) -> u.getAge() >= 18)
         .select((u, o) -> new Result() {
             String userName = u.getName();
-            Long orderCount = SqlFunctions.count(o.getId());
+            Long orderCount = SqlFunctions.row(o.getId());
         })
         .toList();
 ```
@@ -724,7 +724,7 @@ List<? extends Result> result = client.query(Order.class)
         .groupBy(o -> o.getUserId())
         .select(g -> new Result() {
             Long userId = g.key;
-            Long orderCount = g.count();
+            Long orderCount = g.row();
             BigDecimal totalAmount = g.sum(o -> o.getAmount());
         })
         .toList();
@@ -738,7 +738,7 @@ List<? extends Result> result = client.query(Order.class)
         .select(g -> new Result() {
             Long userId = g.key.userId;
             String status = g.key.status;
-            Long count = g.count();
+            Long row = g.row();
             BigDecimal avgAmount = g.avg(o -> o.getAmount());
         })
         .toList();
@@ -749,10 +749,10 @@ List<? extends Result> result = client.query(Order.class)
 ```java
 List<? extends Result> result = client.query(Order.class)
         .groupBy(o -> o.getUserId())
-        .having(g -> g.count() > 5)  // 订单数量大于5的用户
+        .having(g -> g.row() > 5)  // 订单数量大于5的用户
         .select(g -> new Result() {
             Long userId = g.key;
-            Long orderCount = g.count();
+            Long orderCount = g.row();
         })
         .toList();
 ```
@@ -818,9 +818,9 @@ List<User> users = client.query(User.class)
 List<User> users = client.query(User.class)
         .where(u -> client.query(Order.class)
                 .where(o -> o.getUserId().equals(u.getId()))
-                .count() == client.query(Order.class)
+                .row() == client.query(Order.class)
                         .groupBy(o -> o.getUserId())
-                        .max(g -> g.count()))
+                        .max(g -> g.row()))
         .toList();
 ```
 
@@ -1198,7 +1198,7 @@ client.update(User.class)
 // 基本分页
 public PageResult<User> getUsers(int page, int size) {
     // 查询总数
-    long total = client.query(User.class).count();
+    long total = client.query(User.class).row();
 
     // 查询数据
     List<User> users = client.query(User.class)
@@ -1268,7 +1268,7 @@ List<? extends Result> stats = client.query(User.class)
         .select(g -> new Result() {
             Long userId = g.key.userId;
             String userName = g.key.userName;
-            Long orderCount = g.count((u, o) -> o.getId());
+            Long orderCount = g.row((u, o) -> o.getId());
             BigDecimal totalAmount = g.sum((u, o) -> o.getAmount());
             BigDecimal avgAmount = g.avg((u, o) -> o.getAmount());
             LocalDateTime lastOrderTime = g.max((u, o) -> o.getCreateTime());

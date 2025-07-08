@@ -770,6 +770,24 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         }
     }
 
+    @Override
+    public C DisableFilter(String filterId) {
+        sqlBuilder.addIgnoreFilterId(filterId);
+        return (C) this;
+    }
+
+    @Override
+    public C DisableFilterAll(boolean condition) {
+        sqlBuilder.setIgnoreFilterAll(condition);
+        return (C) this;
+    }
+
+    @Override
+    public C DisableFilterAll() {
+        sqlBuilder.setIgnoreFilterAll(true);
+        return (C) this;
+    }
+
     // region [page]
 
     protected PagedResult<R> toPagedResult0(long pageIndex, long pageSize) {

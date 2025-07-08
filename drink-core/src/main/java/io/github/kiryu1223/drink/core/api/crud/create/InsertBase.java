@@ -19,10 +19,9 @@ import io.github.kiryu1223.drink.base.Aop;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
-import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
-import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.metaData.LogicColumn;
+import io.github.kiryu1223.drink.base.metaData.MetaData;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
@@ -31,7 +30,6 @@ import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
 import io.github.kiryu1223.drink.base.toBean.executor.JdbcInsertResultSet;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
-import io.github.kiryu1223.drink.core.sqlBuilder.InsertSqlBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,18 +47,14 @@ import java.util.List;
 public abstract class InsertBase<C, R> extends CRUD<C> {
     public final static Logger log = LoggerFactory.getLogger(InsertBase.class);
 
-    private final InsertSqlBuilder sqlBuilder;
+    private final IConfig config;
 
-    protected InsertSqlBuilder getSqlBuilder() {
-        return sqlBuilder;
+    public InsertBase(IConfig config) {
+        this.config = config;
     }
 
     protected IConfig getConfig() {
-        return sqlBuilder.getConfig();
-    }
-
-    public InsertBase(IConfig c) {
-        this.sqlBuilder = new InsertSqlBuilder(c);
+        return config;
     }
 
     /**
@@ -68,16 +62,10 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
      * @param autoIncrement 是否回填id
      */
     public long executeRows(boolean autoIncrement) {
-        List<R> objects = getObjects();
-        if (!objects.isEmpty()) {
-            try {
-                return objectsExecuteRows(autoIncrement);
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        else {
-            return 0;
+        try {
+            return executeInsert(autoIncrement);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new DrinkException(e);
         }
     }
 
@@ -86,11 +74,14 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
     }
 
     public String toSql() {
-        if (!getObjects().isEmpty()) {
+        List<R> objects = getObjects();
+        if (!objects.isEmpty()) {
             try {
-                return makeByObjects(getConfig().getMetaData(getTableType()).getNotIgnoreAndNavigateFields(), null);
+                MetaData metaData = config.getMetaData(getTableType());
+                List<FieldMetaData> notIgnoreFields = metaData.getNotIgnoreAndNavigateFields();
+                return objectsToSqlAndValues(objects, notIgnoreFields, null);
             } catch (InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new DrinkException(e);
             }
         }
         else {
@@ -102,24 +93,36 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
 
     protected abstract Class<R> getTableType();
 
-    private long objectsExecuteRows(boolean autoIncrement) throws InvocationTargetException, IllegalAccessException {
-        MetaData metaData = getConfig().getMetaData(getTableType());
-        List<FieldMetaData> notIgnoreFields = metaData.getNotIgnoreAndNavigateFields();
-        IConfig config = getConfig();
-        List<List<SqlValue>> sqlValues = new ArrayList<>();
-        String sql = makeByObjects(notIgnoreFields, sqlValues);
+    @Override
+    public C DisableFilter(String filterId) {
+        return (C) this;
+    }
 
-        try (JdbcInsertResultSet jdbcInsertResultSet = JdbcExecutor.executeInsert(config, sql, sqlValues, autoIncrement))
-        {
-            if (autoIncrement)
-            {
-                List<R> objectList = getObjects();
+    @Override
+    public C DisableFilterAll(boolean condition) {
+        return (C) this;
+    }
+
+    @Override
+    public C DisableFilterAll() {
+        return (C) this;
+    }
+
+    private long executeInsert(boolean autoIncrement) throws InvocationTargetException, IllegalAccessException {
+        List<R> objects = getObjects();
+        if (objects.isEmpty()) return 0;
+        MetaData metaData = config.getMetaData(getTableType());
+        List<FieldMetaData> notIgnoreFields = metaData.getNotIgnoreAndNavigateFields();
+        List<List<SqlValue>> sqlValues = new ArrayList<>();
+        String sql = objectsToSqlAndValues(objects, notIgnoreFields, sqlValues);
+        try (JdbcInsertResultSet jdbcInsertResultSet = JdbcExecutor.executeInsert(config, sql, sqlValues, autoIncrement)) {
+            if (autoIncrement) {
                 ResultSet resultSet = jdbcInsertResultSet.getRs();
                 FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
                 AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
                 int index = 0;
                 while (resultSet.next()) {
-                    R r = objectList.get(index++);
+                    R r = objects.get(index++);
                     ITypeHandler<?> typeHandler = generatedPrimaryKey.getTypeHandler();
                     Object value = typeHandler.getValue(resultSet, 1, generatedPrimaryKey.getGenericType());
                     if (value != null) {
@@ -128,39 +131,35 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
                     }
                 }
             }
-            return jdbcInsertResultSet.getCount();
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
+            return jdbcInsertResultSet.getRow();
+        } catch (SQLException e) {
+            throw new DrinkException(e);
         }
     }
 
-    private String makeByObjects(List<FieldMetaData> notIgnoreFields, List<List<SqlValue>> sqlValues) throws InvocationTargetException, IllegalAccessException {
+    private String objectsToSqlAndValues(List<R> objects, List<FieldMetaData> notIgnoreFields, List<List<SqlValue>> sqlValues) throws InvocationTargetException, IllegalAccessException {
         IConfig config = getConfig();
-        SqlExpressionFactory factory = config.getSqlExpressionFactory();
         Aop aop = config.getAop();
-        IDialect disambiguation = config.getDisambiguation();
+        IDialect dialect = config.getDisambiguation();
         MetaData metaData = config.getMetaData(getTableType());
         AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
-        List<String> tableFields = new ArrayList<>();
+        List<String> fields = new ArrayList<>();
         List<String> tableValues = new ArrayList<>();
         for (FieldMetaData fieldMetaData : notIgnoreFields) {
             // 如果不是数据库生成策略，则添加
             if (fieldMetaData.isGeneratedKey()) continue;
-            tableFields.add(disambiguation.disambiguation(fieldMetaData.getColumn()));
+            fields.add(dialect.disambiguation(fieldMetaData.getColumn()));
             if (fieldMetaData.hasLogicColumn()) {
                 LogicColumn logicColumn = fieldMetaData.getLogicColumn();
                 tableValues.add(logicColumn.onWrite(config));
             }
             else {
-
                 tableValues.add("?");
             }
         }
         if (sqlValues != null) {
-            List<SqlValue> values=new ArrayList<>();
-            for (R object : getObjects()) {
+            List<SqlValue> values = new ArrayList<>();
+            for (R object : objects) {
                 aop.callOnInsert(object);
                 for (FieldMetaData fieldMetaData : notIgnoreFields) {
                     // 如果是数据库生成策略，则跳过
@@ -177,7 +176,11 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
             }
             sqlValues.add(values);
         }
-        IDialect dialect = getSqlBuilder().getConfig().getDisambiguation();
-        return "INSERT INTO " + dialect.disambiguationTableName(metaData.getTableName()) + "(" + String.join(",", tableFields) + ") VALUES(" + String.join(",", tableValues) + ")";
+
+        return "INSERT INTO " + dialect.disambiguationTableName(metaData.getTableName()) + "(" + String.join(",", fields) + ") VALUES(" + String.join(",", tableValues) + ")";
     }
+
+//    private long executeInsertOrUpdate() {
+//
+//    }
 }
