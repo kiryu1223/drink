@@ -63,7 +63,7 @@ public class EndQuery<T> extends QueryBase<EndQuery<T>,T> {
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<T> toPagedResult(long pageIndex, long pageSize) {
+    public PagedResult<? extends T> toPagedResult(long pageIndex, long pageSize) {
         return toPagedResult0(pageIndex, pageSize);
     }
 
@@ -74,7 +74,7 @@ public class EndQuery<T> extends QueryBase<EndQuery<T>,T> {
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<T> toPagedResult(int pageIndex, int pageSize) {
+    public PagedResult<? extends T> toPagedResult(int pageIndex, int pageSize) {
         return toPagedResult((long) pageIndex, (long) pageSize);
     }
 
