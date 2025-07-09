@@ -17,8 +17,6 @@ package io.github.kiryu1223.drink.core.api.crud.create;
 
 import io.github.kiryu1223.drink.base.IConfig;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -27,14 +25,23 @@ import java.util.List;
  * @author kiryu1223
  * @since 3.0
  */
-public class ObjectInsert<T> extends InsertBase<ObjectInsert<T>,T> {
+public class ObjectInsert<T> extends InsertBase<ObjectInsert<T>, T> {
     private final List<T> ts;
     private final Class<T> tableType;
 
     public ObjectInsert(IConfig config, List<T> ts) {
         super(config);
-        this.ts=ts;
+        this.ts = ts;
         this.tableType = (Class<T>) ts.get(0).getClass();
+    }
+
+    @Override
+    public long executeRows(boolean autoIncrement) {
+        if (ts == null || ts.isEmpty()) {
+            log.warn("insert列表为空");
+            return 0;
+        }
+        return executeInsert(ts, autoIncrement);
     }
 
     @Override

@@ -35,9 +35,9 @@ public abstract class CRUD<C> {
      */
     protected abstract String toSql();
 
-    public abstract C DisableFilter(String filterId);
+    protected abstract C DisableFilter(String filterId);
 
-    public abstract C DisableFilterAll(boolean condition);
+    protected abstract C DisableFilterAll(boolean condition);
 
-    public abstract C DisableFilterAll();
+    protected abstract C DisableFilterAll();
 }

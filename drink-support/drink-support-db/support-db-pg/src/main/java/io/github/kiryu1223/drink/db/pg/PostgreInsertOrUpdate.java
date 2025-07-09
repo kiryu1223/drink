@@ -4,7 +4,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.IInsertOrUpdate;
 import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
-import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
@@ -27,7 +26,7 @@ public class PostgreInsertOrUpdate implements IInsertOrUpdate {
     }
 
     @Override
-    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
+    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> insertColumns, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         IDialect dialect = config.getDisambiguation();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
@@ -35,13 +34,13 @@ public class PostgreInsertOrUpdate implements IInsertOrUpdate {
         builder.append("INSERT INTO ");
         builder.append(dialect.disambiguationTableName(metaData.getTableName()));
         builder.append(" (");
-        List<String> columnNames = onInsertOrUpdateFields
+        List<String> columnNames = insertColumns
                 .stream()
                 .map(fm -> dialect.disambiguation(fm.getColumn()))
                 .collect(Collectors.toList());
         builder.append(String.join(",", columnNames));
         builder.append(") VALUES (");
-        builder.append(onInsertOrUpdateFields.stream().map(f -> {
+        builder.append(insertColumns.stream().map(f -> {
             if (f.hasLogicColumn()) {
                 LogicColumn logicColumn = f.getLogicColumn();
                 return logicColumn.onWrite(config);

@@ -209,13 +209,11 @@ public class MetaData {
         return fields.stream().filter(f -> !f.hasNavigate()).collect(Collectors.toList());
     }
 
-    public List<FieldMetaData> getOnInsertOrUpdateFields() {
-        return fields.stream()
-                // 首先不是忽略字段
-                // 其次不是导航字段
-                // 最后是主键字段或者不是数据库生成值的字段
-                .filter(f -> !f.isIgnoreColumn() && !f.hasNavigate() && (f.isPrimaryKey() || !f.isGeneratedKey()))
-                .collect(Collectors.toList());
+    public List<FieldMetaData> getNotIgnoreAndNavigateAndGeneratedKeyFields() {
+        return fields.stream().filter(f -> !f.isIgnoreColumn()
+                                           && !f.hasNavigate()
+                                           && !f.isGeneratedKey()
+        ).collect(Collectors.toList());
     }
 
     /**

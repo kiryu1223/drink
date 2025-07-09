@@ -10,7 +10,16 @@ public interface IInsertOrUpdate {
 
     boolean apply();
 
-    default String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
+    default String insertOrUpdate(
+            // 元数据
+            MetaData metaData,
+            // 插入字段
+            List<FieldMetaData> insertColumns,
+            // 冲突字段
+            List<ISqlColumnExpression> conflictColumns,
+            // 更新字段
+            List<ISqlColumnExpression> updateColumns
+    ) {
         return "";
     }
 }

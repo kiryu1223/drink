@@ -4,7 +4,6 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.IInsertOrUpdate;
 import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
-import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.metaData.MetaData;
@@ -42,7 +41,7 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate {
     //      INSERT (column1, column2, ...)
     //      VALUES (source.column1, source.column2, ...);
     @Override
-    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> onInsertOrUpdateFields, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
+    public String insertOrUpdate(MetaData metaData, List<FieldMetaData> insertColumns, List<ISqlColumnExpression> conflictColumns, List<ISqlColumnExpression> updateColumns) {
         IDialect dialect = config.getDisambiguation();
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
 
@@ -56,7 +55,7 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate {
         builder.append(" AS ");
         builder.append(target);
         builder.append(" USING ( VALUES (");
-        builder.append(onInsertOrUpdateFields
+        builder.append(insertColumns
                 .stream()
                 .map(f -> {
                     if (f.hasLogicColumn()) {
@@ -72,7 +71,7 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate {
         builder.append(")) AS ");
         builder.append(source);
         builder.append(" (");
-        builder.append(onInsertOrUpdateFields
+        builder.append(insertColumns
                 .stream()
                 .map(f -> dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))
@@ -98,13 +97,13 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate {
         }
         builder.append("WHEN NOT MATCHED THEN ");
         builder.append("INSERT (");
-        builder.append(onInsertOrUpdateFields
+        builder.append(insertColumns
                 .stream()
                 .map(f -> dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))
         );
         builder.append(") VALUES (");
-        builder.append(onInsertOrUpdateFields
+        builder.append(insertColumns
                 .stream()
                 .map(f -> source + "." + dialect.disambiguation(f.getColumn()))
                 .collect(Collectors.joining(","))
