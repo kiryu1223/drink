@@ -16,7 +16,9 @@
 package io.github.kiryu1223.drink.core.api.crud.read.group;
 
 import io.github.kiryu1223.drink.base.page.PagedResult;
+import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
+import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
 import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
@@ -194,7 +196,7 @@ public class GroupedQuery<Key, T> extends QueryBase<GroupedQuery<Key, T>, Key> {
      * @return List
      */
     @Override
-    public List<Key> toList() {
+    public List<? extends Key> toList() {
         return super.toList();
     }
 
@@ -205,7 +207,7 @@ public class GroupedQuery<Key, T> extends QueryBase<GroupedQuery<Key, T>, Key> {
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<Key> toPagedResult(long pageIndex, long pageSize) {
+    public PagedResult<? extends Key> toPagedResult(long pageIndex, long pageSize) {
         return toPagedResult0(pageIndex, pageSize);
     }
 
@@ -216,7 +218,7 @@ public class GroupedQuery<Key, T> extends QueryBase<GroupedQuery<Key, T>, Key> {
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<Key> toPagedResult(int pageIndex, int pageSize) {
+    public PagedResult<? extends Key> toPagedResult(int pageIndex, int pageSize) {
         return toPagedResult((long) pageIndex, (long) pageSize);
     }
 

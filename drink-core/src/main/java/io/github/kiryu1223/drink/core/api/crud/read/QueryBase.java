@@ -188,7 +188,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     }
 
     // region [toList]
-    protected List<R> toList() {
+    protected List<? extends R> toList() {
         IConfig config = getConfig();
         Class<R> targetClass = sqlBuilder.getTargetClass();
         List<SqlValue> values = new ArrayList<>();
@@ -248,7 +248,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         }
     }
 
-    protected List<R> toTreeList(LambdaExpression<?> lambdaExpression, Func1<R, Collection<R>> getter) {
+    protected List<? extends R> toTreeList(LambdaExpression<?> lambdaExpression, Func1<R, Collection<R>> getter) {
         IConfig config = getConfig();
         MetaData metaData = config.getMetaData(sqlBuilder.getQueryable().getMainTableClass());
         AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get((Class<R>) metaData.getType());
@@ -299,7 +299,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         long rows = limit.getRows();
         limit.setOffset(index);
         limit.setRows(index + 1);
-        List<R> list = toList();
+        List<? extends R> list = toList();
         limit.setOffset(offset);
         limit.setRows(rows);
         return list.isEmpty() ? null : list.get(0);
@@ -552,7 +552,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     protected void orderBy(LambdaExpression<?> lambda, boolean asc) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
-        ISqlColumnExpression expression = sqlVisitor.toColumn(lambda);
+        ISqlExpression expression = sqlVisitor.visit(lambda);
         sqlBuilder.addOrder(factory.order(expression, asc));
     }
 
@@ -804,7 +804,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // region [page]
 
-    protected PagedResult<R> toPagedResult0(long pageIndex, long pageSize) {
+    protected PagedResult<? extends R> toPagedResult0(long pageIndex, long pageSize) {
         IConfig config = getConfig();
 
         //SELECT COUNT(*) ...
@@ -818,7 +818,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         long offset = (index - 1) * take;
 
         limit(offset, take);
-        List<R> list = toList();
+        List<? extends R> list = toList();
         limit(tempOffset, tempRows);
 
         return config.getPager().getPagedResult(total, list);
@@ -865,7 +865,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         QuerySqlBuilder copyQuerySqlBuilder = new QuerySqlBuilder(getConfig(), copy);
         copyQuerySqlBuilder.setSelect(factory.select(countList, long.class, true, false));
         LQuery<Long> countQuery = new LQuery<>(copyQuerySqlBuilder);
-        return countQuery.toList();
+        return (List<Long>) countQuery.toList();
     }
 
     protected <T extends Number> T sum0(LambdaExpression<?> lambda) {
@@ -891,7 +891,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         QuerySqlBuilder copyQuerySqlBuilder = new QuerySqlBuilder(getConfig(), copy);
         copyQuerySqlBuilder.setSelect(factory.select(sumList, lambda.getReturnType(), true, false));
         LQuery<T> sumQuery = new LQuery<>(copyQuerySqlBuilder);
-        return sumQuery.toList();
+        return (List<T>) sumQuery.toList();
     }
 
     protected BigDecimal avg0(LambdaExpression<?> lambda) {
@@ -917,7 +917,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         QuerySqlBuilder avgQuerySqlBuilder = new QuerySqlBuilder(getConfig(), copy);
         avgQuerySqlBuilder.setSelect(factory.select(avgList, BigDecimal.class, true, false));
         LQuery<BigDecimal> avgQuery = new LQuery<>(avgQuerySqlBuilder);
-        return avgQuery.toList();
+        return (List<BigDecimal>) avgQuery.toList();
     }
 
     protected <T extends Number> T max0(LambdaExpression<?> lambda) {
@@ -943,7 +943,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         QuerySqlBuilder maxQuerySqlBuilder = new QuerySqlBuilder(getConfig(), copy);
         maxQuerySqlBuilder.setSelect(factory.select(maxList, lambda.getReturnType(), true, false));
         LQuery<T> maxQuery = new LQuery<>(maxQuerySqlBuilder);
-        return maxQuery.toList();
+        return (List<T>) maxQuery.toList();
     }
 
     protected <T extends Number> T min0(LambdaExpression<?> lambda) {
@@ -969,7 +969,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         QuerySqlBuilder minQuerySqlBuilder = new QuerySqlBuilder(getConfig(), copy);
         minQuerySqlBuilder.setSelect(factory.select(minList, lambda.getReturnType(), true, false));
         LQuery<T> minQuery = new LQuery<>(minQuerySqlBuilder);
-        return minQuery.toList();
+        return (List<T>) minQuery.toList();
     }
 
     // endregion

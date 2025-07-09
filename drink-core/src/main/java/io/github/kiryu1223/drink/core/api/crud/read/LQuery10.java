@@ -198,41 +198,24 @@ public class LQuery10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends QueryBase
      * @param <R>  Result
      * @return 基于Result类型的新查询过程对象
      */
-    public <R> EndQuery<? extends R> select(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr) {
+    public <R> EndQuery<R> select(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<? extends R> select(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> expr) {
+    public <R> EndQuery<R> select(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> expr) {
         select(expr.getTree());
         return new EndQuery<>(getSqlBuilder());
     }
-
-//    /**
-//     * 此重载用于当想要返回某个字段的情况((r) -> r.getId),因为select泛型限制为必须是Result的子类<p>
-//     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
-//     *
-//     * @param expr 返回一个值的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
-//     * @return 终结查询过程
-//     */
-//    public <R> EndQuery<R> endSelect(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <R> EndQuery<R> endSelect(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> expr) {
-//        select(expr.getTree());
-//        return new EndQuery<>(getSqlBuilder());
-//    }
 
     // endregion
 
     // region [WITH]
 
-
-    public <R extends Result> LQuery<? extends R> withTemp(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr) {
+    public <R extends Result> LQuery<R> withTemp(@Expr(Expr.BodyType.Expr) Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R extends Result> LQuery<? extends R> withTemp(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> expr) {
+    public <R extends Result> LQuery<R> withTemp(ExprTree<Func10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>> expr) {
         select(expr.getTree());
         withTempQuery();
         return new LQuery<>(getSqlBuilder());

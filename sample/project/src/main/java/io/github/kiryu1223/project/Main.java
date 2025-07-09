@@ -7,14 +7,18 @@ import io.github.kiryu1223.drink.base.toBean.handler.JsonTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
+import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
-import io.github.kiryu1223.project.pojos.MkContent;
-import io.github.kiryu1223.project.pojos.MkContentUserActLog;
-import io.github.kiryu1223.project.pojos.MkUserActLog;
+import io.github.kiryu1223.drink.core.api.crud.read.LQuery;
+import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
+import io.github.kiryu1223.project.pojos.MkUser;
+import io.github.kiryu1223.project.pojos.MkUserChatMessage;
 import lombok.Data;
 
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
 
 public class Main {
     public static SqlClient boot() {
@@ -48,27 +52,49 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         SqlClient client = boot();
 
-        EndQuery<? extends Union> q1 = client.query(MkUserActLog.class)
-                .select(m -> new Union() {{
-                    setFromUserId(m.getFromUserId());
-                    setToUserId(m.getToUserId());
-                    setType(点赞类型.主页);
-                }});
+        String sql = client.query(MkUserChatMessage.class)
+                .innerJoin(client.query(MkUserChatMessage.class)
+                                .where(c -> c.getFromUserId() == 1 || c.getToUserId() == 1)
+                                .withTemp(c -> new Result() {
+                                    String chatKey = c.getFromUserId() < c.getToUserId()
+                                            ? c.getFromUserId() + "_" + c.getToUserId()
+                                            : c.getToUserId() + "_" + c.getFromUserId();
+                                    Date createTime = c.getCreateTime();
+                                })
+                                .groupBy(c -> new Grouper() {
+                                    String chatKey = c.chatKey;
+                                })
+                                .select(g -> new Result() {
+                                    String chatKey = g.key.chatKey;
+                                    Date maxCreateTime = g.max(g.value1.createTime);
+                                })
+                        , (c1, c2) -> c1.getCreateTime() == c2.maxCreateTime
+                                      && c2.chatKey == (c1.getFromUserId() < c1.getToUserId()
+                                ? c1.getFromUserId() + "_" + c1.getToUserId()
+                                : c1.getToUserId() + "_" + c1.getFromUserId()))
+                .as("latest")
+                .leftJoin(MkUser.class, (a, b, u1) -> u1.getId() == a.getFromUserId())
+                .leftJoin(MkUser.class, (a, b, u1, u2) -> u2.getId() == a.getToUserId())
+                .orderByDesc((a, b, u1, u2) -> (a.getToUserId() == 1 && a.getReadFlag() == 1) ? 1 : 0)
+                .orderByDesc((a, b, u1, u2) -> a.getCreateTime())
+                .select((a, b, u1, u2) -> new MkUserChatMessage() {
+                    {
+                        setId(a.getId());
+                        setFromUserId(a.getFromUserId());
+                        setToUserId(a.getToUserId());
+                        setType(a.getType());
+                        setContent(a.getContent());
+                        setCreateTime(a.getCreateTime());
+                        setReadFlag(a.getReadFlag());
+                        setReadTime(a.getReadTime());
+                    }
 
-        EndQuery<? extends Union> q2 = client.query(MkContentUserActLog.class)
-                .leftJoin(MkContent.class, (a, b) -> a.getContentId().equals(b.getId()))
-                .select((a, b) -> new Union() {{
-                    setFromUserId(a.getUserId());
-                    setToUserId(b.getUserId());
-                    setType(点赞类型.作品);
-                }});
-
-        String sql = client.unionAll(q1, q2)
-                .withTemp()
-                .where(u -> u.getToUserId() == 100)
-                .orderBy(u -> u.getFromUserId())
-                .limit(10)
+                    String fromUsername = u1.getNickname();
+                    String toUsername = u2.getNickname();
+                    int hasUnread = (a.getToUserId() == 1 && a.getReadFlag() == 1) ? 1 : 0;
+                })
                 .toSql();
+
 
         System.out.println(sql);
     }

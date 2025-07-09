@@ -30,7 +30,7 @@ import java.util.List;
 @Setter
 public abstract class Grouper {
     @Override
-    public String toString() {
+    public final String toString() {
         try {
             List<String> strings = new ArrayList<>();
             for (Field field : getClass().getDeclaredFields()) {
@@ -40,5 +40,25 @@ public abstract class Grouper {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    protected final Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
+    protected final void finalize() throws Throwable {
+        super.finalize();
     }
 }

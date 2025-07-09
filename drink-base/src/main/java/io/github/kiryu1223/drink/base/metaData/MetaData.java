@@ -222,7 +222,7 @@ public class MetaData {
      * @param key 字段名
      */
     public FieldMetaData getFieldMetaDataByFieldName(String key) {
-        return fields.stream().filter(f -> f.getFieldName().equals(key)).findFirst().orElseThrow(() -> new DrinkException(key));
+        return fields.stream().filter(f -> f.getFieldName().equals(key)).findAny().orElseThrow(() -> new DrinkException(key));
     }
 
     /**

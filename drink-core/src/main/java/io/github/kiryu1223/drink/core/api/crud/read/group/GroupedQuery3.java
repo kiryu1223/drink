@@ -186,7 +186,7 @@ public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase<GroupedQuery3<Key,
      * @return List
      */
     @Override
-    public List<Key> toList() {
+    public List<? extends Key> toList() {
         return super.toList();
     }
 
@@ -197,7 +197,7 @@ public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase<GroupedQuery3<Key,
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<Key> toPagedResult(long pageIndex, long pageSize) {
+    public PagedResult<? extends Key> toPagedResult(long pageIndex, long pageSize) {
         return toPagedResult0(pageIndex, pageSize);
     }
 
@@ -208,7 +208,7 @@ public class GroupedQuery3<Key, T1, T2, T3> extends QueryBase<GroupedQuery3<Key,
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<Key> toPagedResult(int pageIndex, int pageSize) {
+    public PagedResult<? extends Key> toPagedResult(int pageIndex, int pageSize) {
         return toPagedResult((long) pageIndex, (long) pageSize);
     }
 

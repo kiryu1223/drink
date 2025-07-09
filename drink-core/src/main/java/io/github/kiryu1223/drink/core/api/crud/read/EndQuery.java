@@ -42,7 +42,7 @@ public class EndQuery<T> extends QueryBase<EndQuery<T>,T> {
      * @return List
      */
     @Override
-    public List<T> toList() {
+    public List<? extends T> toList() {
         return super.toList();
     }
 

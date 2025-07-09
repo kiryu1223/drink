@@ -185,7 +185,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
      * @return List
      */
     @Override
-    public List<Key> toList() {
+    public List<? extends Key> toList() {
         return super.toList();
     }
 
@@ -196,7 +196,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<Key> toPagedResult(long pageIndex, long pageSize) {
+    public PagedResult<? extends Key> toPagedResult(long pageIndex, long pageSize) {
         return toPagedResult0(pageIndex, pageSize);
     }
 
@@ -207,7 +207,7 @@ public class GroupedQuery9<Key, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Quer
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<Key> toPagedResult(int pageIndex, int pageSize) {
+    public PagedResult<? extends Key> toPagedResult(int pageIndex, int pageSize) {
         return toPagedResult((long) pageIndex, (long) pageSize);
     }
 

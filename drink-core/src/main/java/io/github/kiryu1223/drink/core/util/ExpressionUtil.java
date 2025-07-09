@@ -204,7 +204,7 @@ public class ExpressionUtil {
 //        return original;
 //    }
 
-    public static <R> java.util.List<R> buildTree(java.util.List<R> flatList, IGetterCaller<R,?> selfFieldGetter, IGetterCaller<R,?> targetGetter, ISetterCaller<R> navigateSetter, IGetterCaller<R, Collection<R>> navigateGetter) throws InvocationTargetException, IllegalAccessException
+    public static <R> java.util.List<R> buildTree(java.util.List<? extends R> flatList, IGetterCaller<R,?> selfFieldGetter, IGetterCaller<R,?> targetGetter, ISetterCaller<R> navigateSetter, IGetterCaller<R, Collection<R>> navigateGetter) throws InvocationTargetException, IllegalAccessException
     {
         // 用 Map 存储所有节点，以便快速查找
         Map<Object, R> nodeMap = new HashMap<>();

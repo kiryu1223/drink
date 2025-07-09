@@ -15,17 +15,11 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read;
 
-import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
-import io.github.kiryu1223.drink.base.expression.ExValues;
 import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.JoinType;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.page.PagedResult;
-import io.github.kiryu1223.drink.base.session.SqlValue;
-import io.github.kiryu1223.drink.base.toBean.build.JdbcResult;
-import io.github.kiryu1223.drink.base.toBean.build.ObjectBuilder;
-import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
@@ -46,10 +40,7 @@ import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 
@@ -106,6 +97,15 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
     }
 
     public <Tn> LQuery2<T, Tn> innerJoin(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
+        join(JoinType.INNER, target, expr.getTree());
+        return joinNewQuery();
+    }
+
+    public <Tn> LQuery2<T, Tn> innerJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public <Tn> LQuery2<T, Tn> innerJoin(EndQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
         join(JoinType.INNER, target, expr.getTree());
         return joinNewQuery();
     }
@@ -392,11 +392,11 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
      * @param <R>  Result
      * @return 基于Result类型的新查询过程对象
      */
-    public <R> EndQuery<? extends R> select(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+    public <R> EndQuery<R> select(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<? extends R> select(ExprTree<Func1<T, R>> expr) {
+    public <R> EndQuery<R> select(ExprTree<Func1<T, R>> expr) {
         select(expr.getTree());
         return new EndQuery<>(getSqlBuilder());
     }
@@ -426,11 +426,11 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
     }
 
 
-    public <R> EndQuery<? extends R> selectAggregate(@Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, R> expr) {
+    public <R> EndQuery<R> selectAggregate(@Expr(Expr.BodyType.Expr) Func1<Aggregate<T>, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<? extends R> selectAggregate(ExprTree<Func1<Aggregate<T>, R>> expr) {
+    public <R> EndQuery<R> selectAggregate(ExprTree<Func1<Aggregate<T>, R>> expr) {
         select(expr.getTree());
         return new EndQuery<>(getSqlBuilder());
     }
@@ -568,7 +568,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
      *
      * @return List
      */
-    public List<T> toList() {
+    public List<? extends T> toList() {
         return super.toList();
     }
 
@@ -603,7 +603,7 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
      * @param pageSize  页长度 默认大于等于1
      * @return 分页数据
      */
-    public PagedResult<T> toPagedResult(long pageIndex, long pageSize) {
+    public PagedResult<? extends T> toPagedResult(long pageIndex, long pageSize) {
         return toPagedResult0(pageIndex, pageSize);
     }
 
@@ -614,11 +614,11 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         throw new NotCompiledException();
     }
 
-    public List<T> toTreeList(ExprTree<Func1<T, Collection<T>>> expr) {
+    public List<? extends T> toTreeList(ExprTree<Func1<T, Collection<T>>> expr) {
         return toTreeList(expr.getTree(), expr.getDelegate());
     }
 
-    public List<T> toTreeList() {
+    public List<? extends T> toTreeList() {
         return toTreeList(null, null);
     }
 
@@ -735,11 +735,11 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return this;
     }
 
-    public <R extends Result> LQuery<? extends R> withTemp(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
+    public <R extends Result> LQuery<R> withTemp(@Expr(Expr.BodyType.Expr) Func1<T, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R extends Result> LQuery<? extends R> withTemp(ExprTree<Func1<T, R>> expr) {
+    public <R extends Result> LQuery<R> withTemp(ExprTree<Func1<T, R>> expr) {
         select(expr.getTree());
         withTempQuery();
         return new LQuery<>(getSqlBuilder());
