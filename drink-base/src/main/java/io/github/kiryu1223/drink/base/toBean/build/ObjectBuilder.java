@@ -57,8 +57,8 @@ public class ObjectBuilder<T> {
             T t = creator.get();
             Key key = null;
             for (FieldMetaData metaData : fieldMetaDataList) {
-                Object value = convertValue(metaData, indexMap.get(metaData.getColumn()));
-                if (column.equals(metaData.getColumn())) {
+                Object value = convertValue(metaData, indexMap.get(metaData.getColumnName()));
+                if (column.equals(metaData.getColumnName())) {
                     key = (Key) value;
                 }
                 if (value != null) metaData.getSetter().invoke(t, value);
@@ -78,10 +78,10 @@ public class ObjectBuilder<T> {
             T t = creator.get();
             Key key = null;
             for (FieldMetaData metaData : fieldMetaDataList) {
-                String column = metaData.getColumn();
+                String column = metaData.getColumnName();
                 //System.out.println(column);
                 Object value = convertValue(metaData, indexMap.get(column));
-                if (keyColumn.equals(metaData.getColumn())) {
+                if (keyColumn.equals(metaData.getColumnName())) {
                     key = (Key) value;
                 }
                 if (value != null) metaData.getSetter().invoke(t, value);
@@ -261,7 +261,7 @@ public class ObjectBuilder<T> {
         int[] indexes = new int[fieldMetaDataList.size()];
         int offset = 0;
         for (FieldMetaData fieldMetaData : fieldMetaDataList) {
-            Integer index = indexMap.get(fieldMetaData.getColumn());
+            Integer index = indexMap.get(fieldMetaData.getColumnName());
             if (index != null) {
                 indexes[offset++] = index;
             }

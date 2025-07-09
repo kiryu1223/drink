@@ -104,4 +104,22 @@ public abstract class DeleteBase<C> extends CRUD<C> {
         ISqlExpression expression = sqlVisitor.visit(lambda);
         sqlBuilder.addAndOrWhere(expression,false);
     }
+
+    @Override
+    protected C DisableFilter(String filterId) {
+        sqlBuilder.addIgnoreFilterId(filterId);
+        return (C) this;
+    }
+
+    @Override
+    protected C DisableFilterAll(boolean condition) {
+        sqlBuilder.setIgnoreFilterAll(condition);
+        return (C) this;
+    }
+
+    @Override
+    protected C DisableFilterAll() {
+        sqlBuilder.setIgnoreFilterAll(true);
+        return (C) this;
+    }
 }

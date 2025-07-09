@@ -16,11 +16,9 @@
 package io.github.kiryu1223.drink.base.expression.impl;
 
 import io.github.kiryu1223.drink.base.IConfig;
-import io.github.kiryu1223.drink.base.IDialect;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,18 +46,18 @@ public class SqlFromExpression implements ISqlFromExpression {
 
     @Override
     public String normalTable(IConfig config, List<SqlValue> values) {
-        IDialect disambiguation = config.getDisambiguation();
         StringBuilder tableBuilder = new StringBuilder();
         String tableName = sqlTableExpression.getSqlAndValue(config, values);
         tableBuilder.append(tableName);
 
         if (sqlTableExpression instanceof ISqlQueryableExpression
             || sqlTableExpression instanceof ISqlPivotExpression
-        || sqlTableExpression instanceof ISqlUnPivotExpression) {
+            || sqlTableExpression instanceof ISqlUnPivotExpression
+            || sqlTableExpression instanceof ISqlUnionQueryableExpression) {
             tableBuilder.insert(0, "(");
             tableBuilder.append(")");
         }
-        return "FROM " + tableBuilder + " AS " + tableRefExpression.getSqlAndValue(config,values);
+        return "FROM " + tableBuilder + " AS " + tableRefExpression.getSqlAndValue(config, values);
     }
 
     @Override

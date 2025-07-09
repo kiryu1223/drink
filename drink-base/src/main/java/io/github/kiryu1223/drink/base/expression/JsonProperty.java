@@ -30,7 +30,7 @@ public class JsonProperty
     public String toProperty()
     {
         StringBuilder builder=new StringBuilder();
-        builder.append(field.getColumn());
+        builder.append(field.getColumnName());
         if (index >= 0)
         {
             builder.append(String.format("[%d]",index));

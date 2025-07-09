@@ -7,7 +7,6 @@ import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SqlUnionQueryableExpression implements ISqlUnionQueryableExpression {
@@ -39,7 +38,7 @@ public class SqlUnionQueryableExpression implements ISqlUnionQueryableExpression
         List<String> strings = new ArrayList<>(queryable.size() + unions.size());
         for (int i = 0; i < queryable.size(); i++) {
             ISqlQueryableExpression iSqlQueryableExpression = queryable.get(i);
-            strings.add(iSqlQueryableExpression.getSqlAndValue(config, values));
+            strings.add("(" + iSqlQueryableExpression.getSqlAndValue(config, values) + ")");
             if (i < unions.size()) {
                 strings.add(unions.get(i) ? "UNION ALL" : "UNION");
             }

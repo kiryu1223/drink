@@ -55,7 +55,7 @@ public class SqlColumnExpression implements ISqlColumnExpression {
     @Override
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         IDialect dialect = config.getDisambiguation();
-        String columnName = dialect.disambiguation(getFieldMetaData().getColumn());
+        String columnName = dialect.disambiguation(getFieldMetaData().getColumnName());
         return tableRefExpression.getSqlAndValue(config,values) + "." + columnName;
     }
 }

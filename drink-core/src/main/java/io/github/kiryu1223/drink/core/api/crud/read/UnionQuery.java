@@ -30,11 +30,11 @@ public class UnionQuery<T> extends CRUD<UnionQuery<T>> {
         return unionBuilder;
     }
 
-    public UnionQuery(IConfig config, LQuery<T> q1, LQuery<T> q2, boolean all) {
+    public UnionQuery(IConfig config, LQuery<? extends T> q1, LQuery<? extends T> q2, boolean all) {
         this(config, q1.getSqlBuilder().getQueryable(), q2.getSqlBuilder().getQueryable(), all);
     }
 
-    public UnionQuery(IConfig config, EndQuery<T> q1, EndQuery<T> q2, boolean all) {
+    public UnionQuery(IConfig config, EndQuery<? extends T> q1, EndQuery<? extends T> q2, boolean all) {
         this(config, q1.getSqlBuilder().getQueryable(), q2.getSqlBuilder().getQueryable(), all);
     }
 

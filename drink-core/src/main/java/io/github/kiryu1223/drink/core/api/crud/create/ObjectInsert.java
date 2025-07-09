@@ -36,15 +36,6 @@ public class ObjectInsert<T> extends InsertBase<ObjectInsert<T>, T> {
     }
 
     @Override
-    public long executeRows(boolean autoIncrement) {
-        if (ts == null || ts.isEmpty()) {
-            log.warn("insert列表为空");
-            return 0;
-        }
-        return executeInsert(ts, autoIncrement);
-    }
-
-    @Override
     protected List<T> getObjects() {
         return ts;
     }
@@ -52,5 +43,14 @@ public class ObjectInsert<T> extends InsertBase<ObjectInsert<T>, T> {
     @Override
     protected Class<T> getTableType() {
         return tableType;
+    }
+
+    @Override
+    public long executeRows(boolean autoIncrement) {
+        if (ts == null || ts.isEmpty()) {
+            log.warn("insert列表为空");
+            return 0;
+        }
+        return executeInsert(ts, autoIncrement);
     }
 }

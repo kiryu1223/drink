@@ -14,7 +14,6 @@ import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
-import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
 import io.github.kiryu1223.drink.core.api.crud.read.group.IGroup;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
@@ -30,7 +29,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.*;
-import static io.github.kiryu1223.drink.core.util.ExpressionUtil.isList;
 import static io.github.kiryu1223.drink.core.util.ExpressionUtil.*;
 
 public class QuerySqlVisitor extends BaseSqlVisitor {
@@ -40,13 +38,20 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
     protected final List<ISqlQueryableExpression> queryableList = new ArrayList<>();
 
     public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression) {
-        this(config, sqlQueryableExpression, -1);
+        this(config, sqlQueryableExpression, null);
     }
 
-    public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression, int index) {
+    public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression, ISqlTableRefExpression another) {
+        this(config, sqlQueryableExpression, another, -1);
+    }
+
+    public QuerySqlVisitor(IConfig config, ISqlQueryableExpression sqlQueryableExpression, ISqlTableRefExpression another, int index) {
         super(config);
         this.index = index;
         push(sqlQueryableExpression);
+        if (another != null) {
+            tableRefListList.get(0).add(another);
+        }
     }
 
     protected void push(ISqlQueryableExpression queryable) {
@@ -65,42 +70,9 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
      */
     @Override
     public ISqlExpression visit(LambdaExpression<?> lambda) {
-//        List<ParameterExpression> parameters = lambda.getParameters();
-//        // 是否第一次进入或Group的聚合函数查询
-//        if (isFirst || isGroup) {
-//            isFirst = false;
-//            for (int i = 0; i < parameters.size(); i++) {
-//                ParameterExpression parameter = parameters.get(i);
-//                ISqlTableRefExpression asName;
-//                if (i == 0) {
-//                    asName = fromExpression.getISqlTableRefExpression();
-//                }
-//                else {
-//                    asName = joinsExpression.getJoins().get(i - 1).getISqlTableRefExpression();
-//                }
-//                asNameMap.put(parameter, asName);
-//            }
-//            ISqlExpression visit = visit(lambda.getBody());
-//            for (ParameterExpression parameter : parameters) {
-//                asNameMap.remove(parameter);
-//            }
-//            return visit;
-//        }
-//        // 不是的话说明有子查询
-//        else {
-//            for (ParameterExpression parameter : parameters) {
-//                asNameMap.put(parameter, asNameDeque.peek());
-//            }
-//            ISqlExpression visit = visit(lambda.getBody());
-//            for (ParameterExpression parameter : parameters) {
-//                asNameMap.remove(parameter);
-//            }
-//            return visit;
-//        }
         List<ParameterExpression> parameters = lambda.getParameters();
         // g -> ...
         if (parameters.size() == 1 && IGroup.class.isAssignableFrom(parameters.get(0).getType())) {
-            ParameterExpression parameterExpression = parameters.get(0);
             return visit(lambda.getBody());
         }
         // (a,b,c) -> ...
@@ -822,7 +794,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                 }
             }
             else {
-                return queryOrDrinkListHandler(leftQuery, args, method,methodCall);
+                return queryOrDrinkListHandler(leftQuery, args, method, methodCall);
             }
         }
         else if (isSqlExtensionExpressionMethod(method)) {
@@ -953,16 +925,16 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                 return bigNumberHandler(left, args, method, methodCall);
             }
             else if (Temporal.class.isAssignableFrom(type)) {
-                return dateTimeHandler(left, args, method,methodCall);
+                return dateTimeHandler(left, args, method, methodCall);
             }
             else if (isDate(type)) {
-                return oldDateTimeHandler(left, args, method,methodCall);
+                return oldDateTimeHandler(left, args, method, methodCall);
             }
             else if (Collection.class.isAssignableFrom(type)) {
-                return collectionHandler(left, args, method,methodCall);
+                return collectionHandler(left, args, method, methodCall);
             }
             else if (Map.class.isAssignableFrom(type)) {
-                return mapHandler(left, args, method,methodCall);
+                return mapHandler(left, args, method, methodCall);
             }
             else if (isStartQuery(methodCall.getMethod())) {
                 return visit(args.get(0));
@@ -1090,7 +1062,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                             // a.b() 导航属性
                             // a.query(a.b()).where(...)...toList()/first() 导航属性后附带条件
                             // client.query(...)...toList()/first() 子查询
-                            saveSelectOrSubQuery(visit, init, expressions, varName, fieldMetaData, valueNames);
+                            saveSelectOrSubQuery(visit, init, expressions, fieldMetaData.getColumnName(), fieldMetaData, valueNames);
                         }
                     }
                     else if (expression.getKind() == Kind.Block) {
@@ -1103,13 +1075,11 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
                                 // this == null
                                 if (expr == null && isSetter(method)) {
                                     FieldMetaData setter = metaData.getFieldMetaDataBySetter(method);
-                                    String varName = setter.getFieldName();
-                                    FieldMetaData fieldMetaData = metaData.getFieldMetaDataByFieldName(varName);
                                     List<Expression> args = methodCall.getArgs();
                                     if (!args.isEmpty()) {
                                         Expression arg = args.get(0);
                                         ISqlExpression visit = visit(arg);
-                                        saveSelectOrSubQuery(visit, arg, expressions, varName, fieldMetaData, valueNames);
+                                        saveSelectOrSubQuery(visit, arg, expressions, setter.getColumnName(), setter, valueNames);
                                     }
                                 }
                             }
@@ -1348,7 +1318,7 @@ public class QuerySqlVisitor extends BaseSqlVisitor {
     protected void setAs(List<ISqlExpression> contexts, ISqlExpression expression, String name) {
         if (expression instanceof ISqlColumnExpression) {
             ISqlColumnExpression sqlColumn = (ISqlColumnExpression) expression;
-            if (!sqlColumn.getFieldMetaData().getColumn().equals(name)) {
+            if (!sqlColumn.getFieldMetaData().getColumnName().equals(name)) {
                 contexts.add(factory.as(expression, name));
             }
             else {

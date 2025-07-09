@@ -1,9 +1,7 @@
 package io.github.kiryu1223.drink.base.transform;
 
-import io.github.kiryu1223.drink.base.expression.ISqlColumnExpression;
 import io.github.kiryu1223.drink.base.expression.ISqlExpression;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
-import io.github.kiryu1223.drink.base.expression.SqlOperator;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 
 import java.util.Arrays;
@@ -31,7 +29,7 @@ public interface IJson
      */
     default ISqlExpression jsonProperty(ISqlExpression left, List<FieldMetaData> fieldMetaDataList) {
         SqlExpressionFactory factory = getSqlExpressionFactory();
-        List<String> names = fieldMetaDataList.stream().map(f -> f.getColumn()).collect(Collectors.toList());
+        List<String> names = fieldMetaDataList.stream().map(f -> f.getColumnName()).collect(Collectors.toList());
         return factory.template(
                 Arrays.asList("", String.format(" ->> %s", $(names))),
                 Collections.singletonList(left)

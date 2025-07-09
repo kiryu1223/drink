@@ -37,7 +37,7 @@ public class FieldMetaData {
     /**
      * 列名
      */
-    private final String column;
+    private final String columnName;
     /**
      * getter
      */
@@ -81,10 +81,10 @@ public class FieldMetaData {
     private final LogicColumn logicColumn;
     private final boolean isJsonObject;
 
-    public FieldMetaData(boolean notNull, String fieldName, String column, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey, LogicColumn logicColumn, boolean isJsonObject) {
+    public FieldMetaData(boolean notNull, String fieldName, String columnName, Method getter, Method setter, Field field, ITypeHandler<?> typeHandler, boolean ignoreColumn, NavigateData navigateData, boolean isPrimaryKey, boolean isGeneratedKey, LogicColumn logicColumn, boolean isJsonObject) {
         this.notNull = notNull;
         this.fieldName = fieldName;
-        this.column = column;
+        this.columnName = columnName;
         this.ignoreColumn = ignoreColumn;
         this.isPrimaryKey = isPrimaryKey;
         this.isGeneratedKey = isGeneratedKey;
@@ -112,8 +112,8 @@ public class FieldMetaData {
     /**
      * 列名
      */
-    public String getColumn() {
-        return column;
+    public String getColumnName() {
+        return columnName;
     }
 
     /**

@@ -142,7 +142,7 @@ public class SqlUnPivotExpression implements ISqlUnPivotExpression
         {
             ISqlQueryableExpression tempQuery = factory.queryable(queryableExpression, tempRefExpression);
             ISqlSelectExpression select = tempQuery.getSelect();
-            String transColumnName = transColumn.getFieldMetaData().getColumn();
+            String transColumnName = transColumn.getFieldMetaData().getColumnName();
             ISqlAsExpression name = factory.as(factory.constString("'" + transColumnName + "'"), newNameColumnName);
             ISqlAsExpression value = factory.as(transColumn, newValueColumnName);
             select.addColumn(name);

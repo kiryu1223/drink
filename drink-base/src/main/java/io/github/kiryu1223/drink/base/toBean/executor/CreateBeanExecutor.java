@@ -277,7 +277,7 @@ public class CreateBeanExecutor {
         int[] indexes = new int[fieldMetaDataList.size()];
         int offset = 0;
         for (FieldMetaData fieldMetaData : fieldMetaDataList) {
-            Integer index = indexMap.get(fieldMetaData.getColumn());
+            Integer index = indexMap.get(fieldMetaData.getColumnName());
             if (index != null) {
                 indexes[offset++] = index;
             }

@@ -37,7 +37,7 @@ public class SQLiteInsertOrUpdate implements IInsertOrUpdate
         builder.append(" (");
         List<String> columnNames = insertColumns
                 .stream()
-                .map(fm -> dialect.disambiguation(fm.getColumn()))
+                .map(fm -> dialect.disambiguation(fm.getColumnName()))
                 .collect(Collectors.toList());
         builder.append(String.join(",", columnNames));
         builder.append(") VALUES (");
@@ -53,7 +53,7 @@ public class SQLiteInsertOrUpdate implements IInsertOrUpdate
         builder.append(") ON CONFLICT (");
         List<String> cs = new ArrayList<>();
         for (ISqlColumnExpression conflictColumn : conflictColumns) {
-            cs.add(dialect.disambiguation(conflictColumn.getFieldMetaData().getColumn()));
+            cs.add(dialect.disambiguation(conflictColumn.getFieldMetaData().getColumnName()));
         }
         builder.append(String.join(",", cs));
         builder.append(") ");
@@ -67,7 +67,7 @@ public class SQLiteInsertOrUpdate implements IInsertOrUpdate
             List<String> us = new ArrayList<>();
             for (ISqlColumnExpression updateColumn : updateColumns) {
                 FieldMetaData field = updateColumn.getFieldMetaData();
-                String column = dialect.disambiguation(field.getColumn());
+                String column = dialect.disambiguation(field.getColumnName());
                 us.add(column + " = EXCLUDED." + column);
             }
             builder.append(String.join(",", us));

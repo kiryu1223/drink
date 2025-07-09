@@ -111,7 +111,7 @@ public interface ISqlBuilder {
                         int index = 1;
                         for (LambdaExpression<?> lambdaExpression : applyList) {
                             ISqlConditionsExpression conditions = join.getConditions();
-                            QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(config, query, index++);
+                            QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(config, query, null, index++);
                             ISqlExpression expression = sqlVisitor.visit(lambdaExpression);
                             join.setConditions(factory.condition(Arrays.asList(factory.parens(conditions), expression)));
                         }
@@ -223,6 +223,7 @@ public interface ISqlBuilder {
     ISqlFromExpression getForm();
 
     ISqlJoinsExpression getJoins();
+
     default void as(String alisaName) {
         ISqlJoinsExpression joins = getJoins();
         if (!joins.isEmpty()) {

@@ -66,14 +66,8 @@ public class QuerySqlBuilder implements ISqlBuilder {
         }
     }
 
-    public void addJoin(JoinType joinType, ISqlTableExpression table, ISqlConditionsExpression on) {
-        ISqlJoinExpression join = factory.join(
-                joinType,
-                table,
-                on,
-                factory.tableRef(table.getMainTableClass())
-        );
-        queryable.addJoin(join);
+    public void addJoin(ISqlJoinExpression joinExpression) {
+        queryable.addJoin(joinExpression);
     }
 
     public void setGroup(ISqlGroupByExpression group) {
@@ -118,7 +112,7 @@ public class QuerySqlBuilder implements ISqlBuilder {
             for (FieldMetaData sel : metaData.getNotIgnoreAndNavigateFields()) {
                 MetaData mainTableMetaData = config.getMetaData(from.getSqlTableExpression().getMainTableClass());
                 for (FieldMetaData noi : mainTableMetaData.getNotIgnoreAndNavigateFields()) {
-                    if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType())) {
+                    if (noi.getColumnName().equals(sel.getColumnName()) && noi.getType().equals(sel.getType())) {
                         expressions.add(factory.column(sel, from.getTableRefExpression()));
                         break GOTO;
                     }
@@ -126,7 +120,7 @@ public class QuerySqlBuilder implements ISqlBuilder {
                 for (ISqlJoinExpression join : joins.getJoins()) {
                     MetaData joinTableMetaData = config.getMetaData(join.getJoinTable().getMainTableClass());
                     for (FieldMetaData noi : joinTableMetaData.getNotIgnoreAndNavigateFields()) {
-                        if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType())) {
+                        if (noi.getColumnName().equals(sel.getColumnName()) && noi.getType().equals(sel.getType())) {
                             expressions.add(factory.column(sel, join.getTableRefExpression()));
                             break GOTO;
                         }

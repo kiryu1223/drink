@@ -138,7 +138,7 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
         for (FieldMetaData fieldMetaData : notIgnoreFields) {
             // 如果不是数据库生成策略，则添加
             if (fieldMetaData.isGeneratedKey()) continue;
-            fields.add(dialect.disambiguation(fieldMetaData.getColumn()));
+            fields.add(dialect.disambiguation(fieldMetaData.getColumnName()));
             if (fieldMetaData.hasLogicColumn()) {
                 LogicColumn logicColumn = fieldMetaData.getLogicColumn();
                 tableValues.add(logicColumn.onWrite(config));
@@ -174,29 +174,29 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
         return sqlValues;
     }
 
-    private long execute(MetaData metaData,List<R> objects,String sql, List<List<SqlValue>> sqlValues, boolean autoIncrement) {
+    private long execute(MetaData metaData, List<R> objects, String sql, List<List<SqlValue>> sqlValues, boolean autoIncrement) {
         try (JdbcInsertResultSet jdbcInsertResultSet = JdbcExecutor.executeInsert(config, sql, sqlValues, autoIncrement)) {
-            tryIncrement(jdbcInsertResultSet, metaData, objects, autoIncrement);
+            if (autoIncrement) {
+                increment(jdbcInsertResultSet, metaData, objects);
+            }
             return jdbcInsertResultSet.getRow();
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
             throw new DrinkException(e);
         }
     }
 
-    private void tryIncrement(JdbcInsertResultSet jdbcInsertResultSet, MetaData metaData, List<R> objects, boolean autoIncrement) throws SQLException, InvocationTargetException, IllegalAccessException {
-        if (autoIncrement) {
-            ResultSet resultSet = jdbcInsertResultSet.getRs();
-            FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
-            AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
-            int index = 0;
-            while (resultSet.next()) {
-                R r = objects.get(index++);
-                ITypeHandler<?> typeHandler = generatedPrimaryKey.getTypeHandler();
-                Object value = typeHandler.getValue(resultSet, 1, generatedPrimaryKey.getGenericType());
-                if (value != null) {
-                    ISetterCaller<R> beanSetter = beanCreator.getBeanSetter(generatedPrimaryKey.getFieldName());
-                    beanSetter.call(r, value);
-                }
+    private void increment(JdbcInsertResultSet jdbcInsertResultSet, MetaData metaData, List<R> objects) throws SQLException, InvocationTargetException, IllegalAccessException {
+        ResultSet resultSet = jdbcInsertResultSet.getRs();
+        FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
+        AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
+        int index = 0;
+        while (resultSet.next()) {
+            R r = objects.get(index++);
+            ITypeHandler<?> typeHandler = generatedPrimaryKey.getTypeHandler();
+            Object value = typeHandler.getValue(resultSet, 1, generatedPrimaryKey.getGenericType());
+            if (value != null) {
+                ISetterCaller<R> beanSetter = beanCreator.getBeanSetter(generatedPrimaryKey.getFieldName());
+                beanSetter.call(r, value);
             }
         }
     }

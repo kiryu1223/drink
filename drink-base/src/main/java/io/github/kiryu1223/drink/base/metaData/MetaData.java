@@ -231,7 +231,7 @@ public class MetaData {
      * @param columnName 列名
      */
     public FieldMetaData getFieldMetaDataByColumnName(String columnName) {
-        return fields.stream().filter(f -> f.getColumn().equals(columnName)).findFirst().orElseThrow(() -> new DrinkException(columnName));
+        return fields.stream().filter(f -> f.getColumnName().equals(columnName)).findFirst().orElseThrow(() -> new DrinkException(columnName));
     }
 
     /**
@@ -262,7 +262,7 @@ public class MetaData {
      * @param getter getter方法
      */
     public String getColumnNameByGetter(Method getter) {
-        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new DrinkException(getter.toGenericString())).getColumn();
+        return fields.stream().filter(f -> f.getGetter().equals(getter)).findFirst().orElseThrow(() -> new DrinkException(getter.toGenericString())).getColumnName();
     }
 
     /**
@@ -271,7 +271,7 @@ public class MetaData {
      * @param setter setter方法
      */
     public String getColumnNameBySetter(Method setter) {
-        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new DrinkException(setter.toGenericString())).getColumn();
+        return fields.stream().filter(f -> f.getSetter().equals(setter)).findFirst().orElseThrow(() -> new DrinkException(setter.toGenericString())).getColumnName();
     }
 
     /**

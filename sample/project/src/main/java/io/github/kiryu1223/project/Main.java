@@ -7,12 +7,14 @@ import io.github.kiryu1223.drink.base.toBean.handler.JsonTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
-import io.github.kiryu1223.project.pojos.Students;
+import io.github.kiryu1223.drink.core.api.crud.read.EndQuery;
+import io.github.kiryu1223.project.pojos.MkContent;
+import io.github.kiryu1223.project.pojos.MkContentUserActLog;
+import io.github.kiryu1223.project.pojos.MkUserActLog;
+import lombok.Data;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
 
 public class Main {
     public static SqlClient boot() {
@@ -43,24 +45,43 @@ public class Main {
                 .build();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         SqlClient client = boot();
 
+        EndQuery<? extends Union> q1 = client.query(MkUserActLog.class)
+                .select(m -> new Union() {{
+                    setFromUserId(m.getFromUserId());
+                    setToUserId(m.getToUserId());
+                    setType(点赞类型.主页);
+                }});
 
-        Map<String, Integer> map = new HashMap<>();
-        map.put("小王", 1);
-        map.put("小张", 2);
-        map.put("小明", 3);
+        EndQuery<? extends Union> q2 = client.query(MkContentUserActLog.class)
+                .leftJoin(MkContent.class, (a, b) -> a.getContentId().equals(b.getId()))
+                .select((a, b) -> new Union() {{
+                    setFromUserId(a.getUserId());
+                    setToUserId(b.getUserId());
+                    setType(点赞类型.作品);
+                }});
 
-        Students stu = client.query(Students.class)
-                .where(s -> map.getOrDefault(s.getName(),2) == 2)
-                .get(2);
+        String sql = client.unionAll(q1, q2)
+                .withTemp()
+                .where(u -> u.getToUserId() == 100)
+                .orderBy(u -> u.getFromUserId())
+                .limit(10)
+                .toSql();
 
-        System.out.println(stu);
+        System.out.println(sql);
+    }
 
-        Map<String, Students> mm = client.query(Students.class)
-                .where(s -> map.getOrDefault(s.getName(), 2) == 2)
-                .toMap(s -> s.getEmail());
+    @Data
+    static class Union {
+        private Long fromUserId;
+        private Long toUserId;
+        private 点赞类型 type;
+    }
 
+    enum 点赞类型 {
+        主页,
+        作品
     }
 }

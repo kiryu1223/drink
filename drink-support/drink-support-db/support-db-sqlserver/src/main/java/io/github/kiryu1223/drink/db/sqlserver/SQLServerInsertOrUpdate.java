@@ -73,13 +73,13 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate {
         builder.append(" (");
         builder.append(insertColumns
                 .stream()
-                .map(f -> dialect.disambiguation(f.getColumn()))
+                .map(f -> dialect.disambiguation(f.getColumnName()))
                 .collect(Collectors.joining(","))
         );
         builder.append(") ON ");
         List<String> cs = new ArrayList<>();
         for (ISqlColumnExpression c : conflictColumns) {
-            String column = dialect.disambiguation(c.getFieldMetaData().getColumn());
+            String column = dialect.disambiguation(c.getFieldMetaData().getColumnName());
             cs.add(target + "." + column + " = " + source + "." + column);
         }
         builder.append(String.join(" AND ", cs));
@@ -89,7 +89,7 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate {
             builder.append("UPDATE SET ");
             List<String> uc = new ArrayList<>();
             for (ISqlColumnExpression u : updateColumns) {
-                String column = dialect.disambiguation(u.getFieldMetaData().getColumn());
+                String column = dialect.disambiguation(u.getFieldMetaData().getColumnName());
                 uc.add(target + "." + column + " = " + source + "." + column);
             }
             builder.append(String.join(",", uc));
@@ -99,13 +99,13 @@ public class SQLServerInsertOrUpdate implements IInsertOrUpdate {
         builder.append("INSERT (");
         builder.append(insertColumns
                 .stream()
-                .map(f -> dialect.disambiguation(f.getColumn()))
+                .map(f -> dialect.disambiguation(f.getColumnName()))
                 .collect(Collectors.joining(","))
         );
         builder.append(") VALUES (");
         builder.append(insertColumns
                 .stream()
-                .map(f -> source + "." + dialect.disambiguation(f.getColumn()))
+                .map(f -> source + "." + dialect.disambiguation(f.getColumnName()))
                 .collect(Collectors.joining(","))
         );
         builder.append(");");

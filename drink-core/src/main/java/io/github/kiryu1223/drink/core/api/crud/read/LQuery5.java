@@ -343,11 +343,11 @@ public class LQuery5<T1, T2, T3, T4, T5> extends QueryBase<LQuery5<T1, T2, T3, T
      * @param <R>  Result
      * @return 基于Result类型的新查询过程对象
      */
-    public <R> EndQuery<R> select(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, R> expr) {
+    public <R> EndQuery<? extends R> select(@Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, T5, R> expr) {
         throw new NotCompiledException();
     }
 
-    public <R> EndQuery<R> select(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr) {
+    public <R> EndQuery<? extends R> select(ExprTree<Func5<T1, T2, T3, T4, T5, R>> expr) {
         select(expr.getTree());
         return new EndQuery<>(getSqlBuilder());
     }

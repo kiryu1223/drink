@@ -298,7 +298,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         long offset = limit.getOffset();
         long rows = limit.getRows();
         limit.setOffset(index);
-        limit.setRows(index+1);
+        limit.setRows(index + 1);
         List<R> list = toList();
         limit.setOffset(offset);
         limit.setRows(rows);
@@ -418,18 +418,32 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     protected void join(JoinType joinType, Class<?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        ISqlTableRefExpression joinRef = factory.tableRef(target);
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable(), joinRef);
         ISqlExpression on = sqlVisitor.visit(lambda);
         ISqlTableExpression table = factory.table(target);
-        sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
+        ISqlJoinExpression joinExpression = factory.join(
+                joinType,
+                table,
+                factory.condition(Collections.singletonList(on)),
+                joinRef
+        );
+        sqlBuilder.addJoin(joinExpression);
     }
 
     protected void join(JoinType joinType, QueryBase<?, ?> target, LambdaExpression<?> lambda) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
-        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable());
+        ISqlQueryableExpression queryable = target.getSqlBuilder().getQueryable();
+        ISqlTableRefExpression joinRef = factory.tableRef(queryable.getMainTableClass());
+        QuerySqlVisitor sqlVisitor = new QuerySqlVisitor(getConfig(), sqlBuilder.getQueryable(), joinRef);
         ISqlExpression on = sqlVisitor.visit(lambda);
-        ISqlTableExpression table = target.getSqlBuilder().getQueryable();
-        sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
+        ISqlJoinExpression joinExpression = factory.join(
+                joinType,
+                queryable,
+                factory.condition(Collections.singletonList(on)),
+                joinRef
+        );
+        sqlBuilder.addJoin(joinExpression);
     }
 
     //    protected void joinWith(JoinType joinType, QueryBase<?,?> target, LambdaExpression<?> lambda) {

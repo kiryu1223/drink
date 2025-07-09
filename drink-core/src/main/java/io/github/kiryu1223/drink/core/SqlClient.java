@@ -73,8 +73,8 @@ public final class SqlClient {
         return new UnionQuery<>(config, q1, q2, true);
     }
 
-    public <T> UnionQuery<T> unionAll(EndQuery<T> q1, EndQuery<T> q2) {
-        return new UnionQuery<>(config, q1, q2, false);
+    public <T> UnionQuery<? extends T> unionAll(EndQuery<? extends T> q1, EndQuery<? extends T> q2) {
+        return new UnionQuery<>(config, q1, q2, true);
     }
 
     /**

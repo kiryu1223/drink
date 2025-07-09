@@ -161,7 +161,7 @@ public interface ISqlQueryableExpression extends ISqlTableExpression {
 //                GOTO:
 //                for (MetaData data : MetaDataCache.getMetaData(orderedClass)) {
 //                    for (FieldMetaData noi : data.getNotIgnorePropertys()) {
-//                        if (noi.getColumn().equals(sel.getColumn()) && noi.getType().equals(sel.getType())) {
+//                        if (noi.getColumnName().equals(sel.getColumnName()) && noi.getType().equals(sel.getType())) {
 //                            fieldMetaDataList.add(sel);
 //                            break GOTO;
 //                        }
