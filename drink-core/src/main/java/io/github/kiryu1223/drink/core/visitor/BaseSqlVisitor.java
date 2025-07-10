@@ -4,6 +4,7 @@ import io.github.kiryu1223.drink.base.DbType;
 import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.exception.DrinkException;
 import io.github.kiryu1223.drink.base.expression.*;
+import io.github.kiryu1223.drink.base.expression.impl.SqlSingleValueExpression;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.transform.IAggregateMethods;
@@ -667,26 +668,9 @@ public abstract class BaseSqlVisitor extends ResultThrowVisitor<ISqlExpression> 
         }
     }
 
-    protected static class JavaType implements ISqlExpression {
-
-        private final Class<?> type;
-
+    protected static class JavaType extends SqlSingleValueExpression {
         public JavaType(Class<?> type) {
-            this.type = type;
-        }
-
-        @Override
-        public String getSqlAndValue(IConfig config, List<SqlValue> values) {
-            return "";
-        }
-
-        @Override
-        public <T extends ISqlExpression> T copy(IConfig config) {
-            return null;
-        }
-
-        public Class<?> getType() {
-            return type;
+            super(type);
         }
     }
 }

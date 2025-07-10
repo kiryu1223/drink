@@ -10,27 +10,12 @@ import java.sql.SQLException;
 public class JdbcInsertResultSet extends JdbcQueryResultSet {
     private final long row;
 
-    public JdbcInsertResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, long row) {
-        super(rs, preparedStatement, connection);
+    public JdbcInsertResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, boolean inTransaction, long row) {
+        super(rs, preparedStatement, connection, inTransaction);
         this.row = row;
     }
 
     public long getRow() {
         return row;
-    }
-
-    @Override
-    public void close()
-    {
-        try {
-            if (rs != null)
-            {
-                rs.close();
-            }
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            throw new DrinkException(e);
-        }
     }
 }

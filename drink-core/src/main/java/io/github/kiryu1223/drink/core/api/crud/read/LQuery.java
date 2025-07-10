@@ -110,10 +110,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return joinNewQuery();
     }
 
-    public <Tn> LQuery2<T, Tn> innerJoin(@Expr(Expr.BodyType.Expr) Func1<T, Tn> func) {
-        throw new NotCompiledException();
-    }
-
     /**
      * join表操作<p>
      * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
@@ -209,6 +205,24 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
     }
 
     public <Tn> LQuery2<T, Tn> rightJoin(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
+        join(JoinType.RIGHT, target, expr.getTree());
+        return joinNewQuery();
+    }
+
+    /**
+     * join表操作<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     *
+     * @param target 数据表类或查询过程
+     * @param func   返回bool的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @param <Tn>   join过来的表的类型
+     * @return 泛型数量+1的查询过程对象
+     */
+    public <Tn> LQuery2<T, Tn> rightJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public <Tn> LQuery2<T, Tn> rightJoin(EndQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
         join(JoinType.RIGHT, target, expr.getTree());
         return joinNewQuery();
     }

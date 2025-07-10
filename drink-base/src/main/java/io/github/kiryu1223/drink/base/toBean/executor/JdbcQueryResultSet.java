@@ -12,11 +12,13 @@ public class JdbcQueryResultSet implements AutoCloseable {
     protected final PreparedStatement preparedStatement;
     protected final Connection connection;
     protected boolean isLast = false;
+    protected final boolean inTransaction;
 
-    public JdbcQueryResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection) {
+    public JdbcQueryResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, boolean inTransaction) {
         this.rs = rs;
         this.preparedStatement = preparedStatement;
         this.connection = connection;
+        this.inTransaction = inTransaction;
     }
 
     public ResultSet getRs() {
@@ -34,9 +36,15 @@ public class JdbcQueryResultSet implements AutoCloseable {
     @Override
     public void close() {
         try {
-            rs.close();
-            preparedStatement.close();
-            connection.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (!inTransaction) {
+                connection.close();
+            }
         } catch (SQLException e) {
             throw new DrinkException(e);
         }

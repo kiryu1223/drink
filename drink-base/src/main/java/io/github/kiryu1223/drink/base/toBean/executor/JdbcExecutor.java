@@ -62,7 +62,8 @@ public class JdbcExecutor {
             ResultSet resultSet = preparedStatement.executeQuery();
             long end = printTime ? System.currentTimeMillis() : 0;
             logTime(config, end - start);
-            return new JdbcQueryResultSet(resultSet, preparedStatement, connection);
+            boolean inTransaction = config.getTransactionManager().currentThreadInTransaction();
+            return new JdbcQueryResultSet(resultSet, preparedStatement, connection, inTransaction);
         } catch (SQLException e) {
             throw new DrinkException(e);
         }
@@ -120,8 +121,7 @@ public class JdbcExecutor {
     }
 
     public static JdbcInsertResultSet executeInsert(IConfig config, String sql, List<List<SqlValue>> sqlValues, boolean generatedKeys) {
-        try
-        {
+        try {
             Connection connection = connection(config);
             logSql(config, sql);
             logValueList(config, sqlValues);
@@ -142,10 +142,9 @@ public class JdbcExecutor {
             if (generatedKeys) {
                 resultSet = preparedStatement.getGeneratedKeys();
             }
-            return new JdbcInsertResultSet(resultSet, preparedStatement, connection, count);
-        }
-        catch (SQLException e)
-        {
+            boolean inTransaction = config.getTransactionManager().currentThreadInTransaction();
+            return new JdbcInsertResultSet(resultSet, preparedStatement, connection, inTransaction, count);
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
