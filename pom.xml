@@ -6,7 +6,7 @@
 
     <groupId>io.github.kiryu1223</groupId>
     <artifactId>drink-all</artifactId>
-    <version>1.0.30</version>
+    <version>1.0.31</version>
     <packaging>pom</packaging>
     <modules>
         <module>drink-base</module>
