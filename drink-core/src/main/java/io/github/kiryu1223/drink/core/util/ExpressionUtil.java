@@ -28,13 +28,10 @@ import io.github.kiryu1223.expressionTree.expressions.MethodCallExpression;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.isString;
 import static io.github.kiryu1223.drink.base.util.DrinkUtil.isVoid;
@@ -65,6 +62,13 @@ public class ExpressionUtil {
         if (method.getParameterTypes()[0] != Object.class) return false;
         if (method.getReturnType() != boolean.class) return false;
         return method.getName().equals("equals");
+    }
+
+    public static boolean isToString(MethodCallExpression methodCall) {
+        Method method = methodCall.getMethod();
+        return method.getParameterCount() == 0
+               && method.getReturnType() == String.class
+               && method.getName().equals("toString");
     }
 
     /**
@@ -204,8 +208,7 @@ public class ExpressionUtil {
 //        return original;
 //    }
 
-    public static <R> java.util.List<R> buildTree(java.util.List<? extends R> flatList, IGetterCaller<R,?> selfFieldGetter, IGetterCaller<R,?> targetGetter, ISetterCaller<R> navigateSetter, IGetterCaller<R, Collection<R>> navigateGetter) throws InvocationTargetException, IllegalAccessException
-    {
+    public static <R> java.util.List<R> buildTree(java.util.List<? extends R> flatList, IGetterCaller<R, ?> selfFieldGetter, IGetterCaller<R, ?> targetGetter, ISetterCaller<R> navigateSetter, IGetterCaller<R, Collection<R>> navigateGetter) throws InvocationTargetException, IllegalAccessException {
         // 用 Map 存储所有节点，以便快速查找
         Map<Object, R> nodeMap = new HashMap<>();
         java.util.List<R> rootNodes = new ArrayList<>();

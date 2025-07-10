@@ -166,21 +166,6 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
         return visit;
     }
 
-//    protected String doGetISqlTableRefExpression(String as) {
-//        return doGetISqlTableRefExpression(as, 0);
-//    }
-//
-//    protected String doGetISqlTableRefExpression(String as, int offset) {
-//        String next = offset == 0 ? as : as + offset;
-//        if (asNameSet.contains(next)) {
-//            return doGetISqlTableRefExpression(as, offset + 1);
-//        }
-//        else {
-//            asNameSet.add(next);
-//            return next;
-//        }
-//    }
-
     /**
      * 赋值表达式解析
      */
@@ -440,6 +425,9 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
         }
         else if (isEquals(methodCall)) {
             return factory.binary(SqlOperator.EQ, left, visit(args.get(0)));
+        }
+        else if (isToString(methodCall)) {
+            return factory.typeCast(String.class, left);
         }
         else {
             Class<?> type = left.getType();

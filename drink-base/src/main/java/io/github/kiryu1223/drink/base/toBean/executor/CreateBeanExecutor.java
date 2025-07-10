@@ -46,7 +46,7 @@ public class CreateBeanExecutor {
     ) {
         boolean isChunk = fetchSize > 0;
         try {
-            ResultSet rs = jdbcQueryResultSet.getRs();
+            ResultSet rs = jdbcQueryResultSet.getResultSet();
             List<T> list = new ArrayList<>();
             while (rs.next()) {
                 T value = typeHandler.getValue(rs, 1, clazz);
@@ -103,7 +103,7 @@ public class CreateBeanExecutor {
             // 获取除导航属性以外的字段
             List<FieldMetaData> notNavigateFields = config.getMetaData(clazz).getNotNavigateFields();
             AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(clazz);
-            ResultSet rs = jdbcQueryResultSet.getRs();
+            ResultSet rs = jdbcQueryResultSet.getResultSet();
             ResultSetMetaData resultSetMetaData = rs.getMetaData();
             int columnCount = resultSetMetaData.getColumnCount();
             int[] indexes = getIndexes(resultSetMetaData, columnCount, notNavigateFields);
@@ -225,7 +225,7 @@ public class CreateBeanExecutor {
             // 获取除导航属性以外的字段
             List<FieldMetaData> notNavigateFields = config.getMetaData(clazz).getNotNavigateFields();
             AbsBeanCreator<T> beanCreator = config.getBeanCreatorFactory().get(clazz);
-            ResultSet rs = jdbcQueryResultSet.getRs();
+            ResultSet rs = jdbcQueryResultSet.getResultSet();
             ResultSetMetaData resultSetMetaData = rs.getMetaData();
             int columnCount = resultSetMetaData.getColumnCount();
             int[] indexes = getIndexes(resultSetMetaData, columnCount, notNavigateFields);

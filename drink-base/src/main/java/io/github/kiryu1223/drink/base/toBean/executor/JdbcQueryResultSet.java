@@ -8,36 +8,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcQueryResultSet implements AutoCloseable {
-    protected final ResultSet rs;
+    protected final ResultSet resultSet;
     protected final PreparedStatement preparedStatement;
     protected final Connection connection;
-    protected boolean isLast = false;
     protected final boolean inTransaction;
 
-    public JdbcQueryResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, boolean inTransaction) {
-        this.rs = rs;
+    public JdbcQueryResultSet(ResultSet resultSet, PreparedStatement preparedStatement, Connection connection, boolean inTransaction) {
+        this.resultSet = resultSet;
         this.preparedStatement = preparedStatement;
         this.connection = connection;
         this.inTransaction = inTransaction;
     }
 
-    public ResultSet getRs() {
-        return rs;
-    }
-
-    public boolean isLast() {
-        return isLast;
-    }
-
-    public void setLast(boolean last) {
-        isLast = last;
+    public ResultSet getResultSet() {
+        return resultSet;
     }
 
     @Override
     public void close() {
         try {
-            if (rs != null) {
-                rs.close();
+            if (resultSet != null) {
+                resultSet.close();
             }
             if (preparedStatement != null) {
                 preparedStatement.close();

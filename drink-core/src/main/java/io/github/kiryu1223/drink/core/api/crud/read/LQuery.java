@@ -227,15 +227,6 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
         return joinNewQuery();
     }
 
-//    public <Tn> LQuery2<T, Tn> rightJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func2<T, Tn, Boolean> func) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <Tn> LQuery2<T, Tn> rightJoinWith(LQuery<Tn> target, ExprTree<Func2<T, Tn, Boolean>> expr) {
-//        joinWith(JoinType.RIGHT, target, expr.getTree());
-//        return joinNewQuery();
-//    }
-
     //endregion
 
     // region [WHERE]

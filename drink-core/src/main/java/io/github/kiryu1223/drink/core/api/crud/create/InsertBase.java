@@ -186,7 +186,7 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
     }
 
     private void increment(JdbcUpdateResultSet jdbcUpdateResultSet, MetaData metaData, List<R> objects) throws SQLException, InvocationTargetException, IllegalAccessException {
-        ResultSet resultSet = jdbcUpdateResultSet.getRs();
+        ResultSet resultSet = jdbcUpdateResultSet.getResultSet();
         FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
         AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
         int index = 0;

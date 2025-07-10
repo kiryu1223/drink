@@ -84,15 +84,23 @@ public class LQuery3<T1, T2, T3> extends QueryBase<LQuery3<T1, T2, T3>,T1> {
         return joinNewQuery();
     }
 
-//    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoinWith(LQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr) {
-//        joinWith(JoinType.INNER, target, expr.getTree());
-//        return joinNewQuery();
-//    }
+    /**
+     * join表操作<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     *
+     * @param target 数据表类或查询过程
+     * @param func   返回bool的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @param <Tn>   join过来的表的类型
+     * @return 泛型数量+1的查询过程对象
+     */
+    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
 
+    public <Tn> LQuery4<T1, T2, T3, Tn> innerJoin(EndQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr) {
+        join(JoinType.INNER, target, expr.getTree());
+        return joinNewQuery();
+    }
 
     /**
      * join表操作<p>
@@ -130,14 +138,23 @@ public class LQuery3<T1, T2, T3> extends QueryBase<LQuery3<T1, T2, T3>,T1> {
         return joinNewQuery();
     }
 
-//    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoinWith(LQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr) {
-//        joinWith(JoinType.LEFT, target, expr.getTree());
-//        return joinNewQuery();
-//    }
+    /**
+     * join表操作<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     *
+     * @param target 数据表类或查询过程
+     * @param func   返回bool的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @param <Tn>   join过来的表的类型
+     * @return 泛型数量+1的查询过程对象
+     */
+    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public <Tn> LQuery4<T1, T2, T3, Tn> leftJoin(EndQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr) {
+        join(JoinType.LEFT, target, expr.getTree());
+        return joinNewQuery();
+    }
 
     /**
      * join表操作<p>
@@ -175,14 +192,23 @@ public class LQuery3<T1, T2, T3> extends QueryBase<LQuery3<T1, T2, T3>,T1> {
         return joinNewQuery();
     }
 
-//    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoinWith(LQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr) {
-//        joinWith(JoinType.RIGHT, target, expr.getTree());
-//        return joinNewQuery();
-//    }
+    /**
+     * join表操作<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     *
+     * @param target 数据表类或查询过程
+     * @param func   返回bool的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @param <Tn>   join过来的表的类型
+     * @return 泛型数量+1的查询过程对象
+     */
+    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public <Tn> LQuery4<T1, T2, T3, Tn> rightJoin(EndQuery<Tn> target, ExprTree<Func4<T1, T2, T3, Tn, Boolean>> expr) {
+        join(JoinType.RIGHT, target, expr.getTree());
+        return joinNewQuery();
+    }
 
     // endregion
 

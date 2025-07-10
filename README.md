@@ -1147,8 +1147,8 @@ public class JsonTypeHandler implements ITypeHandler<Map<String, Object>> {
     }
 
     @Override
-    public Map<String, Object> getResult(ResultSet rs, String columnName) throws SQLException {
-        String json = rs.getString(columnName);
+    public Map<String, Object> getResult(ResultSet resultSet, String columnName) throws SQLException {
+        String json = resultSet.getString(columnName);
         if (json == null) return null;
         try {
             return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});

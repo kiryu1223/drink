@@ -152,8 +152,8 @@ public class IncludeBuilder {
     }
 
     private void oneMany(Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, NavigateData navigateData, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter) throws InvocationTargetException, IllegalAccessException {
-//        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
-//                                rs,
+//        JdbcResult<?> includeResult = session.executeQuery(resultSet -> ObjectBuilder.start(
+//                                resultSet,
 //                                targetType,
 //                                subQuery.getMappingData(config),
 //                                false,
@@ -205,8 +205,8 @@ public class IncludeBuilder {
     }
 
     private void oneOneOrManyOne(Collection<?> source, Class<?> targetType, String sql, List<SqlValue> sqlValues, IGetterCaller<?, ?> targetGetter, IGetterCaller<?, ?> sourceGetter, ISetterCaller<?> includeSetter, RelationType relationType) throws InvocationTargetException, IllegalAccessException {
-//        JdbcResult<?> includeResult = session.executeQuery(rs -> ObjectBuilder.start(
-//                                rs,
+//        JdbcResult<?> includeResult = session.executeQuery(resultSet -> ObjectBuilder.start(
+//                                resultSet,
 //                                targetType,
 //                                subQuery.getMappingData(config),
 //                                false,

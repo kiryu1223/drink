@@ -15,18 +15,16 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.read;
 
-import io.github.kiryu1223.expressionTree.delegate.Func2;
+import io.github.kiryu1223.drink.base.expression.JoinType;
+import io.github.kiryu1223.drink.core.api.Result;
+import io.github.kiryu1223.drink.core.api.crud.read.group.GroupedQuery4;
+import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
+import io.github.kiryu1223.drink.core.exception.NotCompiledException;
+import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
 import io.github.kiryu1223.expressionTree.delegate.Func4;
 import io.github.kiryu1223.expressionTree.delegate.Func5;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
-import io.github.kiryu1223.expressionTree.expressions.annos.Recode;
-import io.github.kiryu1223.drink.base.expression.*;
-import io.github.kiryu1223.drink.core.api.Result;
-import io.github.kiryu1223.drink.core.api.crud.read.group.Grouper;
-import io.github.kiryu1223.drink.core.exception.NotCompiledException;
-import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
-import io.github.kiryu1223.drink.core.api.crud.read.group.*;
 
 /**
  * 查询过程对象
@@ -34,7 +32,7 @@ import io.github.kiryu1223.drink.core.api.crud.read.group.*;
  * @author kiryu1223
  * @since 3.0
  */
-public class LQuery4<T1, T2, T3, T4> extends QueryBase<LQuery4<T1, T2, T3, T4>,T1> {
+public class LQuery4<T1, T2, T3, T4> extends QueryBase<LQuery4<T1, T2, T3, T4>, T1> {
     // region [INIT]
 
     public LQuery4(QuerySqlBuilder sqlBuilder) {
@@ -85,14 +83,23 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase<LQuery4<T1, T2, T3, T4>,T
         return joinNewQuery();
     }
 
-//    public <Tn> LQuery5<T1, T2, T3, T4, Tn> innerJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, Tn, Boolean> func) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <Tn> LQuery5<T1, T2, T3, T4, Tn> innerJoinWith(LQuery<Tn> target, ExprTree<Func5<T1, T2, T3, T4, Tn, Boolean>> expr) {
-//        joinWith(JoinType.INNER, target, expr.getTree());
-//        return joinNewQuery();
-//    }
+    /**
+     * join表操作<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     *
+     * @param target 数据表类或查询过程
+     * @param func   返回bool的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @param <Tn>   join过来的表的类型
+     * @return 泛型数量+1的查询过程对象
+     */
+    public <Tn> LQuery5<T1, T2, T3, T4, Tn> innerJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public <Tn> LQuery5<T1, T2, T3, T4, Tn> innerJoin(EndQuery<Tn> target, ExprTree<Func5<T1, T2, T3, T4, Tn, Boolean>> expr) {
+        join(JoinType.INNER, target, expr.getTree());
+        return joinNewQuery();
+    }
 
     /**
      * join表操作<p>
@@ -130,14 +137,23 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase<LQuery4<T1, T2, T3, T4>,T
         return joinNewQuery();
     }
 
-//    public <Tn> LQuery5<T1, T2, T3, T4, Tn> leftJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, Tn, Boolean> func) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <Tn> LQuery5<T1, T2, T3, T4, Tn> leftJoinWith(LQuery<Tn> target, ExprTree<Func5<T1, T2, T3, T4, Tn, Boolean>> expr) {
-//        joinWith(JoinType.LEFT, target, expr.getTree());
-//        return joinNewQuery();
-//    }
+    /**
+     * join表操作<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     *
+     * @param target 数据表类或查询过程
+     * @param func   返回bool的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @param <Tn>   join过来的表的类型
+     * @return 泛型数量+1的查询过程对象
+     */
+    public <Tn> LQuery5<T1, T2, T3, T4, Tn> leftJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public <Tn> LQuery5<T1, T2, T3, T4, Tn> leftJoin(EndQuery<Tn> target, ExprTree<Func5<T1, T2, T3, T4, Tn, Boolean>> expr) {
+        join(JoinType.LEFT, target, expr.getTree());
+        return joinNewQuery();
+    }
 
     /**
      * join表操作<p>
@@ -175,14 +191,23 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase<LQuery4<T1, T2, T3, T4>,T
         return joinNewQuery();
     }
 
-//    public <Tn> LQuery5<T1, T2, T3, T4, Tn> rightJoinWith(LQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, Tn, Boolean> func) {
-//        throw new NotCompiledException();
-//    }
-//
-//    public <Tn> LQuery5<T1, T2, T3, T4, Tn> rightJoinWith(LQuery<Tn> target, ExprTree<Func5<T1, T2, T3, T4, Tn, Boolean>> expr) {
-//        joinWith(JoinType.RIGHT, target, expr.getTree());
-//        return joinNewQuery();
-//    }
+    /**
+     * join表操作<p>
+     * <b>注意：此函数的ExprTree[func类型]版本为真正被调用的函数
+     *
+     * @param target 数据表类或查询过程
+     * @param func   返回bool的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
+     * @param <Tn>   join过来的表的类型
+     * @return 泛型数量+1的查询过程对象
+     */
+    public <Tn> LQuery5<T1, T2, T3, T4, Tn> rightJoin(EndQuery<Tn> target, @Expr(Expr.BodyType.Expr) Func5<T1, T2, T3, T4, Tn, Boolean> func) {
+        throw new NotCompiledException();
+    }
+
+    public <Tn> LQuery5<T1, T2, T3, T4, Tn> rightJoin(EndQuery<Tn> target, ExprTree<Func5<T1, T2, T3, T4, Tn, Boolean>> expr) {
+        join(JoinType.RIGHT, target, expr.getTree());
+        return joinNewQuery();
+    }
 
     // endregion
 
@@ -251,11 +276,11 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase<LQuery4<T1, T2, T3, T4>,T
      * @param asc  是否为升序
      * @return this
      */
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr, boolean asc) {
         throw new NotCompiledException();
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(ExprTree<Func4<T1, T2, T3, T4, R>> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(ExprTree<Func4<T1, T2, T3, T4, R>> expr, boolean asc) {
         orderBy(expr.getTree(), asc);
         return this;
     }
@@ -267,47 +292,47 @@ public class LQuery4<T1, T2, T3, T4> extends QueryBase<LQuery4<T1, T2, T3, T4>,T
      * @param expr 返回需要的字段的lambda表达式(强制要求参数为<b>lambda表达式</b>，不可以是<span style='color:red;'>方法引用</span>以及<span style='color:red;'>匿名对象</span>)
      * @return this
      */
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
         throw new NotCompiledException();
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderBy(ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
         orderBy(expr, true);
         return this;
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDesc(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDesc(@Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
         throw new NotCompiledException();
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDesc(ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDesc(ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
         orderBy(expr, false);
         return this;
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr, boolean asc) {
         throw new NotCompiledException();
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, ExprTree<Func4<T1, T2, T3, T4, R>> expr, boolean asc) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, ExprTree<Func4<T1, T2, T3, T4, R>> expr, boolean asc) {
         if (condition) orderBy(expr.getTree(), asc);
         return this;
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
         throw new NotCompiledException();
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByIf(boolean condition, ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
         if (condition) orderBy(expr, true);
         return this;
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDescIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDescIf(boolean condition, @Expr(Expr.BodyType.Expr) Func4<T1, T2, T3, T4, R> expr) {
         throw new NotCompiledException();
     }
 
-    public  <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDescIf(boolean condition, ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
+    public <R extends Comparable<R>> LQuery4<T1, T2, T3, T4> orderByDescIf(boolean condition, ExprTree<Func4<T1, T2, T3, T4, R>> expr) {
         if (condition) orderBy(expr, false);
         return this;
     }

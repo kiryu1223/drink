@@ -2232,7 +2232,7 @@ public final class SqlFunctions {
      * 发起一段CASE表达式
      */
     @SafeVarargs
-    @SqlExtensionExpression(template = "CASE {when} {rs} END")
+    @SqlExtensionExpression(template = "CASE {when} {resultSet} END")
     public static <R> R Case(When<R> when, When<R>... rs) {
         return error();
     }
@@ -2249,7 +2249,7 @@ public final class SqlFunctions {
      * 发起一段CASE表达式，并设置ELSE
      */
     @SafeVarargs
-    @SqlExtensionExpression(template = "CASE {when} {rs} ELSE {elsePart} END", separator = " ")
+    @SqlExtensionExpression(template = "CASE {when} {resultSet} ELSE {elsePart} END", separator = " ")
     public static <R> R Case(R elsePart, When<R> when, When<R>... rs) {
         return error();
     }

@@ -134,7 +134,7 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
         List<SqlValue> values = new ArrayList<>();
         String sql = querySqlBuilder.getSqlAndValue(values);
         try (JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values)) {
-            ResultSet rs = jdbcQueryResultSet.getRs();
+            ResultSet rs = jdbcQueryResultSet.getResultSet();
             boolean any = rs.next();
             config.getSqlLogger().printTotal(any ? 1 : 0);
             return any;
@@ -166,7 +166,6 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
                         break;
                     }
                 }
-
             }
             else {
                 ExValues exValues = sqlBuilder.getQueryable().getSelect().getExValues();
