@@ -18,7 +18,7 @@ public class MkUserChatMessage {
      *
      */
     @Column(primaryKey = true, generatedKey = true)
-    private Long id;
+    protected Long id;
 
     /**
      * 来源用户

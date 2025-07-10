@@ -86,7 +86,6 @@ public class Main {
                         setReadFlag(a.getReadFlag());
                         setReadTime(a.getReadTime());
                     }
-
                     String fromUsername = u1.getNickname();
                     String toUsername = u2.getNickname();
                     int hasUnread = (a.getToUserId() == 1 && a.getReadFlag() == 1) ? 1 : 0;

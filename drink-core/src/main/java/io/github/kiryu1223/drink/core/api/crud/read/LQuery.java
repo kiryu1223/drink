@@ -20,6 +20,7 @@ import io.github.kiryu1223.drink.base.expression.ISqlQueryableExpression;
 import io.github.kiryu1223.drink.base.expression.JoinType;
 import io.github.kiryu1223.drink.base.metaData.FieldMetaData;
 import io.github.kiryu1223.drink.base.page.PagedResult;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcQueryResultSet;
 import io.github.kiryu1223.drink.core.api.ITable;
 import io.github.kiryu1223.drink.core.api.Result;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
@@ -629,6 +630,10 @@ public class LQuery<T> extends QueryBase<LQuery<T>, T> {
 
     public void toChunk(int size, Action1<Chunk<T>> action) {
         chunk(size, action);
+    }
+
+    public JdbcQueryResultSet toJdbcResultSet() {
+        return executeQuery();
     }
 
     // endregion

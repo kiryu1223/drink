@@ -145,6 +145,13 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
 
     // endregion
 
+    protected JdbcQueryResultSet executeQuery() {
+        IConfig config = getConfig();
+        List<SqlValue> values = new ArrayList<>();
+        String sql = sqlBuilder.getSqlAndValue(values);
+        return JdbcExecutor.executeQuery(config, sql, values);
+    }
+
     protected void chunk(int fetchSize, Action1<Chunk<R>> action) {
         // fetchSize最小为1
         fetchSize = Math.max(fetchSize, 1);
@@ -190,11 +197,9 @@ public abstract class QueryBase<C, R> extends CRUD<C> {
     protected List<? extends R> toList() {
         IConfig config = getConfig();
         Class<R> targetClass = sqlBuilder.getTargetClass();
-        List<SqlValue> values = new ArrayList<>();
-        String sql = sqlBuilder.getSqlAndValue(values);
-        List<R> result;
         boolean single = sqlBuilder.isSingle();
-        JdbcQueryResultSet jdbcQueryResultSet = JdbcExecutor.executeQuery(config, sql, values);
+        List<R> result;
+        JdbcQueryResultSet jdbcQueryResultSet = executeQuery();
         if (single) {
             ITypeHandler<R> singleTypeHandler = getSingleTypeHandler();
             result = CreateBeanExecutor.singleList(jdbcQueryResultSet, singleTypeHandler, targetClass);
