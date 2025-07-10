@@ -29,7 +29,7 @@ import io.github.kiryu1223.drink.base.toBean.beancreator.AbsBeanCreator;
 import io.github.kiryu1223.drink.base.toBean.beancreator.IGetterCaller;
 import io.github.kiryu1223.drink.base.toBean.beancreator.ISetterCaller;
 import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
-import io.github.kiryu1223.drink.base.toBean.executor.JdbcInsertResultSet;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcUpdateResultSet;
 import io.github.kiryu1223.drink.base.toBean.handler.ITypeHandler;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import org.slf4j.Logger;
@@ -175,18 +175,18 @@ public abstract class InsertBase<C, R> extends CRUD<C> {
     }
 
     private long execute(MetaData metaData, List<R> objects, String sql, List<List<SqlValue>> sqlValues, boolean autoIncrement) {
-        try (JdbcInsertResultSet jdbcInsertResultSet = JdbcExecutor.executeInsert(config, sql, sqlValues, autoIncrement)) {
+        try (JdbcUpdateResultSet jdbcUpdateResultSet = JdbcExecutor.executeInsert(config, sql, sqlValues, autoIncrement)) {
             if (autoIncrement) {
-                increment(jdbcInsertResultSet, metaData, objects);
+                increment(jdbcUpdateResultSet, metaData, objects);
             }
-            return jdbcInsertResultSet.getRow();
+            return jdbcUpdateResultSet.getRow();
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
             throw new DrinkException(e);
         }
     }
 
-    private void increment(JdbcInsertResultSet jdbcInsertResultSet, MetaData metaData, List<R> objects) throws SQLException, InvocationTargetException, IllegalAccessException {
-        ResultSet resultSet = jdbcInsertResultSet.getRs();
+    private void increment(JdbcUpdateResultSet jdbcUpdateResultSet, MetaData metaData, List<R> objects) throws SQLException, InvocationTargetException, IllegalAccessException {
+        ResultSet resultSet = jdbcUpdateResultSet.getRs();
         FieldMetaData generatedPrimaryKey = metaData.getGeneratedPrimaryKey();
         AbsBeanCreator<R> beanCreator = config.getBeanCreatorFactory().get(getTableType());
         int index = 0;

@@ -22,6 +22,7 @@ import io.github.kiryu1223.drink.base.expression.JoinType;
 import io.github.kiryu1223.drink.base.expression.SqlExpressionFactory;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcUpdateResultSet;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.core.visitor.UpdateSqlVisitor;
@@ -65,13 +66,8 @@ public abstract class DeleteBase<C> extends CRUD<C> {
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(sqlValues);
-        try
-        {
-            return JdbcExecutor.executeDelete(config, sql, sqlValues);
-        }
-        catch (SQLException e)
-        {
-            throw new DrinkException(e);
+        try (JdbcUpdateResultSet jdbcUpdateResultSet = JdbcExecutor.executeDelete(config, sql, sqlValues)) {
+            return jdbcUpdateResultSet.getRow();
         }
     }
 

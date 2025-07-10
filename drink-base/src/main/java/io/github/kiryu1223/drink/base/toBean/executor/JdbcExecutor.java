@@ -69,23 +69,26 @@ public class JdbcExecutor {
         }
     }
 
-    public static int executeUpdate(IConfig config, String sql, List<SqlValue> values) throws SQLException {
-        try (Connection connection = connection(config)) {
+    public static JdbcUpdateResultSet executeUpdate(IConfig config, String sql, List<SqlValue> values) {
+        try {
+            Connection connection = connection(config);
             logSql(config, sql);
             logValues(config, values);
-            try (PreparedStatement statement = statement(connection, sql, values)) {
-                boolean printTime = config.isPrintTime();
-                long start = printTime ? System.currentTimeMillis() : 0;
-                int i = statement.executeUpdate();
-                long end = printTime ? System.currentTimeMillis() : 0;
-                logTime(config, end - start);
-                logUpdate(config, i);
-                return i;
-            }
+            PreparedStatement statement = statement(connection, sql, values);
+            boolean printTime = config.isPrintTime();
+            long start = printTime ? System.currentTimeMillis() : 0;
+            int i = statement.executeUpdate();
+            long end = printTime ? System.currentTimeMillis() : 0;
+            logTime(config, end - start);
+            logUpdate(config, i);
+            boolean inTransaction = config.getTransactionManager().currentThreadInTransaction();
+            return new JdbcUpdateResultSet(null, statement, connection, inTransaction, i);
+        } catch (SQLException e) {
+            throw new DrinkException(e);
         }
     }
 
-    public static int executeDelete(IConfig config, String sql, List<SqlValue> values) throws SQLException {
+    public static JdbcUpdateResultSet executeDelete(IConfig config, String sql, List<SqlValue> values) {
         return executeUpdate(config, sql, values);
     }
 
@@ -120,7 +123,7 @@ public class JdbcExecutor {
         }
     }
 
-    public static JdbcInsertResultSet executeInsert(IConfig config, String sql, List<List<SqlValue>> sqlValues, boolean generatedKeys) {
+    public static JdbcUpdateResultSet executeInsert(IConfig config, String sql, List<List<SqlValue>> sqlValues, boolean generatedKeys) {
         try {
             Connection connection = connection(config);
             logSql(config, sql);
@@ -143,7 +146,7 @@ public class JdbcExecutor {
                 resultSet = preparedStatement.getGeneratedKeys();
             }
             boolean inTransaction = config.getTransactionManager().currentThreadInTransaction();
-            return new JdbcInsertResultSet(resultSet, preparedStatement, connection, inTransaction, count);
+            return new JdbcUpdateResultSet(resultSet, preparedStatement, connection, inTransaction, count);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

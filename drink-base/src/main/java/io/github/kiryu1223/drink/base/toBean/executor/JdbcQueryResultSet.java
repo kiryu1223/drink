@@ -19,6 +19,7 @@ public class JdbcQueryResultSet implements AutoCloseable {
         this.preparedStatement = preparedStatement;
         this.connection = connection;
         this.inTransaction = inTransaction;
+        System.out.println("当前是否在事务" + inTransaction);
     }
 
     public ResultSet getRs() {

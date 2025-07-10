@@ -1,16 +1,14 @@
 package io.github.kiryu1223.drink.base.toBean.executor;
 
-import io.github.kiryu1223.drink.base.exception.DrinkException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
-public class JdbcInsertResultSet extends JdbcQueryResultSet {
+public class JdbcUpdateResultSet extends JdbcQueryResultSet {
     private final long row;
 
-    public JdbcInsertResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, boolean inTransaction, long row) {
+    public JdbcUpdateResultSet(ResultSet rs, PreparedStatement preparedStatement, Connection connection, boolean inTransaction, long row) {
         super(rs, preparedStatement, connection, inTransaction);
         this.row = row;
     }

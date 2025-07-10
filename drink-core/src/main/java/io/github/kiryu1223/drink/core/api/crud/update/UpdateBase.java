@@ -19,6 +19,7 @@ import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.expression.*;
 import io.github.kiryu1223.drink.base.session.SqlValue;
 import io.github.kiryu1223.drink.base.toBean.executor.JdbcExecutor;
+import io.github.kiryu1223.drink.base.toBean.executor.JdbcUpdateResultSet;
 import io.github.kiryu1223.drink.core.api.crud.CRUD;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
@@ -89,13 +90,8 @@ public abstract class UpdateBase<C> extends CRUD<C> {
         IConfig config = getConfig();
         List<SqlValue> sqlValues = new ArrayList<>();
         String sql = sqlBuilder.getSqlAndValue(sqlValues);
-        try
-        {
-            return JdbcExecutor.executeUpdate(config,sql,sqlValues);
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
+        try (JdbcUpdateResultSet jdbcUpdateResultSet = JdbcExecutor.executeUpdate(config, sql, sqlValues)) {
+            return jdbcUpdateResultSet.getRow();
         }
     }
 
