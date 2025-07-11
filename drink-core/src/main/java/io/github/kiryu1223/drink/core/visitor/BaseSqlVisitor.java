@@ -593,20 +593,7 @@ public abstract class BaseSqlVisitor extends ResultThrowVisitor<ISqlExpression> 
             }
         }
         else if (name.equals("get")) {
-            if (left instanceof ISqlJsonObject) {
-                ISqlJsonObject jsonObject = (ISqlJsonObject) left;
-                Expression expression = args.get(0);
-                Integer index = (Integer) expression.getValue();
-                List<JsonProperty> jsonPropertyList = jsonObject.getJsonPropertyList();
-                if (jsonPropertyList.isEmpty()) {
-                    jsonObject.setIndex(index);
-                }
-                else {
-                    last(jsonPropertyList).setIndex(index);
-                }
-                return left;
-            }
-            else if (left instanceof ISqlQueryableExpression) {
+            if (left instanceof ISqlQueryableExpression) {
                 ISqlQueryableExpression queryableExpression = (ISqlQueryableExpression) left;
                 Expression expression = args.get(0);
                 int index = (int) expression.getValue();

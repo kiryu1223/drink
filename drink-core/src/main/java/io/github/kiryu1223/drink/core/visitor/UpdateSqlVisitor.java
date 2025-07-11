@@ -243,6 +243,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
 
     public ISqlExpression visit(MethodCallExpression methodCall) {
         Method method = methodCall.getMethod();
+        String methodName = method.getName();
         List<Expression> args = methodCall.getArgs();
         ISqlExpression left = visit(methodCall.getExpr());
         // (a) -> a
@@ -275,11 +276,28 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
         }
         // (a) -> a.jsonObjectField
         else if (left instanceof ISqlJsonObject) {
-            ISqlJsonObject jsonObject = (ISqlJsonObject) left;
-            MetaData metaData = config.getMetaData(method.getDeclaringClass());
-            FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
-            jsonObject.addJsonProperty(new JsonProperty(getter));
-            return jsonObject;
+            if (Collection.class.isAssignableFrom(method.getDeclaringClass())) {
+                if (methodName.equals("get")) {
+                    ISqlJsonObject jsonObject = (ISqlJsonObject) left;
+                    Expression expression = args.get(0);
+                    Integer index = (Integer) expression.getValue();
+                    List<JsonProperty> jsonPropertyList = jsonObject.getJsonPropertyList();
+                    if (jsonPropertyList.isEmpty()) {
+                        jsonObject.setIndex(index);
+                    }
+                    else {
+                        last(jsonPropertyList).setIndex(index);
+                    }
+                    return left;
+                }
+            }
+            else {
+                ISqlJsonObject jsonObject = (ISqlJsonObject) left;
+                MetaData metaData = config.getMetaData(method.getDeclaringClass());
+                FieldMetaData getter = metaData.getFieldMetaDataByGetter(method);
+                jsonObject.addJsonProperty(new JsonProperty(getter));
+                return jsonObject;
+            }
         }
         // a.Navigate()
         else if (left instanceof ISqlQueryableExpression) {
@@ -453,7 +471,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                 return visit(args.get(0));
             }
             else if (SqlClient.class.isAssignableFrom(type)) {
-                String name = method.getName();
+                String name = methodName;
                 Expression arg = args.get(0);
                 if (name.equals("query") && arg.getKind() == Kind.StaticClass) {
                     StaticClassExpression staticClass = (StaticClassExpression) arg;

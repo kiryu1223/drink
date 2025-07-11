@@ -2,6 +2,9 @@ package io.github.kiryu1223.drink.base;
 
 public enum DbType
 {
+    /**
+     * SQL
+     */
     Any,
     MySQL,
     SQLServer,
@@ -10,4 +13,9 @@ public enum DbType
     SQLite,
     PostgreSQL,
     Doris,
+
+    /**
+     * NoSQL
+     */
+    Neo4j,
 }
