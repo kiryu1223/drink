@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class JdbcExecutor {
@@ -89,7 +90,7 @@ public class JdbcExecutor {
     }
 
     public static JdbcUpdateResultSet executeDelete(IConfig config, String sql, List<SqlValue> values) {
-        return executeUpdate(config, sql, values);
+        return executeUpdate(config, sql, Collections.singletonList(values));
     }
 
     private static Connection connection(IConfig config) throws SQLException {
