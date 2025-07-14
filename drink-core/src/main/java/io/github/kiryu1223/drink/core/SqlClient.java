@@ -14,6 +14,7 @@ import io.github.kiryu1223.drink.core.api.crud.create.ObjectInsertOrUpdate;
 import io.github.kiryu1223.drink.core.api.crud.delete.LDelete;
 import io.github.kiryu1223.drink.core.api.crud.read.*;
 import io.github.kiryu1223.drink.core.api.crud.update.LUpdate;
+import io.github.kiryu1223.drink.core.api.crud.update.ObjectUpdate;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.drink.core.sqlBuilder.DeleteSqlBuilder;
 import io.github.kiryu1223.drink.core.sqlBuilder.QuerySqlBuilder;
@@ -141,6 +142,14 @@ public final class SqlClient {
         viewCheck(c);
         SqlExpressionFactory factory = config.getSqlExpressionFactory();
         return new LUpdate<>(new UpdateSqlBuilder(config, factory.update(c)));
+    }
+
+    public <T> ObjectUpdate<T> update(T t) {
+        return new ObjectUpdate<>(config, (Class<T>) t.getClass(), Collections.singletonList(t));
+    }
+
+    public <T> ObjectUpdate<T> update(List<T> ts) {
+        return new ObjectUpdate<>(config, getType(ts), ts);
     }
 
     /**

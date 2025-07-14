@@ -69,12 +69,12 @@ public class JdbcExecutor {
         }
     }
 
-    public static JdbcUpdateResultSet executeUpdate(IConfig config, String sql, List<SqlValue> values) {
+    public static JdbcUpdateResultSet executeUpdate(IConfig config, String sql, List<List<SqlValue>> values) {
         try {
             Connection connection = connection(config);
             logSql(config, sql);
-            logValues(config, values);
-            PreparedStatement statement = statement(connection, sql, values);
+            logValueList(config, values);
+            PreparedStatement statement = batchStatement(connection, sql, values, false);
             boolean printTime = config.isPrintTime();
             long start = printTime ? System.currentTimeMillis() : 0;
             int i = statement.executeUpdate();
