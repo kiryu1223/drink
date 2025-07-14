@@ -71,7 +71,7 @@ public class ObjectUpdate<T> {
         List<FieldMetaData> primaryList = metaData.getPrimaryList();
         List<List<SqlValue>> sqlValues = new ArrayList<>(objects.size());
         for (T object : objects) {
-            aop.callOnInsert(object);
+            aop.callOnUpdate(object);
             List<SqlValue> values = new ArrayList<>(notIgnoreAndNavigateFields.size() + primaryList.size());
             for (FieldMetaData field : notIgnoreAndNavigateFields) {
                 if (field.isPrimaryKey()) continue;
