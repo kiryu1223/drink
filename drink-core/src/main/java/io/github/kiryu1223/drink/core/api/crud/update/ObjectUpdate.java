@@ -34,7 +34,7 @@ public class ObjectUpdate<T> {
         try {
             String sql = toSql();
             List<List<SqlValue>> values = toValues();
-            try (JdbcUpdateResultSet jdbcUpdateResultSet = JdbcExecutor.executeUpdate(config, sql, values)) {
+            try (JdbcUpdateResultSet jdbcUpdateResultSet = JdbcExecutor.executeInsert(config, sql, values,false)) {
                 return jdbcUpdateResultSet.getRow();
             }
         } catch (InvocationTargetException | IllegalAccessException e) {

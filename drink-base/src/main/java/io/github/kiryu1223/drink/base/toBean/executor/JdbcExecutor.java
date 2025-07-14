@@ -70,12 +70,12 @@ public class JdbcExecutor {
         }
     }
 
-    public static JdbcUpdateResultSet executeUpdate(IConfig config, String sql, List<List<SqlValue>> values) {
+    public static JdbcUpdateResultSet executeUpdate(IConfig config, String sql, List<SqlValue> values) {
         try {
             Connection connection = connection(config);
             logSql(config, sql);
-            logValueList(config, values);
-            PreparedStatement statement = batchStatement(connection, sql, values, false);
+            logValues(config, values);
+            PreparedStatement statement = statement(connection, sql, values);
             boolean printTime = config.isPrintTime();
             long start = printTime ? System.currentTimeMillis() : 0;
             int i = statement.executeUpdate();
@@ -90,7 +90,7 @@ public class JdbcExecutor {
     }
 
     public static JdbcUpdateResultSet executeDelete(IConfig config, String sql, List<SqlValue> values) {
-        return executeUpdate(config, sql, Collections.singletonList(values));
+        return executeUpdate(config, sql, values);
     }
 
     private static Connection connection(IConfig config) throws SQLException {
