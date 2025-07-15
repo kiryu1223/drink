@@ -659,5 +659,10 @@ public abstract class BaseSqlVisitor extends ResultThrowVisitor<ISqlExpression> 
         public JavaType(Class<?> type) {
             super(type);
         }
+
+        @Override
+        public Class<?> getType() {
+            return (Class<?>) getValue();
+        }
     }
 }

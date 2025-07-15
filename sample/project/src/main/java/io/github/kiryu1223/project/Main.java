@@ -1,21 +1,21 @@
 package io.github.kiryu1223.project;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.kiryu1223.drink.base.Aop;
 import io.github.kiryu1223.drink.base.DbType;
+import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.toBean.handler.JsonTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
 import io.github.kiryu1223.drink.core.SqlBuilder;
 import io.github.kiryu1223.drink.core.SqlClient;
-import io.github.kiryu1223.project.pojos.Course;
-import lombok.Data;
+import io.github.kiryu1223.project.pojos.Employee;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Driver;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class Main {
     public static SqlClient boot() {
@@ -56,30 +56,45 @@ public class Main {
     }
 
     public static void main(String[] args) throws SQLException {
-        try (HikariDataSource dataSource = neo4jBoot()) {
-            try (Connection connection = dataSource.getConnection()) {
-                DatabaseMetaData metaData = connection.getMetaData();
-                System.out.println(metaData.getDatabaseProductName());
-                System.out.println(metaData.getDatabaseProductVersion());
-                System.out.println(metaData.getDriverName());
-                System.out.println(metaData.getDriverVersion());
-                System.out.println(metaData.getURL());
-                System.out.println(metaData.getUserName());
-                System.out.println(metaData.getDriverMajorVersion());
-                System.out.println(metaData.getDriverMinorVersion());
-                System.out.println(metaData.getJDBCMajorVersion());
-                System.out.println(metaData.getJDBCMinorVersion());
-                System.out.println(metaData.getDatabaseMajorVersion());
-                System.out.println(metaData.getDatabaseMinorVersion());
-                System.out.println(metaData.getDefaultTransactionIsolation());
-                System.out.println(metaData.getExtraNameCharacters());
-                System.out.println(metaData.getIdentifierQuoteString());
-                System.out.println(metaData.getNumericFunctions());
-                System.out.println(metaData.getStringFunctions());
-                System.out.println(metaData.getSystemFunctions());
-                System.out.println(metaData.getTimeDateFunctions());
-                System.out.println(metaData.getURL());
-            }
-        }
+        SqlClient client = boot();
+        String sql = client.update(Employee.class)
+                .where(e -> Objects.equals(e.getNumber(), 1000))
+                .set(e -> e.getFirstName(), "")
+                .toSql();
+        System.out.println(sql);
+//        IConfig config = client.getConfig();
+//        Aop aop = config.getAop();
+//        aop.onUpdate(Employee.class, e -> {
+//            String firstName = e.getFirstName();
+//            if (firstName == null) {
+//                e.setFirstName("aaa");
+//            }
+//        });
+
+//        try (HikariDataSource dataSource = neo4jBoot()) {
+//            try (Connection connection = dataSource.getConnection()) {
+//                DatabaseMetaData metaData = connection.getMetaData();
+//                System.out.println(metaData.getDatabaseProductName());
+//                System.out.println(metaData.getDatabaseProductVersion());
+//                System.out.println(metaData.getDriverName());
+//                System.out.println(metaData.getDriverVersion());
+//                System.out.println(metaData.getURL());
+//                System.out.println(metaData.getUserName());
+//                System.out.println(metaData.getDriverMajorVersion());
+//                System.out.println(metaData.getDriverMinorVersion());
+//                System.out.println(metaData.getJDBCMajorVersion());
+//                System.out.println(metaData.getJDBCMinorVersion());
+//                System.out.println(metaData.getDatabaseMajorVersion());
+//                System.out.println(metaData.getDatabaseMinorVersion());
+//                System.out.println(metaData.getDefaultTransactionIsolation());
+//                System.out.println(metaData.getExtraNameCharacters());
+//                System.out.println(metaData.getIdentifierQuoteString());
+//                System.out.println(metaData.getNumericFunctions());
+//                System.out.println(metaData.getStringFunctions());
+//                System.out.println(metaData.getSystemFunctions());
+//                System.out.println(metaData.getTimeDateFunctions());
+//                System.out.println(metaData.getURL());
+//            }
+//        }
     }
 }
