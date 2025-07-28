@@ -10,4 +10,5 @@ public enum DbType
     SQLite,
     PostgreSQL,
     Doris,
+    TiDB,
 }

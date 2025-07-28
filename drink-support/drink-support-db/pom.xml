@@ -20,6 +20,7 @@
         <module>support-db-h2</module>
         <module>support-db-sqlserver</module>
         <module>support-db-doris</module>
+        <module>support-db-tidb</module>
     </modules>
 
     <properties>

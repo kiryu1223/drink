@@ -62,6 +62,7 @@ public class Main {
                 .set(e -> e.getFirstName(), "")
                 .toSql();
         System.out.println(sql);
+
 //        IConfig config = client.getConfig();
 //        Aop aop = config.getAop();
 //        aop.onUpdate(Employee.class, e -> {

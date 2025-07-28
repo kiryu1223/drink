@@ -147,7 +147,7 @@ public final class SqlFunctions {
      * 获取当前日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "NOW()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "NOW()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "NOW()")
     @SqlExtensionExpression(dbType = Oracle, template = "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)")
     @SqlExtensionExpression(dbType = SQLServer, template = "GETDATE()")
     @SqlExtensionExpression(dbType = SQLite, template = "DATETIME('now','localtime')")
@@ -160,7 +160,7 @@ public final class SqlFunctions {
      * 获取当前utc日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "UTC_TIMESTAMP()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "UTC_TIMESTAMP()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "UTC_TIMESTAMP()")
     @SqlExtensionExpression(dbType = Oracle, template = "(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')")
     @SqlExtensionExpression(dbType = SQLServer, template = "GETUTCDATE()")
     @SqlExtensionExpression(dbType = SQLite, template = "DATETIME('now')")
@@ -173,7 +173,7 @@ public final class SqlFunctions {
      * 获取当前日期
      */
     @SqlExtensionExpression(dbType = H2, template = "CURDATE()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CURDATE()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CURDATE()")
     @SqlExtensionExpression(dbType = Oracle, template = "CURRENT_DATE")
     @SqlExtensionExpression(dbType = SQLServer, template = "CAST(GETDATE() AS DATE)")
     @SqlExtensionExpression(dbType = SQLite, template = "DATE('now','localtime')")
@@ -186,7 +186,7 @@ public final class SqlFunctions {
      * 获取当前时间
      */
     @SqlExtensionExpression(dbType = H2, template = "CURTIME()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CURTIME()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CURTIME()")
     @SqlExtensionExpression(dbType = Oracle, template = "CURRENT_DATE")
     @SqlExtensionExpression(dbType = SQLServer, template = "CAST(GETDATE() AS TIME)")
     @SqlExtensionExpression(dbType = SQLite, template = "TIME('now','localtime')")
@@ -199,7 +199,7 @@ public final class SqlFunctions {
      * 获取当前utc日期
      */
     @SqlExtensionExpression(dbType = H2, template = "UTC_DATE()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "UTC_DATE()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "UTC_DATE()")
     @SqlExtensionExpression(dbType = Oracle, template = "CAST(SYS_EXTRACT_UTC(CURRENT_TIMESTAMP) AS DATE)")
     @SqlExtensionExpression(dbType = SQLServer, template = "CAST(GETUTCDATE() AS DATE)")
     @SqlExtensionExpression(dbType = SQLite, template = "DATE('now')")
@@ -212,7 +212,7 @@ public final class SqlFunctions {
      * 获取当前utc时间
      */
     @SqlExtensionExpression(dbType = H2, template = "UTC_TIME()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "UTC_TIME()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "UTC_TIME()")
     @SqlExtensionExpression(dbType = Oracle, template = "CAST(SYS_EXTRACT_UTC(CURRENT_TIMESTAMP) AS DATE)")
     @SqlExtensionExpression(dbType = SQLServer, template = "CAST(GETUTCDATE() AS TIME)")
     @SqlExtensionExpression(dbType = SQLite, template = "TIME('now')")
@@ -229,7 +229,7 @@ public final class SqlFunctions {
      * @param num  单位数量
      */
     @SqlExtensionExpression(dbType = H2, template = "ADDDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ADDDATE({time},INTERVAL {num} {unit})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD({unit},{num},{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -246,7 +246,7 @@ public final class SqlFunctions {
      * @param num  单位数量
      */
     @SqlExtensionExpression(dbType = H2, template = "ADDDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ADDDATE({time},INTERVAL {num} {unit})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ADDDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD({unit},{num},{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -262,7 +262,7 @@ public final class SqlFunctions {
      * @param days 天数
      */
     @SqlExtensionExpression(dbType = H2, template = "ADDDATE({time},{days})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ADDDATE({time},{days})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD(DAY,{days},{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -278,7 +278,7 @@ public final class SqlFunctions {
      * @param days 天数
      */
     @SqlExtensionExpression(dbType = H2, template = "ADDDATE({time},{days})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ADDDATE({time},{days})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ADDDATE({time},{days})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD(DAY,{days},{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -295,7 +295,7 @@ public final class SqlFunctions {
      * @param num  单位数量
      */
     @SqlExtensionExpression(dbType = H2, template = "SUBDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SUBDATE({time},INTERVAL {num} {unit})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SUBDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD({unit},-({num}),{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -312,7 +312,7 @@ public final class SqlFunctions {
      * @param num  单位数量
      */
     @SqlExtensionExpression(dbType = H2, template = "SUBDATE({time},INTERVAL {num} {unit})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SUBDATE({time},INTERVAL {num} {unit})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SUBDATE({time},INTERVAL {num} {unit})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD({unit},-({num}),{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -328,7 +328,7 @@ public final class SqlFunctions {
      * @param days 天数
      */
     @SqlExtensionExpression(dbType = H2, template = "SUBDATE({time},{days})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SUBDATE({time},{days})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD(DAY,-({days}),{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -344,7 +344,7 @@ public final class SqlFunctions {
      * @param days 天数
      */
     @SqlExtensionExpression(dbType = H2, template = "SUBDATE({time},{days})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SUBDATE({time},{days})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SUBDATE({time},{days})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleAddOrSubDateExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEADD(DAY,-({days}),{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteAddOrSubDateExtension.class)
@@ -361,7 +361,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -378,7 +378,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -395,7 +395,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -412,7 +412,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -429,7 +429,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -446,7 +446,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -463,7 +463,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -480,7 +480,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -497,7 +497,7 @@ public final class SqlFunctions {
      * @param to   将来时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TIMESTAMPDIFF({unit},{from},{to})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = MySqlDateTimeDiffExtension.class)
     @SqlExtensionExpression(dbType = Oracle, extension = OracleDateTimeDiffExtension.class, template = "")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEDIFF_BIG({unit},{from},{to})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteDateTimeDiffExtension.class)
@@ -513,7 +513,7 @@ public final class SqlFunctions {
      * @param format 格式
      */
     @SqlExtensionExpression(dbType = H2, template = "DATE_FORMAT({time},{format})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DATE_FORMAT({time},{format})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DATE_FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR({time},{format})")
     @SqlExtensionExpression(dbType = SQLServer, template = "FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = SQLite, template = "STRFTIME({format},{time})")
@@ -529,7 +529,7 @@ public final class SqlFunctions {
      * @param format 格式
      */
     @SqlExtensionExpression(dbType = H2, template = "DATE_FORMAT({time},{format})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DATE_FORMAT({time},{format})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DATE_FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR({time},{format})")
     @SqlExtensionExpression(dbType = SQLServer, template = "FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = SQLite, template = "STRFTIME({format},{time})")
@@ -545,7 +545,7 @@ public final class SqlFunctions {
      * @param format 格式
      */
     @SqlExtensionExpression(dbType = H2, template = "DATE_FORMAT({time},{format})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DATE_FORMAT({time},{format})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DATE_FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),{format})")
     @SqlExtensionExpression(dbType = SQLServer, template = "FORMAT({time},{format})")
     @SqlExtensionExpression(dbType = SQLite, template = "STRFTIME({format},{time})")
@@ -560,7 +560,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(DAY FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(DAY,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
@@ -575,7 +575,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(DAY FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(DAY,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
@@ -590,7 +590,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(DAY FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(DAY,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%d',{time}) AS INTEGER)")
@@ -605,7 +605,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYNAME({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYNAME({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYNAME({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR({time},'DAY')")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATENAME(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
@@ -620,7 +620,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYNAME({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYNAME({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYNAME({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR({time},'DAY')")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATENAME(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
@@ -635,7 +635,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYNAME({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYNAME({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYNAME({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'DAY')")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATENAME(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 'Sunday' WHEN '1' THEN 'Monday' WHEN '2' THEN 'Tuesday' WHEN '3' THEN 'Wednesday' WHEN '4' THEN 'Thursday' WHEN '5' THEN 'Friday' WHEN '6' THEN 'Saturday' END)")
@@ -650,7 +650,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYOFWEEK({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYOFWEEK({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'D'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "(DATEPART(WEEKDAY,{time}))")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%w',{time}) + 1)")
@@ -665,7 +665,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYOFWEEK({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYOFWEEK({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'D'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "(DATEPART(WEEKDAY,{time}))")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%w',{time}) + 1)")
@@ -680,7 +680,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYOFWEEK({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYOFWEEK({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYOFWEEK({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(WEEKDAY,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%w',{time}) + 1)")
@@ -695,7 +695,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYOFYEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYOFYEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYOFYEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'DDD'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(DAYOFYEAR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
@@ -710,7 +710,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYOFYEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYOFYEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYOFYEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'DDD'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(DAYOFYEAR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
@@ -725,7 +725,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "DAYOFYEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DAYOFYEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DAYOFYEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'DDD'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(DAYOFYEAR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%j',{time}) AS INTEGER)")
@@ -735,7 +735,7 @@ public final class SqlFunctions {
     }
 
 //    @SqlExtensionExpression(dbType = H2, template = "SEC_TO_TIME({second})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "SEC_TO_TIME({second})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "SEC_TO_TIME({second})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "TO_DATE(TO_CHAR(FLOOR({second} / 3600), 'FM00')||':'||TO_CHAR(FLOOR(MOD({second}, 3600) / 60), 'FM00')||':'||TO_CHAR(MOD({second}, 60), 'FM00'))")
 //    public static LocalTime toTime(int second)
 //    {
@@ -744,7 +744,7 @@ public final class SqlFunctions {
 //    }
 //
 //    @SqlExtensionExpression(dbType = H2, template = "STR_TO_DATE({time})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "STR_TO_DATE({time})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "STR_TO_DATE({time})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "TO_DATE({time}, 'YYYY-MM-DD')")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "CONVERT(DATE,{time},23)")
 //    public static LocalDate toDate(String time)
@@ -754,7 +754,7 @@ public final class SqlFunctions {
 //    }
 //
 //    @SqlExtensionExpression(dbType = H2, template = "STR_TO_DATE({time},{format})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "STR_TO_DATE({time},{format})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "STR_TO_DATE({time},{format})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "TO_DATE({time},{format})")
 //    public static LocalDate toDate(String time, String format)
 //    {
@@ -763,7 +763,7 @@ public final class SqlFunctions {
 //    }
 //
 //    @SqlExtensionExpression(dbType = H2, template = "FROM_DAYS({days})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "FROM_DAYS({days})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "FROM_DAYS({days})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "(TO_DATE('1970-01-01', 'YYYY-MM-DD') + ({days} - 719163))")
 //    public static LocalDate toDate(long days)
 //    {
@@ -772,7 +772,7 @@ public final class SqlFunctions {
 //    }
 //
 //    @SqlExtensionExpression(dbType = H2, template = "STR_TO_DATE({time},{format})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "STR_TO_DATE({time},{format})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "STR_TO_DATE({time},{format})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "TO_DATE({time},{format})")
 //    public static LocalDateTime toDateTime(String time, String format)
 //    {
@@ -786,7 +786,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TO_DAYS({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "TO_DAYS({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "TO_DAYS({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TRUNC({time} - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = SQLServer, template = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     @SqlExtensionExpression(dbType = SQLite, template = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
@@ -801,7 +801,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TO_DAYS({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "TO_DAYS({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "TO_DAYS({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TRUNC({time} - (TO_DATE('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - 2)")
     @SqlExtensionExpression(dbType = SQLServer, template = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     @SqlExtensionExpression(dbType = SQLite, template = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
@@ -816,7 +816,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "TO_DAYS({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "TO_DAYS({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "TO_DAYS({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(DAY FROM (TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff') - (TO_TIMESTAMP('0001-01-01', 'YYYY-MM-DD') - INTERVAL '1' YEAR) - INTERVAL '2' DAY))")
     @SqlExtensionExpression(dbType = SQLServer, template = "(DATEDIFF(DAY,'0001-01-01',{time}) + 366)")
     @SqlExtensionExpression(dbType = SQLite, template = "(JULIANDAY({time}) - JULIANDAY('0000-01-01'))")
@@ -826,7 +826,7 @@ public final class SqlFunctions {
     }
 
 //    @SqlExtensionExpression(dbType = H2, template = "TIME_TO_SEC({time})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "TIME_TO_SEC({time})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "TIME_TO_SEC({time})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "((EXTRACT(HOUR FROM {time}) * 3600) + (EXTRACT(MINUTE FROM {time}) * 60) + EXTRACT(SECOND FROM {time}))")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(HOUR,{time}) * 3600 + DATEPART(MINUTE,{time}) * 60 + DATEPART(SECOND,{time})")
 //    public static int toSecond(LocalDateTime time)
@@ -836,7 +836,7 @@ public final class SqlFunctions {
 //    }
 //
 //    @SqlExtensionExpression(dbType = H2, template = "TIME_TO_SEC({time})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "TIME_TO_SEC({time})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "TIME_TO_SEC({time})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "((EXTRACT(HOUR FROM {time}) * 3600) + (EXTRACT(MINUTE FROM {time}) * 60) + EXTRACT(SECOND FROM {time}))")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(HOUR,{time}) * 3600 + DATEPART(MINUTE,{time}) * 60 + DATEPART(SECOND,{time})")
 //    public static int toSecond(LocalTime time)
@@ -846,7 +846,7 @@ public final class SqlFunctions {
 //    }
 //
 //    @SqlExtensionExpression(dbType = H2, template = "TIME_TO_SEC({time})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "TIME_TO_SEC({time})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "TIME_TO_SEC({time})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "((EXTRACT(HOUR FROM TO_DATE({time})) * 3600) + (EXTRACT(MINUTE FROM TO_DATE({time})) * 60) + EXTRACT(SECOND FROM TO_DATE({time})))")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(HOUR,{time}) * 3600 + DATEPART(MINUTE,{time}) * 60 + DATEPART(SECOND,{time})")
 //    public static int toSecond(String time)
@@ -861,7 +861,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "HOUR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "HOUR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "HOUR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(HOUR FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(HOUR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
@@ -876,7 +876,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "HOUR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "HOUR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "HOUR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(HOUR FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(HOUR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
@@ -891,7 +891,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "HOUR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "HOUR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "HOUR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(HOUR FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(HOUR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%H',{time}) AS INTEGER)")
@@ -906,7 +906,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "LAST_DAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LAST_DAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "EOMONTH({time})")
     @SqlExtensionExpression(dbType = SQLite, template = "DATE({time},'start of month','+1 month','-1 day')")
@@ -921,7 +921,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "LAST_DAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LAST_DAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "EOMONTH({time})")
     @SqlExtensionExpression(dbType = SQLite, template = "DATE({time},'start of month','+1 month','-1 day')")
@@ -936,7 +936,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "LAST_DAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LAST_DAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LAST_DAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "LAST_DAY(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "EOMONTH({time})")
     @SqlExtensionExpression(dbType = SQLite, template = "DATE({time},'start of month','+1 month','-1 day')")
@@ -946,7 +946,7 @@ public final class SqlFunctions {
     }
 
 //    @SqlExtensionExpression(dbType = H2, template = "MAKEDATE({},{})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "MAKEDATE({},{})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "MAKEDATE({},{})")
 //    public static LocalDate createDate(int year, int days)
 //    {
 //        boom();
@@ -954,7 +954,7 @@ public final class SqlFunctions {
 //    }
 //
 //    @SqlExtensionExpression(dbType = H2, template = "MAKETIME({},{},{})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "MAKETIME({},{},{})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "MAKETIME({},{},{})")
 //    public static LocalTime createTime(int hour, int minute, int second)
 //    {
 //        boom();
@@ -967,7 +967,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MINUTE({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MINUTE({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MINUTE({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(MINUTE FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
@@ -982,7 +982,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MINUTE({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MINUTE({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MINUTE({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(MINUTE FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
@@ -997,7 +997,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MINUTE({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MINUTE({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MINUTE({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(MINUTE FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%M',{time}) AS INTEGER)")
@@ -1012,7 +1012,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MONTH({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MONTH({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MONTH({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(MONTH FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MINUTE,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
@@ -1027,7 +1027,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MONTH({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MONTH({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MONTH({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(MONTH FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MONTH,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
@@ -1042,7 +1042,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MONTH({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MONTH({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MONTH({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(MONTH FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MONTH,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%m',{time}) AS INTEGER)")
@@ -1057,7 +1057,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MONTHNAME({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MONTHNAME({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MONTHNAME({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR({time},'FMMONTH')")
     @SqlExtensionExpression(dbType = SQLServer, template = "FORMAT({time}, 'MMMM')")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
@@ -1072,7 +1072,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MONTHNAME({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MONTHNAME({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MONTHNAME({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR({time},'FMMONTH')")
     @SqlExtensionExpression(dbType = SQLServer, template = "FORMAT({time}, 'MMMM')")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
@@ -1087,7 +1087,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "MONTHNAME({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MONTHNAME({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MONTHNAME({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'FMMONTH')")
     @SqlExtensionExpression(dbType = SQLServer, template = "FORMAT(CONVERT(DATE,{time}), 'MMMM')")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%m',{time}) WHEN '01' THEN 'January' WHEN '02' THEN 'February' WHEN '03' THEN 'March' WHEN '04' THEN 'April' WHEN '05' THEN 'May' WHEN '06' THEN 'June' WHEN '07' THEN 'July' WHEN '08' THEN 'August' WHEN '09' THEN 'September' WHEN '10' THEN 'October' WHEN '11' THEN 'November' WHEN '12' THEN 'December' END)")
@@ -1102,7 +1102,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "QUARTER({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "QUARTER({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "QUARTER({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "CEIL(EXTRACT(MONTH FROM {time}) / 3)")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(QUARTER,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "((strftime('%m',{time}) + 2) / 3)")
@@ -1117,7 +1117,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "QUARTER({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "QUARTER({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "QUARTER({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "CEIL(EXTRACT(MONTH FROM {time}) / 3)")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(QUARTER,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "((strftime('%m',{time}) + 2) / 3)")
@@ -1132,7 +1132,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "QUARTER({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "QUARTER({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "QUARTER({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "CEIL(EXTRACT(MONTH FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff')) / 3)")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(QUARTER,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "((strftime('%m',{time}) + 2) / 3)")
@@ -1147,7 +1147,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "SECOND({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SECOND({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SECOND({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(SECOND FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(SECOND,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
@@ -1162,7 +1162,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "SECOND({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SECOND({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SECOND({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(SECOND FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(SECOND,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
@@ -1177,7 +1177,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "SECOND({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SECOND({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SECOND({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(SECOND FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(SECOND,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%S',{time}) AS INTEGER)")
@@ -1192,7 +1192,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "(MICROSECOND({time}) / 1000)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "(MICROSECOND({time}) / 1000)")
     @SqlExtensionExpression(dbType = Oracle, template = "(EXTRACT(SECOND FROM {time}) * 1000)")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MS,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%f',{time}) * 1000)")
@@ -1207,7 +1207,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "(MICROSECOND({time}) / 1000)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "(MICROSECOND({time}) / 1000)")
     @SqlExtensionExpression(dbType = Oracle, template = "(EXTRACT(SECOND FROM {time}) * 1000)")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MS,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%f',{time}) * 1000)")
@@ -1222,7 +1222,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "(MICROSECOND({time}) / 1000)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "(MICROSECOND({time}) / 1000)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "(MICROSECOND({time}) / 1000)")
     @SqlExtensionExpression(dbType = Oracle, template = "(EXTRACT(SECOND FROM {time}) * 1000)")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(MS,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%f',{time}) * 1000)")
@@ -1237,7 +1237,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEK({time},1)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEK({time},1)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(WEEK,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%W',{time}) + 1)")
@@ -1252,7 +1252,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEK({time},1)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEK({time},1)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(WEEK,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%W',{time}) + 1)")
@@ -1267,7 +1267,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEK({time},1)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEK({time},1)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEK({time},1)")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'IW'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(WEEK,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%W',{time}) + 1)")
@@ -1277,7 +1277,7 @@ public final class SqlFunctions {
     }
 
 //    @SqlExtensionExpression(dbType = H2, template = "WEEK({time},{firstDayofweek})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "WEEK({time},{firstDayofweek})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "WEEK({time},{firstDayofweek})")
 //    public static int getWeek(String time, int firstDayofweek)
 //    {
 //        boom();
@@ -1290,7 +1290,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEKDAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR({time},'D')) - 2 END)")
     @SqlExtensionExpression(dbType = SQLServer, template = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
@@ -1305,7 +1305,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEKDAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "(CASE TO_NUMBER(TO_CHAR({time},'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR({time},'D')) - 2 END)")
     @SqlExtensionExpression(dbType = SQLServer, template = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
@@ -1320,7 +1320,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEKDAY({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEKDAY({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEKDAY({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "(CASE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) WHEN 1 THEN 6 ELSE TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'D')) - 2 END)")
     @SqlExtensionExpression(dbType = SQLServer, template = "(CASE DATEPART(WEEKDAY,{time}) WHEN 1 THEN 6 ELSE DATEPART(WEEKDAY,{time}) - 2 END)")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE STRFTIME('%w',{time}) WHEN '0' THEN 6 ELSE STRFTIME('%w',{time}) - 1 END)")
@@ -1335,7 +1335,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEKOFYEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEKOFYEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEKOFYEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(ISO_WEEK,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%W',{time}) + 1)")
@@ -1350,7 +1350,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEKOFYEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEKOFYEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEKOFYEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR({time},'IW'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(ISO_WEEK,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%W',{time}) + 1)")
@@ -1365,7 +1365,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "WEEKOFYEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "WEEKOFYEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "WEEKOFYEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "TO_NUMBER(TO_CHAR(TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'),'IW'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(ISO_WEEK,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "(STRFTIME('%W',{time}) + 1)")
@@ -1380,7 +1380,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "YEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "YEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "YEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(YEAR FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(YEAR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
@@ -1395,7 +1395,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "YEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "YEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "YEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(YEAR FROM {time})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(YEAR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
@@ -1410,7 +1410,7 @@ public final class SqlFunctions {
      * @param time 日期或日期时间
      */
     @SqlExtensionExpression(dbType = H2, template = "YEAR({time})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "YEAR({time})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "YEAR({time})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXTRACT(YEAR FROM TO_TIMESTAMP({time},'YYYY-MM-DD hh24:mi:ss:ff'))")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATEPART(YEAR,{time})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(STRFTIME('%Y',{time}) AS INTEGER)")
@@ -1427,7 +1427,7 @@ public final class SqlFunctions {
      * 取绝对值
      */
     @SqlExtensionExpression(dbType = H2, template = "ABS({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ABS({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ABS({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "ABS({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ABS({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "ABS({a})")
@@ -1440,7 +1440,7 @@ public final class SqlFunctions {
      * 计算cos
      */
     @SqlExtensionExpression(dbType = H2, template = "COS({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "COS({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "COS({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "COS({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "COS({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "COS({a})")
@@ -1453,7 +1453,7 @@ public final class SqlFunctions {
      * 计算sin
      */
     @SqlExtensionExpression(dbType = H2, template = "SIN({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SIN({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SIN({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "SIN({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "SIN({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "SIN({a})")
@@ -1466,7 +1466,7 @@ public final class SqlFunctions {
      * 计算tan
      */
     @SqlExtensionExpression(dbType = H2, template = "TAN({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "TAN({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "TAN({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "TAN({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "TAN({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "TAN({a})")
@@ -1479,7 +1479,7 @@ public final class SqlFunctions {
      * 计算acos
      */
     @SqlExtensionExpression(dbType = H2, template = "ACOS({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ACOS({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ACOS({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "ACOS({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ACOS({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "ACOS({a})")
@@ -1492,7 +1492,7 @@ public final class SqlFunctions {
      * 计算asin
      */
     @SqlExtensionExpression(dbType = H2, template = "ASIN({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ASIN({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ASIN({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "ASIN({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ASIN({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "ASIN({a})")
@@ -1505,7 +1505,7 @@ public final class SqlFunctions {
      * 计算atan
      */
     @SqlExtensionExpression(dbType = H2, template = "ATAN({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ATAN({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ATAN({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "ATAN({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ATAN({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "ATAN({a})")
@@ -1518,7 +1518,7 @@ public final class SqlFunctions {
      * 计算atan2
      */
     @SqlExtensionExpression(dbType = H2, template = "ATAN2({a},{b})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ATAN2({a},{b})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ATAN2({a},{b})")
     @SqlExtensionExpression(dbType = Oracle, template = "ATAN2({a},{b})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ATN2({a},{b})")
     @SqlExtensionExpression(dbType = SQLite, template = "ATAN2({a},{b})")
@@ -1531,7 +1531,7 @@ public final class SqlFunctions {
      * 向上取整
      */
     @SqlExtensionExpression(dbType = H2, template = "CEIL({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CEIL({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CEIL({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "CEIL({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "CEILING({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "CEIL({a})")
@@ -1544,7 +1544,7 @@ public final class SqlFunctions {
      * 向下取整
      */
     @SqlExtensionExpression(dbType = H2, template = "FLOOR({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "FLOOR({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "FLOOR({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "FLOOR({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "FLOOR({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "FLOOR({a})")
@@ -1557,7 +1557,7 @@ public final class SqlFunctions {
      * 余切函数
      */
     @SqlExtensionExpression(dbType = H2, template = "COT({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "COT({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "COT({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "(CASE SIN({a}) WHEN 0 THEN 0 ELSE COS({a}) / SIN({a}) END)")
     @SqlExtensionExpression(dbType = SQLServer, template = "COT({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "COT({a})")
@@ -1570,7 +1570,7 @@ public final class SqlFunctions {
      * 将弧度转换为角度
      */
     @SqlExtensionExpression(dbType = H2, template = "DEGREES({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "DEGREES({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "DEGREES({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "({a} * 180 / " + Math.PI + ")")
     @SqlExtensionExpression(dbType = SQLServer, template = "DEGREES({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "DEGREES({a})")
@@ -1583,7 +1583,7 @@ public final class SqlFunctions {
      * 计算给定数值的指数函数值
      */
     @SqlExtensionExpression(dbType = H2, template = "EXP({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "EXP({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "EXP({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "EXP({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "EXP({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "EXP({a})")
@@ -1596,7 +1596,7 @@ public final class SqlFunctions {
      * 获取最大值
      */
     @SqlExtensionExpression(dbType = H2, template = "GREATEST({a},{b})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "GREATEST({a},{b})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "GREATEST({a},{b})")
     @SqlExtensionExpression(dbType = Oracle, template = "GREATEST({a},{b})")
     @SqlExtensionExpression(dbType = SQLServer, template = "GREATEST({a},{b})")
     @SqlExtensionExpression(dbType = SQLite, template = "MAX({a},{b})")
@@ -1610,7 +1610,7 @@ public final class SqlFunctions {
      */
     @SafeVarargs
     @SqlExtensionExpression(dbType = H2, template = "GREATEST({a},{b},{cs})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "GREATEST({a},{b},{cs})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "GREATEST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = Oracle, template = "GREATEST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = SQLServer, template = "GREATEST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = SQLite, template = "MAX({a},{b},{cs})")
@@ -1623,7 +1623,7 @@ public final class SqlFunctions {
      * 获取最小值
      */
     @SqlExtensionExpression(dbType = H2, template = "LEAST({a},{b})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LEAST({a},{b})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LEAST({a},{b})")
     @SqlExtensionExpression(dbType = Oracle, template = "LEAST({a},{b})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LEAST({a},{b})")
     @SqlExtensionExpression(dbType = SQLite, template = "MIN({a},{b})")
@@ -1637,7 +1637,7 @@ public final class SqlFunctions {
      */
     @SafeVarargs
     @SqlExtensionExpression(dbType = H2, template = "LEAST({a},{b},{cs})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LEAST({a},{b},{cs})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LEAST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = Oracle, template = "LEAST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LEAST({a},{b},{cs})")
     @SqlExtensionExpression(dbType = SQLite, template = "MIN({a},{b},{cs})")
@@ -1651,7 +1651,7 @@ public final class SqlFunctions {
      * 计算指定基数的对数
      */
     @SqlExtensionExpression(dbType = H2, template = "LN({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LN({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LN({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "LN({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LOG({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "LN({a})")
@@ -1667,7 +1667,7 @@ public final class SqlFunctions {
      * @param base 对数的基数
      */
     @SqlExtensionExpression(dbType = H2, template = "LOG({base},{a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LOG({base},{a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LOG({base},{a})")
     @SqlExtensionExpression(dbType = Oracle, template = "LOG({base},{a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LOG({a},{base})")
     @SqlExtensionExpression(dbType = SQLite, template = "LOG({base},{a})")
@@ -1680,7 +1680,7 @@ public final class SqlFunctions {
      * 计算指定基数为2的对数
      */
     @SqlExtensionExpression(dbType = H2, template = "LOG2({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LOG2({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LOG2({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "LOG(2,{a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LOG({a},2)")
     @SqlExtensionExpression(dbType = SQLite, template = "LOG2({a})")
@@ -1693,7 +1693,7 @@ public final class SqlFunctions {
      * 计算指定基数为10的对数
      */
     @SqlExtensionExpression(dbType = H2, template = "LOG10({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LOG10({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LOG10({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "LOG(10,{a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LOG({a},10)")
     @SqlExtensionExpression(dbType = SQLite, template = "LOG10({a})")
@@ -1706,7 +1706,7 @@ public final class SqlFunctions {
      * 取模运算
      */
     @SqlExtensionExpression(dbType = H2, template = "MOD({a},{b})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "MOD({a},{b})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "MOD({a},{b})")
     @SqlExtensionExpression(dbType = Oracle, template = "MOD({a},{b})")
     @SqlExtensionExpression(dbType = SQLServer, template = "({a} % {b})")
     @SqlExtensionExpression(dbType = SQLite, template = "MOD({a},{b})")
@@ -1719,7 +1719,7 @@ public final class SqlFunctions {
      * 获取π
      */
     @SqlExtensionExpression(dbType = H2, template = "PI()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "PI()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "PI()")
     @SqlExtensionExpression(dbType = Oracle, template = "(" + Math.PI + ")")
     @SqlExtensionExpression(dbType = SQLServer, template = "PI()")
     @SqlExtensionExpression(dbType = SQLite, template = "PI()")
@@ -1732,7 +1732,7 @@ public final class SqlFunctions {
      * 幂运算
      */
     @SqlExtensionExpression(dbType = H2, template = "POWER({a},{b})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "POWER({a},{b})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = Oracle, template = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = SQLServer, template = "POWER({a},{b})")
     @SqlExtensionExpression(dbType = SQLite, template = "POWER({a},{b})")
@@ -1745,7 +1745,7 @@ public final class SqlFunctions {
      * 将角度转换为弧度
      */
     @SqlExtensionExpression(dbType = H2, template = "RADIANS({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "RADIANS({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "RADIANS({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "({a} * " + Math.PI + " / 180)")
     @SqlExtensionExpression(dbType = SQLServer, template = "RADIANS({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "RADIANS({a})")
@@ -1758,7 +1758,7 @@ public final class SqlFunctions {
      * 获取从0-1的随机数
      */
     @SqlExtensionExpression(dbType = H2, template = "RAND()")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "RAND()")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "RAND()")
     @SqlExtensionExpression(dbType = Oracle, template = "DBMS_RANDOM.VALUE")
     @SqlExtensionExpression(dbType = SQLServer, template = "RAND()")
     @SqlExtensionExpression(dbType = SQLite, template = "ABS(RANDOM() / 10000000000000000000.0)")
@@ -1768,7 +1768,7 @@ public final class SqlFunctions {
     }
 
 //    @SqlExtensionExpression(dbType = H2, template = "RAND({a})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "RAND({a})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "RAND({a})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "DBMS_RANDOM.VALUE")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "RAND({a})")
 //    @SqlExtensionExpression(dbType = SQLite, template = "ABS(RANDOM() / 10000000000000000000.0)")
@@ -1782,7 +1782,7 @@ public final class SqlFunctions {
      * 四舍五入
      */
     @SqlExtensionExpression(dbType = H2, template = "ROUND({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ROUND({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ROUND({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "ROUND({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ROUND({a},0)")
     @SqlExtensionExpression(dbType = SQLite, template = "ROUND({a})")
@@ -1795,7 +1795,7 @@ public final class SqlFunctions {
      * 指定到多少位的小数位为止，四舍五入
      */
     @SqlExtensionExpression(dbType = H2, template = "ROUND({a},{b})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ROUND({a},{b})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = Oracle, template = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ROUND({a},{b})")
     @SqlExtensionExpression(dbType = SQLite, template = "ROUND({a},{b})")
@@ -1808,7 +1808,7 @@ public final class SqlFunctions {
      * 如果数字大于0，sign函数返回1；如果数字小于0，返回-1；如果数字等于0，返回0
      */
     @SqlExtensionExpression(dbType = H2, template = "SIGN({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SIGN({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SIGN({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "SIGN({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "SIGN({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "SIGN({a})")
@@ -1821,7 +1821,7 @@ public final class SqlFunctions {
      * 计算平方根
      */
     @SqlExtensionExpression(dbType = H2, template = "SQRT({a})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SQRT({a})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SQRT({a})")
     @SqlExtensionExpression(dbType = Oracle, template = "SQRT({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "SQRT({a})")
     @SqlExtensionExpression(dbType = SQLite, template = "SQRT({a})")
@@ -1834,7 +1834,7 @@ public final class SqlFunctions {
      * 截取到指定小数位的小数
      */
     @SqlExtensionExpression(dbType = H2, template = "TRUNCATE({a},{b})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "TRUNCATE({a},{b})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "TRUNCATE({a},{b})")
     @SqlExtensionExpression(dbType = Oracle, template = "TRUNC({a},{b})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ROUND({a},{b},1)")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST(SUBSTR({a} * 1.0,1,INSTR({a} * 1.0,'.') + {b}) AS REAL)")
@@ -1847,7 +1847,7 @@ public final class SqlFunctions {
      * 截取到整数
      */
     @SqlExtensionExpression(dbType = H2, template = "TRUNCATE({a},0)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "TRUNCATE({a},0)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "TRUNCATE({a},0)")
     @SqlExtensionExpression(dbType = Oracle, template = "TRUNC({a})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ROUND({a},0,1)")
     @SqlExtensionExpression(dbType = SQLite, template = "TRUNC({a})")
@@ -1864,7 +1864,7 @@ public final class SqlFunctions {
      * 判断字符串是否为空
      */
     @SqlExtensionExpression(dbType = H2, template = "(CHAR_LENGTH({str}) = 0)")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "(CHAR_LENGTH({str}) = 0)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "(CHAR_LENGTH({str}) = 0)")
     @SqlExtensionExpression(dbType = Oracle, template = "(NVL(LENGTH({str}),0) = 0)")
     @SqlExtensionExpression(dbType = SQLServer, template = "(DATALENGTH({str}) = 0)")
     @SqlExtensionExpression(dbType = SQLite, template = "(LENGTH({str}) = 0)")
@@ -1877,7 +1877,7 @@ public final class SqlFunctions {
      * 字符串转ASCII码
      */
     @SqlExtensionExpression(dbType = H2, template = "ASCII({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "ASCII({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "ASCII({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "ASCII({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ASCII({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "UNICODE({str})")
@@ -1890,7 +1890,7 @@ public final class SqlFunctions {
      * ASCII码转字符串
      */
     @SqlExtensionExpression(dbType = H2, template = "CHAR({t})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CHAR({t})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CHAR({t})")
     @SqlExtensionExpression(dbType = Oracle, template = "CHR({t})")
     @SqlExtensionExpression(dbType = SQLServer, template = "CHAR({t})")
     @SqlExtensionExpression(dbType = SQLite, template = "CHAR({t})")
@@ -1903,7 +1903,7 @@ public final class SqlFunctions {
      * 获取字符串长度
      */
     @SqlExtensionExpression(dbType = H2, template = "CHAR_LENGTH({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CHAR_LENGTH({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CHAR_LENGTH({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "NVL(LENGTH({str}),0)")
     @SqlExtensionExpression(dbType = SQLServer, template = "LEN({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "LENGTH({str})")
@@ -1918,7 +1918,7 @@ public final class SqlFunctions {
      * <b><span style='color:red;'>特殊说明</span>：各数据库的字节长度计算方式不同，请根据实际情况选择。</b>
      */
     @SqlExtensionExpression(dbType = H2, template = "LENGTH({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LENGTH({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LENGTH({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "LENGTHB({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "DATALENGTH({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "LENGTH(CAST({str} AS BLOB))")
@@ -1931,7 +1931,7 @@ public final class SqlFunctions {
      * 字符串拼接
      */
     @SqlExtensionExpression(dbType = H2, template = "CONCAT({s1},{s2})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CONCAT({s1},{s2})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CONCAT({s1},{s2})")
     @SqlExtensionExpression(dbType = Oracle, template = "CONCAT({s1},{s2})")
     @SqlExtensionExpression(dbType = SQLServer, template = "CONCAT({s1},{s2})")
     @SqlExtensionExpression(dbType = SQLite, template = "({s1}||{s2})")
@@ -1944,7 +1944,7 @@ public final class SqlFunctions {
      * 字符串拼接
      */
     @SqlExtensionExpression(dbType = H2, template = "CONCAT({s1},{s2},{ss})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CONCAT({s1},{s2},{ss})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CONCAT({s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = Oracle, template = "({s1}||{s2}||{ss})", separator = "||")
     @SqlExtensionExpression(dbType = SQLServer, template = "CONCAT({s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = SQLite, template = "({s1}||{s2}||{ss})", separator = "||")
@@ -1959,7 +1959,7 @@ public final class SqlFunctions {
      * @param separator 间隔
      */
     @SqlExtensionExpression(dbType = H2, template = "CONCAT_WS({separator},{s1},{s2})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CONCAT_WS({separator},{s1},{s2})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CONCAT_WS({separator},{s1},{s2})")
     @SqlExtensionExpression(dbType = Oracle, template = "({s1}||{separator}||{s2})")
     @SqlExtensionExpression(dbType = SQLServer, template = "CONCAT_WS({separator},{s1},{s2})")
     @SqlExtensionExpression(dbType = SQLite, template = "({s1}||{separator}||{s2})")
@@ -1974,7 +1974,7 @@ public final class SqlFunctions {
      * @param separator 间隔
      */
     @SqlExtensionExpression(dbType = H2, template = "CONCAT_WS({separator},{s1},{s2},{ss})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CONCAT_WS({separator},{s1},{s2},{ss})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CONCAT_WS({separator},{s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = OracleJoinExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "CONCAT_WS({separator},{s1},{s2},{ss})")
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = SqliteJoinExtension.class)
@@ -1985,7 +1985,7 @@ public final class SqlFunctions {
 
 //    todo
 //    @SqlExtensionExpression(dbType = H2, template = "FORMAT({t},{format})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "FORMAT({t},{format})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "FORMAT({t},{format})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "TO_CHAR({t},{format})")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "FORMAT({t},{format})")
 //    @SqlExtensionExpression(dbType = SQLite, template = "PRINTF({format},{t})")
@@ -2000,7 +2000,7 @@ public final class SqlFunctions {
      * 获取子串在字符串中的位置
      */
     @SqlExtensionExpression(dbType = H2, template = "INSTR({str},{subStr})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "INSTR({str},{subStr})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "INSTR({str},{subStr})")
     @SqlExtensionExpression(dbType = Oracle, template = "INSTR({str},{subStr})")
     @SqlExtensionExpression(dbType = SQLServer, template = "CHARINDEX({subStr},{str})")
     @SqlExtensionExpression(dbType = SQLite, template = "INSTR({str},{subStr})")
@@ -2013,7 +2013,7 @@ public final class SqlFunctions {
      * 获取子串在字符串中的位置，并且设置起始偏移
      */
     @SqlExtensionExpression(dbType = H2, template = "LOCATE({subStr},{str},{offset})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LOCATE({subStr},{str},{offset})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LOCATE({subStr},{str},{offset})")
     @SqlExtensionExpression(dbType = Oracle, template = "INSTR({str},{subStr},{offset})")
     @SqlExtensionExpression(dbType = SQLServer, template = "CHARINDEX({subStr},{str},{offset})")
     @SqlExtensionExpression(dbType = SQLite, template = "(INSTR(SUBSTR({str},{offset} + 1),{subStr}) + {offset})")
@@ -2026,7 +2026,7 @@ public final class SqlFunctions {
      * 将字符串转换为小写
      */
     @SqlExtensionExpression(dbType = H2, template = "LOWER({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LOWER({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LOWER({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "LOWER({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LOWER({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "LOWER({str})")
@@ -2039,7 +2039,7 @@ public final class SqlFunctions {
      * 将字符串转换为大写
      */
     @SqlExtensionExpression(dbType = H2, template = "UPPER({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "UPPER({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "UPPER({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "UPPER({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "UPPER({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "UPPER({str})")
@@ -2054,7 +2054,7 @@ public final class SqlFunctions {
      * @param length 指定的数量
      */
     @SqlExtensionExpression(dbType = H2, template = "LEFT({str},{length})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LEFT({str},{length})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LEFT({str},{length})")
     @SqlExtensionExpression(dbType = Oracle, template = "SUBSTR({str},1,{length})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LEFT({str},{length})")
     @SqlExtensionExpression(dbType = SQLite, template = "SUBSTR({str},1,{length})")
@@ -2069,7 +2069,7 @@ public final class SqlFunctions {
      * @param length 指定的数量
      */
     @SqlExtensionExpression(dbType = H2, template = "RIGHT({str},{length})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "RIGHT({str},{length})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "RIGHT({str},{length})")
     @SqlExtensionExpression(dbType = Oracle, template = "SUBSTR({str},LENGTH({str}) - ({length} - 1),{length})")
     @SqlExtensionExpression(dbType = SQLServer, template = "RIGHT({str},{length})")
     @SqlExtensionExpression(dbType = SQLite, template = "SUBSTR({str},LENGTH({str}) - ({length} - 1),{length})")
@@ -2085,7 +2085,7 @@ public final class SqlFunctions {
      * @param lpadStr 指定字符
      */
     @SqlExtensionExpression(dbType = H2, template = "LPAD({str},{length},{lpadStr})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LPAD({str},{length},{lpadStr})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LPAD({str},{length},{lpadStr})")
     @SqlExtensionExpression(dbType = Oracle, template = "LPAD({str},{length},{lpadStr})")
     @SqlExtensionExpression(dbType = SQLServer, template = "IIF({length} - LEN({str}) <= 0,{str},CONCAT(REPLICATE({lpadStr},{length} - LEN({str})),{str}))")
     @SqlExtensionExpression(dbType = SQLite, template = "IIF({length} - LENGTH({str}) <= 0,{str},(REPLICATE({lpadStr},{length} - LENGTH({str}))||{str}))")
@@ -2101,7 +2101,7 @@ public final class SqlFunctions {
      * @param rpadStr 指定字符
      */
     @SqlExtensionExpression(dbType = H2, template = "RPAD({str},{length},{rpadStr})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "RPAD({str},{length},{rpadStr})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "RPAD({str},{length},{rpadStr})")
     @SqlExtensionExpression(dbType = Oracle, template = "RPAD({str},{length},{rpadStr})")
     @SqlExtensionExpression(dbType = SQLServer, template = "IIF({length} - LEN({str}) <= 0,{str},CONCAT({str},REPLICATE({rpadStr},{length} - LEN({str}))))")
     @SqlExtensionExpression(dbType = SQLite, template = "IIF({length} - LENGTH({str}) <= 0,{str},({str}||REPLICATE({rpadStr},{length} - LENGTH({str}))))")
@@ -2114,7 +2114,7 @@ public final class SqlFunctions {
      * 去除字符串两端空格
      */
     @SqlExtensionExpression(dbType = H2, template = "TRIM({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "TRIM({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "TRIM({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "TRIM({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "TRIM({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "TRIM({str})")
@@ -2127,7 +2127,7 @@ public final class SqlFunctions {
      * 去除字符串左侧的空格
      */
     @SqlExtensionExpression(dbType = H2, template = "LTRIM({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "LTRIM({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "LTRIM({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "LTRIM({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "LTRIM({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "LTRIM({str})")
@@ -2140,7 +2140,7 @@ public final class SqlFunctions {
      * 去除字符串右侧的空格
      */
     @SqlExtensionExpression(dbType = H2, template = "RTRIM({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "RTRIM({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "RTRIM({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "RTRIM({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "RTRIM({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "RTRIM({str})")
@@ -2153,7 +2153,7 @@ public final class SqlFunctions {
      * 替换字符串
      */
     @SqlExtensionExpression(dbType = H2, template = "REPLACE({cur},{subs},{news})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "REPLACE({cur},{subs},{news})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = Oracle, template = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = SQLServer, template = "REPLACE({cur},{subs},{news})")
     @SqlExtensionExpression(dbType = SQLite, template = "REPLACE({cur},{subs},{news})")
@@ -2168,7 +2168,7 @@ public final class SqlFunctions {
      * <b><span style='color:red;'>特殊说明</span>：oracle的REVERSE函数似乎只支持ASCII。</b>
      */
     @SqlExtensionExpression(dbType = H2, template = "REVERSE({str})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "REVERSE({str})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "REVERSE({str})")
     @SqlExtensionExpression(dbType = Oracle, template = "REVERSE({str})")
     @SqlExtensionExpression(dbType = SQLServer, template = "REVERSE({str})")
     @SqlExtensionExpression(dbType = SQLite, template = "REVERSE({str})")
@@ -2181,7 +2181,7 @@ public final class SqlFunctions {
      * 比较两个字符串的大小
      */
     @SqlExtensionExpression(dbType = H2, template = "STRCMP({s1},{s2})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "STRCMP({s1},{s2})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "STRCMP({s1},{s2})")
     @SqlExtensionExpression(dbType = Oracle, template = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     @SqlExtensionExpression(dbType = SQLServer, template = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
     @SqlExtensionExpression(dbType = SQLite, template = "(CASE WHEN {s1} < {s2} THEN -1 WHEN {s1} = {s2} THEN 0 ELSE 1 END)")
@@ -2194,7 +2194,7 @@ public final class SqlFunctions {
      * 截取字符串
      */
     @SqlExtensionExpression(dbType = H2, template = "SUBSTR({str},{beginIndex})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SUBSTR({str},{beginIndex})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SUBSTR({str},{beginIndex})")
     @SqlExtensionExpression(dbType = Oracle, template = "SUBSTR({str},{beginIndex})")
     @SqlExtensionExpression(dbType = SQLServer, template = "SUBSTRING({str},{beginIndex},LEN({str}) - ({beginIndex} - 1))")
     @SqlExtensionExpression(dbType = SQLite, template = "SUBSTR({str},{beginIndex})")
@@ -2207,7 +2207,7 @@ public final class SqlFunctions {
      * 截取字符串
      */
     @SqlExtensionExpression(dbType = H2, template = "SUBSTR({str},{beginIndex},{endIndex})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "SUBSTR({str},{beginIndex},{endIndex})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "SUBSTR({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = Oracle, template = "SUBSTR({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = SQLServer, template = "SUBSTRING({str},{beginIndex},{endIndex})")
     @SqlExtensionExpression(dbType = SQLite, template = "SUBSTR({str},{beginIndex},{endIndex})")
@@ -2268,7 +2268,7 @@ public final class SqlFunctions {
      * @param falsePart 如果条件不成立，返回的值
      */
     @SqlExtensionExpression(dbType = H2, template = "IF({condition},{truePart},{falsePart})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "IF({condition},{truePart},{falsePart})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "IF({condition},{truePart},{falsePart})")
     @SqlExtensionExpression(dbType = Oracle, template = "(CASE WHEN {condition} THEN {truePart} ELSE {falsePart} END)")
     @SqlExtensionExpression(dbType = SQLServer, template = "IIF({condition},{truePart},{falsePart})")
     @SqlExtensionExpression(dbType = SQLite, template = "IIF({condition},{truePart},{falsePart})")
@@ -2284,7 +2284,7 @@ public final class SqlFunctions {
      * @param valueIsNull  如果值为NULL，则返回该值
      */
     @SqlExtensionExpression(dbType = H2, template = "IFNULL({valueNotNull},{valueIsNull})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "IFNULL({valueNotNull},{valueIsNull})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "IFNULL({valueNotNull},{valueIsNull})")
     @SqlExtensionExpression(dbType = Oracle, template = "NVL({valueNotNull},{valueIsNull})")
     @SqlExtensionExpression(dbType = SQLServer, template = "ISNULL({valueNotNull},{valueIsNull})")
     @SqlExtensionExpression(dbType = SQLite, template = "IFNULL({valueNotNull},{valueIsNull})")
@@ -2297,7 +2297,7 @@ public final class SqlFunctions {
      * 如果两个值相等，则返回NULL，否则返回第一个值
      */
     @SqlExtensionExpression(dbType = H2, template = "NULLIF({t1},{t2})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "NULLIF({t1},{t2})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "NULLIF({t1},{t2})")
     @SqlExtensionExpression(dbType = Oracle, template = "NULLIF({t1},{t2})")
     @SqlExtensionExpression(dbType = SQLServer, template = "NULLIF({t1},{t2})")
     @SqlExtensionExpression(dbType = SQLite, template = "NULLIF({t1},{t2})")
@@ -2310,7 +2310,7 @@ public final class SqlFunctions {
      * 类型转换
      */
     @SqlExtensionExpression(dbType = H2, template = "", extension = TypeCastExtension.class)
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "", extension = TypeCastExtension.class)
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "", extension = TypeCastExtension.class)
     @SqlExtensionExpression(dbType = Oracle, template = "", extension = TypeCastExtension.class)
     @SqlExtensionExpression(dbType = SQLServer, template = "", extension = TypeCastExtension.class)
     @SqlExtensionExpression(dbType = SQLite, template = "", extension = TypeCastExtension.class)
@@ -2323,7 +2323,7 @@ public final class SqlFunctions {
      * 类型转换
      */
     @SqlExtensionExpression(dbType = H2, template = "CAST({value} AS {targetType})")
-    @SqlExtensionExpression(dbType = {MySQL, Doris}, template = "CAST({value} AS {targetType})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = Oracle, template = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = SQLServer, template = "CAST({value} AS {targetType})")
     @SqlExtensionExpression(dbType = SQLite, template = "CAST({value} AS {targetType})")
@@ -2333,7 +2333,7 @@ public final class SqlFunctions {
     }
 
 //    @SqlExtensionExpression(dbType = H2, template = "CAST({value} AS {targetType})")
-//    @SqlExtensionExpression(dbType = {MySQL,Doris}, template = "CONVERT({targetType},{value})")
+//    @SqlExtensionExpression(dbType = {MySQL,TiDB,Doris}, template = "CONVERT({targetType},{value})")
 //    @SqlExtensionExpression(dbType = Oracle, template = "CAST({value} AS {targetType})")
 //    @SqlExtensionExpression(dbType = SQLServer, template = "CONVERT({targetType},{value})")
 //    public static <T> T onRead(Object value, Class<T> targetType)
@@ -2370,66 +2370,61 @@ public final class SqlFunctions {
     /**
      * 是否为json对象
      */
-    @SqlExtensionExpression(dbType = {MySQL,Doris},template = "(JSON_VALID({s}) = 1)")
-    @SqlExtensionExpression(dbType = SQLServer,template = "(ISJSON({s}) = 1)")
-    @SqlExtensionExpression(dbType = {PostgreSQL,Oracle} ,template = "({s} IS JSON)")
-    @SqlExtensionExpression(dbType = H2 ,template = "({s} IS JSON VALUE)")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris}, template = "(JSON_VALID({s}) = 1)")
+    @SqlExtensionExpression(dbType = SQLServer, template = "(ISJSON({s}) = 1)")
+    @SqlExtensionExpression(dbType = {PostgreSQL, Oracle}, template = "({s} IS JSON)")
+    @SqlExtensionExpression(dbType = H2, template = "({s} IS JSON VALUE)")
     public static boolean isJson(String s) {return error();}
 
     /**
      * 取指定路径的值
      */
     @SqlExtensionExpression(template = "JSON_VALUE({json},{path})")
-    public static <T> T jsonValue(String json,T path) {return error();}
+    public static <T> T jsonValue(String json, T path) {return error();}
 
     /**
      * 取指定路径的对象
      */
     @SqlExtensionExpression(template = "JSON_QUERY({json},{path})")
-    public static <T> T jsonQuery(String json,T path) {return error();}
+    public static <T> T jsonQuery(String json, T path) {return error();}
 
     /**
      * 生成一个json对象
      */
-    @SqlExtensionExpression(dbType = {MySQL,Doris,H2,Oracle,SQLServer}, template = "JSON_OBJECT({json})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris, H2, Oracle, SQLServer}, template = "JSON_OBJECT({json})")
     @SqlExtensionExpression(dbType = PostgreSQL, template = "JSON_BUILD_OBJECT({json})")
-    public static <T extends IJsonObject,V> T jsonObject(String json)
-    {
+    public static <T extends IJsonObject, V> T jsonObject(String json) {
         return error();
     }
 
     /**
      * 生成一个json对象
      */
-    @SqlExtensionExpression(dbType = {MySQL,Doris,H2,Oracle,SQLServer}, template = "JSON_OBJECT({kv})")
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris, H2, Oracle, SQLServer}, template = "JSON_OBJECT({kv})")
     @SqlExtensionExpression(dbType = PostgreSQL, template = "JSON_BUILD_OBJECT({kv})")
-    public static <T extends IJsonObject,V> T jsonObject(JsonKV kv)
-    {
+    public static <T extends IJsonObject, V> T jsonObject(JsonKV kv) {
         return error();
     }
 
     /**
      * 生成一个json对象
      */
-    @SqlExtensionExpression(dbType = {MySQL,Doris,H2,Oracle,SQLServer},template = "JSON_OBJECT({k},{v},{kvs})")
-    @SqlExtensionExpression(dbType = PostgreSQL,template = "JSON_BUILD_OBJECT({k},{v},{kvs})")
-    public static <T extends IJsonObject> T jsonObject(JsonKV kv, JsonKV... kvs)
-    {
+    @SqlExtensionExpression(dbType = {MySQL, TiDB, Doris, H2, Oracle, SQLServer}, template = "JSON_OBJECT({k},{v},{kvs})")
+    @SqlExtensionExpression(dbType = PostgreSQL, template = "JSON_BUILD_OBJECT({k},{v},{kvs})")
+    public static <T extends IJsonObject> T jsonObject(JsonKV kv, JsonKV... kvs) {
         return error();
     }
 
     @SqlExtensionExpression(template = "{k},{v}")
-    @SqlExtensionExpression(dbType = Oracle,template = "KEY {k} VALUE {v}")
-    @SqlExtensionExpression(dbType = SQLServer,template = "{k}:{v}")
-    @SqlExtensionExpression(dbType = H2,template = "{k} VALUE {v}")
-    public static JsonKV kv(String k,Object v)
-    {
+    @SqlExtensionExpression(dbType = Oracle, template = "KEY {k} VALUE {v}")
+    @SqlExtensionExpression(dbType = SQLServer, template = "{k}:{v}")
+    @SqlExtensionExpression(dbType = H2, template = "{k} VALUE {v}")
+    public static JsonKV kv(String k, Object v) {
         return error();
     }
 
     public static class JsonKV {
-        private JsonKV()
-        {
+        private JsonKV() {
         }
     }
 
