@@ -162,7 +162,7 @@ public class LUpdate7<T1, T2, T3, T4, T5, T6, T7> extends UpdateBase<LUpdate7<T1
     }
 
     public LUpdate7<T1, T2, T3, T4, T5, T6, T7> setIf(boolean condition, ExprTree<Action7<T1, T2, T3, T4, T5, T6, T7>> action) {
-        set(action.getTree());
+        if (condition) set(action.getTree());
         return this;
     }
 

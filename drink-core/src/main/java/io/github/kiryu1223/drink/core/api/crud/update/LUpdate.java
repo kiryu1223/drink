@@ -175,7 +175,7 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
     }
 
     public LUpdate<T> setIf(boolean condition, ExprTree<Action1<T>> action) {
-        set(action.getTree());
+        if (condition) set(action.getTree());
         return this;
     }
 

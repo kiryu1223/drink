@@ -104,7 +104,7 @@ public class LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends UpdateBa
     }
 
     public LUpdate10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> setIf(boolean condition, ExprTree<Action10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>> action) {
-        set(action.getTree());
+        if (condition) set(action.getTree());
         return this;
     }
 

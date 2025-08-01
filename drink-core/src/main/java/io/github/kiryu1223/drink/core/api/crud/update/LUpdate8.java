@@ -161,7 +161,7 @@ public class LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> extends UpdateBase<LUpdate
     }
 
     public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> setIf(boolean condition, ExprTree<Action8<T1, T2, T3, T4, T5, T6, T7, T8>> action) {
-        set(action.getTree());
+        if (condition) set(action.getTree());
         return this;
     }
 
