@@ -47,7 +47,8 @@ public class SqlSetsExpression implements ISqlSetsExpression {
     public String getSqlAndValue(IConfig config, List<SqlValue> values) {
         List<String> strings = new ArrayList<>(getSets().size());
         for (ISqlSetExpression expression : getSets()) {
-            strings.add(expression.getSqlAndValue(config, values));
+            String sql = expression.getSqlAndValue(config, values);
+            strings.add(sql);
         }
         return "SET " + String.join(",", strings);
     }

@@ -1,9 +1,7 @@
 package io.github.kiryu1223.project;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.kiryu1223.drink.base.Aop;
 import io.github.kiryu1223.drink.base.DbType;
-import io.github.kiryu1223.drink.base.IConfig;
 import io.github.kiryu1223.drink.base.converter.SnakeNameConverter;
 import io.github.kiryu1223.drink.base.toBean.handler.JsonTypeHandler;
 import io.github.kiryu1223.drink.base.toBean.handler.TypeHandlerManager;
@@ -12,8 +10,6 @@ import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.project.pojos.Employee;
 
 import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Objects;
 
@@ -59,7 +55,10 @@ public class Main {
         SqlClient client = boot();
         String sql = client.update(Employee.class)
                 .where(e -> Objects.equals(e.getNumber(), 1000))
-                .set(e -> e.getFirstName(), "")
+                .set(e -> e.number = e.getNumber())
+                .set(e -> e.number, 0L)
+                .set(e -> e.number = -999)
+                .set(e -> e.setNumber(1500))
                 .toSql();
         System.out.println(sql);
 

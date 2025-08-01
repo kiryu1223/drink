@@ -15,10 +15,7 @@
  */
 package io.github.kiryu1223.drink.core.api.crud.update;
 
-import io.github.kiryu1223.expressionTree.delegate.Func1;
-import io.github.kiryu1223.expressionTree.delegate.Func3;
-import io.github.kiryu1223.expressionTree.delegate.Func6;
-import io.github.kiryu1223.expressionTree.delegate.Func7;
+import io.github.kiryu1223.expressionTree.delegate.*;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
 import io.github.kiryu1223.expressionTree.expressions.annos.Expr;
 import io.github.kiryu1223.drink.base.expression.JoinType;
@@ -157,6 +154,15 @@ public class LUpdate6<T1, T2, T3, T4, T5, T6> extends UpdateBase<LUpdate6<T1, T2
 
     public <R> LUpdate6<T1, T2, T3, T4, T5, T6> setIfMatch(ExprTree<Func6<T1, T2, T3, T4, T5, T6, R>> func, R value,Func1<R,Boolean> predicate) {
         setIf(predicate.invoke(value), func, value);
+        return this;
+    }
+
+    public LUpdate6<T1, T2, T3, T4, T5, T6> setIf(boolean condition, @Expr(Expr.BodyType.Expr) Action6<T1, T2, T3, T4, T5, T6> action) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate6<T1, T2, T3, T4, T5, T6> setIf(boolean condition, ExprTree<Action6<T1, T2, T3, T4, T5, T6>> action) {
+        set(action.getTree());
         return this;
     }
 

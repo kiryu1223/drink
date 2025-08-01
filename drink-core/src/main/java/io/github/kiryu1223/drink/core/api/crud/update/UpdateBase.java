@@ -110,11 +110,18 @@ public abstract class UpdateBase<C> extends CRUD<C> {
         sqlBuilder.addJoin(joinType, table, factory.condition(Collections.singletonList(on)));
     }
 
+    protected void set(LambdaExpression<?> left) {
+        UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(getConfig(), sqlBuilder.getUpdate());
+        ISqlSetExpression set = sqlVisitor.toSet(left);
+        sqlBuilder.addSet(set);
+    }
+
     protected void set(LambdaExpression<?> left, Object value) {
         SqlExpressionFactory factory = getConfig().getSqlExpressionFactory();
         UpdateSqlVisitor sqlVisitor = new UpdateSqlVisitor(getConfig(), sqlBuilder.getUpdate());
         ISqlColumnExpression column = sqlVisitor.toColumn(left);
-        sqlBuilder.addSet(factory.set(column, factory.AnyValue(value)));
+        ISqlSetExpression set = factory.set(column, factory.AnyValue(value));
+        sqlBuilder.addSet(set);
     }
 
     protected void set(LambdaExpression<?> left, LambdaExpression<?> right) {

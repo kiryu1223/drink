@@ -24,18 +24,14 @@ import io.github.kiryu1223.drink.base.sqlExt.BaseSqlExtension;
 import io.github.kiryu1223.drink.base.sqlExt.SqlExtensionExpression;
 import io.github.kiryu1223.drink.base.sqlExt.SqlOperatorMethod;
 import io.github.kiryu1223.drink.base.transform.*;
-import io.github.kiryu1223.drink.base.util.DrinkUtil;
 import io.github.kiryu1223.drink.core.SqlClient;
 import io.github.kiryu1223.drink.core.api.crud.read.Aggregate;
-import io.github.kiryu1223.drink.core.api.crud.read.QueryBase;
 import io.github.kiryu1223.drink.core.exception.SqLinkException;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -174,10 +170,10 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
         ISqlExpression left = visit(assignExpression.getLeft());
         if (left instanceof ISqlColumnExpression) {
             ISqlColumnExpression sqlColumnExpression = (ISqlColumnExpression) left;
-            ISqlExpression right = visit(assignExpression.getRight());
-            return factory.set(sqlColumnExpression, right);
+            ISqlExpression value = visit(assignExpression.getRight());
+            return factory.set(sqlColumnExpression, value);
         }
-        throw new SqLinkException("表达式中不能出现非lambda入参为赋值对象的语句");
+        throw new SqLinkException(String.format("意外的类型:%s 表达式为:%s", assignExpression.getClass(), assignExpression));
     }
 
     /**
@@ -251,7 +247,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
             ISqlTableRefExpression tableRef = (ISqlTableRefExpression) left;
             // a.getter()
             if (isGetter(method)) {
-                FieldMetaData getter = methodToFieldMetaData(method, tableRef);
+                FieldMetaData getter = getterToFieldMetaData(method, tableRef);
                 // 如果这个getter是导航属性
                 // 那么他应该被映射成sql语句
                 if (getter.hasNavigate()) {
@@ -266,6 +262,12 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
                         return column;
                     }
                 }
+            }
+            else if (isSetter(method)) {
+                FieldMetaData setter = setterToFieldMetaData(method, tableRef);
+                ISqlColumnExpression column = factory.column(setter, tableRef);
+                ISqlExpression value = visit(args.get(0));
+                return factory.set(column, value);
             }
             // else if (isDynamicColumn(method)) {
             //     List<Expression> args = methodCall.getArgs();
@@ -727,7 +729,7 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
         return getterToQueryable(getter, tableRef);
     }
 
-    protected FieldMetaData methodToFieldMetaData(Method method, ISqlTableRefExpression tableRef) {
+    protected FieldMetaData getterToFieldMetaData(Method method, ISqlTableRefExpression tableRef) {
         Class<?> declaringClass = method.getDeclaringClass();
         if (declaringClass.isInterface()) {
             List<ISqlTableRefExpression> peek = asNameListDeque.peek();
@@ -745,6 +747,27 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
         else {
             MetaData metaData = config.getMetaData(declaringClass);
             return metaData.getFieldMetaDataByGetter(method);
+        }
+    }
+
+    protected FieldMetaData setterToFieldMetaData(Method method, ISqlTableRefExpression tableRef) {
+        Class<?> declaringClass = method.getDeclaringClass();
+        if (declaringClass.isInterface()) {
+            List<ISqlTableRefExpression> peek = asNameListDeque.peek();
+            int index = peek.indexOf(tableRef);
+            Class<?> tableClass;
+            if (index == 0) {
+                tableClass = fromDeque.peek().getType();
+            }
+            else {
+                tableClass = joinsDeque.peek().getJoins().get(index - 1).getJoinTable().getType();
+            }
+            MetaData metaData = config.getMetaData(tableClass);
+            return metaData.getFieldMetaDataByGetterName(method.getName());
+        }
+        else {
+            MetaData metaData = config.getMetaData(declaringClass);
+            return metaData.getFieldMetaDataBySetter(method);
         }
     }
 
@@ -777,5 +800,17 @@ public class UpdateSqlVisitor extends BaseSqlVisitor {
             throw new SqLinkException(String.format("意外的类型:%s 表达式为:%s", expression.getClass(), lambda));
         }
         return column;
+    }
+
+    public ISqlSetExpression toSet(LambdaExpression<?> lambda) {
+        ISqlExpression expression = visit(lambda);
+        ISqlSetExpression set;
+        if (expression instanceof ISqlSetExpression) {
+            set = (ISqlSetExpression) expression;
+        }
+        else {
+            throw new SqLinkException(String.format("意外的类型:%s 表达式为:%s", expression.getClass(), lambda));
+        }
+        return set;
     }
 }

@@ -18,6 +18,7 @@ package io.github.kiryu1223.drink.core.api.crud.update;
 import io.github.kiryu1223.drink.base.expression.JoinType;
 import io.github.kiryu1223.drink.core.exception.NotCompiledException;
 import io.github.kiryu1223.drink.core.sqlBuilder.UpdateSqlBuilder;
+import io.github.kiryu1223.expressionTree.delegate.Action1;
 import io.github.kiryu1223.expressionTree.delegate.Func1;
 import io.github.kiryu1223.expressionTree.delegate.Func2;
 import io.github.kiryu1223.expressionTree.expressions.ExprTree;
@@ -151,12 +152,30 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
     /**
      * 当value匹配条件时更新字段
      */
-    public <R> LUpdate<T> setIfMatch(@Expr(Expr.BodyType.Expr) Func1<T, R> func, R value,Func1<R,Boolean> predicate) {
+    public <R> LUpdate<T> setIfMatch(@Expr(Expr.BodyType.Expr) Func1<T, R> func, R value, Func1<R, Boolean> predicate) {
         throw new NotCompiledException();
     }
 
-    public <R> LUpdate<T> setIfMatch(ExprTree<Func1<T, R>> func, R value,Func1<R,Boolean> predicate) {
+    public <R> LUpdate<T> setIfMatch(ExprTree<Func1<T, R>> func, R value, Func1<R, Boolean> predicate) {
         setIf(predicate.invoke(value), func, value);
+        return this;
+    }
+
+    public LUpdate<T> set(boolean condition, @Expr(Expr.BodyType.Expr) Action1<T> action) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate<T> set(boolean condition, ExprTree<Action1<T>> action) {
+        set(action.getTree());
+        return this;
+    }
+
+    public LUpdate<T> setIf(boolean condition, @Expr(Expr.BodyType.Expr) Action1<T> action) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate<T> setIf(boolean condition, ExprTree<Action1<T>> action) {
+        set(action.getTree());
         return this;
     }
 
