@@ -161,11 +161,11 @@ public class LUpdate<T> extends UpdateBase<LUpdate<T>> {
         return this;
     }
 
-    public LUpdate<T> set(boolean condition, @Expr(Expr.BodyType.Expr) Action1<T> action) {
+    public LUpdate<T> set(@Expr(Expr.BodyType.Expr) Action1<T> action) {
         throw new NotCompiledException();
     }
 
-    public LUpdate<T> set(boolean condition, ExprTree<Action1<T>> action) {
+    public LUpdate<T> set(ExprTree<Action1<T>> action) {
         set(action.getTree());
         return this;
     }

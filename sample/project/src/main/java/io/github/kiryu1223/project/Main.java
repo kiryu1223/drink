@@ -11,6 +11,7 @@ import io.github.kiryu1223.project.pojos.Employee;
 
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 
 public class Main {
@@ -55,12 +56,19 @@ public class Main {
         SqlClient client = boot();
         String sql = client.update(Employee.class)
                 .where(e -> Objects.equals(e.getNumber(), 1000))
-                .set(e -> e.number = e.getNumber())
-                .set(e -> e.number, 0L)
-                .set(e -> e.number = -999)
-                .set(e -> e.setNumber(1500))
                 .toSql();
         System.out.println(sql);
+
+        List<? extends Employee> list = client.query(Employee.class)
+                .select(e -> new Employee() {
+                    long aa = e.getNumber();
+
+                    {
+                        setNumber(e.getNumber());
+                        setLastName(e.getLastName());
+                    }
+                })
+                .toList();
 
 //        IConfig config = client.getConfig();
 //        Aop aop = config.getAop();

@@ -22,7 +22,7 @@ import java.time.LocalDate;
 public class Employee implements ITable
 {
     @Column("emp_no")
-    public long number;
+    private long number;
     @Column("birth_date")
     private LocalDate birthDay;
     @Column("first_name")

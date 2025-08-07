@@ -157,6 +157,15 @@ public class LUpdate2<T1, T2> extends UpdateBase<LUpdate2<T1, T2>> {
         return this;
     }
 
+    public LUpdate2<T1, T2> set(@Expr(Expr.BodyType.Expr) Action2<T1, T2> action) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate2<T1, T2> set(ExprTree<Action2<T1, T2>> action) {
+        set(action.getTree());
+        return this;
+    }
+
     public LUpdate2<T1, T2> setIf(boolean condition, @Expr(Expr.BodyType.Expr) Action2<T1, T2> action) {
         throw new NotCompiledException();
     }

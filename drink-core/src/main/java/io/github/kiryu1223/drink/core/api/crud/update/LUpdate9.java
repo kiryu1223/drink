@@ -157,6 +157,15 @@ public class LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends UpdateBase<LUp
         return this;
     }
 
+    public LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> set(@Expr(Expr.BodyType.Expr) Action9<T1, T2, T3, T4, T5, T6, T7, T8, T9> action) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> set(ExprTree<Action9<T1, T2, T3, T4, T5, T6, T7, T8, T9>> action) {
+        set(action.getTree());
+        return this;
+    }
+
     public LUpdate9<T1, T2, T3, T4, T5, T6, T7, T8, T9> setIf(boolean condition, @Expr(Expr.BodyType.Expr) Action9<T1, T2, T3, T4, T5, T6, T7, T8, T9> action) {
         throw new NotCompiledException();
     }

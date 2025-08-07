@@ -156,6 +156,15 @@ public class LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> extends UpdateBase<LUpdate
         return this;
     }
 
+    public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> set(@Expr(Expr.BodyType.Expr) Action8<T1, T2, T3, T4, T5, T6, T7, T8> action) {
+        throw new NotCompiledException();
+    }
+
+    public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> set(ExprTree<Action8<T1, T2, T3, T4, T5, T6, T7, T8>> action) {
+        set(action.getTree());
+        return this;
+    }
+
     public LUpdate8<T1, T2, T3, T4, T5, T6, T7, T8> setIf(boolean condition, @Expr(Expr.BodyType.Expr) Action8<T1, T2, T3, T4, T5, T6, T7, T8> action) {
         throw new NotCompiledException();
     }
